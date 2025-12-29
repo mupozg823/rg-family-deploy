@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { MessageSquare, Eye, Trash2 } from 'lucide-react'
+import { MessageSquare, Eye } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import styles from '../shared.module.css'

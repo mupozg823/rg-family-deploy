@@ -4,19 +4,51 @@ import { useState, useEffect, useCallback, use } from 'react'
 import { motion } from 'framer-motion'
 import { Play, Download, User, Crown, Calendar, Gift, MessageCircle } from 'lucide-react'
 import Image from 'next/image'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
+import { USE_MOCK_DATA } from '@/lib/config'
+import { mockProfiles, mockVipRewards, getVipRewardByProfileId } from '@/lib/mock'
 import type { VipPageData } from '@/types/common'
 import styles from './page.module.css'
 
 export default function VipPage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = use(params)
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [data, setData] = useState<VipPageData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
 
   const fetchVipData = useCallback(async () => {
     setIsLoading(true)
+
+    // Mock 데이터 모드
+    if (USE_MOCK_DATA) {
+      const mockProfile = mockProfiles.find(p => p.id === userId) || mockProfiles[0]
+      const mockReward = getVipRewardByProfileId(userId) || mockVipRewards[0]
+
+      setData({
+        profile: {
+          id: mockProfile.id,
+          nickname: mockProfile.nickname,
+          avatarUrl: mockProfile.avatar_url || null,
+          totalDonation: mockProfile.total_donation,
+        },
+        reward: {
+          seasonId: mockReward.seasonId,
+          seasonName: '시즌 4',
+          rank: mockReward.rank,
+          personalMessage: mockReward.personalMessage,
+          dedicationVideoUrl: mockReward.dedicationVideoUrl,
+        },
+        images: mockReward.giftImages.map(img => ({
+          id: img.id,
+          imageUrl: img.url,
+          title: img.title,
+        })),
+        donationHistory: [],
+      })
+      setIsLoading(false)
+      return
+    }
 
     try {
       // 프로필 정보

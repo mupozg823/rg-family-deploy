@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Film, Plus, X, Save, Play, ExternalLink } from 'lucide-react'
+import { Film, Plus, X, Save, ExternalLink } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import styles from '../shared.module.css'

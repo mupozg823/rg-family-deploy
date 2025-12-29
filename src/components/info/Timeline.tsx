@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Calendar, ChevronDown, Filter, Tag } from 'lucide-react'
+import { Calendar, Filter, Tag } from 'lucide-react'
 import Image from 'next/image'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockTimelineEvents, mockSeasons } from '@/lib/mock/data'

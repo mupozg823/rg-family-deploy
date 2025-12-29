@@ -1,27 +1,20 @@
 'use client'
 
-import { ChevronDown, Calendar } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import type { Season } from '@/types/database'
 import styles from './SeasonSelector.module.css'
 
 interface SeasonSelectorProps {
   seasons: Season[]
-  currentSeason: Season | null
   selectedSeasonId: number | null
   onSelect: (seasonId: number | null) => void
 }
 
 export default function SeasonSelector({
   seasons,
-  currentSeason,
   selectedSeasonId,
   onSelect,
 }: SeasonSelectorProps) {
-  const getSelectedLabel = () => {
-    if (selectedSeasonId === null) return '전체 랭킹'
-    const season = seasons.find((s) => s.id === selectedSeasonId)
-    return season?.name || '시즌 선택'
-  }
 
   return (
     <div className={styles.container}>

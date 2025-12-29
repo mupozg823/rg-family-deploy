@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { X, Clock, MapPin, Radio, Users, Megaphone, Calendar } from 'lucide-react'
+import { X, Clock, Radio, Users, Megaphone, Calendar } from 'lucide-react'
 import type { ScheduleEvent } from '@/types/common'
 import styles from './Calendar.module.css'
 

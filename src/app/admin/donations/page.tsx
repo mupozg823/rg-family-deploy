@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, Plus, X, Save, Trash2, Upload, List } from 'lucide-react'
+import { Heart, Plus, X, Save, Upload, List } from 'lucide-react'
 import { DataTable, Column, CsvUploader } from '@/components/admin'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import styles from '../shared.module.css'
@@ -256,7 +256,7 @@ export default function DonationsPage() {
             })
           }
         }
-      } catch (err) {
+      } catch {
         errors.push(`행 ${rowNum}: 데이터베이스 오류`)
       }
     }

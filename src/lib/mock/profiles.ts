@@ -1,0 +1,98 @@
+/**
+ * Mock Profiles Data
+ * 후원자/사용자 데이터
+ */
+
+import type { Profile } from '@/types/database'
+import { getPlaceholderAvatar } from './utils'
+
+export const mockProfiles: Profile[] = [
+  {
+    id: 'user-1',
+    nickname: 'gul***',
+    email: null,
+    avatar_url: getPlaceholderAvatar('gul'),
+    role: 'vip',
+    unit: 'excel',
+    total_donation: 38002,
+    created_at: '2024-01-15T10:00:00Z',
+    updated_at: '2024-12-29T05:28:04Z',
+  },
+  {
+    id: 'user-2',
+    nickname: '별빛수호자',
+    email: null,
+    avatar_url: getPlaceholderAvatar('starguard'),
+    role: 'vip',
+    unit: 'crew',
+    total_donation: 25000,
+    created_at: '2024-02-20T14:00:00Z',
+    updated_at: '2024-12-19T12:00:00Z',
+  },
+  {
+    id: 'user-3',
+    nickname: '달콤한팬심',
+    email: null,
+    avatar_url: getPlaceholderAvatar('sweetfan'),
+    role: 'member',
+    unit: 'excel',
+    total_donation: 12000,
+    created_at: '2024-03-10T09:00:00Z',
+    updated_at: '2024-12-18T18:00:00Z',
+  },
+  {
+    id: 'user-4',
+    nickname: '행복한오늘',
+    email: null,
+    avatar_url: getPlaceholderAvatar('happy'),
+    role: 'member',
+    unit: 'crew',
+    total_donation: 8000,
+    created_at: '2024-04-05T11:00:00Z',
+    updated_at: '2024-12-17T10:00:00Z',
+  },
+  {
+    id: 'user-5',
+    nickname: '영원한서포터',
+    email: null,
+    avatar_url: getPlaceholderAvatar('forever'),
+    role: 'vip',
+    unit: null,
+    total_donation: 30000,
+    created_at: '2024-05-01T08:00:00Z',
+    updated_at: '2024-12-16T20:00:00Z',
+  },
+  {
+    id: 'user-6',
+    nickname: '핑크하트',
+    email: null,
+    avatar_url: getPlaceholderAvatar('pinkheart'),
+    role: 'vip',
+    unit: 'excel',
+    total_donation: 45000,
+    created_at: '2024-06-01T08:00:00Z',
+    updated_at: '2024-12-25T20:00:00Z',
+  },
+  {
+    id: 'user-7',
+    nickname: '나노사랑',
+    email: null,
+    avatar_url: getPlaceholderAvatar('nanolove'),
+    role: 'vip',
+    unit: 'excel',
+    total_donation: 22000,
+    created_at: '2024-07-01T08:00:00Z',
+    updated_at: '2024-12-20T15:00:00Z',
+  },
+  {
+    id: 'user-8',
+    nickname: '크루지킴이',
+    email: null,
+    avatar_url: getPlaceholderAvatar('crewguard'),
+    role: 'member',
+    unit: 'crew',
+    total_donation: 15000,
+    created_at: '2024-08-01T08:00:00Z',
+    updated_at: '2024-12-22T10:00:00Z',
+  },
+]

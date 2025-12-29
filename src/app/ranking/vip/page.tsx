@@ -5,106 +5,43 @@ import { motion } from 'framer-motion'
 import { Crown, Lock, Star, Heart, Play, Users, Trophy, ArrowRight, PenTool, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useAuth } from '@/lib/hooks/useAuth'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useAuthContext } from '@/lib/context'
 import { useRanking } from '@/lib/hooks/useRanking'
+import { mockVipContent, type VipContent } from '@/lib/mock'
+import { USE_MOCK_DATA } from '@/lib/config'
 import styles from './page.module.css'
 
-interface VipContent {
-  memberVideos: {
-    id: number
-    memberName: string
-    memberUnit: 'excel' | 'crew'
-    thumbnailUrl: string
-    videoUrl: string
-    message: string
-  }[]
-  thankYouMessage: string
-  exclusiveImages: {
-    id: number
-    url: string
-    title: string
-  }[]
-  signatures: {
-    id: number
-    memberName: string
-    signatureUrl: string
-  }[]
-}
-
-const mockVipContent: VipContent = {
-  memberVideos: [
-    {
-      id: 1,
-      memberName: '박지윤',
-      memberUnit: 'excel',
-      thumbnailUrl: '/assets/members/member1.jpg',
-      videoUrl: 'https://example.com/video1',
-      message: 'VIP 여러분께 감사드립니다!'
-    },
-    {
-      id: 2,
-      memberName: '김서연',
-      memberUnit: 'excel',
-      thumbnailUrl: '/assets/members/member2.jpg',
-      videoUrl: 'https://example.com/video2',
-      message: '항상 응원해주셔서 감사합니다!'
-    },
-    {
-      id: 3,
-      memberName: '이수빈',
-      memberUnit: 'crew',
-      thumbnailUrl: '/assets/members/member3.jpg',
-      videoUrl: 'https://example.com/video3',
-      message: '언제나 함께해요!'
-    }
-  ],
-  thankYouMessage: 'RG 패밀리의 VIP가 되어주셔서 진심으로 감사드립니다. 여러분의 사랑과 응원이 저희에게 큰 힘이 됩니다. 앞으로도 멋진 모습 보여드릴게요!',
-  exclusiveImages: [
-    { id: 1, url: '/assets/vip/exclusive1.jpg', title: 'VIP 전용 포토' },
-    { id: 2, url: '/assets/vip/exclusive2.jpg', title: '비하인드 컷' },
-    { id: 3, url: '/assets/vip/exclusive3.jpg', title: '특별 화보' }
-  ],
-  signatures: [
-    { id: 1, memberName: 'Luna', signatureUrl: '/assets/signatures/luna.png' },
-    { id: 2, memberName: 'Nano', signatureUrl: '/assets/signatures/nano.png' },
-    { id: 3, memberName: 'Bibi', signatureUrl: '/assets/signatures/bibi.png' },
-    { id: 4, memberName: 'Joco', signatureUrl: '/assets/signatures/joco.png' },
-    { id: 5, memberName: 'Leo', signatureUrl: '/assets/signatures/leo.png' },
-    { id: 6, memberName: 'Mote', signatureUrl: '/assets/signatures/mote.png' }
-  ]
-}
-
 export default function VipLoungePage() {
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth()
-  const supabase = useSupabase()
+  const { user, isAuthenticated, isLoading: authLoading } = useAuthContext()
   const { rankings } = useRanking()
   const [vipContent, setVipContent] = useState<VipContent | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [activeVideo, setActiveVideo] = useState<number | null>(null)
 
-  // 현재 유저의 랭킹 확인
+  // Mock 모드에서는 항상 VIP로 표시 (개발용)
   const userRank = useMemo(() => {
+    if (USE_MOCK_DATA) return 5 // Mock: 5위로 설정
     if (!user) return null
     const userRanking = rankings.find(r => r.donorId === user.id)
     return userRanking ? rankings.indexOf(userRanking) + 1 : null
   }, [user, rankings])
 
   const isVip = useMemo(() => {
+    if (USE_MOCK_DATA) return true // Mock: 항상 VIP
     return userRank !== null && userRank <= 50
   }, [userRank])
 
   const fetchVipContent = useCallback(async () => {
     setIsLoading(true)
 
-    // Mock data for now - can be replaced with Supabase query
-    setVipContent(mockVipContent)
+    if (USE_MOCK_DATA) {
+      setVipContent(mockVipContent)
+      setIsLoading(false)
+      return
+    }
 
     // TODO: Replace with real Supabase query
-    // const { data, error } = await supabase
-    //   .from('vip_content')
-    //   .select('*')
-
+    setVipContent(mockVipContent)
     setIsLoading(false)
   }, [])
 

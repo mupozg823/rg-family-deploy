@@ -101,7 +101,7 @@ export function useMockSignatures(unit?: 'excel' | 'crew') {
 }
 
 // Schedules
-export function useMockSchedules(month?: number, year?: number) {
+export function useMockSchedules(_month?: number, _year?: number) {
   // For now, return all schedules. Can filter by month/year if needed.
   return useMockDataLoader<Schedule[]>(mockSchedules);
 }

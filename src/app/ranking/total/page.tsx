@@ -8,7 +8,6 @@ export default function TotalRankingPage() {
   const {
     rankings,
     seasons,
-    currentSeason,
     selectedSeasonId,
     unitFilter,
     maxAmount,
@@ -32,7 +31,6 @@ export default function TotalRankingPage() {
         <div className={styles.filters}>
           <SeasonSelector
             seasons={seasons}
-            currentSeason={currentSeason}
             selectedSeasonId={selectedSeasonId}
             onSelect={setSelectedSeasonId}
           />
