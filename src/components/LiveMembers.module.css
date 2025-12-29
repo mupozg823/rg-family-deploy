@@ -75,8 +75,26 @@
   border-radius: 50%;
   padding: 3px;
   /* Gradient Border */
-  background: linear-gradient(180deg, var(--primary), var(--surface));
+  background: linear-gradient(180deg, var(--color-primary), var(--surface));
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Live Member Pulse Animation */
+.avatarWrapper.live {
+  animation: livePulse 2s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0 rgba(253, 104, 186, 0.7),
+      0 0 0 0 rgba(253, 104, 186, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px rgba(253, 104, 186, 0),
+      0 0 20px 4px rgba(253, 104, 186, 0.3);
+  }
 }
 
 .member:hover .avatarWrapper {

@@ -622,6 +622,39 @@ export type Database = {
           }
         ]
       }
+      banners: {
+        Row: {
+          id: number
+          title: string | null
+          image_url: string
+          link_url: string | null
+          display_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          title?: string | null
+          image_url: string
+          link_url?: string | null
+          display_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          title?: string | null
+          image_url?: string
+          link_url?: string | null
+          display_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -661,6 +694,7 @@ export type Post = Tables<'posts'>
 export type Comment = Tables<'comments'>
 export type MediaContent = Tables<'media_content'>
 export type LiveStatus = Tables<'live_status'>
+export type Banner = Tables<'banners'>
 
 // Unit type
 export type Unit = 'excel' | 'crew'

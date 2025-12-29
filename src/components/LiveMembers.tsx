@@ -122,7 +122,7 @@ export default function LiveMembers() {
       <div className={`${styles.grid} ${members.length <= 5 ? styles.singleRow : ''}`}>
         {members.map((member) => (
           <div key={member.id} className={styles.member}>
-            <div className={styles.avatarWrapper}>
+            <div className={`${styles.avatarWrapper} ${member.isLive ? styles.live : ''}`}>
               <div className={`${styles.avatar} ${member.unit === 'crew' ? styles.crew : ''}`}>
                 {member.avatarUrl ? (
                   <Image

@@ -9,15 +9,21 @@
 /* Filter Section */
 .filterSection {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 1rem;
   margin-bottom: 3rem;
-  flex-wrap: wrap;
   padding: 1.25rem 1.5rem;
   background: var(--card-bg);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
   backdrop-filter: blur(10px);
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .filterLabel {
@@ -27,9 +33,11 @@
   color: var(--text-muted);
   font-size: 0.875rem;
   font-weight: 600;
+  min-width: 80px;
 }
 
-.seasonFilter {
+.seasonFilter,
+.categoryFilter {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
@@ -57,6 +65,31 @@
   border-color: var(--color-primary);
   color: white;
   box-shadow: 0 0 15px rgba(253, 104, 186, 0.3);
+}
+
+/* Category Buttons */
+.categoryButton {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 25px;
+  background: var(--glass-bg);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.categoryButton:hover {
+  border-color: var(--category-color, var(--color-primary));
+  color: var(--category-color, var(--text-primary));
+}
+
+.categoryButton.active {
+  background: var(--category-color, var(--color-primary));
+  border-color: var(--category-color, var(--color-primary));
+  color: white;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--category-color, var(--color-primary)) 40%, transparent);
 }
 
 /* Timeline */

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Calendar, ChevronDown, Filter } from 'lucide-react'
+import { Calendar, ChevronDown, Filter, Tag } from 'lucide-react'
 import Image from 'next/image'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockTimelineEvents, mockSeasons } from '@/lib/mock/data'
@@ -12,13 +12,31 @@ import styles from './Timeline.module.css'
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
+const CATEGORY_LABELS: Record<string, string> = {
+  founding: '창단',
+  milestone: '마일스톤',
+  event: '이벤트',
+  member: '멤버',
+}
+
 export default function Timeline() {
   const supabase = useSupabase()
   const [events, setEvents] = useState<TimelineItem[]>([])
+  const [allEvents, setAllEvents] = useState<TimelineItem[]>([])
   const [seasons, setSeasons] = useState<Season[]>([])
   const [selectedSeasonId, setSelectedSeasonId] = useState<number | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // 카테고리 목록 추출
+  const categories = useMemo(() => {
+    const cats = new Set<string>()
+    allEvents.forEach(e => {
+      if (e.category) cats.add(e.category)
+    })
+    return Array.from(cats)
+  }, [allEvents])
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -34,19 +52,8 @@ export default function Timeline() {
       // Mock 시즌 데이터 설정
       setSeasons(mockSeasons)
 
-      // Mock 타임라인 이벤트 필터링 및 포맷팅
-      let filteredEvents = [...mockTimelineEvents]
-
-      if (selectedSeasonId) {
-        filteredEvents = filteredEvents.filter(e => e.season_id === selectedSeasonId)
-      }
-
-      // 날짜 내림차순 정렬
-      filteredEvents.sort((a, b) =>
-        new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
-      )
-
-      const formattedEvents: TimelineItem[] = filteredEvents.map((event) => {
+      // Mock 타임라인 이벤트 포맷팅
+      const allFormattedEvents: TimelineItem[] = mockTimelineEvents.map((event) => {
         const season = mockSeasons.find(s => s.id === event.season_id)
         return {
           id: event.id,
@@ -60,7 +67,26 @@ export default function Timeline() {
         }
       })
 
-      setEvents(formattedEvents)
+      // 전체 이벤트 저장 (카테고리 목록용)
+      setAllEvents(allFormattedEvents)
+
+      // 필터링
+      let filteredEvents = [...allFormattedEvents]
+
+      if (selectedSeasonId) {
+        filteredEvents = filteredEvents.filter(e => e.seasonId === selectedSeasonId)
+      }
+
+      if (selectedCategory) {
+        filteredEvents = filteredEvents.filter(e => e.category === selectedCategory)
+      }
+
+      // 날짜 내림차순 정렬
+      filteredEvents.sort((a, b) =>
+        new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
+      )
+
+      setEvents(filteredEvents)
       setIsLoading(false)
       return
     }
@@ -85,6 +111,10 @@ export default function Timeline() {
       query = query.eq('season_id', selectedSeasonId)
     }
 
+    if (selectedCategory) {
+      query = query.eq('category', selectedCategory)
+    }
+
     const { data: eventsData, error } = await query
 
     if (error) {
@@ -93,7 +123,7 @@ export default function Timeline() {
       return
     }
 
-    const formattedEvents: TimelineItem[] = (eventsData || []).map((event) => ({
+    const allFormattedEvents: TimelineItem[] = (eventsData || []).map((event) => ({
       id: event.id,
       eventDate: event.event_date,
       title: event.title,
@@ -105,9 +135,10 @@ export default function Timeline() {
       seasonName: (event.seasons as any)?.name,
     }))
 
-    setEvents(formattedEvents)
+    setAllEvents(allFormattedEvents)
+    setEvents(allFormattedEvents)
     setIsLoading(false)
-  }, [supabase, selectedSeasonId])
+  }, [supabase, selectedSeasonId, selectedCategory])
 
   useEffect(() => {
     fetchData()
@@ -134,29 +165,62 @@ export default function Timeline() {
 
   return (
     <div className={styles.container} ref={containerRef}>
-      {/* Filter */}
+      {/* Filters */}
       <div className={styles.filterSection}>
-        <div className={styles.filterLabel}>
-          <Filter size={18} />
-          <span>시즌 필터</span>
-        </div>
-        <div className={styles.seasonFilter}>
-          <button
-            onClick={() => setSelectedSeasonId(null)}
-            className={`${styles.seasonButton} ${selectedSeasonId === null ? styles.active : ''}`}
-          >
-            전체
-          </button>
-          {seasons.map((season) => (
+        {/* Season Filter */}
+        <div className={styles.filterRow}>
+          <div className={styles.filterLabel}>
+            <Filter size={18} />
+            <span>시즌</span>
+          </div>
+          <div className={styles.seasonFilter}>
             <button
-              key={season.id}
-              onClick={() => setSelectedSeasonId(season.id)}
-              className={`${styles.seasonButton} ${selectedSeasonId === season.id ? styles.active : ''}`}
+              onClick={() => setSelectedSeasonId(null)}
+              className={`${styles.seasonButton} ${selectedSeasonId === null ? styles.active : ''}`}
             >
-              {season.name}
+              전체
             </button>
-          ))}
+            {seasons.map((season) => (
+              <button
+                key={season.id}
+                onClick={() => setSelectedSeasonId(season.id)}
+                className={`${styles.seasonButton} ${selectedSeasonId === season.id ? styles.active : ''}`}
+              >
+                {season.name}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Category Filter */}
+        {categories.length > 0 && (
+          <div className={styles.filterRow}>
+            <div className={styles.filterLabel}>
+              <Tag size={18} />
+              <span>카테고리</span>
+            </div>
+            <div className={styles.categoryFilter}>
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`${styles.categoryButton} ${selectedCategory === null ? styles.active : ''}`}
+              >
+                전체
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`${styles.categoryButton} ${selectedCategory === cat ? styles.active : ''}`}
+                  style={{
+                    '--category-color': getCategoryColor(cat),
+                  } as React.CSSProperties}
+                >
+                  {CATEGORY_LABELS[cat] || cat}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Timeline */}

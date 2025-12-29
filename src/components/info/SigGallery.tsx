@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Filter, X } from 'lucide-react'
+import { Search, Filter, X, User } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockSignatures } from '@/lib/mock/data'
 import SigCard from './SigCard'
@@ -15,19 +15,30 @@ const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 export default function SigGallery() {
   const supabase = useSupabase()
   const [signatures, setSignatures] = useState<SignatureItem[]>([])
+  const [allSignatures, setAllSignatures] = useState<SignatureItem[]>([])
   const [selectedSig, setSelectedSig] = useState<SignatureItem | null>(null)
   const [unitFilter, setUnitFilter] = useState<UnitFilter>('all')
+  const [memberFilter, setMemberFilter] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOrder, setSortOrder] = useState<SortOrder>('latest')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [allTags, setAllTags] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
+  // 멤버 목록 추출 (현재 유닛에 맞게 필터링)
+  const memberList = useMemo(() => {
+    const members = new Set<string>()
+    allSignatures
+      .filter(sig => unitFilter === 'all' || sig.unit === unitFilter)
+      .forEach(sig => members.add(sig.memberName))
+    return Array.from(members).sort()
+  }, [allSignatures, unitFilter])
+
   const fetchSignatures = useCallback(async () => {
     setIsLoading(true)
 
     if (USE_MOCK) {
-      let filtered = mockSignatures.map(sig => ({
+      const allData = mockSignatures.map(sig => ({
         id: sig.id,
         title: sig.title,
         description: sig.description,
@@ -41,9 +52,19 @@ export default function SigGallery() {
         isFeatured: sig.is_featured,
       }))
 
+      // 전체 데이터 저장 (멤버 목록용)
+      setAllSignatures(allData)
+
+      let filtered = [...allData]
+
       // Unit 필터
       if (unitFilter !== 'all') {
         filtered = filtered.filter(sig => sig.unit === unitFilter)
+      }
+
+      // 멤버 필터
+      if (memberFilter !== 'all') {
+        filtered = filtered.filter(sig => sig.memberName === memberFilter)
       }
 
       // 검색 필터
@@ -93,6 +114,10 @@ export default function SigGallery() {
       query = query.eq('unit', unitFilter)
     }
 
+    if (memberFilter !== 'all') {
+      query = query.eq('member_name', memberFilter)
+    }
+
     if (searchQuery) {
       query = query.or(`title.ilike.%${searchQuery}%,member_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
     }
@@ -113,7 +138,7 @@ export default function SigGallery() {
       return
     }
 
-    let filtered = (data || []).map(sig => ({
+    const allData = (data || []).map(sig => ({
       id: sig.id,
       title: sig.title,
       description: sig.description,
@@ -126,6 +151,11 @@ export default function SigGallery() {
       viewCount: sig.view_count,
       isFeatured: sig.is_featured,
     }))
+
+    // 전체 데이터 저장 (멤버 목록용)
+    setAllSignatures(allData)
+
+    let filtered = [...allData]
 
     // 태그 필터
     if (selectedTags.length > 0) {
@@ -144,7 +174,7 @@ export default function SigGallery() {
     setAllTags(Array.from(tags))
 
     setIsLoading(false)
-  }, [supabase, unitFilter, searchQuery, sortOrder, selectedTags])
+  }, [supabase, unitFilter, memberFilter, searchQuery, sortOrder, selectedTags])
 
   useEffect(() => {
     fetchSignatures()
@@ -167,13 +197,33 @@ export default function SigGallery() {
           {(['all', 'excel', 'crew'] as const).map((unit) => (
             <button
               key={unit}
-              onClick={() => setUnitFilter(unit)}
+              onClick={() => {
+                setUnitFilter(unit)
+                setMemberFilter('all') // 유닛 변경시 멤버 필터 초기화
+              }}
               className={`${styles.unitTab} ${unitFilter === unit ? styles.active : ''}`}
               data-unit={unit}
             >
               {unit === 'all' ? '전체' : unit === 'excel' ? '엑셀부' : '크루부'}
             </button>
           ))}
+        </div>
+
+        {/* Member Filter Dropdown */}
+        <div className={styles.memberFilter}>
+          <User size={16} className={styles.memberIcon} />
+          <select
+            value={memberFilter}
+            onChange={(e) => setMemberFilter(e.target.value)}
+            className={styles.memberSelect}
+          >
+            <option value="all">전체 멤버</option>
+            {memberList.map((member) => (
+              <option key={member} value={member}>
+                {member}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Search */}

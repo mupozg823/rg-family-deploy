@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, Plus, X, Save, Trash2 } from 'lucide-react'
-import { DataTable, Column } from '@/components/admin'
+import { Heart, Plus, X, Save, Trash2, Upload, List } from 'lucide-react'
+import { DataTable, Column, CsvUploader } from '@/components/admin'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import styles from '../shared.module.css'
 
@@ -28,6 +28,8 @@ interface Profile {
   nickname: string
 }
 
+type ViewMode = 'list' | 'upload'
+
 export default function DonationsPage() {
   const supabase = useSupabase()
   const [donations, setDonations] = useState<Donation[]>([])
@@ -37,6 +39,7 @@ export default function DonationsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDonation, setEditingDonation] = useState<Partial<Donation> | null>(null)
   const [isNew, setIsNew] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
 
   const fetchData = useCallback(async () => {
     setIsLoading(true)
