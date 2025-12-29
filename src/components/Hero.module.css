@@ -98,7 +98,7 @@
 .info h2 {
   font-size: 4.5rem;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary);
   text-transform: uppercase;
   margin: 0;
   line-height: 1;
@@ -108,7 +108,7 @@
 }
 
 .info p {
-  color: #fce7f3; /* Very light pink */
+  color: var(--text-secondary);
   font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: 6px;
@@ -130,7 +130,7 @@
   padding: 10px;
 }
 .navBtn:hover {
-  color: #fff;
+  color: var(--text-primary);
   transform: translateY(-50%) scale(1.2);
 }
 .prev {
@@ -165,8 +165,8 @@
   border-radius: 10px;
   position: relative;
   overflow: hidden;
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   display: flex;

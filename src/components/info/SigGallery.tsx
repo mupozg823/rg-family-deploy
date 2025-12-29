@@ -4,10 +4,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, X } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import { mockSignatures } from '@/lib/mock/data'
 import SigCard from './SigCard'
 import SigVideoModal from './SigVideoModal'
 import type { SignatureItem, UnitFilter, SortOrder } from '@/types/common'
 import styles from './SigGallery.module.css'
+
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 export default function SigGallery() {
   const supabase = useSupabase()
@@ -22,6 +25,65 @@ export default function SigGallery() {
 
   const fetchSignatures = useCallback(async () => {
     setIsLoading(true)
+
+    if (USE_MOCK) {
+      let filtered = mockSignatures.map(sig => ({
+        id: sig.id,
+        title: sig.title,
+        description: sig.description,
+        unit: sig.unit,
+        memberName: sig.member_name,
+        mediaType: sig.media_type as 'video' | 'gif' | 'image',
+        mediaUrl: sig.media_url,
+        thumbnailUrl: sig.thumbnail_url,
+        tags: sig.tags || [],
+        viewCount: sig.view_count,
+        isFeatured: sig.is_featured,
+      }))
+
+      // Unit 필터
+      if (unitFilter !== 'all') {
+        filtered = filtered.filter(sig => sig.unit === unitFilter)
+      }
+
+      // 검색 필터
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase()
+        filtered = filtered.filter(sig =>
+          sig.title.toLowerCase().includes(query) ||
+          sig.memberName.toLowerCase().includes(query) ||
+          (sig.description?.toLowerCase().includes(query) ?? false)
+        )
+      }
+
+      // 정렬
+      if (sortOrder === 'latest') {
+        filtered.sort((a, b) => b.id - a.id)
+      } else if (sortOrder === 'popular') {
+        filtered.sort((a, b) => b.viewCount - a.viewCount)
+      } else {
+        filtered.sort((a, b) => a.id - b.id)
+      }
+
+      // 태그 필터
+      if (selectedTags.length > 0) {
+        filtered = filtered.filter(sig =>
+          selectedTags.some(tag => sig.tags.includes(tag))
+        )
+      }
+
+      setSignatures(filtered)
+
+      // 모든 태그 수집
+      const tags = new Set<string>()
+      mockSignatures.forEach(sig => {
+        sig.tags?.forEach((tag: string) => tags.add(tag))
+      })
+      setAllTags(Array.from(tags))
+
+      setIsLoading(false)
+      return
+    }
 
     let query = supabase
       .from('signatures')

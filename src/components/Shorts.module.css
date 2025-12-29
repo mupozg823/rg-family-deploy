@@ -91,7 +91,7 @@
   bottom: 10px;
   left: 10px;
   font-size: 0.75rem;
-  color: #fff;
+  color: var(--text-primary);
   font-weight: bold;
 }
 

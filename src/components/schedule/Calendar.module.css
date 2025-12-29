@@ -28,10 +28,10 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--glass-border);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  color: #888;
+  background: var(--glass-bg);
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -46,7 +46,7 @@
 .monthTitle {
   font-size: 2rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   min-width: 220px;
   text-align: center;
   letter-spacing: 1px;
@@ -59,10 +59,10 @@
 
 .filterButton {
   padding: 0.625rem 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--glass-border);
   border-radius: 25px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #888;
+  background: var(--glass-bg);
+  color: var(--text-muted);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -70,8 +70,8 @@
 }
 
 .filterButton:hover {
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #fff;
+  border-color: var(--card-border);
+  color: var(--text-primary);
 }
 
 .filterButton.active {
@@ -98,7 +98,7 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
   margin-bottom: 2px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg);
   border-radius: 12px 12px 0 0;
   overflow: hidden;
 }
@@ -108,8 +108,8 @@
   text-align: center;
   font-size: 0.875rem;
   font-weight: 700;
-  color: #666;
-  background: rgba(15, 15, 15, 0.8);
+  color: var(--text-muted);
+  background: var(--surface);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -127,7 +127,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg);
   border-radius: 0 0 12px 12px;
   overflow: hidden;
 }
@@ -137,7 +137,7 @@
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
-  background: rgba(15, 15, 15, 0.6);
+  background: var(--card-bg);
   border: none;
   cursor: pointer;
   position: relative;
@@ -178,7 +178,7 @@
 .dayNumber {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #ccc;
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
   display: inline-flex;
   align-items: center;
@@ -209,7 +209,7 @@
   border-radius: 4px;
   font-size: 0.7rem;
   font-weight: 500;
-  color: #fff;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -239,7 +239,7 @@
 
 .moreEvents {
   font-size: 0.65rem;
-  color: #888;
+  color: var(--text-muted);
   margin-top: 0.25rem;
 }
 
@@ -274,7 +274,7 @@
 
 .previewTitle {
   font-size: 0.8rem;
-  color: #fff;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -282,7 +282,7 @@
 
 .previewMore {
   font-size: 0.7rem;
-  color: #888;
+  color: var(--text-muted);
   text-align: center;
   display: block;
   margin-top: 0.25rem;
@@ -296,7 +296,7 @@
   justify-content: center;
   padding: 5rem;
   gap: 1.5rem;
-  color: #888;
+  color: var(--text-muted);
 }
 
 .spinner {
@@ -322,8 +322,8 @@
 
 /* Event List */
 .eventList {
-  background: rgba(15, 15, 15, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 16px;
   padding: 1.5rem;
   backdrop-filter: blur(10px);
@@ -335,13 +335,13 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .eventListTitle {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .closeButton {
@@ -352,8 +352,8 @@
   height: 36px;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: #888;
+  background: var(--glass-bg);
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -371,7 +371,7 @@
   justify-content: center;
   padding: 3rem;
   gap: 1rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 /* Event Items */
@@ -442,13 +442,13 @@
 .eventTitle {
   font-size: 1rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
 }
 
 .eventDescription {
   font-size: 0.875rem;
-  color: #888;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
   line-height: 1.5;
 }
@@ -465,7 +465,7 @@
   align-items: center;
   gap: 0.375rem;
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 /* Responsive */

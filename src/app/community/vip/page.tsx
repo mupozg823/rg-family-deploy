@@ -5,8 +5,11 @@ import Link from 'next/link'
 import { MessageSquare, Eye, ChevronRight, Crown, Lock } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { mockPosts, mockProfiles } from '@/lib/mock/data'
 import TabFilter from '@/components/community/TabFilter'
 import styles from '../free/page.module.css'
+
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 interface Post {
   id: number
@@ -28,8 +31,8 @@ export default function VipBoardPage() {
     { label: 'VIP 라운지 (VIP)', value: 'vip', path: '/community/vip' },
   ]
 
-  // VIP 권한 체크 (후원 금액 기준 또는 역할)
-  const isVip = profile && (profile.total_donation >= 100000 || ['admin', 'superadmin'].includes(profile.role))
+  // VIP 권한 체크 (후원 금액 기준 또는 역할) - Mock 모드에서는 항상 true
+  const isVip = USE_MOCK ? true : (profile && (profile.total_donation >= 100000 || ['admin', 'superadmin'].includes(profile.role)))
 
   const fetchPosts = useCallback(async () => {
     if (!isVip) {
@@ -38,6 +41,28 @@ export default function VipBoardPage() {
     }
 
     setIsLoading(true)
+
+    if (USE_MOCK) {
+      const vipPosts = mockPosts
+        .filter((p) => p.board_type === 'vip')
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 20)
+      setPosts(
+        vipPosts.map((p) => {
+          const author = mockProfiles.find((pr) => pr.id === p.author_id)
+          return {
+            id: p.id,
+            title: p.title,
+            authorName: p.is_anonymous ? '익명' : (author?.nickname || '익명'),
+            viewCount: p.view_count || 0,
+            commentCount: p.comment_count || 0,
+            createdAt: p.created_at,
+          }
+        })
+      )
+      setIsLoading(false)
+      return
+    }
 
     const { data, error } = await supabase
       .from('posts')

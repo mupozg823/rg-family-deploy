@@ -14,6 +14,26 @@ interface RankingListProps {
   startRank?: number
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.03,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.2 },
+  },
+}
+
 export default function RankingList({ rankings, maxAmount, startRank = 1 }: RankingListProps) {
   const formatAmount = (amount: number) => {
     if (amount >= 100000000) {
@@ -26,16 +46,19 @@ export default function RankingList({ rankings, maxAmount, startRank = 1 }: Rank
   }
 
   return (
-    <div className={styles.list}>
+    <motion.div
+      className={styles.list}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {rankings.map((item, index) => {
         const actualRank = startRank + index
 
         const ItemContent = (
           <motion.div
             className={styles.item}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.05 }}
+            variants={itemVariants}
             whileHover={{ x: 4 }}
           >
             {/* Rank */}
@@ -97,6 +120,6 @@ export default function RankingList({ rankings, maxAmount, startRank = 1 }: Rank
 
         return <div key={item.donorId || index}>{ItemContent}</div>
       })}
-    </div>
+    </motion.div>
   )
 }

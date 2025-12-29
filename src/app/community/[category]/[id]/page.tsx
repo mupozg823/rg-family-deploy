@@ -7,7 +7,10 @@ import Image from 'next/image'
 import { ArrowLeft, Eye, Calendar, User, MessageSquare, Send } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { mockPosts, mockProfiles } from '@/lib/mock/data'
 import styles from './page.module.css'
+
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 interface PostDetail {
   id: number
@@ -29,6 +32,15 @@ interface Comment {
   createdAt: string
 }
 
+// Mock 댓글 데이터
+const mockComments = [
+  { id: 1, post_id: 1, author_id: 'user-2', content: '완전 공감이에요! 저도 그 부분에서 빵터졌어요 ㅋㅋ', created_at: '2024-12-20T23:00:00Z' },
+  { id: 2, post_id: 1, author_id: 'user-3', content: '다음 방송도 기대됩니다~', created_at: '2024-12-20T23:30:00Z' },
+  { id: 3, post_id: 2, author_id: 'user-1', content: '와 너무 예쁘게 그리셨네요!', created_at: '2024-12-19T16:00:00Z' },
+  { id: 4, post_id: 2, author_id: 'user-4', content: '다음 작품도 기대할게요!', created_at: '2024-12-19T17:00:00Z' },
+  { id: 5, post_id: 3, author_id: 'user-2', content: 'VIP 굿즈 퀄리티 진짜 대박이죠', created_at: '2024-12-18T11:00:00Z' },
+]
+
 export default function PostDetailPage({
   params,
 }: {
@@ -46,6 +58,41 @@ export default function PostDetailPage({
 
   const fetchPost = useCallback(async () => {
     setIsLoading(true)
+
+    if (USE_MOCK) {
+      const foundPost = mockPosts.find((p) => p.id === parseInt(id))
+      if (foundPost) {
+        const author = mockProfiles.find((pr) => pr.id === foundPost.author_id)
+        setPost({
+          id: foundPost.id,
+          title: foundPost.title,
+          content: foundPost.content || '',
+          authorId: foundPost.author_id,
+          authorName: foundPost.is_anonymous ? '익명' : (author?.nickname || '익명'),
+          authorAvatar: author?.avatar_url || null,
+          viewCount: (foundPost.view_count || 0) + 1,
+          createdAt: foundPost.created_at,
+        })
+
+        // Mock 댓글 필터링
+        const postComments = mockComments
+          .filter((c) => c.post_id === parseInt(id))
+          .map((c) => {
+            const commentAuthor = mockProfiles.find((pr) => pr.id === c.author_id)
+            return {
+              id: c.id,
+              content: c.content,
+              authorId: c.author_id,
+              authorName: commentAuthor?.nickname || '익명',
+              authorAvatar: commentAuthor?.avatar_url || null,
+              createdAt: c.created_at,
+            }
+          })
+        setComments(postComments)
+      }
+      setIsLoading(false)
+      return
+    }
 
     // 게시글 조회
     const { data: postData, error: postError } = await supabase

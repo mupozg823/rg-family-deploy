@@ -18,16 +18,16 @@
 .header h1 {
   font-size: 3rem;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .header p {
-  color: #888;
+  color: var(--text-muted);
 }
 
 .board {
-  border-top: 1px solid #333;
+  border-top: 1px solid var(--card-border);
 }
 
 .boardHeader {
@@ -35,8 +35,8 @@
   grid-template-columns: 2fr 1fr 1fr;
   padding: 1rem;
   font-weight: 700;
-  color: #888;
-  border-bottom: 1px solid #222;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--surface);
   text-align: center;
 }
 
@@ -48,8 +48,8 @@
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   padding: 1.2rem 1rem;
-  border-bottom: 1px solid #1a1a1a;
-  color: #ccc;
+  border-bottom: 1px solid var(--card-border);
+  color: var(--text-secondary);
   align-items: center;
   text-align: center;
   transition: background 0.2s;
@@ -57,8 +57,8 @@
 }
 
 .post:hover {
-  background: rgba(255, 255, 255, 0.03);
-  color: #fff;
+  background: var(--surface-hover);
+  color: var(--text-primary);
 }
 
 .postTitle {
@@ -69,7 +69,7 @@
 .postAuthor,
 .postDate {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .actions {
@@ -80,7 +80,7 @@
 
 .writeBtn {
   background: var(--primary);
-  color: #fff;
+  color: var(--text-on-primary, #fff);
   border: none;
   padding: 0.8rem 2rem;
   border-radius: 8px;
@@ -97,7 +97,7 @@
   align-items: center;
   gap: 0.25rem;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .commentBadge {
@@ -113,7 +113,7 @@
 }
 
 .arrow {
-  color: #444;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 

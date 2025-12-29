@@ -100,7 +100,7 @@
   left: 50%;
   transform: translateX(-50%);
   background: #be123c;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 0.65rem;
   font-weight: 900;
   padding: 3px 10px;
@@ -117,7 +117,7 @@
 .dot {
   width: 5px;
   height: 5px;
-  background: #fff;
+  background: var(--text-primary);
   border-radius: 50%;
   animation: pulse 1.5s infinite;
 }

@@ -18,12 +18,12 @@
 .header h1 {
   font-size: 3rem;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .header p {
-  color: #888;
+  color: var(--text-muted);
 }
 
 .list {
@@ -36,8 +36,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #121214;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
   padding: 1.5rem 2rem;
   border-radius: 12px;
   cursor: pointer;
@@ -45,8 +45,8 @@
 }
 
 .item:hover {
-  background: #18181b;
-  border-color: #3f3f46;
+  background: var(--surface-hover);
+  border-color: var(--card-border);
   transform: translateX(5px);
 }
 
@@ -89,19 +89,19 @@
 }
 
 .title {
-  color: #fff;
+  color: var(--text-primary);
   font-size: 1.1rem;
   font-weight: 500;
 }
 
 .date {
-  color: #666;
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin-left: auto; /* Push date to right if desired, but here we keep it inline */
 }
 
 .arrow {
-  color: #444;
+  color: var(--text-muted);
   font-weight: 300;
 }
 

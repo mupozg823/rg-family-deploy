@@ -4,8 +4,11 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { MessageSquare, Eye, ChevronRight } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import { mockPosts, mockProfiles } from '@/lib/mock/data'
 import TabFilter from '@/components/community/TabFilter'
 import styles from './page.module.css'
+
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 interface Post {
   id: number
@@ -28,6 +31,28 @@ export default function FreeBoardPage() {
 
   const fetchPosts = useCallback(async () => {
     setIsLoading(true)
+
+    if (USE_MOCK) {
+      const freePosts = mockPosts
+        .filter((p) => p.board_type === 'free')
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 20)
+      setPosts(
+        freePosts.map((p) => {
+          const author = mockProfiles.find((pr) => pr.id === p.author_id)
+          return {
+            id: p.id,
+            title: p.title,
+            authorName: p.is_anonymous ? '익명' : (author?.nickname || '익명'),
+            viewCount: p.view_count || 0,
+            commentCount: p.comment_count || 0,
+            createdAt: p.created_at,
+          }
+        })
+      )
+      setIsLoading(false)
+      return
+    }
 
     const { data, error } = await supabase
       .from('posts')

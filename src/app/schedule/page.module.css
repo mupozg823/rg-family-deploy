@@ -1,7 +1,7 @@
 .main {
   min-height: 100vh;
   padding-top: var(--header-height);
-  background: linear-gradient(180deg, #0a0a0a 0%, #0d0515 50%, #0a0a0a 100%);
+  background: var(--background);
   position: relative;
   overflow: hidden;
 }
@@ -48,14 +48,14 @@
 .title {
   font-size: 3rem;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   letter-spacing: 2px;
 }
 
 .subtitle {
   font-size: 1rem;
-  color: #888;
+  color: var(--text-muted);
 }
 
 /* Legend */
@@ -72,7 +72,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #888;
+  color: var(--text-muted);
 }
 
 .legendDot {

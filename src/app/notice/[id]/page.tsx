@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Pin, Calendar } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import { mockNotices } from '@/lib/mock/data'
 import styles from './page.module.css'
+
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 interface NoticeDetail {
   id: number
@@ -24,6 +27,21 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
 
   const fetchNotice = useCallback(async () => {
     setIsLoading(true)
+
+    if (USE_MOCK) {
+      const found = mockNotices.find((n) => n.id === parseInt(id))
+      if (found) {
+        setNotice({
+          id: found.id,
+          title: found.title,
+          content: found.content || '',
+          isPinned: found.is_pinned,
+          createdAt: found.created_at,
+        })
+      }
+      setIsLoading(false)
+      return
+    }
 
     const { data, error } = await supabase
       .from('notices')

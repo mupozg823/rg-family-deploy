@@ -2,8 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSupabase } from "@/lib/hooks/useSupabase";
+import { mockOrganization } from "@/lib/mock/data";
 import { Radio, Youtube, Instagram, ExternalLink } from "lucide-react";
 import styles from "./page.module.css";
+
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true;
 
 interface OrgMember {
   id: number;
@@ -34,6 +37,24 @@ export default function OrganizationPage() {
 
   const fetchOrganization = useCallback(async () => {
     setIsLoading(true);
+
+    if (USE_MOCK) {
+      // Mock 데이터 사용
+      const mockData = mockOrganization.map((m) => ({
+        id: m.id,
+        name: m.name,
+        role: m.role,
+        position_order: m.position_order,
+        parent_id: m.parent_id,
+        image_url: m.image_url,
+        unit: m.unit,
+        social_links: m.social_links,
+        is_live: m.is_live,
+      })) as OrgMember[];
+      setMembers(mockData);
+      setIsLoading(false);
+      return;
+    }
 
     const { data, error } = await supabase
       .from('organization')

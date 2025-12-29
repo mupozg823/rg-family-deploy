@@ -5,9 +5,12 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { Calendar, ChevronDown, Filter } from 'lucide-react'
 import Image from 'next/image'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import { mockTimelineEvents, mockSeasons } from '@/lib/mock/data'
 import type { TimelineItem } from '@/types/common'
 import type { Season } from '@/types/database'
 import styles from './Timeline.module.css'
+
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 export default function Timeline() {
   const supabase = useSupabase()
@@ -26,6 +29,41 @@ export default function Timeline() {
 
   const fetchData = useCallback(async () => {
     setIsLoading(true)
+
+    if (USE_MOCK) {
+      // Mock 시즌 데이터 설정
+      setSeasons(mockSeasons)
+
+      // Mock 타임라인 이벤트 필터링 및 포맷팅
+      let filteredEvents = [...mockTimelineEvents]
+
+      if (selectedSeasonId) {
+        filteredEvents = filteredEvents.filter(e => e.season_id === selectedSeasonId)
+      }
+
+      // 날짜 내림차순 정렬
+      filteredEvents.sort((a, b) =>
+        new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
+      )
+
+      const formattedEvents: TimelineItem[] = filteredEvents.map((event) => {
+        const season = mockSeasons.find(s => s.id === event.season_id)
+        return {
+          id: event.id,
+          eventDate: event.event_date,
+          title: event.title,
+          description: event.description,
+          imageUrl: event.image_url,
+          category: event.category,
+          seasonId: event.season_id,
+          seasonName: season?.name,
+        }
+      })
+
+      setEvents(formattedEvents)
+      setIsLoading(false)
+      return
+    }
 
     // 시즌 목록 가져오기
     const { data: seasonsData } = await supabase

@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import LiveMembers from "@/components/LiveMembers";
 import Notice from "@/components/Notice";
 import Shorts from "@/components/Shorts";
 import VOD from "@/components/VOD";
+import SectionSkeleton from "@/components/SectionSkeleton";
 
 export default function Home() {
   return (
@@ -26,8 +28,12 @@ export default function Home() {
           <Notice />
         </div>
 
-        <Shorts />
-        <VOD />
+        <Suspense fallback={<SectionSkeleton type="shorts" />}>
+          <Shorts />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton type="vod" />}>
+          <VOD />
+        </Suspense>
       </div>
 
       {/* Footer Placeholder */}

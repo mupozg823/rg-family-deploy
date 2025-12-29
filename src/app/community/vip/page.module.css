@@ -12,12 +12,12 @@
 .header h1 {
   font-size: 3rem;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .header p {
-  color: #888;
+  color: var(--text-muted);
 }
 
 .board {
@@ -29,7 +29,7 @@
 
 .vipBanner {
   background: var(--primary);
-  color: #fff;
+  color: var(--text-primary);
   padding: 0.5rem;
   font-size: 0.8rem;
   font-weight: 800;
@@ -45,8 +45,8 @@
   grid-template-columns: 2fr 1fr 1fr;
   padding: 1rem;
   font-weight: 700;
-  color: #fff; /* Brighter header for VIP */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--glass-border);
   text-align: center;
 }
 
@@ -58,8 +58,8 @@
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   padding: 1.2rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  color: #eee;
+  border-bottom: 1px solid var(--card-border);
+  color: var(--text-secondary);
   align-items: center;
   text-align: center;
   transition: background 0.2s;
@@ -67,7 +67,7 @@
 }
 
 .post:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-hover);
 }
 
 .postTitle {
@@ -83,7 +83,7 @@
 
 .postDate {
   font-size: 0.9rem;
-  color: #888;
+  color: var(--text-muted);
 }
 
 .actions {
@@ -94,7 +94,7 @@
 
 .writeBtn {
   background: var(--primary);
-  color: #fff;
+  color: var(--text-primary);
   border: none;
   padding: 0.8rem 2rem;
   border-radius: 8px;
