@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           id: string
           nickname: string
+          email: string | null
           avatar_url: string | null
           role: 'member' | 'vip' | 'moderator' | 'admin' | 'superadmin'
           unit: 'excel' | 'crew' | null
@@ -23,6 +24,7 @@ export type Database = {
         Insert: {
           id: string
           nickname: string
+          email?: string | null
           avatar_url?: string | null
           role?: 'member' | 'vip' | 'moderator' | 'admin' | 'superadmin'
           unit?: 'excel' | 'crew' | null
@@ -33,6 +35,7 @@ export type Database = {
         Update: {
           id?: string
           nickname?: string
+          email?: string | null
           avatar_url?: string | null
           role?: 'member' | 'vip' | 'moderator' | 'admin' | 'superadmin'
           unit?: 'excel' | 'crew' | null
@@ -40,6 +43,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       seasons: {
         Row: {
@@ -66,6 +70,7 @@ export type Database = {
           is_active?: boolean
           created_at?: string
         }
+        Relationships: []
       }
       organization: {
         Row: {
@@ -74,10 +79,11 @@ export type Database = {
           profile_id: string | null
           name: string
           role: string
+          position_order: number
           parent_id: number | null
-          order_index: number
           image_url: string | null
           social_links: Json | null
+          is_live: boolean
           is_active: boolean
           created_at: string
         }
@@ -87,10 +93,11 @@ export type Database = {
           profile_id?: string | null
           name: string
           role: string
+          position_order?: number
           parent_id?: number | null
-          order_index?: number
           image_url?: string | null
           social_links?: Json | null
+          is_live?: boolean
           is_active?: boolean
           created_at?: string
         }
@@ -100,13 +107,28 @@ export type Database = {
           profile_id?: string | null
           name?: string
           role?: string
+          position_order?: number
           parent_id?: number | null
-          order_index?: number
           image_url?: string | null
           social_links?: Json | null
+          is_live?: boolean
           is_active?: boolean
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'organization_profile_id_fkey'
+            columns: ['profile_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'organization_parent_id_fkey'
+            columns: ['parent_id']
+            referencedRelation: 'organization'
+            referencedColumns: ['id']
+          }
+        ]
       }
       donations: {
         Row: {
@@ -139,6 +161,20 @@ export type Database = {
           message?: string | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'donations_donor_id_fkey'
+            columns: ['donor_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'donations_season_id_fkey'
+            columns: ['season_id']
+            referencedRelation: 'seasons'
+            referencedColumns: ['id']
+          }
+        ]
       }
       vip_rewards: {
         Row: {
@@ -168,6 +204,20 @@ export type Database = {
           dedication_video_url?: string | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'vip_rewards_profile_id_fkey'
+            columns: ['profile_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'vip_rewards_season_id_fkey'
+            columns: ['season_id']
+            referencedRelation: 'seasons'
+            referencedColumns: ['id']
+          }
+        ]
       }
       vip_images: {
         Row: {
@@ -194,6 +244,14 @@ export type Database = {
           order_index?: number
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'vip_images_reward_id_fkey'
+            columns: ['reward_id']
+            referencedRelation: 'vip_rewards'
+            referencedColumns: ['id']
+          }
+        ]
       }
       signatures: {
         Row: {
@@ -238,6 +296,7 @@ export type Database = {
           is_featured?: boolean
           created_at?: string
         }
+        Relationships: []
       }
       schedules: {
         Row: {
@@ -282,6 +341,14 @@ export type Database = {
           created_by?: string | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'schedules_created_by_fkey'
+            columns: ['created_by']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       timeline_events: {
         Row: {
@@ -317,6 +384,14 @@ export type Database = {
           order_index?: number
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'timeline_events_season_id_fkey'
+            columns: ['season_id']
+            referencedRelation: 'seasons'
+            referencedColumns: ['id']
+          }
+        ]
       }
       notices: {
         Row: {
@@ -355,6 +430,14 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'notices_author_id_fkey'
+            columns: ['author_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       posts: {
         Row: {
@@ -399,6 +482,14 @@ export type Database = {
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'posts_author_id_fkey'
+            columns: ['author_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       comments: {
         Row: {
@@ -428,6 +519,26 @@ export type Database = {
           is_deleted?: boolean
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'comments_post_id_fkey'
+            columns: ['post_id']
+            referencedRelation: 'posts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'comments_author_id_fkey'
+            columns: ['author_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'comments_parent_id_fkey'
+            columns: ['parent_id']
+            referencedRelation: 'comments'
+            referencedColumns: ['id']
+          }
+        ]
       }
       media_content: {
         Row: {
@@ -469,6 +580,7 @@ export type Database = {
           is_featured?: boolean
           created_at?: string
         }
+        Relationships: []
       }
       live_status: {
         Row: {
@@ -501,15 +613,29 @@ export type Database = {
           viewer_count?: number
           last_checked?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'live_status_member_id_fkey'
+            columns: ['member_id']
+            referencedRelation: 'organization'
+            referencedColumns: ['id']
+          }
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_donation_total: {
+        Args: { p_donor_id: string; p_amount: number }
+        Returns: void
+      }
     }
     Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
       [_ in never]: never
     }
   }

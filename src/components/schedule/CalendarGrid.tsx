@@ -28,6 +28,10 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
     )
   }
 
+  const getEventColor = (event: { color?: string | null; eventType?: string }) => {
+    return event.color || EVENT_COLORS[event.eventType || ''] || '#fd68ba'
+  }
+
   return (
     <div className={styles.grid}>
       {days.map((day, index) => {
@@ -41,8 +45,8 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
             key={index}
             onClick={() => onSelectDate(day.date)}
             className={`${styles.dayCell} ${!day.isCurrentMonth ? styles.otherMonth : ''} ${day.isToday ? styles.today : ''} ${isSelected ? styles.selected : ''}`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <span
               className={`${styles.dayNumber} ${isSunday ? styles.sunday : ''} ${isSaturday ? styles.saturday : ''}`}
@@ -50,20 +54,40 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
               {day.date.getDate()}
             </span>
 
-            {/* Event Dots */}
+            {/* Event Text List (Desktop) */}
+            {day.events.length > 0 && (
+              <div className={styles.eventsList}>
+                {day.events.slice(0, 3).map((event, eventIndex) => (
+                  <div
+                    key={eventIndex}
+                    className={styles.eventItem}
+                    style={{
+                      backgroundColor: getEventColor(event),
+                    }}
+                  >
+                    {event.title}
+                  </div>
+                ))}
+                {day.events.length > 3 && (
+                  <span className={styles.moreEvents}>+{day.events.length - 3}개</span>
+                )}
+              </div>
+            )}
+
+            {/* Event Dots (Mobile) */}
             {day.events.length > 0 && (
               <div className={styles.eventDots}>
-                {day.events.slice(0, 3).map((event, eventIndex) => (
+                {day.events.slice(0, 4).map((event, eventIndex) => (
                   <span
                     key={eventIndex}
                     className={styles.eventDot}
                     style={{
-                      backgroundColor: event.color || EVENT_COLORS[event.eventType] || '#fd68ba',
+                      backgroundColor: getEventColor(event),
                     }}
                   />
                 ))}
-                {day.events.length > 3 && (
-                  <span className={styles.moreEvents}>+{day.events.length - 3}</span>
+                {day.events.length > 4 && (
+                  <span className={styles.moreEvents}>+{day.events.length - 4}</span>
                 )}
               </div>
             )}
@@ -71,19 +95,19 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
             {/* Event Preview on Hover */}
             {day.events.length > 0 && (
               <div className={styles.eventPreview}>
-                {day.events.slice(0, 2).map((event, eventIndex) => (
+                {day.events.slice(0, 3).map((event, eventIndex) => (
                   <div
                     key={eventIndex}
                     className={styles.previewItem}
                     style={{
-                      borderLeftColor: event.color || EVENT_COLORS[event.eventType] || '#fd68ba',
+                      borderLeftColor: getEventColor(event),
                     }}
                   >
                     <span className={styles.previewTitle}>{event.title}</span>
                   </div>
                 ))}
-                {day.events.length > 2 && (
-                  <span className={styles.previewMore}>외 {day.events.length - 2}개</span>
+                {day.events.length > 3 && (
+                  <span className={styles.previewMore}>외 {day.events.length - 3}개</span>
                 )}
               </div>
             )}

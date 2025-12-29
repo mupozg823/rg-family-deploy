@@ -1,7 +1,9 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0 2rem 4rem;
+  position: relative;
+  z-index: 1;
 }
 
 /* Filter Section */
@@ -11,14 +13,20 @@
   gap: 1rem;
   margin-bottom: 3rem;
   flex-wrap: wrap;
+  padding: 1.25rem 1.5rem;
+  background: rgba(15, 15, 15, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
 }
 
 .filterLabel {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--color-text-secondary);
+  color: #666;
   font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .seasonFilter {
@@ -28,25 +36,27 @@
 }
 
 .seasonButton {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: 9999px;
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
+  padding: 0.5rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #888;
   font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .seasonButton:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
 }
 
 .seasonButton.active {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: white;
+  box-shadow: 0 0 15px rgba(253, 104, 186, 0.3);
 }
 
 /* Timeline */
@@ -62,7 +72,7 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: var(--color-border);
+  background: rgba(255, 255, 255, 0.1);
   transform: translateX(-50%);
 }
 
@@ -71,8 +81,9 @@
   top: 0;
   left: 0;
   width: 100%;
-  background: linear-gradient(180deg, var(--color-primary), var(--color-primary-light));
+  background: linear-gradient(180deg, var(--color-primary), #00d4ff);
   border-radius: 2px;
+  box-shadow: 0 0 20px rgba(253, 104, 186, 0.5);
 }
 
 /* Event */
@@ -97,35 +108,43 @@
 /* Dot */
 .dot {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   top: 0;
-  border: 3px solid var(--color-background);
-  box-shadow: 0 0 0 3px var(--color-surface);
+  border: 3px solid #0a0a0a;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 0 20px rgba(253, 104, 186, 0.3);
   z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.event:hover .dot {
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2), 0 0 30px rgba(253, 104, 186, 0.5);
+  transform: scale(1.2);
 }
 
 .event.left .dot {
-  right: -8px;
+  right: -9px;
 }
 
 .event.right .dot {
-  left: -8px;
+  left: -9px;
 }
 
 /* Card */
 .card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
+  background: rgba(15, 15, 15, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
   padding: 1.5rem;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .card:hover {
   border-color: var(--color-primary);
-  box-shadow: 0 8px 32px rgba(253, 104, 186, 0.15);
+  box-shadow: 0 12px 40px rgba(253, 104, 186, 0.15);
+  transform: translateY(-4px);
 }
 
 .date {
@@ -133,17 +152,17 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: #888;
   margin-bottom: 0.75rem;
 }
 
 .seasonBadge {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 600;
-  background: rgba(253, 104, 186, 0.2);
+  background: rgba(253, 104, 186, 0.15);
   color: var(--color-primary);
   margin-right: 0.5rem;
   margin-bottom: 0.75rem;
@@ -151,8 +170,8 @@
 
 .categoryBadge {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
@@ -162,19 +181,25 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   margin-bottom: 1rem;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .image {
   object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.05);
 }
 
 .title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: #fff;
   margin-bottom: 0.5rem;
 }
 
@@ -188,7 +213,7 @@
 
 .description {
   font-size: 0.9375rem;
-  color: var(--color-text-secondary);
+  color: #888;
   line-height: 1.6;
 }
 
@@ -207,15 +232,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem;
-  gap: 1rem;
-  color: var(--color-text-secondary);
+  padding: 5rem;
+  gap: 1.5rem;
+  color: #666;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--color-border);
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -230,7 +255,12 @@
 /* Responsive */
 @media (max-width: 768px) {
   .container {
-    padding: 1rem;
+    padding: 0 1rem 3rem;
+  }
+
+  .filterSection {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .timeline {
@@ -246,13 +276,13 @@
   .event.right {
     width: 100%;
     left: 0;
-    padding: 0 0 0 2rem;
+    padding: 0 0 0 2.5rem;
     text-align: left;
   }
 
   .event.left .dot,
   .event.right .dot {
-    left: -8px;
+    left: -9px;
     right: auto;
   }
 
@@ -262,7 +292,7 @@
   }
 
   .card {
-    padding: 1rem;
+    padding: 1.25rem;
   }
 
   .title {

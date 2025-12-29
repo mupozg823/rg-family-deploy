@@ -1,7 +1,13 @@
+.main {
+  min-height: 100vh;
+  padding-top: var(--header-height);
+  background: var(--color-background);
+}
+
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 2rem;
 }
 
 .header {
@@ -86,7 +92,103 @@
   background: var(--primary-deep);
 }
 
+.postViews {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.commentBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  background: rgba(253, 104, 186, 0.15);
+  border-radius: 9999px;
+  color: var(--color-primary);
+  font-size: 0.75rem;
+}
+
+.arrow {
+  color: #444;
+  flex-shrink: 0;
+}
+
+.post:hover .arrow {
+  color: var(--color-primary);
+}
+
+.loading,
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 1rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.locked h3 {
+  font-size: 1.25rem;
+  color: var(--color-text);
+  margin-top: 0.5rem;
+}
+
+.locked p {
+  font-size: 0.875rem;
+}
+
+.loginBtn {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.75rem 2rem;
+  background: var(--color-primary);
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.loginBtn:hover {
+  background: var(--color-primary-light);
+}
+
 @media (max-width: 768px) {
+  .header h1 {
+    font-size: 2rem;
+  }
+
   .boardHeader {
     display: none;
   }
@@ -97,7 +199,12 @@
     gap: 0.5rem;
   }
   .postAuthor,
-  .postDate {
+  .postDate,
+  .postViews {
     font-size: 0.8rem;
+  }
+
+  .arrow {
+    display: none;
   }
 }

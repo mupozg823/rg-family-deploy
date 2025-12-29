@@ -1,81 +1,105 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import SectionHeader from "@/components/SectionHeader";
-import TabFilter from "@/components/community/TabFilter";
-import { Pin } from "lucide-react";
-import styles from "./page.module.css";
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import { Pin, ChevronRight } from 'lucide-react'
+import { useSupabase } from '@/lib/hooks/useSupabase'
+import styles from './page.module.css'
+
+interface NoticeItem {
+  id: number
+  title: string
+  isPinned: boolean
+  createdAt: string
+}
 
 export default function NoticePage() {
-  const [filter, setFilter] = useState("all");
+  const supabase = useSupabase()
+  const [notices, setNotices] = useState<NoticeItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const tabs = [
-    { label: "전체 (ALL)", value: "all" },
-    { label: "공식 (OFFICIAL)", value: "official" },
-    { label: "엑셀부 (EXCEL)", value: "excel" },
-    { label: "크루부 (CREW)", value: "crew" },
-  ];
+  const fetchNotices = useCallback(async () => {
+    setIsLoading(true)
 
-  const notices = [
-    {
-      id: 1,
-      type: "official",
-      pinned: true,
-      title: "RG FAMILY 시즌2 공식 출범 안내",
-      date: "2024.12.01",
-    },
-    {
-      id: 2,
-      type: "excel",
-      pinned: false,
-      title: "엑셀부 12월 정기 합방 일정",
-      date: "2024.12.05",
-    },
-    {
-      id: 3,
-      type: "crew",
-      pinned: false,
-      title: "크루부 신규 멤버 오디션 결과",
-      date: "2024.12.10",
-    },
-    {
-      id: 4,
-      type: "official",
-      pinned: false,
-      title: "서버 점검 및 업데이트 안내",
-      date: "2024.12.12",
-    },
-  ];
+    const { data, error } = await supabase
+      .from('notices')
+      .select('id, title, is_pinned, created_at')
+      .order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: false })
 
-  const filteredNotices =
-    filter === "all" ? notices : notices.filter((n) => n.type === filter);
+    if (error) {
+      console.error('공지사항 로드 실패:', error)
+    } else {
+      setNotices(
+        (data || []).map((n) => ({
+          id: n.id,
+          title: n.title,
+          isPinned: n.is_pinned,
+          createdAt: n.created_at,
+        }))
+      )
+    }
+
+    setIsLoading(false)
+  }, [supabase])
+
+  useEffect(() => {
+    fetchNotices()
+  }, [fetchNotices])
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+  }
 
   return (
-    <div className={styles.container}>
+    <main className={styles.main}>
       <header className={styles.header}>
         <h1>NOTICE</h1>
         <p>RG FAMILY 공식 공지사항</p>
       </header>
 
-      <TabFilter tabs={tabs} activeTab={filter} onTabChange={setFilter} />
-
-      <div className={styles.list}>
-        {filteredNotices.map((notice) => (
-          <div key={notice.id} className={styles.item}>
-            <div className={styles.itemContent}>
-              <div className={styles.meta}>
-                <span className={`${styles.badge} ${styles[notice.type]}`}>
-                  {notice.type.toUpperCase()}
-                </span>
-                {notice.pinned && <Pin size={14} className={styles.pin} />}
-              </div>
-              <h3 className={styles.title}>{notice.title}</h3>
-              <span className={styles.date}>{notice.date}</span>
-            </div>
-            <div className={styles.arrow}>→</div>
+      <div className={styles.container}>
+        {isLoading ? (
+          <div className={styles.loading}>
+            <div className={styles.spinner} />
+            <span>공지사항을 불러오는 중...</span>
           </div>
-        ))}
+        ) : notices.length === 0 ? (
+          <div className={styles.empty}>
+            <p>등록된 공지사항이 없습니다</p>
+          </div>
+        ) : (
+          <div className={styles.list}>
+            {notices.map((notice) => (
+              <Link
+                key={notice.id}
+                href={`/notice/${notice.id}`}
+                className={styles.item}
+              >
+                <div className={styles.itemContent}>
+                  <div className={styles.meta}>
+                    {notice.isPinned && (
+                      <>
+                        <span className={`${styles.badge} ${styles.pinned}`}>
+                          중요
+                        </span>
+                        <Pin size={14} className={styles.pin} />
+                      </>
+                    )}
+                  </div>
+                  <h3 className={styles.title}>{notice.title}</h3>
+                  <span className={styles.date}>{formatDate(notice.createdAt)}</span>
+                </div>
+                <ChevronRight size={20} className={styles.arrow} />
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
-  );
+    </main>
+  )
 }

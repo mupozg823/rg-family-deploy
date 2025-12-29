@@ -10,7 +10,7 @@ export default function SigPage() {
   return (
     <main className={styles.main}>
       <div className={styles.hero}>
-        <h1 className={styles.title}>시그리스트</h1>
+        <h1 className={styles.title}>SIGNATURE</h1>
         <p className={styles.subtitle}>RG FAMILY 멤버별 시그니처 리액션</p>
       </div>
       <SigGallery />

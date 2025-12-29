@@ -1,7 +1,7 @@
 .container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0 2rem 4rem;
 }
 
 /* Filters */
@@ -11,6 +11,11 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
+  padding: 1.5rem;
+  background: rgba(15, 15, 15, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
 }
 
 .unitTabs {
@@ -19,32 +24,34 @@
 }
 
 .unitTab {
-  padding: 0.5rem 1.25rem;
-  border: 1px solid var(--color-border);
-  border-radius: 9999px;
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
+  padding: 0.625rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #888;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .unitTab:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
 }
 
 .unitTab.active {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: white;
+  box-shadow: 0 0 15px rgba(253, 104, 186, 0.3);
 }
 
 .unitTab[data-unit="crew"].active {
-  background: #00f0ff;
-  border-color: #00f0ff;
-  color: var(--color-background);
+  background: #00d4ff;
+  border-color: #00d4ff;
+  color: #050505;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
 }
 
 /* Search */
@@ -57,35 +64,36 @@
 
 .searchIcon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-text-secondary);
+  color: #666;
 }
 
 .searchInput {
   width: 100%;
-  padding: 0.625rem 2.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-surface);
-  color: var(--color-text);
+  padding: 0.75rem 2.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
   font-size: 0.875rem;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .searchInput:focus {
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(253, 104, 186, 0.1);
 }
 
 .searchInput::placeholder {
-  color: var(--color-text-secondary);
+  color: #666;
 }
 
 .clearSearch {
   position: absolute;
-  right: 12px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
@@ -94,8 +102,8 @@
   padding: 4px;
   border: none;
   border-radius: 50%;
-  background: var(--color-border);
-  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.1);
+  color: #888;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -107,18 +115,24 @@
 
 /* Sort */
 .sortSelect {
-  padding: 0.625rem 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-surface);
-  color: var(--color-text);
+  padding: 0.75rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
   font-size: 0.875rem;
   cursor: pointer;
   outline: none;
+  transition: all 0.2s ease;
 }
 
 .sortSelect:focus {
   border-color: var(--color-primary);
+}
+
+.sortSelect option {
+  background: #1a1a1a;
+  color: #fff;
 }
 
 /* Tags Filter */
@@ -126,12 +140,13 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  color: var(--color-text-secondary);
+  padding: 1rem 1.5rem;
+  background: rgba(15, 15, 15, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  color: #666;
+  backdrop-filter: blur(10px);
 }
 
 .tagsList {
@@ -142,11 +157,11 @@
 }
 
 .tagButton {
-  padding: 0.25rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: 9999px;
+  padding: 0.375rem 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
   background: transparent;
-  color: var(--color-text-secondary);
+  color: #888;
   font-size: 0.8125rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -164,24 +179,25 @@
 }
 
 .clearTags {
-  padding: 0.25rem 0.75rem;
-  border: none;
-  border-radius: 4px;
-  background: var(--color-background);
-  color: var(--color-text-secondary);
+  padding: 0.375rem 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: transparent;
+  color: #888;
   font-size: 0.8125rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .clearTags:hover {
-  color: var(--color-primary);
+  color: #ef4444;
+  border-color: #ef4444;
 }
 
 /* Grid */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
 }
 
@@ -191,15 +207,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem;
-  gap: 1rem;
-  color: var(--color-text-secondary);
+  padding: 5rem;
+  gap: 1.5rem;
+  color: #888;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--color-border);
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -214,19 +230,25 @@
 /* Empty */
 .empty {
   text-align: center;
-  padding: 4rem;
-  color: var(--color-text-secondary);
+  padding: 5rem;
+  color: #666;
+  font-size: 1rem;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .container {
-    padding: 1rem;
+    padding: 0 1rem 3rem;
   }
 
   .filters {
     flex-direction: column;
     align-items: stretch;
+    padding: 1rem;
+  }
+
+  .unitTabs {
+    justify-content: center;
   }
 
   .searchWrapper {
@@ -234,7 +256,7 @@
   }
 
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 1rem;
   }
 }

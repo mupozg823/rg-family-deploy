@@ -76,7 +76,7 @@ export default function EventList({ date, events, onClose }: EventListProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className={styles.eventItem}
+                className={styles.eventItemCard}
                 style={{ borderLeftColor: color }}
               >
                 <div className={styles.eventIcon} style={{ backgroundColor: color }}>

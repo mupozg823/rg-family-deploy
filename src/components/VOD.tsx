@@ -1,11 +1,96 @@
-"use client";
+'use client'
 
-import { Play } from "lucide-react";
-import styles from "./VOD.module.css";
+import { useEffect, useState, useCallback } from 'react'
+import Image from 'next/image'
+import { Play } from 'lucide-react'
+import { useSupabase } from '@/lib/hooks/useSupabase'
+import styles from './VOD.module.css'
+
+interface VodItem {
+  id: number
+  title: string
+  description: string
+  videoUrl: string
+  thumbnailUrl: string
+  unit: 'excel' | 'crew' | null
+  createdAt: string
+}
 
 export default function VOD() {
-  // Array of just numbers for now to display placeholders
-  const vods = [1, 2, 3];
+  const supabase = useSupabase()
+  const [vods, setVods] = useState<VodItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const fetchVods = useCallback(async () => {
+    setIsLoading(true)
+
+    const { data, error } = await supabase
+      .from('media_content')
+      .select('id, title, description, video_url, thumbnail_url, unit, created_at')
+      .eq('content_type', 'vod')
+      .order('created_at', { ascending: false })
+      .limit(4)
+
+    if (error) {
+      console.error('VOD 로드 실패:', error)
+    } else {
+      setVods(
+        (data || []).map((v) => ({
+          id: v.id,
+          title: v.title,
+          description: v.description || '',
+          videoUrl: v.video_url,
+          thumbnailUrl: v.thumbnail_url || '',
+          unit: v.unit,
+          createdAt: v.created_at,
+        }))
+      )
+    }
+
+    setIsLoading(false)
+  }, [supabase])
+
+  useEffect(() => {
+    fetchVods()
+  }, [fetchVods])
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+  }
+
+  const handleClick = (videoUrl: string) => {
+    window.open(videoUrl, '_blank')
+  }
+
+  if (isLoading) {
+    return (
+      <section className={styles.section}>
+        <div className={styles.header}>
+          <h3>VOD SECTION</h3>
+          <div className={styles.line} />
+        </div>
+        <div className={styles.loading}>로딩 중...</div>
+      </section>
+    )
+  }
+
+  if (vods.length === 0) {
+    return (
+      <section className={styles.section}>
+        <div className={styles.header}>
+          <h3>VOD SECTION</h3>
+          <div className={styles.line} />
+        </div>
+        <div className={styles.empty}>등록된 VOD가 없습니다</div>
+      </section>
+    )
+  }
+
+  const [featured, ...rest] = vods
 
   return (
     <section className={styles.section}>
@@ -16,34 +101,65 @@ export default function VOD() {
 
       <div className={styles.container}>
         {/* Large Featured VOD */}
-        <div className={styles.featured}>
+        <div className={styles.featured} onClick={() => handleClick(featured.videoUrl)}>
           <div className={styles.featuredThumb}>
+            {featured.thumbnailUrl ? (
+              <Image
+                src={featured.thumbnailUrl}
+                alt={featured.title}
+                fill
+                className={styles.featuredImage}
+              />
+            ) : (
+              <div className={styles.featuredPlaceholder} />
+            )}
             <Play size={48} className={styles.playIcon} />
-            <span className={styles.timeTag}>2:26</span>
           </div>
           <div className={styles.featuredInfo}>
-            <h4>MUSTGR SYEROEM</h4>
-            <p>RG FAMILY YANGIONA & SC OIC OOM</p>
-            <span className={styles.date}>2024. 01. 10</span>
+            {featured.unit && (
+              <span className={`${styles.unitBadge} ${featured.unit === 'crew' ? styles.crew : ''}`}>
+                {featured.unit === 'excel' ? '엑셀부' : '크루부'}
+              </span>
+            )}
+            <h4>{featured.title}</h4>
+            <p>{featured.description}</p>
+            <span className={styles.date}>{formatDate(featured.createdAt)}</span>
           </div>
         </div>
 
         {/* List of Smaller VODs */}
         <div className={styles.list}>
-          {vods.map((item) => (
-            <div key={item} className={styles.item}>
+          {rest.map((item) => (
+            <div
+              key={item.id}
+              className={styles.item}
+              onClick={() => handleClick(item.videoUrl)}
+            >
               <div className={styles.itemThumb}>
-                <span className={styles.timeTagSmall}>2:30</span>
+                {item.thumbnailUrl ? (
+                  <Image
+                    src={item.thumbnailUrl}
+                    alt={item.title}
+                    fill
+                    className={styles.itemImage}
+                  />
+                ) : (
+                  <div className={styles.itemPlaceholder} />
+                )}
               </div>
               <div className={styles.itemInfo}>
-                <span className={styles.category}>VOD</span>
-                <h5>VOD 영상 제목이 들어갑니다</h5>
-                <span className={styles.dateSmall}>2024. 01. 09</span>
+                {item.unit && (
+                  <span className={`${styles.category} ${item.unit === 'crew' ? styles.crew : ''}`}>
+                    {item.unit === 'excel' ? '엑셀부' : '크루부'}
+                  </span>
+                )}
+                <h5>{item.title}</h5>
+                <span className={styles.dateSmall}>{formatDate(item.createdAt)}</span>
               </div>
             </div>
           ))}
         </div>
       </div>
     </section>
-  );
+  )
 }

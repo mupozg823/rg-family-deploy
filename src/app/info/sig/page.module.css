@@ -1,37 +1,30 @@
 .main {
   min-height: 100vh;
   padding-top: var(--header-height);
+  background: linear-gradient(180deg, #0a0a0a 0%, #0d0a15 50%, #0a0a0a 100%);
 }
 
 .hero {
   text-align: center;
-  padding: 4rem 2rem;
-  background: linear-gradient(
-    180deg,
-    rgba(253, 104, 186, 0.1) 0%,
-    transparent 100%
-  );
+  padding: 3rem 2rem 2rem;
 }
 
 .title {
   font-size: 3rem;
-  font-weight: 800;
-  color: var(--color-text);
+  font-weight: 900;
+  color: #fff;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: 2px;
 }
 
 .subtitle {
-  font-size: 1.125rem;
-  color: var(--color-text-secondary);
+  font-size: 1rem;
+  color: #888;
 }
 
 @media (max-width: 768px) {
   .hero {
-    padding: 2rem 1rem;
+    padding: 2rem 1rem 1rem;
   }
 
   .title {
@@ -39,6 +32,6 @@
   }
 
   .subtitle {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 }
