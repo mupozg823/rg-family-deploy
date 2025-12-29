@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useSupabase } from './useSupabase'
+import { USE_MOCK_DATA } from '@/lib/config'
+import { mockProfiles, mockSeasons } from '@/lib/mock/data'
 import type { Season } from '@/types/database'
 import type { RankingItem, UnitFilter } from '@/types/common'
 
@@ -31,6 +33,13 @@ export function useRanking(): UseRankingReturn {
 
   // 시즌 목록 로드
   const fetchSeasons = useCallback(async () => {
+    if (USE_MOCK_DATA) {
+      setSeasons(mockSeasons)
+      const active = mockSeasons.find(s => s.is_active)
+      setCurrentSeason(active || null)
+      return
+    }
+
     const { data, error: fetchError } = await supabase
       .from('seasons')
       .select('*')
@@ -52,6 +61,33 @@ export function useRanking(): UseRankingReturn {
     setError(null)
 
     try {
+      if (USE_MOCK_DATA) {
+        // Mock 데이터에서 랭킹 생성
+        let filteredProfiles = [...mockProfiles]
+
+        // 유닛 필터
+        if (unitFilter !== 'all') {
+          filteredProfiles = filteredProfiles.filter(p => p.unit === unitFilter)
+        }
+
+        // 후원 금액 기준 정렬 및 순위 부여
+        const sorted = filteredProfiles
+          .filter(p => (p.total_donation || 0) > 0)
+          .sort((a, b) => (b.total_donation || 0) - (a.total_donation || 0))
+          .map((profile, index) => ({
+            donorId: profile.id,
+            donorName: profile.nickname,
+            avatarUrl: profile.avatar_url,
+            totalAmount: profile.total_donation || 0,
+            seasonId: selectedSeasonId ?? undefined,
+            rank: index + 1,
+          }))
+
+        setRankings(sorted)
+        setIsLoading(false)
+        return
+      }
+
       // 기본 쿼리: 후원 금액 합계
       let query = supabase
         .from('donations')

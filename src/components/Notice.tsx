@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Pin, ChevronRight } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockNotices } from '@/lib/mock/data'
+import { USE_MOCK_DATA } from '@/lib/config'
 import styles from './Notice.module.css'
 
 interface NoticeItem {
@@ -15,8 +16,6 @@ interface NoticeItem {
   createdAt: string
 }
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
-
 export default function Notice() {
   const supabase = useSupabase()
   const [notices, setNotices] = useState<NoticeItem[]>([])
@@ -25,7 +24,7 @@ export default function Notice() {
   const fetchNotices = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       // 즉시 로드
       const sorted = [...mockNotices]
         .sort((a, b) => {

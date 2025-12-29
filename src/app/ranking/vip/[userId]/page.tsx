@@ -118,6 +118,9 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
     })
   }
 
+  // Get rank for theming (1, 2, 3, or 0 for others)
+  const rankForTheme = data?.reward?.rank && data.reward.rank <= 3 ? data.reward.rank : 0
+
   if (isLoading) {
     return (
       <main className={styles.main}>
@@ -140,7 +143,7 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
   }
 
   return (
-    <main className={styles.main}>
+    <main className={styles.main} data-rank={rankForTheme || undefined}>
       {/* Hero Section */}
       <div className={styles.hero}>
         <motion.div

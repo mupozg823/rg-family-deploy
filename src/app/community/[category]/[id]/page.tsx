@@ -8,9 +8,9 @@ import { ArrowLeft, Eye, Calendar, User, MessageSquare, Send } from 'lucide-reac
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { mockPosts, mockProfiles } from '@/lib/mock/data'
+import { USE_MOCK_DATA } from '@/lib/config'
+import { formatDate } from '@/lib/utils/format'
 import styles from './page.module.css'
-
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 interface PostDetail {
   id: number
@@ -59,7 +59,7 @@ export default function PostDetailPage({
   const fetchPost = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       const foundPost = mockPosts.find((p) => p.id === parseInt(id))
       if (foundPost) {
         const author = mockProfiles.find((pr) => pr.id === foundPost.author_id)
@@ -176,15 +176,6 @@ export default function PostDetailPage({
     setIsSubmitting(false)
   }
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
 
   const getCategoryLabel = () => {
     return category === 'vip' ? 'VIP 라운지' : '자유게시판'

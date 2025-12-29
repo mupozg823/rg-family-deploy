@@ -4,10 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSupabase } from "@/lib/hooks/useSupabase";
 import { mockOrganization } from "@/lib/mock/data";
+import { USE_MOCK_DATA } from "@/lib/config";
 import { Radio, Youtube, Instagram, ExternalLink, X, ExternalLink as LinkIcon } from "lucide-react";
 import styles from "./page.module.css";
-
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true;
 
 interface OrgMember {
   id: number;
@@ -40,7 +39,7 @@ export default function OrganizationPage() {
   const fetchOrganization = useCallback(async () => {
     setIsLoading(true);
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       // Mock 데이터 사용
       const mockData = mockOrganization.map((m) => ({
         id: m.id,
@@ -172,7 +171,7 @@ export default function OrganizationPage() {
         총 인원 <span className={styles.countNumber}>{displayMembers.length}</span> 명
       </div>
 
-      {/* Content */}
+      {/* Content - Tree Structure */}
       <div className={styles.content}>
         {isLoading ? (
           <div className={styles.loading}>
@@ -180,21 +179,39 @@ export default function OrganizationPage() {
             <span>조직도를 불러오는 중...</span>
           </div>
         ) : (
-          <div className={styles.orgContent}>
-            {displayRoles.map((role) => (
-              <section key={role} className={styles.roleSection}>
+          <div className={styles.orgTree}>
+            {displayRoles.map((role, roleIndex) => (
+              <section key={role} className={styles.treeLevel} data-level={roleIndex}>
+                {/* Connector Line from previous level */}
+                {roleIndex > 0 && (
+                  <div className={styles.treeLine}>
+                    <div className={styles.verticalLine} />
+                  </div>
+                )}
+
                 <h2 className={styles.roleTitle}>
                   {role}
                   <span className={styles.roleCount}>총 인원 {displayGrouped[role].length}명</span>
                 </h2>
-                <div className={styles.membersGrid}>
-                  {displayGrouped[role].map((member) => (
-                    <MemberCard
-                      key={member.id}
-                      member={member}
-                      onClick={() => setSelectedMember(member)}
-                    />
-                  ))}
+
+                <div className={styles.treeNodes}>
+                  {/* Horizontal connector for multiple members */}
+                  {displayGrouped[role].length > 1 && (
+                    <div className={styles.horizontalConnector} />
+                  )}
+
+                  <div className={styles.membersGrid}>
+                    {displayGrouped[role].map((member) => (
+                      <div key={member.id} className={styles.treeNode}>
+                        {/* Individual vertical line down to member */}
+                        <div className={styles.nodeConnector} />
+                        <MemberCard
+                          member={member}
+                          onClick={() => setSelectedMember(member)}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </section>
             ))}

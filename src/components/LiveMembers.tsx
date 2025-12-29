@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { User } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockOrganization } from '@/lib/mock/data'
+import { USE_MOCK_DATA } from '@/lib/config'
 import styles from './LiveMembers.module.css'
 
 interface LiveMember {
@@ -15,8 +16,6 @@ interface LiveMember {
   unit: 'excel' | 'crew'
 }
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
-
 export default function LiveMembers() {
   const supabase = useSupabase()
   const [members, setMembers] = useState<LiveMember[]>([])
@@ -25,7 +24,7 @@ export default function LiveMembers() {
   const fetchLiveMembers = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       // Use mock data - 즉시 로드
       setMembers(
         mockOrganization.map((o) => ({
@@ -69,7 +68,7 @@ export default function LiveMembers() {
   useEffect(() => {
     fetchLiveMembers()
 
-    if (USE_MOCK) return
+    if (USE_MOCK_DATA) return
 
     // 실시간 구독 (live_status 변경 감지)
     const channel = supabase

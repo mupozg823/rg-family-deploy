@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { Pin, ChevronRight } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockNotices } from '@/lib/mock/data'
+import { USE_MOCK_DATA } from '@/lib/config'
+import { formatShortDate } from '@/lib/utils/format'
 import styles from './page.module.css'
-
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 interface NoticeItem {
   id: number
@@ -24,7 +24,7 @@ export default function NoticePage() {
   const fetchNotices = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       const sortedNotices = [...mockNotices]
         .sort((a, b) => {
           if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1
@@ -68,13 +68,6 @@ export default function NoticePage() {
     fetchNotices()
   }, [fetchNotices])
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-  }
 
   return (
     <main className={styles.main}>
@@ -113,7 +106,7 @@ export default function NoticePage() {
                     )}
                   </div>
                   <h3 className={styles.title}>{notice.title}</h3>
-                  <span className={styles.date}>{formatDate(notice.createdAt)}</span>
+                  <span className={styles.date}>{formatShortDate(notice.createdAt)}</span>
                 </div>
                 <ChevronRight size={20} className={styles.arrow} />
               </Link>

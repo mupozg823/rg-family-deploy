@@ -7,6 +7,20 @@ const nextConfig: NextConfig = {
   experimental: {
     // Use webpack for build instead of Turbopack
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

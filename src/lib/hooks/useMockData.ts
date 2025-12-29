@@ -16,6 +16,7 @@ import {
   getLiveMembersWithInfo,
   getRankingData,
 } from '@/lib/mock/data';
+import { USE_MOCK_DATA } from '@/lib/config';
 import type {
   Profile,
   Season,
@@ -29,9 +30,6 @@ import type {
   MediaContent,
   LiveStatus,
 } from '@/types/database';
-
-// Check if we should use mock data
-const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true; // Default to true for development
 
 // Generic hook for fetching mock data with loading state
 function useMockDataLoader<T>(data: T, delay: number = 300): { data: T | null; loading: boolean; error: null } {

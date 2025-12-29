@@ -6,9 +6,9 @@ import Link from 'next/link'
 import { ArrowLeft, Pin, Calendar } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockNotices } from '@/lib/mock/data'
+import { USE_MOCK_DATA } from '@/lib/config'
+import { formatDate } from '@/lib/utils/format'
 import styles from './page.module.css'
-
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 interface NoticeDetail {
   id: number
@@ -28,7 +28,7 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
   const fetchNotice = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       const found = mockNotices.find((n) => n.id === parseInt(id))
       if (found) {
         setNotice({
@@ -68,15 +68,6 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
     fetchNotice()
   }, [fetchNotice])
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
 
   if (isLoading) {
     return (

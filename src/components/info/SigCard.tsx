@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Play, Eye, Star } from 'lucide-react'
+import { Play, Eye, Star, Film, Image as ImageIcon, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import type { SignatureItem } from '@/types/common'
 import styles from './SigCard.module.css'
@@ -14,6 +14,19 @@ interface SigCardProps {
 
 export default function SigCard({ signature, onClick }: SigCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+
+  const getMediaIcon = () => {
+    switch (signature.mediaType) {
+      case 'video':
+        return <Film size={14} />
+      case 'gif':
+        return <Sparkles size={14} />
+      default:
+        return <ImageIcon size={14} />
+    }
+  }
+
+  const isPlayable = signature.mediaType === 'video' || signature.mediaType === 'gif'
 
   return (
     <motion.div
@@ -40,15 +53,36 @@ export default function SigCard({ signature, onClick }: SigCardProps) {
           </div>
         )}
 
-        {/* Overlay */}
+        {/* Always visible mini play button for playable content */}
+        {isPlayable && !isHovered && (
+          <div className={styles.miniPlayButton}>
+            <Play size={16} fill="white" />
+          </div>
+        )}
+
+        {/* Hover Overlay */}
         <motion.div
           className={styles.overlay}
           initial={{ opacity: 0 }}
           animate={{ opacity: isHovered ? 1 : 0 }}
         >
-          <div className={styles.playButton}>
+          <motion.div
+            className={`${styles.playButton} ${isPlayable ? styles.playButtonPulse : ''}`}
+            animate={isHovered && isPlayable ? {
+              scale: [1, 1.1, 1],
+              boxShadow: [
+                '0 0 30px rgba(253, 104, 186, 0.5)',
+                '0 0 50px rgba(253, 104, 186, 0.8)',
+                '0 0 30px rgba(253, 104, 186, 0.5)'
+              ]
+            } : {}}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
             <Play size={32} fill="white" />
-          </div>
+          </motion.div>
+          <span className={styles.playText}>
+            {signature.mediaType === 'video' ? '영상 보기' : signature.mediaType === 'gif' ? 'GIF 보기' : '이미지 보기'}
+          </span>
         </motion.div>
 
         {/* Featured Badge */}
@@ -60,8 +94,9 @@ export default function SigCard({ signature, onClick }: SigCardProps) {
         )}
 
         {/* Media Type Badge */}
-        <div className={styles.mediaTypeBadge}>
-          {signature.mediaType === 'video' ? '영상' : signature.mediaType === 'gif' ? 'GIF' : '이미지'}
+        <div className={`${styles.mediaTypeBadge} ${styles[`mediaType${signature.mediaType.charAt(0).toUpperCase() + signature.mediaType.slice(1)}`]}`}>
+          {getMediaIcon()}
+          <span>{signature.mediaType === 'video' ? '영상' : signature.mediaType === 'gif' ? 'GIF' : '이미지'}</span>
         </div>
       </div>
 

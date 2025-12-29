@@ -467,6 +467,106 @@
   color: var(--color-primary);
 }
 
+/* VIP SECRET - Signatures Section */
+.signaturesSection {
+  margin-bottom: 2.5rem;
+  background: linear-gradient(180deg, rgba(253, 104, 186, 0.05) 0%, transparent 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.signaturesSection::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.02;
+  pointer-events: none;
+}
+
+.secretHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.secretBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--primary-deep));
+  border-radius: 9999px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.3);
+}
+
+.secretHeader h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+}
+
+.secretHeader p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.signaturesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.signatureCard {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  aspect-ratio: 4/3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.signatureCard:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(253, 104, 186, 0.15);
+}
+
+.signaturePlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-muted);
+}
+
+.signaturePlaceholder svg {
+  opacity: 0.4;
+}
+
+.signatureName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .heroTitle {
@@ -475,6 +575,14 @@
 
   .videosGrid {
     grid-template-columns: 1fr;
+  }
+
+  .signaturesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .signaturesSection {
+    padding: 1.5rem;
   }
 
   .secretContent {

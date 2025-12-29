@@ -80,13 +80,89 @@
   min-height: 400px;
 }
 
-.orgContent {
+/* Tree Structure */
+.orgTree {
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  align-items: center;
+  gap: 0;
 }
 
-/* Role Section */
+/* Tree Level */
+.treeLevel {
+  position: relative;
+  text-align: center;
+  padding-bottom: 2rem;
+}
+
+.treeLevel[data-level="0"] {
+  padding-top: 1rem;
+}
+
+/* Tree Connecting Lines */
+.treeLine {
+  display: flex;
+  justify-content: center;
+  height: 40px;
+  margin-bottom: 0.5rem;
+}
+
+.verticalLine {
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--color-primary) 0%, rgba(253, 104, 186, 0.3) 100%);
+}
+
+/* Tree Nodes Container */
+.treeNodes {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Horizontal Connector Line */
+.horizontalConnector {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 2px;
+  width: calc(100% - 140px);
+  max-width: 600px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--color-primary) 10%,
+    var(--color-primary) 90%,
+    transparent 100%
+  );
+  opacity: 0.5;
+}
+
+/* Individual Tree Node */
+.treeNode {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Node Connector (vertical line from horizontal to member) */
+.nodeConnector {
+  width: 2px;
+  height: 24px;
+  background: var(--color-primary);
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+}
+
+/* Hide connectors for single member or first level */
+.treeLevel[data-level="0"] .nodeConnector,
+.treeLevel[data-level="0"] .horizontalConnector {
+  display: none;
+}
+
+/* Role Section (keep for compatibility) */
 .roleSection {
   text-align: center;
 }

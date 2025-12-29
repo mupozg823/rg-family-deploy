@@ -1,4 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
 :root {
+  /* Typography - Minimal & Refined Hip */
+  --font-display: 'Outfit', -apple-system, sans-serif;
+  --font-body: 'Noto Sans KR', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
   /* Brand Colors (shared) */
   --primary: #fd68ba;
   --color-primary: #fd68ba;
@@ -8,13 +15,27 @@
   --primary-light: #fe9bd2;
   --secondary: #00f0ff;
 
+  /* LIVE Status - Cyan (cnine.kr style) */
+  --live-color: #00d4ff;
+  --live-glow: rgba(0, 212, 255, 0.6);
+
+  /* Ranking Colors */
+  --gold: #ffd700;
+  --gold-glow: rgba(255, 215, 0, 0.4);
+  --silver: #c0c0c0;
+  --bronze: #cd7f32;
+
   /* Layout */
   --max-width: 1400px;
   --header-height: 80px;
+  --section-gap: 3rem;
 
   /* Animation */
   --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  --transition-fast: all 0.2s var(--ease-smooth);
+  --transition-medium: all 0.3s var(--ease-smooth);
 }
 
 /* Dark Theme (Default) */
@@ -96,8 +117,17 @@ body {
   overflow-x: hidden;
   background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display headings use Outfit font */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 a {

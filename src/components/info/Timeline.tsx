@@ -6,11 +6,11 @@ import { Calendar, ChevronDown, Filter, Tag } from 'lucide-react'
 import Image from 'next/image'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockTimelineEvents, mockSeasons } from '@/lib/mock/data'
+import { USE_MOCK_DATA } from '@/lib/config'
+import { formatDate } from '@/lib/utils/format'
 import type { TimelineItem } from '@/types/common'
 import type { Season } from '@/types/database'
 import styles from './Timeline.module.css'
-
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 const CATEGORY_LABELS: Record<string, string> = {
   founding: '창단',
@@ -48,7 +48,7 @@ export default function Timeline() {
   const fetchData = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       // Mock 시즌 데이터 설정
       setSeasons(mockSeasons)
 
@@ -144,14 +144,6 @@ export default function Timeline() {
     fetchData()
   }, [fetchData])
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
 
   const getCategoryColor = (category: string | null) => {
     const colors: Record<string, string> = {

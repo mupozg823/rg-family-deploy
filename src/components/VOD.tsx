@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { Play } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockMediaContent } from '@/lib/mock/data'
+import { USE_MOCK_DATA } from '@/lib/config'
+import { formatShortDate } from '@/lib/utils/format'
 import styles from './VOD.module.css'
 
 interface VodItem {
@@ -17,8 +19,6 @@ interface VodItem {
   createdAt: string
 }
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
-
 export default function VOD() {
   const supabase = useSupabase()
   const [vods, setVods] = useState<VodItem[]>([])
@@ -27,7 +27,7 @@ export default function VOD() {
   const fetchVods = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       // 즉시 로드
       const vodsData = mockMediaContent
         .filter((m) => m.content_type === 'vod')
@@ -77,13 +77,6 @@ export default function VOD() {
     fetchVods()
   }, [fetchVods])
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-  }
 
   const handleClick = (videoUrl: string) => {
     window.open(videoUrl, '_blank')
@@ -146,7 +139,7 @@ export default function VOD() {
             )}
             <h4>{featured.title}</h4>
             <p>{featured.description}</p>
-            <span className={styles.date}>{formatDate(featured.createdAt)}</span>
+            <span className={styles.date}>{formatShortDate(featured.createdAt)}</span>
           </div>
         </div>
 
@@ -177,7 +170,7 @@ export default function VOD() {
                   </span>
                 )}
                 <h5>{item.title}</h5>
-                <span className={styles.dateSmall}>{formatDate(item.createdAt)}</span>
+                <span className={styles.dateSmall}>{formatShortDate(item.createdAt)}</span>
               </div>
             </div>
           ))}

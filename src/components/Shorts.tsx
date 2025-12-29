@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Play, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockMediaContent } from '@/lib/mock/data'
+import { USE_MOCK_DATA } from '@/lib/config'
 import styles from './Shorts.module.css'
 
 interface ShortItem {
@@ -15,8 +16,6 @@ interface ShortItem {
   unit: 'excel' | 'crew' | null
 }
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
-
 export default function Shorts() {
   const supabase = useSupabase()
   const [shorts, setShorts] = useState<ShortItem[]>([])
@@ -26,7 +25,7 @@ export default function Shorts() {
   const fetchShorts = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       // 즉시 로드
       const shortsData = mockMediaContent
         .filter((m) => m.content_type === 'shorts')

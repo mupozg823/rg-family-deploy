@@ -1,30 +1,31 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
   width: 100%;
 }
 
 /* Size variants */
 .sm .barBackground {
-  height: 6px;
+  height: 8px;
 }
 
 .md .barBackground {
-  height: 10px;
+  height: 12px;
 }
 
 .lg .barBackground {
-  height: 14px;
+  height: 16px;
 }
 
 /* Bar */
 .barBackground {
   position: relative;
   width: 100%;
-  background: var(--glass-border);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 9999px;
   overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .barFill {
@@ -34,6 +35,34 @@
   height: 100%;
   border-radius: 9999px;
   min-width: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Shimmer effect */
+.barFill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+  border-radius: 9999px;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .glow {
@@ -42,8 +71,8 @@
   left: 0;
   height: 100%;
   border-radius: 9999px;
-  filter: blur(4px);
-  opacity: 0.5;
+  filter: blur(6px);
+  opacity: 0.6;
 }
 
 /* Info */
@@ -55,7 +84,7 @@
 
 .amount {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
@@ -64,10 +93,35 @@
 }
 
 .lg .amount {
-  font-size: 1rem;
+  font-size: 1.125rem;
 }
 
 .percentage {
   font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.lg .percentage {
+  font-size: 0.875rem;
+  padding: 4px 10px;
+}
+
+/* Rank specific styles */
+.gold .percentage {
+  background: rgba(255, 215, 0, 0.15);
+  color: #ffd700;
+}
+
+.silver .percentage {
+  background: rgba(192, 192, 192, 0.15);
+  color: #c0c0c0;
+}
+
+.bronze .percentage {
+  background: rgba(205, 127, 50, 0.15);
+  color: #cd7f32;
 }

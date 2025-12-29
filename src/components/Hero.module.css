@@ -6,6 +6,7 @@
 }
 
 .container {
+  position: relative;
   max-width: var(--max-width);
   margin: 0 auto;
 }
@@ -20,46 +21,120 @@
   mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
 }
 
+/* Embla Slides Container */
+.slidesContainer {
+  display: flex;
+  height: 100%;
+  touch-action: pan-y pinch-zoom;
+}
+
 .slide {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  flex: 0 0 100%;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(
-    circle at 50% 30%,
-    #4a0418,
-    #000 70%
-  ); /* Deep Red/Burgundy Core */
+  overflow: hidden;
 }
 
-/* Texture overlay for depth */
+/* Background Gradient */
 .background {
   position: absolute;
   inset: 0;
   z-index: 1;
-  opacity: 0.3;
-  /* Simple noise grain simulated via radial repeats or solid color for now */
-  background: linear-gradient(
-      45deg,
-      rgba(253, 104, 186, 0.1) 0%,
-      transparent 60%
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.5) 3px
-    );
 }
 
+/* Overlay for depth */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  pointer-events: none;
+}
+
+/* Film Grain Effect */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0.1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Content */
 .content {
   position: relative;
   z-index: 10;
   text-align: center;
-  transform: translateY(-40px);
+  padding: 2rem;
+  max-width: 800px;
 }
 
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--color-primary);
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: -2px;
+  text-shadow: 0 0 40px rgba(253, 104, 186, 0.5);
+}
+
+.description {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  font-weight: 400;
+  max-width: 500px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* CTA Button */
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.875rem 2rem;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.4);
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(253, 104, 186, 0.5);
+}
+
+/* Character Images */
 .characters {
   position: absolute;
   inset: 0;
@@ -67,145 +142,284 @@
   justify-content: center;
   align-items: flex-end;
   pointer-events: none;
-  z-index: 2;
+  z-index: 5;
   overflow: hidden;
 }
 
 .characterContainer {
   position: relative;
-  width: 50%;
-  height: 100%;
-  max-width: 600px;
+  width: 40%;
+  height: 90%;
+  max-width: 450px;
+  filter: drop-shadow(0 0 60px rgba(253, 104, 186, 0.3));
+  animation: characterFloat 6s ease-in-out infinite;
+}
+
+@keyframes characterFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .characterImage {
-  object-fit: cover;
-  object-position: top center;
-  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  object-fit: contain;
+  object-position: bottom center;
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
 }
 
 .characterContainer:first-child {
-  transform: translateX(10%);
+  transform: translateX(25%);
   z-index: 1;
+  animation-delay: 0s;
 }
 
 .characterContainer:last-child {
-  transform: translateX(-10%);
+  transform: translateX(-25%);
   z-index: 2;
+  animation-delay: 3s;
 }
 
-.info h2 {
-  font-size: 4.5rem;
-  font-weight: 900;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  margin: 0;
-  line-height: 1;
-  letter-spacing: -2px;
-  /* Neon glow text shadow */
-  text-shadow: 0 0 30px rgba(253, 104, 186, 0.6);
+/* Single character - center it */
+.characterContainer:only-child {
+  transform: translateX(30%);
+  width: 35%;
 }
 
-.info p {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: 6px;
-  margin-top: 1rem;
-  text-transform: uppercase;
+/* Glow effect behind characters */
+.characterContainer::before {
+  content: '';
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150%;
+  height: 50%;
+  background: radial-gradient(ellipse, rgba(253, 104, 186, 0.2) 0%, transparent 70%);
+  z-index: -1;
 }
 
-/* Nav Arrows */
+/* Navigation Arrows */
 .navBtn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 20;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  transition: all 0.2s;
-  padding: 10px;
-}
-.navBtn:hover {
-  color: var(--text-primary);
-  transform: translateY(-50%) scale(1.2);
-}
-.prev {
-  left: 20px;
-}
-.next {
-  right: 20px;
+  transition: all 0.3s ease;
 }
 
-/* 4 Buttons Overlay - Floating Card Style */
-.cards {
+.navBtn:hover {
+  color: var(--text-primary);
+  background: rgba(253, 104, 186, 0.3);
+  border-color: var(--color-primary);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.prev {
+  left: 24px;
+}
+
+.next {
+  right: 24px;
+}
+
+/* Dot Navigation */
+.dots {
   position: absolute;
-  bottom: 0;
+  bottom: 60px;
   left: 50%;
-  transform: translateX(-50%) translateY(50%); /* Half overlap? Or fully inside? Ref looks like overlay bottom */
-  bottom: 40px; /* Fully inside for now to avoid z-index hell with next section */
   transform: translateX(-50%);
   z-index: 30;
   display: flex;
-  gap: 1rem;
-  padding: 8px;
-  background: rgba(20, 20, 20, 0.6);
-  backdrop-filter: blur(12px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  gap: 12px;
 }
 
-.card {
-  width: 140px;
-  height: 90px;
-  border-radius: 10px;
+.dot {
   position: relative;
-  overflow: hidden;
-  background: var(--surface);
-  border: 1px solid var(--glass-border);
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 2px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.card::before {
-  content: "";
+.dot:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.dotActive {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.dotProgress {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(253, 104, 186, 0.4), transparent);
-  opacity: 0;
-  transition: opacity 0.3s;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 2px;
 }
 
-.card:hover,
-.active {
-  transform: translateY(-5px);
-  border-color: var(--primary);
-  box-shadow: 0 5px 20px rgba(253, 104, 186, 0.3);
+/* Slide Counter */
+.counter {
+  position: absolute;
+  bottom: 60px;
+  right: 40px;
+  z-index: 30;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-mono, monospace);
 }
 
-.card:hover::before,
-.active::before {
-  opacity: 1;
+.counterCurrent {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
-.card span {
-  position: relative;
-  z-index: 2;
-  font-weight: 800;
-  font-size: 0.8rem;
+.counterDivider {
+  font-size: 1rem;
   color: var(--text-muted);
-  transition: color 0.3s;
 }
 
-.active span,
-.card:hover span {
-  color: var(--text-primary);
+.counterTotal {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .carousel {
+    height: 500px;
+  }
+
+  .title {
+    font-size: 3rem;
+  }
+
+  .navBtn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .prev {
+    left: 16px;
+  }
+
+  .next {
+    right: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .carousel {
+    height: 450px;
+  }
+
+  .title {
+    font-size: 2.25rem;
+    letter-spacing: -1px;
+  }
+
+  .subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+  }
+
+  .description {
+    font-size: 0.9rem;
+  }
+
+  .ctaButton {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.85rem;
+  }
+
+  .navBtn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .navBtn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .prev {
+    left: 12px;
+  }
+
+  .next {
+    right: 12px;
+  }
+
+  .dots {
+    bottom: 40px;
+  }
+
+  .dot {
+    width: 24px;
+  }
+
+  .counter {
+    display: none;
+  }
+
+  .characterContainer {
+    width: 50%;
+    height: 80%;
+    filter: drop-shadow(0 0 40px rgba(253, 104, 186, 0.2));
+  }
+
+  .characterContainer:first-child {
+    transform: translateX(15%);
+  }
+
+  .characterContainer:last-child {
+    transform: translateX(-15%);
+  }
+
+  .characterContainer:only-child {
+    transform: translateX(25%);
+    width: 45%;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel {
+    height: 400px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .characters {
+    opacity: 0.5;
+  }
+
+  .characterContainer {
+    width: 60%;
+    height: 70%;
+  }
+
+  .characterContainer:only-child {
+    transform: translateX(20%);
+    width: 55%;
+  }
 }

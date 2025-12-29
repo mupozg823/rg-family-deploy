@@ -5,12 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, X, User } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockSignatures } from '@/lib/mock/data'
+import { USE_MOCK_DATA } from '@/lib/config'
 import SigCard from './SigCard'
 import SigVideoModal from './SigVideoModal'
 import type { SignatureItem, UnitFilter, SortOrder } from '@/types/common'
 import styles from './SigGallery.module.css'
-
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 export default function SigGallery() {
   const supabase = useSupabase()
@@ -37,7 +36,7 @@ export default function SigGallery() {
   const fetchSignatures = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       const allData = mockSignatures.map(sig => ({
         id: sig.id,
         title: sig.title,

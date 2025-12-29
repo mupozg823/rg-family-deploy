@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { MessageSquare, Eye, ChevronRight } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockPosts, mockProfiles } from '@/lib/mock/data'
+import { USE_MOCK_DATA } from '@/lib/config'
+import { formatRelativeTime } from '@/lib/utils/format'
 import TabFilter from '@/components/community/TabFilter'
 import styles from './page.module.css'
-
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
 
 interface Post {
   id: number
@@ -32,7 +32,7 @@ export default function FreeBoardPage() {
   const fetchPosts = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK) {
+    if (USE_MOCK_DATA) {
       const freePosts = mockPosts
         .filter((p) => p.board_type === 'free')
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -85,17 +85,6 @@ export default function FreeBoardPage() {
     fetchPosts()
   }, [fetchPosts])
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-
-    if (diffHours < 24) {
-      return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-    }
-    return date.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' })
-  }
 
   return (
     <main className={styles.main}>
@@ -144,7 +133,7 @@ export default function FreeBoardPage() {
                   <Eye size={14} />
                   {post.viewCount}
                 </span>
-                <span className={styles.postDate}>{formatDate(post.createdAt)}</span>
+                <span className={styles.postDate}>{formatRelativeTime(post.createdAt)}</span>
                 <ChevronRight size={16} className={styles.arrow} />
               </Link>
             ))}

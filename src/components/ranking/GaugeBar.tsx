@@ -16,38 +16,45 @@ export default function GaugeBar({
   value,
   maxValue,
   rank,
-  showPercentage = false,
+  showPercentage = true,
   size = 'md',
   animated = true,
 }: GaugeBarProps) {
   const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0
 
   const getRankColor = () => {
-    if (rank === 1) return 'linear-gradient(90deg, #ffd700, #ffed4a)'
-    if (rank === 2) return 'linear-gradient(90deg, #c0c0c0, #e8e8e8)'
-    if (rank === 3) return 'linear-gradient(90deg, #cd7f32, #dda15e)'
-    return 'linear-gradient(90deg, var(--color-primary), var(--color-primary-light))'
+    if (rank === 1) return 'linear-gradient(90deg, #ffd700 0%, #ffed4a 50%, #ffd700 100%)'
+    if (rank === 2) return 'linear-gradient(90deg, #c0c0c0 0%, #e8e8e8 50%, #c0c0c0 100%)'
+    if (rank === 3) return 'linear-gradient(90deg, #cd7f32 0%, #dda15e 50%, #cd7f32 100%)'
+    return 'linear-gradient(90deg, var(--color-primary) 0%, #ff6eb3 50%, var(--color-primary) 100%)'
+  }
+
+  const getRankClass = () => {
+    if (rank === 1) return styles.gold
+    if (rank === 2) return styles.silver
+    if (rank === 3) return styles.bronze
+    return ''
   }
 
   const formatAmount = (amount: number) => {
     if (amount >= 100000000) {
-      return `${(amount / 100000000).toFixed(1)}억`
+      return `${(amount / 100000000).toFixed(1)}억 하트`
     }
     if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(0)}만`
+      return `${(amount / 10000).toFixed(1)}만 하트`
     }
-    return amount.toLocaleString()
+    return `${amount.toLocaleString()} 하트`
   }
 
   return (
-    <div className={`${styles.container} ${styles[size]}`}>
+    <div className={`${styles.container} ${styles[size]} ${getRankClass()}`}>
       <div className={styles.barBackground}>
         <motion.div
           className={styles.barFill}
           style={{ background: getRankColor() }}
           initial={animated ? { width: 0 } : { width: `${percentage}%` }}
           animate={{ width: `${percentage}%` }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
         />
 
         {/* Glow effect for top 3 */}
@@ -57,7 +64,7 @@ export default function GaugeBar({
             style={{ background: getRankColor() }}
             initial={animated ? { width: 0 } : { width: `${percentage}%` }}
             animate={{ width: `${percentage}%` }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
+            transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
           />
         )}
       </div>
@@ -65,7 +72,7 @@ export default function GaugeBar({
       <div className={styles.info}>
         <span className={styles.amount}>{formatAmount(value)}</span>
         {showPercentage && (
-          <span className={styles.percentage}>{percentage.toFixed(1)}%</span>
+          <span className={styles.percentage}>{percentage.toFixed(0)}%</span>
         )}
       </div>
     </div>

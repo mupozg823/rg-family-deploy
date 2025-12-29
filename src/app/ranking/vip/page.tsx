@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Crown, Lock, Star, Heart, Play, Users, Trophy, ArrowRight } from 'lucide-react'
+import { Crown, Lock, Star, Heart, Play, Users, Trophy, ArrowRight, PenTool, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useAuth } from '@/lib/hooks/useAuth'
@@ -24,6 +24,11 @@ interface VipContent {
     id: number
     url: string
     title: string
+  }[]
+  signatures: {
+    id: number
+    memberName: string
+    signatureUrl: string
   }[]
 }
 
@@ -59,6 +64,14 @@ const mockVipContent: VipContent = {
     { id: 1, url: '/assets/vip/exclusive1.jpg', title: 'VIP 전용 포토' },
     { id: 2, url: '/assets/vip/exclusive2.jpg', title: '비하인드 컷' },
     { id: 3, url: '/assets/vip/exclusive3.jpg', title: '특별 화보' }
+  ],
+  signatures: [
+    { id: 1, memberName: 'Luna', signatureUrl: '/assets/signatures/luna.png' },
+    { id: 2, memberName: 'Nano', signatureUrl: '/assets/signatures/nano.png' },
+    { id: 3, memberName: 'Bibi', signatureUrl: '/assets/signatures/bibi.png' },
+    { id: 4, memberName: 'Joco', signatureUrl: '/assets/signatures/joco.png' },
+    { id: 5, memberName: 'Leo', signatureUrl: '/assets/signatures/leo.png' },
+    { id: 6, memberName: 'Mote', signatureUrl: '/assets/signatures/mote.png' }
   ]
 }
 
@@ -245,6 +258,41 @@ export default function VipLoungePage() {
                     <p>{video.message}</p>
                   </div>
                 </div>
+              ))}
+            </div>
+          </motion.section>
+        )}
+
+        {/* VIP SECRET - Signatures Section */}
+        {vipContent?.signatures && vipContent.signatures.length > 0 && (
+          <motion.section
+            className={styles.signaturesSection}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <div className={styles.secretHeader}>
+              <div className={styles.secretBadge}>
+                <Sparkles size={16} />
+                <span>VIP SECRET</span>
+              </div>
+              <h2>VIP Exclusive Signatures</h2>
+              <p>멤버들의 친필 사인</p>
+            </div>
+            <div className={styles.signaturesGrid}>
+              {vipContent.signatures.map((sig, index) => (
+                <motion.div
+                  key={sig.id}
+                  className={styles.signatureCard}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                >
+                  <div className={styles.signaturePlaceholder}>
+                    <PenTool size={24} />
+                    <span className={styles.signatureName}>{sig.memberName}</span>
+                  </div>
+                </motion.div>
               ))}
             </div>
           </motion.section>
