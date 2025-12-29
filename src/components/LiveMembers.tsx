@@ -129,6 +129,7 @@ export default function LiveMembers() {
                     alt={member.nickname}
                     fill
                     className={styles.avatarImage}
+                    unoptimized
                   />
                 ) : (
                   <User size={24} />

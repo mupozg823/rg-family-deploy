@@ -72,6 +72,7 @@ export default function RankingList({ rankings, maxAmount, startRank = 1 }: Rank
                   alt={item.donorName}
                   fill
                   className={styles.avatarImage}
+                  unoptimized
                 />
               ) : (
                 <User size={20} />

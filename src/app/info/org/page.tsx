@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSupabase } from "@/lib/hooks/useSupabase";
 import { mockOrganization } from "@/lib/mock/data";
 import { USE_MOCK_DATA } from "@/lib/config";
-import { Radio, Youtube, Instagram, ExternalLink, X, ExternalLink as LinkIcon } from "lucide-react";
+import { Radio, Youtube, Instagram, ExternalLink, X, ExternalLink as LinkIcon, ChevronDown } from "lucide-react";
 import styles from "./page.module.css";
 
 interface OrgMember {
@@ -90,8 +90,14 @@ export default function OrganizationPage() {
     return acc;
   }, {} as GroupedMembers);
 
-  // 역할 순서 정의
+  // 역할 순서 정의 및 계층 레벨
   const roleOrder = ['대표', 'PRESIDENT', '부장', 'DIRECTOR', '팀장', 'MANAGER', '멤버', 'MEMBER', '크루', 'CREW'];
+  const roleHierarchy: Record<string, number> = {
+    '대표': 0, 'PRESIDENT': 0,
+    '부장': 1, 'DIRECTOR': 1,
+    '팀장': 2, 'MANAGER': 2,
+    '멤버': 3, 'MEMBER': 3, '크루': 3, 'CREW': 3,
+  };
 
   const sortedRoles = Object.keys(groupedByRole).sort((a, b) => {
     const aIndex = roleOrder.findIndex(r => a.toUpperCase().includes(r.toUpperCase()));
@@ -101,6 +107,16 @@ export default function OrganizationPage() {
     if (bIndex === -1) return -1;
     return aIndex - bIndex;
   });
+
+  // 계층 레벨 가져오기
+  const getHierarchyLevel = (role: string): number => {
+    for (const [key, level] of Object.entries(roleHierarchy)) {
+      if (role.toUpperCase().includes(key.toUpperCase())) {
+        return level;
+      }
+    }
+    return 3; // 기본: 멤버 레벨
+  };
 
   // 폴백 데이터
   const fallbackExcel: OrgMember[] = [
@@ -180,41 +196,70 @@ export default function OrganizationPage() {
           </div>
         ) : (
           <div className={styles.orgTree}>
-            {displayRoles.map((role, roleIndex) => (
-              <section key={role} className={styles.treeLevel} data-level={roleIndex}>
-                {/* Connector Line from previous level */}
-                {roleIndex > 0 && (
-                  <div className={styles.treeLine}>
-                    <div className={styles.verticalLine} />
-                  </div>
-                )}
+            {displayRoles.map((role, roleIndex) => {
+              const hierarchyLevel = getHierarchyLevel(role);
+              const isTopLevel = hierarchyLevel === 0;
+              const memberCount = displayGrouped[role].length;
 
-                <h2 className={styles.roleTitle}>
-                  {role}
-                  <span className={styles.roleCount}>총 인원 {displayGrouped[role].length}명</span>
-                </h2>
-
-                <div className={styles.treeNodes}>
-                  {/* Horizontal connector for multiple members */}
-                  {displayGrouped[role].length > 1 && (
-                    <div className={styles.horizontalConnector} />
+              return (
+                <motion.section
+                  key={role}
+                  className={styles.treeLevel}
+                  data-level={hierarchyLevel}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: roleIndex * 0.1 }}
+                >
+                  {/* Connector Line from previous level */}
+                  {roleIndex > 0 && (
+                    <div className={styles.treeLine}>
+                      <div className={styles.verticalLine} />
+                      <ChevronDown className={styles.arrowIcon} size={20} />
+                    </div>
                   )}
 
-                  <div className={styles.membersGrid}>
-                    {displayGrouped[role].map((member) => (
-                      <div key={member.id} className={styles.treeNode}>
-                        {/* Individual vertical line down to member */}
-                        <div className={styles.nodeConnector} />
-                        <MemberCard
-                          member={member}
-                          onClick={() => setSelectedMember(member)}
-                        />
-                      </div>
-                    ))}
+                  {/* Role Header with Level Indicator */}
+                  <div className={styles.roleHeader} data-level={hierarchyLevel}>
+                    <div className={styles.levelIndicator}>
+                      <span className={styles.levelNumber}>L{hierarchyLevel + 1}</span>
+                    </div>
+                    <h2 className={styles.roleTitle}>
+                      {role}
+                    </h2>
+                    <span className={styles.roleCount}>{memberCount}명</span>
                   </div>
-                </div>
-              </section>
-            ))}
+
+                  <div className={styles.treeNodes}>
+                    {/* Horizontal connector for multiple members */}
+                    {memberCount > 1 && !isTopLevel && (
+                      <div className={styles.horizontalConnector} style={{
+                        width: `${Math.min(memberCount * 160, 800)}px`
+                      }} />
+                    )}
+
+                    <div className={styles.membersGrid} data-count={memberCount}>
+                      {displayGrouped[role].map((member, memberIndex) => (
+                        <motion.div
+                          key={member.id}
+                          className={styles.treeNode}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: roleIndex * 0.1 + memberIndex * 0.05 }}
+                        >
+                          {/* Individual vertical line down to member */}
+                          {!isTopLevel && <div className={styles.nodeConnector} />}
+                          <MemberCard
+                            member={member}
+                            onClick={() => setSelectedMember(member)}
+                            isLeader={isTopLevel}
+                          />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.section>
+              );
+            })}
           </div>
         )}
       </div>
@@ -232,9 +277,14 @@ export default function OrganizationPage() {
   );
 }
 
-function MemberCard({ member, onClick }: { member: OrgMember; onClick: () => void }) {
+function MemberCard({ member, onClick, isLeader = false }: { member: OrgMember; onClick: () => void; isLeader?: boolean }) {
   return (
-    <div className={styles.memberCard} onClick={onClick} role="button" tabIndex={0}>
+    <div
+      className={`${styles.memberCard} ${isLeader ? styles.leaderCard : ""}`}
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+    >
       <div className={styles.avatarWrapper}>
         {member.is_live && (
           <span className={styles.liveBadge}>
@@ -242,7 +292,7 @@ function MemberCard({ member, onClick }: { member: OrgMember; onClick: () => voi
             LIVE
           </span>
         )}
-        <div className={`${styles.avatar} ${member.is_live ? styles.avatarLive : ""}`}>
+        <div className={`${styles.avatar} ${member.is_live ? styles.avatarLive : ""} ${isLeader ? styles.leaderAvatar : ""}`}>
           {member.image_url ? (
             <img src={member.image_url} alt={member.name} />
           ) : (

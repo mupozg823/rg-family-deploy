@@ -62,6 +62,7 @@ export default function RankingCard({ item, maxAmount, index }: RankingCardProps
             alt={item.donorName}
             fill
             className={styles.avatarImage}
+            unoptimized
           />
         ) : (
           <User size={32} />
