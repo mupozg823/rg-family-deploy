@@ -35,12 +35,10 @@ const itemVariants = {
 }
 
 export default function RankingList({ rankings, maxAmount, startRank = 1 }: RankingListProps) {
+  // 하트 단위로 표시 (팬더티비 후원 형식)
   const formatAmount = (amount: number) => {
-    if (amount >= 100000000) {
-      return `${(amount / 100000000).toFixed(1)}억`
-    }
     if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(0)}만`
+      return `${(amount / 10000).toFixed(1)}만`
     }
     return amount.toLocaleString()
   }

@@ -99,14 +99,15 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
     fetchVipData()
   }, [fetchVipData])
 
+  // 하트 단위로 표시 (팬더티비 후원 형식)
   const formatAmount = (amount: number) => {
     if (amount >= 100000000) {
-      return `${(amount / 100000000).toFixed(1)}억`
+      return `${(amount / 100000000).toFixed(1)}억 하트`
     }
     if (amount >= 10000) {
-      return `${Math.floor(amount / 10000).toLocaleString()}만`
+      return `${Math.floor(amount / 10000).toLocaleString()}만 하트`
     }
-    return amount.toLocaleString()
+    return `${amount.toLocaleString()} 하트`
   }
 
   const formatDate = (dateStr: string) => {

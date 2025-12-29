@@ -51,7 +51,7 @@ export interface OrgMember {
   role: string
   imageUrl: string | null
   socialLinks: {
-    soop?: string
+    pandatv?: string
     youtube?: string
     instagram?: string
   } | null

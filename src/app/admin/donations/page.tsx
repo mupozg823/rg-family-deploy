@@ -169,11 +169,119 @@ export default function DonationsPage() {
     fetchData()
   }
 
+  // CSV 업로드 핸들러 (팬더티비 알림내역 형식 지원)
+  // 팬더티비 CSV 컬럼: 종류, 일시, 닉네임(스트리머), ID(후원자), 하트, 팬랭킹순위, 팬등급, 내용, 알림음, 알림텍스트, 상태
+  const handleCsvUpload = async (
+    data: { [key: string]: string }[]
+  ): Promise<{ success: number; errors: string[] }> => {
+    const errors: string[] = []
+    let successCount = 0
+
+    // 현재 활성 시즌 가져오기
+    const activeSeason = seasons[0]
+    if (!activeSeason) {
+      return { success: 0, errors: ['활성 시즌이 없습니다. 먼저 시즌을 생성해주세요.'] }
+    }
+
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i]
+      const rowNum = i + 2 // CSV 헤더 + 0-based index
+
+      // 팬더티비 형식 또는 기본 형식 지원
+      const donorId = row['ID'] || row['donor_id'] || row['id'] || ''
+      const donorName = donorId || row['donor_name'] || ''
+      const amountStr = row['하트'] || row['amount'] || row['hearts'] || '0'
+      const message = row['내용'] || row['message'] || ''
+      const dateStr = row['일시'] || row['date'] || ''
+
+      // 필수 필드 검증
+      if (!donorName) {
+        errors.push(`행 ${rowNum}: 후원자 ID/이름이 필요합니다.`)
+        continue
+      }
+
+      const amount = parseInt(amountStr.replace(/,/g, ''), 10)
+      if (isNaN(amount) || amount <= 0) {
+        errors.push(`행 ${rowNum}: 유효하지 않은 하트 수입니다.`)
+        continue
+      }
+
+      // 시즌 ID 결정
+      let seasonId = activeSeason.id
+      if (row.season_id) {
+        const parsedSeasonId = parseInt(row.season_id, 10)
+        if (!isNaN(parsedSeasonId) && seasons.some(s => s.id === parsedSeasonId)) {
+          seasonId = parsedSeasonId
+        }
+      }
+
+      // 후원자 프로필 찾기 (닉네임으로)
+      const matchedProfile = profiles.find(
+        p => p.nickname.toLowerCase() === donorName.toLowerCase()
+      )
+
+      // 날짜 파싱 (팬더티비 형식: 25.12.29 05:16:29)
+      let createdAt = new Date().toISOString()
+      if (dateStr) {
+        try {
+          const [datePart, timePart] = dateStr.split(' ')
+          const [yy, mm, dd] = datePart.split('.')
+          const year = parseInt(yy, 10) + 2000 // 25 -> 2025
+          createdAt = new Date(`${year}-${mm}-${dd}T${timePart}Z`).toISOString()
+        } catch {
+          // 파싱 실패 시 현재 시간 사용
+        }
+      }
+
+      try {
+        const { error } = await supabase.from('donations').insert({
+          donor_id: matchedProfile?.id || null,
+          donor_name: donorName,
+          amount: amount,
+          message: message || null,
+          season_id: seasonId,
+          created_at: createdAt,
+        })
+
+        if (error) {
+          errors.push(`행 ${rowNum}: ${error.message}`)
+        } else {
+          successCount++
+
+          // 매칭된 프로필이 있으면 총 후원금 업데이트
+          if (matchedProfile) {
+            await supabase.rpc('update_donation_total', {
+              p_donor_id: matchedProfile.id,
+              p_amount: amount,
+            })
+          }
+        }
+      } catch (err) {
+        errors.push(`행 ${rowNum}: 데이터베이스 오류`)
+      }
+    }
+
+    // 성공 시 데이터 새로고침
+    if (successCount > 0) {
+      fetchData()
+    }
+
+    return { success: successCount, errors }
+  }
+
+  // CSV 업로드 컬럼 정의 (팬더티비 형식 우선)
+  const csvColumns = [
+    { key: 'ID', label: '후원자ID', required: true },
+    { key: '하트', label: '하트', required: true },
+    { key: '일시', label: '일시', required: false },
+    { key: '내용', label: '내용', required: false },
+  ]
+
   const formatAmount = (amount: number) => {
     if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(0)}만원`
+      return `${(amount / 10000).toFixed(1)}만 하트`
     }
-    return `${amount.toLocaleString()}원`
+    return `${amount.toLocaleString()} 하트`
   }
 
   const formatDate = (dateStr: string) => {
@@ -227,20 +335,57 @@ export default function DonationsPage() {
             <p className={styles.subtitle}>후원 내역 관리</p>
           </div>
         </div>
-        <button onClick={handleAdd} className={styles.addButton}>
-          <Plus size={18} />
-          후원 등록
-        </button>
+        <div className={styles.headerActions}>
+          <div className={styles.tabButtons}>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`${styles.tabButton} ${viewMode === 'list' ? styles.active : ''}`}
+            >
+              <List size={16} />
+              목록
+            </button>
+            <button
+              onClick={() => setViewMode('upload')}
+              className={`${styles.tabButton} ${viewMode === 'upload' ? styles.active : ''}`}
+            >
+              <Upload size={16} />
+              CSV 업로드
+            </button>
+          </div>
+          {viewMode === 'list' && (
+            <button onClick={handleAdd} className={styles.addButton}>
+              <Plus size={18} />
+              후원 등록
+            </button>
+          )}
+        </div>
       </header>
 
-      <DataTable
-        data={donations}
-        columns={columns}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        searchPlaceholder="후원자 이름으로 검색..."
-        isLoading={isLoading}
-      />
+      {viewMode === 'list' ? (
+        <DataTable
+          data={donations}
+          columns={columns}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          searchPlaceholder="후원자 이름으로 검색..."
+          isLoading={isLoading}
+        />
+      ) : (
+        <div className={styles.uploadSection}>
+          <div className={styles.uploadInfo}>
+            <h3>CSV 파일로 대량 등록</h3>
+            <p>아래 형식의 CSV 파일을 업로드하여 여러 후원 내역을 한 번에 등록할 수 있습니다.</p>
+            <p className={styles.hint}>
+              * 후원자명이 등록된 회원 닉네임과 일치하면 자동으로 연결됩니다.
+            </p>
+          </div>
+          <CsvUploader
+            columns={csvColumns}
+            onUpload={handleCsvUpload}
+            sampleFile="/samples/donations_sample.csv"
+          />
+        </div>
+      )}
 
       {/* Modal */}
       <AnimatePresence>

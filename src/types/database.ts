@@ -586,7 +586,7 @@ export type Database = {
         Row: {
           id: number
           member_id: number
-          platform: 'chzzk' | 'twitch' | 'youtube' | 'soop'
+          platform: 'chzzk' | 'twitch' | 'youtube' | 'pandatv'
           stream_url: string
           thumbnail_url: string | null
           is_live: boolean
@@ -596,7 +596,7 @@ export type Database = {
         Insert: {
           id?: number
           member_id: number
-          platform: 'chzzk' | 'twitch' | 'youtube' | 'soop'
+          platform: 'chzzk' | 'twitch' | 'youtube' | 'pandatv'
           stream_url: string
           thumbnail_url?: string | null
           is_live?: boolean
@@ -606,7 +606,7 @@ export type Database = {
         Update: {
           id?: number
           member_id?: number
-          platform?: 'chzzk' | 'twitch' | 'youtube' | 'soop'
+          platform?: 'chzzk' | 'twitch' | 'youtube' | 'pandatv'
           stream_url?: string
           thumbnail_url?: string | null
           is_live?: boolean

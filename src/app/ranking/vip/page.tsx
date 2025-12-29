@@ -302,8 +302,8 @@ export default function VipLoungePage() {
                 <span className={styles.memberName}>{item.donorName}</span>
                 <span className={styles.memberAmount}>
                   {item.totalAmount >= 10000
-                    ? `${Math.floor(item.totalAmount / 10000).toLocaleString()}만`
-                    : item.totalAmount.toLocaleString()}
+                    ? `${Math.floor(item.totalAmount / 10000).toLocaleString()}만 하트`
+                    : `${item.totalAmount.toLocaleString()} 하트`}
                 </span>
               </div>
             ))}
