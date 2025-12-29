@@ -1,5 +1,6 @@
 .section {
   width: 100%;
+  min-width: 0;
 }
 
 .header {
@@ -7,20 +8,39 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  flex-wrap: nowrap;
 }
 
 .header h3 {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .line {
   flex: 1;
   height: 1px;
-  background: #333;
+  background: var(--glass-border);
+  min-width: 20px;
+}
+
+.viewAll {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.viewAll:hover {
+  color: var(--color-primary);
 }
 
 .list {
@@ -31,18 +51,17 @@
 
 .item {
   position: relative;
-  /* Matches reference dark card color */
-  background: #121214;
+  background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid #27272a;
+  border: 1px solid var(--card-border);
   overflow: hidden;
   transition: all 0.2s ease;
 }
 
 .item:hover {
-  background: #18181b;
-  border-color: #3f3f46;
+  background: var(--surface-hover);
+  border-color: var(--glass-border);
 }
 
 /* Red Corner Pin */
@@ -72,7 +91,7 @@
 
 /* Tag style (Important/Notice) */
 .tag {
-  color: var(--primary);
+  color: var(--color-primary);
   font-size: 0.85rem;
   font-weight: 800;
   margin-bottom: 0.5rem;
@@ -80,7 +99,7 @@
 }
 
 .content p {
-  color: #d4d4d8; /* Zinc-300 */
+  color: var(--text-secondary);
   font-size: 0.9rem;
   line-height: 1.5;
   margin-bottom: 0.4rem;
@@ -90,11 +109,18 @@
 .more {
   margin-top: 1rem;
   font-size: 0.75rem;
-  color: #71717a;
+  color: var(--text-muted);
   cursor: pointer;
   display: inline-block;
   text-decoration: underline;
 }
 .more:hover {
-  color: #a1a1aa;
+  color: var(--text-secondary);
+}
+
+.loading,
+.empty {
+  color: var(--text-muted);
+  padding: 2rem;
+  text-align: center;
 }

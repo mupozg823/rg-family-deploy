@@ -21,13 +21,7 @@ export default function Home() {
         }}
       >
         {/* Live & Notice Section */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.2fr 0.8fr",
-            gap: "3rem",
-          }}
-        >
+        <div className="live-notice-grid">
           <LiveMembers />
           <Notice />
         </div>
@@ -41,10 +35,10 @@ export default function Home() {
         style={{
           width: "100%",
           padding: "2rem",
-          borderTop: "1px solid rgba(255,255,255,0.1)",
+          borderTop: "1px solid var(--glass-border)",
           marginTop: "4rem",
           textAlign: "center",
-          color: "#666",
+          color: "var(--text-muted)",
           fontSize: "0.9rem",
         }}
       >
@@ -57,7 +51,7 @@ export default function Home() {
             alignItems: "center",
           }}
         >
-          <strong>RG FAMILY</strong>
+          <strong style={{ color: "var(--text-primary)" }}>RG FAMILY</strong>
           <div style={{ display: "flex", gap: "1rem" }}>
             <span>약관</span>
             <span>정책</span>

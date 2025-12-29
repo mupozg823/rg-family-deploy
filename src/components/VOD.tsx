@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { Play } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import { mockMediaContent } from '@/lib/mock/data'
 import styles from './VOD.module.css'
 
 interface VodItem {
@@ -16,6 +17,8 @@ interface VodItem {
   createdAt: string
 }
 
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
+
 export default function VOD() {
   const supabase = useSupabase()
   const [vods, setVods] = useState<VodItem[]>([])
@@ -23,6 +26,26 @@ export default function VOD() {
 
   const fetchVods = useCallback(async () => {
     setIsLoading(true)
+
+    if (USE_MOCK) {
+      // 즉시 로드
+      const vodsData = mockMediaContent
+        .filter((m) => m.content_type === 'vod')
+        .slice(0, 4)
+      setVods(
+        vodsData.map((v) => ({
+          id: v.id,
+          title: v.title,
+          description: v.description || '',
+          videoUrl: v.video_url,
+          thumbnailUrl: v.thumbnail_url || '',
+          unit: v.unit,
+          createdAt: v.created_at,
+        }))
+      )
+      setIsLoading(false)
+      return
+    }
 
     const { data, error } = await supabase
       .from('media_content')

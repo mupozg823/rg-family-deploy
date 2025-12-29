@@ -2,12 +2,13 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(5, 5, 5, 0.95);
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--glass-border);
   height: var(--header-height);
   display: flex;
   align-items: center;
+  transition: var(--transition-theme);
 }
 
 .container {
@@ -52,7 +53,7 @@
   padding: 0.75rem 1.25rem;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #888;
+  color: var(--text-secondary);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -63,8 +64,8 @@
 }
 
 .link:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  background: var(--surface-hover);
 }
 
 .chevron {
@@ -98,12 +99,12 @@
 }
 
 .dropdownContent {
-  background: rgba(15, 15, 15, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
   border-radius: 12px;
   padding: 0.5rem;
   min-width: 200px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-lg);
 }
 
 .dropdownItem {
@@ -122,12 +123,12 @@
 .dropdownLabel {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .dropdownDesc {
   font-size: 0.75rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .dropdownItem:hover .dropdownLabel {
@@ -176,27 +177,27 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
   border-radius: 30px;
   transition: all 0.2s;
 }
 
 .profileButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--surface-hover);
+  border-color: var(--primary);
 }
 
 .avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-hover);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 .avatar img {
@@ -208,7 +209,7 @@
 .nickname {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .loginBtn {
@@ -246,7 +247,7 @@
   display: block;
   width: 24px;
   height: 2px;
-  background: #fff;
+  background: var(--text-primary);
   position: absolute;
   left: 50%;
   top: 50%;
@@ -260,7 +261,7 @@
   display: block;
   width: 24px;
   height: 2px;
-  background: #fff;
+  background: var(--text-primary);
   position: absolute;
   left: 0;
   transition: all 0.2s;
@@ -295,8 +296,8 @@
   top: var(--header-height);
   left: 0;
   right: 0;
-  background: rgba(10, 10, 10, 0.98);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface);
+  border-bottom: 1px solid var(--glass-border);
   padding: 1rem;
   max-height: calc(100vh - var(--header-height));
   overflow-y: auto;
@@ -304,7 +305,7 @@
 
 .mobileNavItem {
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .mobileNavItem:last-child {
@@ -314,7 +315,7 @@
 .mobileNavHeader {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 0.5rem 1rem;
@@ -328,14 +329,14 @@
 .mobileSubItem {
   padding: 0.75rem 1rem;
   font-size: 0.9rem;
-  color: #ccc;
+  color: var(--text-secondary);
   border-radius: 8px;
   transition: all 0.15s;
 }
 
 .mobileSubItem:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  background: var(--surface-hover);
+  color: var(--text-primary);
 }
 
 /* Responsive */

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 import styles from "./Hero.module.css";
 
 export default function Hero() {
@@ -22,19 +23,36 @@ export default function Hero() {
                 transition={{ delay: 0.2 }}
                 className={styles.info}
               >
-                <h2>LINA & GAAE</h2>
-                <p>LINA& GAAE - RG MAIN PILLAR</p>
+                <h2>NANO & BANANA</h2>
+                <p>NANO & BANANA - RG MAIN PILLAR</p>
               </motion.div>
             </div>
-            {/* Background Image Placeholder - using a gradient for now as per instructions to not use placeholders unless generated, but gradient is better for code */}
+            {/* Background Image Placeholder */}
             <div
               className={styles.background}
               style={{ background: "linear-gradient(45deg, #FF0050, #222)" }}
             />
 
-            {/* Character Images would go here - creating placeholders structure */}
+            {/* Character Images */}
             <div className={styles.characters}>
-              {/* Image logic would be here */}
+              <div className={styles.characterContainer}>
+                <Image
+                  src="/assets/members/nano.jpg"
+                  alt="Nano"
+                  fill
+                  className={styles.characterImage}
+                  priority
+                />
+              </div>
+              <div className={styles.characterContainer}>
+                <Image
+                  src="/assets/members/banana.jpg"
+                  alt="Banana"
+                  fill
+                  className={styles.characterImage}
+                  priority
+                />
+              </div>
             </div>
           </motion.div>
 

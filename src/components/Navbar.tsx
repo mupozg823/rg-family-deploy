@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronDown, User, LogIn } from "lucide-react";
 import { useAuth } from "@/lib/hooks/useAuth";
+import ThemeToggle from "./ThemeToggle";
 import styles from "./Navbar.module.css";
 
 interface NavItem {
@@ -72,10 +74,13 @@ export default function Navbar() {
         {/* Logo */}
         <div className={styles.logo}>
           <Link href="/">
-            <img
+            <Image
               src="/assets/logo/rg_logo_3d_pink.png"
               alt="RG Logo"
-              style={{ height: "50px", objectFit: "contain" }}
+              width={50}
+              height={50}
+              priority
+              style={{ objectFit: "contain" }}
             />
           </Link>
         </div>
@@ -126,6 +131,7 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className={styles.actions}>
+          <ThemeToggle />
           {user ? (
             <Link href="/mypage" className={styles.profileButton}>
               <div className={styles.avatar}>

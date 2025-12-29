@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { User } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import { mockOrganization } from '@/lib/mock/data'
 import styles from './LiveMembers.module.css'
 
 interface LiveMember {
@@ -14,6 +15,8 @@ interface LiveMember {
   unit: 'excel' | 'crew'
 }
 
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
+
 export default function LiveMembers() {
   const supabase = useSupabase()
   const [members, setMembers] = useState<LiveMember[]>([])
@@ -21,6 +24,21 @@ export default function LiveMembers() {
 
   const fetchLiveMembers = useCallback(async () => {
     setIsLoading(true)
+
+    if (USE_MOCK) {
+      // Use mock data - 즉시 로드
+      setMembers(
+        mockOrganization.map((o) => ({
+          id: o.id,
+          nickname: o.name,
+          avatarUrl: o.image_url,
+          isLive: o.is_live,
+          unit: o.unit,
+        }))
+      )
+      setIsLoading(false)
+      return
+    }
 
     // organization 테이블에서 is_live 필드 사용
     const { data, error } = await supabase
@@ -50,6 +68,8 @@ export default function LiveMembers() {
 
   useEffect(() => {
     fetchLiveMembers()
+
+    if (USE_MOCK) return
 
     // 실시간 구독 (live_status 변경 감지)
     const channel = supabase
@@ -99,7 +119,7 @@ export default function LiveMembers() {
         <div className={styles.line} />
       </div>
 
-      <div className={styles.grid}>
+      <div className={`${styles.grid} ${members.length <= 5 ? styles.singleRow : ''}`}>
         {members.map((member) => (
           <div key={member.id} className={styles.member}>
             <div className={styles.avatarWrapper}>

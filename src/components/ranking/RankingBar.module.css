@@ -17,7 +17,7 @@
 .rank {
   font-size: 1.5rem;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary);
   width: 40px;
   text-align: center;
   font-style: italic;
@@ -37,13 +37,13 @@
 }
 
 .label {
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 700;
   font-size: 1.1rem;
 }
 
 .value {
-  color: #ccc;
+  color: var(--text-secondary);
   font-family: monospace;
   font-size: 1rem;
 }

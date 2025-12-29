@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { Pin, ChevronRight } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import { mockNotices } from '@/lib/mock/data'
 import styles from './Notice.module.css'
 
 interface NoticeItem {
@@ -14,6 +15,8 @@ interface NoticeItem {
   createdAt: string
 }
 
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || true
+
 export default function Notice() {
   const supabase = useSupabase()
   const [notices, setNotices] = useState<NoticeItem[]>([])
@@ -21,6 +24,27 @@ export default function Notice() {
 
   const fetchNotices = useCallback(async () => {
     setIsLoading(true)
+
+    if (USE_MOCK) {
+      // 즉시 로드
+      const sorted = [...mockNotices]
+        .sort((a, b) => {
+          if (a.is_pinned !== b.is_pinned) return b.is_pinned ? 1 : -1
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        })
+        .slice(0, 3)
+      setNotices(
+        sorted.map((n) => ({
+          id: n.id,
+          title: n.title,
+          content: n.content || '',
+          isPinned: n.is_pinned,
+          createdAt: n.created_at,
+        }))
+      )
+      setIsLoading(false)
+      return
+    }
 
     const { data, error } = await supabase
       .from('notices')

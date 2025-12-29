@@ -1,22 +1,12 @@
 :root {
-  --background: #050505;
-  --foreground: #ffffff;
-
-  /* Brand Colors */
-  --primary: #fd68ba; /* User Preference: #fd68ba */
+  /* Brand Colors (shared) */
+  --primary: #fd68ba;
+  --color-primary: #fd68ba;
+  --color-primary-light: #fe9bd2;
   --primary-glow: rgba(253, 104, 186, 0.5);
-
-  /* Color Variations */
   --primary-deep: #fb37a3;
   --primary-light: #fe9bd2;
-
-  --secondary: #00f0ff; /* Cyan accent if needed */
-
-  /* Surface Colors */
-  --surface: #121212;
-  --surface-hover: #1a1a1a;
-  --glass-bg: rgba(20, 20, 20, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --secondary: #00f0ff;
 
   /* Layout */
   --max-width: 1400px;
@@ -24,6 +14,74 @@
 
   /* Animation */
   --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Dark Theme (Default) */
+:root,
+[data-theme="dark"] {
+  --background: #050505;
+  --foreground: #ffffff;
+  --foreground-muted: #a0a0a0;
+
+  /* Surface Colors */
+  --surface: #121212;
+  --surface-hover: #1a1a1a;
+  --surface-elevated: #1e1e1e;
+  --glass-bg: rgba(20, 20, 20, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+
+  /* Card & Component */
+  --card-bg: #0a0a0a;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-hover: #141414;
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #707070;
+
+  /* Scrollbar */
+  --scrollbar-track: #050505;
+  --scrollbar-thumb: #333333;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --background: #f5f5f7;
+  --foreground: #1a1a1a;
+  --foreground-muted: #666666;
+
+  /* Surface Colors */
+  --surface: #ffffff;
+  --surface-hover: #f0f0f0;
+  --surface-elevated: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.1);
+
+  /* Card & Component */
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --card-hover: #fafafa;
+
+  /* Text */
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #888888;
+
+  /* Scrollbar */
+  --scrollbar-track: #f5f5f7;
+  --scrollbar-thumb: #cccccc;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.16);
 }
 
 * {
@@ -53,14 +111,53 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
+}
+
+/* Theme transition */
+html {
+  transition: var(--transition-theme);
+}
+
+body {
+  transition: var(--transition-theme);
+}
+
+/* Layout Grid Classes */
+.live-notice-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.live-notice-grid > * {
+  min-width: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+  .live-notice-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .live-notice-grid > * {
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 768px) {
+  .live-notice-grid {
+    gap: 1.5rem;
+  }
 }

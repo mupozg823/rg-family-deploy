@@ -13,29 +13,38 @@
 .header h3 {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #ccc;
+  color: var(--text-primary);
   white-space: nowrap;
 }
 
 .line {
   height: 1px;
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-border);
   flex: 1;
 }
 
 .arrows {
   display: flex;
   gap: 1rem;
-  color: #666;
+  color: var(--text-muted);
   font-weight: bold;
   cursor: pointer;
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
   gap: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.5rem;
+
+  /* Hide Scrollbar */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.grid::-webkit-scrollbar {
+  display: none;
 }
 
 .card {
@@ -43,15 +52,17 @@
   flex-direction: column;
   gap: 0.5rem;
   cursor: pointer;
+  flex-shrink: 0;
+  width: 140px;
 }
 
 .thumbnail {
   position: relative;
   aspect-ratio: 9/16;
-  background: #222;
+  background: var(--surface);
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
   transition: transform 0.2s;
 }
 
@@ -95,7 +106,7 @@
 
 .title {
   font-size: 0.9rem;
-  color: #ccc;
+  color: var(--text-secondary);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;

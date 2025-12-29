@@ -8,10 +8,10 @@
 
 .tab {
   padding: 0.8rem 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 20px;
-  color: #888;
+  color: var(--text-muted);
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
@@ -19,13 +19,13 @@
 }
 
 .tab:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ccc;
+  background: var(--surface-hover);
+  color: var(--text-secondary);
 }
 
 .active {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: white;
   box-shadow: 0 4px 12px rgba(253, 104, 186, 0.3);
 }
