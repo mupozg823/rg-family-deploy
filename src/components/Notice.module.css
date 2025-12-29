@@ -1,0 +1,100 @@
+.section {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.header h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background: #333;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.item {
+  position: relative;
+  /* Matches reference dark card color */
+  background: #121214;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #27272a;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.item:hover {
+  background: #18181b;
+  border-color: #3f3f46;
+}
+
+/* Red Corner Pin */
+.pinBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  background: #be123c; /* Rose-700 */
+  border-bottom-left-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: -2px 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.pin {
+  color: #fff;
+  transform: rotate(45deg);
+}
+
+.itemHeader {
+  margin-bottom: 1rem;
+  padding-right: 40px; /* Space for pin */
+}
+
+/* Tag style (Important/Notice) */
+.tag {
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.content p {
+  color: #d4d4d8; /* Zinc-300 */
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.more {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: #71717a;
+  cursor: pointer;
+  display: inline-block;
+  text-decoration: underline;
+}
+.more:hover {
+  color: #a1a1aa;
+}

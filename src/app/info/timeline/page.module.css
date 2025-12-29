@@ -1,0 +1,44 @@
+.main {
+  min-height: 100vh;
+  padding-top: var(--header-height);
+}
+
+.hero {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: linear-gradient(
+    180deg,
+    rgba(253, 104, 186, 0.1) 0%,
+    transparent 100%
+  );
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 2rem 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+}

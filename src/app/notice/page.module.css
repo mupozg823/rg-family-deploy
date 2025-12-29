@@ -1,0 +1,104 @@
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  color: #888;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #121214;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.item:hover {
+  background: #18181b;
+  border-color: #3f3f46;
+  transform: translateX(5px);
+}
+
+.itemContent {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 100px;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.badge.official {
+  color: var(--primary);
+  background: rgba(253, 104, 186, 0.1);
+}
+.badge.excel {
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.1);
+}
+.badge.crew {
+  color: #50fa7b;
+  background: rgba(80, 250, 123, 0.1);
+}
+
+.pin {
+  color: var(--primary);
+  transform: rotate(45deg);
+}
+
+.title {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.date {
+  color: #666;
+  font-size: 0.9rem;
+  margin-left: auto; /* Push date to right if desired, but here we keep it inline */
+}
+
+.arrow {
+  color: #444;
+  font-weight: 300;
+}
+
+.item:hover .arrow {
+  color: var(--primary);
+}

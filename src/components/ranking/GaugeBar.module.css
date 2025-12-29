@@ -1,0 +1,73 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+/* Size variants */
+.sm .barBackground {
+  height: 6px;
+}
+
+.md .barBackground {
+  height: 10px;
+}
+
+.lg .barBackground {
+  height: 14px;
+}
+
+/* Bar */
+.barBackground {
+  position: relative;
+  width: 100%;
+  background: var(--color-border);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.barFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 9999px;
+  min-width: 4px;
+}
+
+.glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 9999px;
+  filter: blur(4px);
+  opacity: 0.5;
+}
+
+/* Info */
+.info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.amount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.sm .amount {
+  font-size: 0.75rem;
+}
+
+.lg .amount {
+  font-size: 1rem;
+}
+
+.percentage {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}

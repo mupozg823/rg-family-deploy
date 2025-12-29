@@ -1,0 +1,103 @@
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  color: #888;
+}
+
+.board {
+  border-top: 1px solid #333;
+}
+
+.boardHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 1rem;
+  font-weight: 700;
+  color: #888;
+  border-bottom: 1px solid #222;
+  text-align: center;
+}
+
+.boardHeader span:first-child {
+  text-align: left;
+}
+
+.post {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 1.2rem 1rem;
+  border-bottom: 1px solid #1a1a1a;
+  color: #ccc;
+  align-items: center;
+  text-align: center;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.post:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+}
+
+.postTitle {
+  text-align: left;
+  font-weight: 500;
+}
+
+.postAuthor,
+.postDate {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.writeBtn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.writeBtn:hover {
+  background: var(--primary-deep);
+}
+
+@media (max-width: 768px) {
+  .boardHeader {
+    display: none;
+  }
+  .post {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .postAuthor,
+  .postDate {
+    font-size: 0.8rem;
+  }
+}

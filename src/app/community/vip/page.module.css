@@ -1,0 +1,119 @@
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  color: #888;
+}
+
+.board {
+  border-top: 1px solid var(--primary); /* VIP visual cue */
+  background: rgba(253, 104, 186, 0.05); /* Slight pink tint */
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.vipBanner {
+  background: var(--primary);
+  color: #fff;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.boardHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 1rem;
+  font-weight: 700;
+  color: #fff; /* Brighter header for VIP */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.boardHeader span:first-child {
+  text-align: left;
+}
+
+.post {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 1.2rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #eee;
+  align-items: center;
+  text-align: center;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.post:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.postTitle {
+  text-align: left;
+  font-weight: 500;
+  color: #ffdce8; /* Pinkish text */
+}
+
+.postAuthor {
+  font-weight: 700;
+  color: var(--primary); /* Highlight author */
+}
+
+.postDate {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.writeBtn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.writeBtn:hover {
+  background: var(--primary-deep);
+}
+
+@media (max-width: 768px) {
+  .boardHeader {
+    display: none;
+  }
+  .post {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

@@ -1,0 +1,176 @@
+.hero {
+  padding: 0;
+  width: 100%;
+  margin-bottom: 2rem;
+  background: #000;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  overflow: hidden;
+  /* Blend bottom with content */
+  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    circle at 50% 30%,
+    #4a0418,
+    #000 70%
+  ); /* Deep Red/Burgundy Core */
+}
+
+/* Texture overlay for depth */
+.background {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.3;
+  /* Simple noise grain simulated via radial repeats or solid color for now */
+  background: linear-gradient(
+      45deg,
+      rgba(253, 104, 186, 0.1) 0%,
+      transparent 60%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.5) 3px
+    );
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  transform: translateY(-40px);
+}
+
+.info h2 {
+  font-size: 4.5rem;
+  font-weight: 900;
+  color: #fff;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -2px;
+  /* Neon glow text shadow */
+  text-shadow: 0 0 30px rgba(253, 104, 186, 0.6);
+}
+
+.info p {
+  color: #fce7f3; /* Very light pink */
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 6px;
+  margin-top: 1rem;
+  text-transform: uppercase;
+}
+
+/* Nav Arrows */
+.navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 10px;
+}
+.navBtn:hover {
+  color: #fff;
+  transform: translateY(-50%) scale(1.2);
+}
+.prev {
+  left: 20px;
+}
+.next {
+  right: 20px;
+}
+
+/* 4 Buttons Overlay - Floating Card Style */
+.cards {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(50%); /* Half overlap? Or fully inside? Ref looks like overlay bottom */
+  bottom: 40px; /* Fully inside for now to avoid z-index hell with next section */
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  gap: 1rem;
+  padding: 8px;
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.card {
+  width: 140px;
+  height: 90px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 12px;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(253, 104, 186, 0.4), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.card:hover,
+.active {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  box-shadow: 0 5px 20px rgba(253, 104, 186, 0.3);
+}
+
+.card:hover::before,
+.active::before {
+  opacity: 1;
+}
+
+.card span {
+  position: relative;
+  z-index: 2;
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: #888;
+  transition: color 0.3s;
+}
+
+.active span,
+.card:hover span {
+  color: #fff;
+}

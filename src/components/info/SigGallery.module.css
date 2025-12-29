@@ -1,0 +1,240 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.unitTabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.unitTab {
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.unitTab:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.unitTab.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.unitTab[data-unit="crew"].active {
+  background: #00f0ff;
+  border-color: #00f0ff;
+  color: var(--color-background);
+}
+
+/* Search */
+.searchWrapper {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.625rem 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.searchInput:focus {
+  border-color: var(--color-primary);
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.clearSearch {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearSearch:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Sort */
+.sortSelect {
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.sortSelect:focus {
+  border-color: var(--color-primary);
+}
+
+/* Tags Filter */
+.tagsFilter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  color: var(--color-text-secondary);
+}
+
+.tagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.tagButton {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tagButton:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.tagButton.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.clearTags {
+  padding: 0.25rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearTags:hover {
+  color: var(--color-primary);
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Empty */
+.empty {
+  text-align: center;
+  padding: 4rem;
+  color: var(--color-text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchWrapper {
+    max-width: none;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+}

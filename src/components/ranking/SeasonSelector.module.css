@@ -1,0 +1,81 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.button.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.button.current {
+  border-color: rgba(253, 104, 186, 0.5);
+}
+
+.currentBadge {
+  display: inline-flex;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.button:not(.active) .currentBadge {
+  background: rgba(253, 104, 186, 0.2);
+  color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .buttons {
+    width: 100%;
+  }
+
+  .button {
+    flex: 1;
+    justify-content: center;
+    min-width: 80px;
+  }
+}

@@ -1,0 +1,120 @@
+.tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 2rem;
+}
+
+.nodeWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.card {
+  background: #18181b;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1rem;
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  position: relative;
+  z-index: 10;
+  transition: all 0.2s;
+}
+
+.rootCard {
+  width: 200px;
+  background: linear-gradient(180deg, #111, #000);
+  border: 1px solid var(--primary);
+  box-shadow: 0 0 20px rgba(253, 104, 186, 0.2);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(180deg, var(--primary), #333);
+}
+
+.placeholderImg {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #222;
+  border: 3px solid #000;
+}
+
+.info {
+  text-align: center;
+}
+
+.role {
+  display: block;
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.rootCard .role {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.name {
+  display: block;
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Tree Lines */
+.line {
+  width: 2px;
+  height: 40px;
+  background: #333;
+}
+
+.children {
+  display: grid;
+  gap: 2rem;
+  position: relative;
+  /* Top connector line spanning children */
+}
+
+.childContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Horizontal connectors logic usually requires complex CSS or SVG.
+   Simplified Approach: Vertical stacking with grid based layout is easier for now.
+   For true tree lines, we might need ::before/::after.
+*/
+
+.children::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%; /* Center relative to parent */
+  transform: translateX(-50%);
+  width: calc(
+    100% - 160px
+  ); /* Rough approximation to stop lines at first/last child centers */
+  height: 2px;
+  background: #333;
+}
