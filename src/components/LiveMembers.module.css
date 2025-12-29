@@ -79,32 +79,9 @@
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Live Member Pulse Animation - cnine.kr style enhanced */
+/* Live Member - subtle indicator without flashy pulse */
 .avatarWrapper.live {
-  background: linear-gradient(180deg, #00d4ff, #0099cc);
-  animation: livePulse 2s ease-in-out infinite, liveGlow 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes livePulse {
-  0%, 100% {
-    box-shadow:
-      0 0 0 0 rgba(0, 212, 255, 0.7),
-      0 0 0 0 rgba(0, 212, 255, 0.4);
-  }
-  50% {
-    box-shadow:
-      0 0 0 10px rgba(0, 212, 255, 0),
-      0 0 30px 8px rgba(0, 212, 255, 0.4);
-  }
-}
-
-@keyframes liveGlow {
-  0% {
-    filter: brightness(1) drop-shadow(0 0 8px rgba(0, 212, 255, 0.6));
-  }
-  100% {
-    filter: brightness(1.1) drop-shadow(0 0 16px rgba(0, 212, 255, 0.9));
-  }
+  background: linear-gradient(180deg, var(--color-primary), rgba(253, 104, 186, 0.6));
 }
 
 /* Offline members - subtle pink */
@@ -126,33 +103,43 @@
   overflow: hidden;
 }
 
-/* LIVE Status Badge */
+/* LIVE Status Badge - org page style */
 .badge {
   position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #be123c;
-  color: var(--text-primary);
-  font-size: 0.65rem;
-  font-weight: 900;
-  padding: 3px 10px;
-  border-radius: 12px;
+  top: -4px;
+  right: -4px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   gap: 4px;
-  border: 3px solid var(--background);
-  box-shadow: var(--shadow-md);
+  border: 2px solid var(--background);
   z-index: 10;
   white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+/* Live badge active state */
+.badge.live {
+  background: #ef4444;
+  color: white;
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 .dot {
   width: 5px;
   height: 5px;
-  background: var(--text-primary);
+  background: currentColor;
   border-radius: 50%;
-  animation: pulse 1.5s infinite;
 }
 
 .name {
@@ -166,17 +153,3 @@
   color: var(--text-primary);
 }
 
-@keyframes pulse {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}

@@ -31,7 +31,7 @@ export default function Notice() {
           if (a.is_pinned !== b.is_pinned) return b.is_pinned ? 1 : -1
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         })
-        .slice(0, 3)
+        .slice(0, 2)
       setNotices(
         sorted.map((n) => ({
           id: n.id,
@@ -50,7 +50,7 @@ export default function Notice() {
       .select('id, title, content, is_pinned, created_at')
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
-      .limit(3)
+      .limit(2)
 
     if (error) {
       console.error('공지사항 로드 실패:', error)
