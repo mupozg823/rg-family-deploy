@@ -38,7 +38,13 @@ export {
 // ============================================
 export {
   getPlaceholderAvatar,
+  getMemberAvatar,
+  getVipAvatar,
+  getUnsplashThumbnail,
+  getPicsumThumbnail,
+  getGradientPlaceholder,
   getMemberCharacterImage,
+  getBannerBackground,
   getTimelinePlaceholder,
   getDateWithOffset,
   getCurrentTimestamp,
