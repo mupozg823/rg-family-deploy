@@ -75,18 +75,18 @@ export default function LoginPage() {
           )}
 
           <div className={styles.inputGroup}>
-            <label htmlFor="email" className={styles.label}>이메일</label>
+            <label htmlFor="email" className={styles.label}>이메일 / 아이디</label>
             <div className={styles.inputWrapper}>
               <Mail className={styles.inputIcon} />
               <input
                 id="email"
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@email.com"
+                placeholder="이메일 또는 아이디"
                 className={styles.input}
                 required
-                autoComplete="email"
+                autoComplete="username"
               />
             </div>
           </div>

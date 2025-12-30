@@ -150,8 +150,7 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
     })
   }
 
-  // Get rank for theming (1, 2, 3, or 0 for others)
-  const rankForTheme = data?.reward?.rank && data.reward.rank <= 3 ? data.reward.rank : 0
+  // All VIPs get the same premium theme (no differentiation)
 
   if (isLoading) {
     return (
@@ -175,7 +174,7 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
   }
 
   return (
-    <main className={styles.main} data-rank={rankForTheme || undefined}>
+    <main className={styles.main}>
       {/* Hero Section */}
       <div className={styles.hero}>
         <motion.div
@@ -203,10 +202,10 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
             ) : (
               <User size={48} />
             )}
-            {data.reward.rank <= 3 && (
-              <div className={styles.rankBadge} data-rank={data.reward.rank}>
+            {data.reward.rank > 0 && (
+              <div className={styles.rankBadge}>
                 <Crown size={16} />
-                <span>{data.reward.rank}</span>
+                <span>VIP</span>
               </div>
             )}
           </div>
@@ -283,7 +282,7 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
           )}
         </div>
 
-        {/* Gift Images */}
+        {/* Gift Images / VIP Exclusive Signatures */}
         {data.images.length > 0 && (
           <motion.section
             className={styles.imagesSection}
@@ -293,7 +292,7 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
           >
             <div className={styles.sectionHeader}>
               <Gift size={20} />
-              <h2>스페셜 기프트 이미지</h2>
+              <h2>VIP Exclusive Signatures</h2>
             </div>
             <div className={styles.imagesGrid}>
               {data.images.map((image) => (
@@ -303,16 +302,23 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
                   download
                   className={styles.imageCard}
                 >
-                  <Image
-                    src={image.imageUrl}
-                    alt={image.title || 'Gift Image'}
-                    fill
-                    className={styles.giftImage}
-                  />
-                  <div className={styles.imageOverlay}>
-                    <Download size={24} />
-                    {image.title && <span>{image.title}</span>}
+                  <div className={styles.giftImageWrapper}>
+                    <Image
+                      src={image.imageUrl}
+                      alt={image.title || 'Signature'}
+                      fill
+                      className={styles.giftImage}
+                    />
+                    <div className={styles.imageOverlay}>
+                      <Download size={24} />
+                      <span>다운로드</span>
+                    </div>
                   </div>
+                  {image.title && (
+                    <div className={styles.imageCardTitle}>
+                      <span>{image.title}</span>
+                    </div>
+                  )}
                 </a>
               ))}
             </div>

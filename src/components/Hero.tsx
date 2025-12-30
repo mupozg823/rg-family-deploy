@@ -101,7 +101,9 @@ export default function Hero() {
           {scrollSnaps.map((_, index) => (
             <button
               key={index}
-              className={`${styles.dot} ${index === selectedIndex ? styles.dotActive : ""}`}
+              className={`${styles.dot} ${
+                index === selectedIndex ? styles.dotActive : ""
+              }`}
               onClick={() => scrollTo(index)}
               aria-label={`슬라이드 ${index + 1}`}
             >
@@ -110,7 +112,10 @@ export default function Hero() {
                   className={styles.dotProgress}
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
-                  transition={{ duration: AUTOPLAY_DELAY / 1000, ease: "linear" }}
+                  transition={{
+                    duration: AUTOPLAY_DELAY / 1000,
+                    ease: "linear",
+                  }}
                   key={selectedIndex}
                 />
               )}
@@ -120,26 +125,69 @@ export default function Hero() {
 
         {/* Slide Counter */}
         <div className={styles.counter}>
-          <span className={styles.counterCurrent}>{String(selectedIndex + 1).padStart(2, "0")}</span>
+          <span className={styles.counterCurrent}>
+            {String(selectedIndex + 1).padStart(2, "0")}
+          </span>
           <span className={styles.counterDivider}>/</span>
-          <span className={styles.counterTotal}>{String(activeBanners.length).padStart(2, "0")}</span>
+          <span className={styles.counterTotal}>
+            {String(activeBanners.length).padStart(2, "0")}
+          </span>
         </div>
       </div>
     </section>
   );
 }
 
-function BannerSlide({ banner, isActive }: { banner: Banner; isActive: boolean }) {
+function BannerSlide({
+  banner,
+  isActive,
+}: {
+  banner: Banner;
+  isActive: boolean;
+}) {
+  const hasMemberImage = !!banner.memberImageUrl;
+
   return (
-    <div className={styles.slide}>
+    <div
+      className={`${styles.slide} ${hasMemberImage ? styles.withImage : ""}`}
+    >
       {/* Background */}
       <div
         className={styles.background}
         style={{ background: banner.bgGradient }}
       />
 
-      {/* Content */}
-      <div className={styles.content}>
+      {/* Member Image (Left Side) */}
+      {hasMemberImage && (
+        <div className={styles.memberImageContainer}>
+          <AnimatePresence mode="wait">
+            {isActive && (
+              <motion.div
+                className={styles.memberImage}
+                initial={{ x: -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -30, opacity: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              >
+                <Image
+                  src={banner.memberImageUrl!}
+                  alt={banner.title}
+                  fill
+                  className={styles.memberImg}
+                  priority
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Content (Left Side if Image Exists) */}
+      <div
+        className={`${styles.content} ${
+          hasMemberImage ? styles.withImage : ""
+        }`}
+      >
         <AnimatePresence mode="wait">
           {isActive && (
             <motion.div
@@ -176,6 +224,23 @@ function BannerSlide({ banner, isActive }: { banner: Banner; isActive: boolean }
                   {banner.description}
                 </motion.p>
               )}
+
+              {/* Badges */}
+              {banner.badges && banner.badges.length > 0 && (
+                <motion.div
+                  className={styles.badges}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.35 }}
+                >
+                  {banner.badges.map((badge, idx) => (
+                    <span key={idx} className={styles.badge}>
+                      {badge}
+                    </span>
+                  ))}
+                </motion.div>
+              )}
+
               {banner.linkUrl && banner.linkText && (
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
@@ -192,23 +257,6 @@ function BannerSlide({ banner, isActive }: { banner: Banner; isActive: boolean }
           )}
         </AnimatePresence>
       </div>
-
-      {/* Member Images (if available) */}
-      {banner.memberImages && banner.memberImages.length > 0 && (
-        <div className={styles.characters}>
-          {banner.memberImages.map((imgSrc, idx) => (
-            <div key={idx} className={styles.characterContainer}>
-              <Image
-                src={imgSrc}
-                alt={`Member ${idx + 1}`}
-                fill
-                className={styles.characterImage}
-                priority={idx === 0}
-              />
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Decorative Elements */}
       <div className={styles.overlay} />

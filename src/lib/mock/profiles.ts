@@ -6,7 +6,21 @@
 import type { Profile } from '@/types/database'
 import { getPlaceholderAvatar } from './utils'
 
+// Mock Admin 계정 (admin/admin으로 로그인 가능)
+export const mockAdminProfile: Profile = {
+  id: 'admin-user',
+  nickname: 'Admin',
+  email: 'admin@rgfamily.com',
+  avatar_url: getPlaceholderAvatar('admin'),
+  role: 'superadmin',
+  unit: null,
+  total_donation: 0,
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-12-30T00:00:00Z',
+}
+
 export const mockProfiles: Profile[] = [
+  mockAdminProfile,
   {
     id: 'user-1',
     nickname: 'gul***',

@@ -1,110 +1,129 @@
-'use client'
+"use client";
 
-import { useEffect, useState, useCallback } from 'react'
-import Link from 'next/link'
-import { Pin, ChevronRight } from 'lucide-react'
-import { useSupabase } from '@/lib/hooks/useSupabase'
-import { mockNotices } from '@/lib/mock/data'
-import { USE_MOCK_DATA } from '@/lib/config'
-import styles from './Notice.module.css'
+import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Pin, ChevronRight } from "lucide-react";
+import { useSupabase } from "@/lib/hooks/useSupabase";
+import { mockNotices } from "@/lib/mock/data";
+import { USE_MOCK_DATA } from "@/lib/config";
+import styles from "./Notice.module.css";
 
 interface NoticeItem {
-  id: number
-  title: string
-  content: string
-  isPinned: boolean
-  createdAt: string
+  id: number;
+  title: string;
+  content: string;
+  isPinned: boolean;
+  createdAt: string;
+  thumbnailUrl: string | null;
 }
 
 export default function Notice() {
-  const supabase = useSupabase()
-  const [notices, setNotices] = useState<NoticeItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const supabase = useSupabase();
+  const [notices, setNotices] = useState<NoticeItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchNotices = useCallback(async () => {
-    setIsLoading(true)
+    // setIsLoading(true); // Removed to prevent synchronous state update in useEffect
 
     if (USE_MOCK_DATA) {
-      // 즉시 로드
+      await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate network delay
+
       const sorted = [...mockNotices]
         .sort((a, b) => {
-          if (a.is_pinned !== b.is_pinned) return b.is_pinned ? 1 : -1
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          if (a.is_pinned !== b.is_pinned) return b.is_pinned ? 1 : -1;
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
         })
-        .slice(0, 2)
+        .slice(0, 2);
       setNotices(
         sorted.map((n) => ({
           id: n.id,
           title: n.title,
-          content: n.content || '',
+          content: n.content || "",
           isPinned: n.is_pinned,
           createdAt: n.created_at,
+          thumbnailUrl: n.thumbnail_url,
         }))
-      )
-      setIsLoading(false)
-      return
+      );
+      setIsLoading(false);
+      return;
     }
 
     const { data, error } = await supabase
-      .from('notices')
-      .select('id, title, content, is_pinned, created_at')
-      .order('is_pinned', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(2)
+      .from("notices")
+      .select("id, title, content, is_pinned, created_at, thumbnail_url")
+      .order("is_pinned", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(2);
 
     if (error) {
-      console.error('공지사항 로드 실패:', error)
+      console.error("공지사항 로드 실패:", error);
     } else {
       setNotices(
         (data || []).map((n) => ({
           id: n.id,
           title: n.title,
-          content: n.content || '',
+          content: n.content || "",
           isPinned: n.is_pinned,
           createdAt: n.created_at,
+          thumbnailUrl: n.thumbnail_url,
         }))
-      )
+      );
     }
 
-    setIsLoading(false)
-  }, [supabase])
+    setIsLoading(false);
+  }, [supabase]);
 
   useEffect(() => {
-    fetchNotices()
-  }, [fetchNotices])
+    const init = async () => {
+      await fetchNotices();
+    };
+    init();
+  }, [fetchNotices]);
 
   const getPreviewLines = (content: string, maxLines: number = 2) => {
-    return content.split('\n').slice(0, maxLines)
-  }
+    return content.split("\n").slice(0, maxLines);
+  };
 
   if (isLoading) {
     return (
       <section className={styles.section}>
         <div className={styles.header}>
-          <h3>전체 공지 (NOTICE)</h3>
+          <h3>
+            <span className={styles.rgIcon}>RG</span>
+            전체 공지 (NOTICE)
+          </h3>
           <div className={styles.line} />
         </div>
         <div className={styles.loading}>로딩 중...</div>
       </section>
-    )
+    );
   }
 
   if (notices.length === 0) {
     return (
       <section className={styles.section}>
         <div className={styles.header}>
-          <h3>전체 공지 (NOTICE)</h3>
+          <h3>
+            <span className={styles.rgIcon}>RG</span>
+            전체 공지 (NOTICE)
+          </h3>
           <div className={styles.line} />
         </div>
         <div className={styles.empty}>등록된 공지사항이 없습니다</div>
       </section>
-    )
+    );
   }
 
   return (
     <section className={styles.section}>
       <div className={styles.header}>
-        <h3>전체 공지 (NOTICE)</h3>
+        <h3>
+          <span className={styles.rgIcon}>RG</span>
+          전체 공지 (NOTICE)
+        </h3>
         <div className={styles.line} />
         <Link href="/notice" className={styles.viewAll}>
           전체보기 <ChevronRight size={16} />
@@ -120,20 +139,48 @@ export default function Notice() {
           >
             {notice.isPinned && (
               <div className={styles.pinBadge}>
-                <Pin size={18} className={styles.pin} />
+                <Pin size={14} className={styles.pin} />
               </div>
             )}
             <div className={styles.itemHeader}>
+              {notice.thumbnailUrl ? (
+                <div className={styles.itemThumbnail}>
+                  <Image
+                    src={notice.thumbnailUrl}
+                    alt={notice.title}
+                    fill
+                    sizes="48px"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              ) : (
+                <div className={styles.itemLogo}>
+                  <Image
+                    src="/assets/logo/rg_logo_flat.png"
+                    alt="RG"
+                    width={20}
+                    height={20}
+                    style={{
+                      objectFit: "contain",
+                      filter: "brightness(0) invert(1)",
+                    }}
+                  />
+                </div>
+              )}
               <span
                 className={styles.tag}
-                style={{ color: notice.isPinned ? '#ff5555' : 'var(--color-primary)' }}
+                style={{
+                  color: notice.isPinned
+                    ? "var(--color-primary-deep)"
+                    : "var(--text-secondary)",
+                }}
               >
-                {notice.isPinned ? '중요 공지' : '전체 공지'}
+                {notice.isPinned ? "중요 픽킹 전체 공지" : "전체 공지"}
               </span>
             </div>
             <div className={styles.content}>
               {getPreviewLines(notice.content).map((line, idx) => (
-                <p key={idx}>{line || '\u00A0'}</p>
+                <p key={idx}>{line || "\u00A0"}</p>
               ))}
             </div>
             <span className={styles.more}>자세히 보기</span>
@@ -141,5 +188,5 @@ export default function Notice() {
         ))}
       </div>
     </section>
-  )
+  );
 }

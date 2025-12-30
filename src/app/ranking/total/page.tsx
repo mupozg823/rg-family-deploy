@@ -36,14 +36,14 @@ export default function TotalRankingPage() {
           />
 
           <div className={styles.unitFilter}>
-            {(['all', 'excel', 'crew'] as const).map((unit) => (
+            {(['all', 'excel', 'crew', 'vip'] as const).map((unit) => (
               <button
                 key={unit}
                 onClick={() => setUnitFilter(unit)}
                 className={`${styles.unitButton} ${unitFilter === unit ? styles.active : ''}`}
                 data-unit={unit}
               >
-                {unit === 'all' ? '전체' : unit === 'excel' ? '엑셀부' : '크루부'}
+                {unit === 'all' ? '전체' : unit === 'excel' ? '엑셀' : unit === 'crew' ? '크루' : 'VIP'}
               </button>
             ))}
           </div>

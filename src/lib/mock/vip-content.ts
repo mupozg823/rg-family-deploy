@@ -67,12 +67,12 @@ export const mockVipMemberVideos: VipMemberVideo[] = [
 ]
 
 export const mockVipSignatures: VipSignature[] = [
-  { id: 1, memberName: 'Luna', signatureUrl: '/assets/signatures/luna.png', unit: 'excel' },
-  { id: 2, memberName: 'Nano', signatureUrl: '/assets/signatures/nano.png', unit: 'excel' },
-  { id: 3, memberName: 'Bibi', signatureUrl: '/assets/signatures/bibi.png', unit: 'crew' },
-  { id: 4, memberName: 'Joco', signatureUrl: '/assets/signatures/joco.png', unit: 'crew' },
-  { id: 5, memberName: 'Leo', signatureUrl: '/assets/signatures/leo.png', unit: 'excel' },
-  { id: 6, memberName: 'Mote', signatureUrl: '/assets/signatures/mote.png', unit: 'crew' },
+  { id: 1, memberName: 'Luna', signatureUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=400&fit=crop&q=80', unit: 'excel' },
+  { id: 2, memberName: 'Nano', signatureUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&h=400&fit=crop&q=80', unit: 'excel' },
+  { id: 3, memberName: 'Bibi', signatureUrl: 'https://images.unsplash.com/photo-1634986666676-ec8fd927c23d?w=400&h=400&fit=crop&q=80', unit: 'crew' },
+  { id: 4, memberName: 'Joco', signatureUrl: 'https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=400&h=400&fit=crop&q=80', unit: 'crew' },
+  { id: 5, memberName: 'Leo', signatureUrl: 'https://images.unsplash.com/photo-1633177317976-3f9bc45e1d1d?w=400&h=400&fit=crop&q=80', unit: 'excel' },
+  { id: 6, memberName: 'Mote', signatureUrl: 'https://images.unsplash.com/photo-1614851099511-773084f6911d?w=400&h=400&fit=crop&q=80', unit: 'crew' },
 ]
 
 export const mockVipContent: VipContent = {

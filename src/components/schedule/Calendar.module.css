@@ -158,7 +158,7 @@
 }
 
 .dayCell.today .dayNumber {
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), #ff8ed4);
   color: white;
   border-radius: 50%;
   width: 32px;
@@ -168,6 +168,18 @@
   justify-content: center;
   font-weight: 700;
   box-shadow: 0 0 15px rgba(253, 104, 186, 0.5);
+  animation: todayPulse 2s ease-in-out infinite;
+}
+
+@keyframes todayPulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(253, 104, 186, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(253, 104, 186, 0.7);
+    transform: scale(1.05);
+  }
 }
 
 .dayCell.selected {
@@ -206,18 +218,30 @@
 
 .eventItem {
   padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--text-primary);
+  font-weight: 600;
+  color: #050505;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.eventItem::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+  pointer-events: none;
 }
 
 .eventItem:hover {
-  filter: brightness(1.2);
+  filter: brightness(1.15);
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Event Dots (fallback for small screens) */
@@ -235,6 +259,14 @@
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+  animation: dotGlow 1.5s ease-in-out infinite;
+  animation-delay: calc(var(--dot-index, 0) * 0.2s);
+}
+
+@keyframes dotGlow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; box-shadow: 0 0 10px currentColor; }
 }
 
 .moreEvents {
@@ -251,24 +283,47 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
-  background: rgba(20, 20, 20, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  padding: 0.75rem;
-  min-width: 180px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
+  background: var(--surface-elevated);
+  border: 1px solid rgba(253, 104, 186, 0.2);
+  border-radius: 12px;
+  padding: 0.875rem;
+  min-width: 200px;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(15px);
+}
+
+.eventPreview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary), #ff8ed4, var(--color-primary));
+  border-radius: 12px 12px 0 0;
 }
 
 .dayCell:hover .eventPreview {
   display: block;
+  animation: previewFadeIn 0.2s ease;
+}
+
+@keyframes previewFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .previewItem {
   padding: 0.375rem 0.625rem;
   border-left: 3px solid var(--color-primary);
   margin-bottom: 0.375rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--overlay-subtle);
   border-radius: 0 6px 6px 0;
 }
 
@@ -302,7 +357,7 @@
 .spinner {
   width: 48px;
   height: 48px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
+  border: 3px solid var(--overlay-medium);
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -385,14 +440,14 @@
   display: flex;
   gap: 1rem;
   padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--overlay-subtle);
   border-radius: 12px;
   border-left: 4px solid var(--color-primary);
   transition: all 0.2s ease;
 }
 
 .eventItemCard:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--overlay-medium);
   transform: translateX(4px);
 }
 

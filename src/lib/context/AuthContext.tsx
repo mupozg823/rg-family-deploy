@@ -19,7 +19,15 @@ import {
 } from 'react'
 import { User, Session, AuthError, AuthResponse } from '@supabase/supabase-js'
 import { useSupabaseContext } from './SupabaseContext'
+import { USE_MOCK_DATA } from '@/lib/config'
+import { mockAdminProfile } from '@/lib/mock'
 import type { Profile, Role } from '@/types/database'
+
+// Mock Admin 계정 정보
+const MOCK_ADMIN_CREDENTIALS = {
+  username: 'admin',
+  password: 'admin',
+}
 
 interface AuthState {
   user: User | null
@@ -109,6 +117,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase, fetchProfile])
 
   const signIn = useCallback(async (email: string, password: string) => {
+    // Mock 모드에서 admin/admin 계정 처리
+    if (USE_MOCK_DATA) {
+      const isAdminLogin =
+        (email === MOCK_ADMIN_CREDENTIALS.username || email === 'admin@rgfamily.com') &&
+        password === MOCK_ADMIN_CREDENTIALS.password
+
+      if (isAdminLogin) {
+        // Mock admin 사용자 생성
+        const mockUser: User = {
+          id: mockAdminProfile.id,
+          email: mockAdminProfile.email || 'admin@rgfamily.com',
+          app_metadata: {},
+          user_metadata: { nickname: mockAdminProfile.nickname },
+          aud: 'authenticated',
+          created_at: mockAdminProfile.created_at,
+        } as User
+
+        const mockSession: Session = {
+          access_token: 'mock-admin-token',
+          refresh_token: 'mock-refresh-token',
+          expires_in: 3600,
+          expires_at: Math.floor(Date.now() / 1000) + 3600,
+          token_type: 'bearer',
+          user: mockUser,
+        } as Session
+
+        setState({
+          user: mockUser,
+          profile: mockAdminProfile,
+          session: mockSession,
+          isLoading: false,
+          isAuthenticated: true,
+        })
+
+        return {
+          data: { user: mockUser, session: mockSession },
+          error: null,
+        }
+      }
+
+      // Mock 모드에서 다른 계정은 에러 반환
+      return {
+        data: { user: null, session: null },
+        error: { message: 'Invalid login credentials' } as AuthError,
+      }
+    }
+
+    // 실제 Supabase 인증
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -128,6 +184,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase])
 
   const signOut = useCallback(async () => {
+    // Mock 모드에서 로그아웃 처리
+    if (USE_MOCK_DATA) {
+      setState({
+        user: null,
+        profile: null,
+        session: null,
+        isLoading: false,
+        isAuthenticated: false,
+      })
+      return { error: null }
+    }
+
     const { error } = await supabase.auth.signOut()
     return { error }
   }, [supabase])

@@ -59,9 +59,9 @@ src/
 | **메인** | LIVE MEMBERS (시안색 펄스) | `src/components/LiveMembers.tsx` |
 | **메인** | 공지사항 섹션 | `src/components/Notice.tsx` |
 | **메인** | Shorts/VOD 섹션 | `src/components/Shorts.tsx`, `VOD.tsx` |
-| **정보** | 조직도 (Excel/Crew) | `src/app/info/org/page.tsx` |
-| **정보** | 시그리스트 갤러리 | `src/app/info/sig/page.tsx` |
-| **정보** | 타임라인 | `src/app/info/timeline/page.tsx` |
+| **정보** | 조직도 (계층 구조 + 연결선) | `src/app/info/org/page.tsx` |
+| **정보** | 시그리스트 (6-col 그리드 + 필터) | `src/app/info/sig/page.tsx` |
+| **정보** | 타임라인 (시즌별 카드형) | `src/app/info/timeline/page.tsx` |
 | **랭킹** | 전체 랭킹 + 게이지 바 | `src/app/ranking/total/page.tsx` |
 | **랭킹** | 시즌별 랭킹 | `src/app/ranking/season/[id]/page.tsx` |
 | **랭킹** | VIP 페이지 | `src/app/ranking/vip/page.tsx` |
@@ -72,22 +72,12 @@ src/
 | **시스템** | 다크/라이트 모드 | `src/lib/context/ThemeContext.tsx` |
 | **시스템** | Mock 데이터 시스템 | `src/lib/mock/data.ts` |
 
-### ⚠️ 개선 필요
-
-| 기능 | 현재 상태 | 목표 |
-|------|----------|------|
-| 조직도 계층 | 섹션별 표시 | 대표 → 팀장 → 멤버 시각적 계층 |
-| 타임라인 | 기본 목록 | 시즌별 카드형 + 이미지 |
-| 시그리스트 | 기본 | 필터링 강화 + 재생버튼 개선 |
-
 ### ❌ 미구현 (우선순위순)
 
 | 기능 | 설명 | 우선순위 |
 |------|------|---------|
-| **VIP 전용 콘텐츠** | Top 1-50 비공개 감사 메시지 | 🔴 높음 |
-| **Top 1-3 헌정 페이지** | 개인별 Secret Page | 🔴 높음 |
+| **Top 1-3 헌정 페이지** | `/ranking/vip/[userId]` 개인 페이지 | 🔴 높음 |
 | **실시간 라이브 상태** | PandaTV API 연동 | 🟡 중간 |
-| **CSV 대량 업로드** | Admin 후원 데이터 일괄 등록 | 🟡 중간 |
 | **알림 시스템** | 공지/일정 알림 | 🟢 낮음 |
 
 ---
@@ -236,38 +226,48 @@ vip_rewards: id, rank_range, reward_type, content, image_url
    - 골드/실버/브론즈 테마
    - 커스텀 감사 메시지
 
-### Phase 2: UI/UX 프리미엄 디자인 (진행중)
+### Phase 2: UI/UX 프리미엄 디자인 ✅ (완료)
 
-1. **메인 페이지 개선**
-   - Hero 배너: 멤버 이미지 + 타이틀 조합
-   - LIVE MEMBERS: 시안색 펄스 애니메이션 ✅
-   - Shorts/VOD 그리드 최적화
+1. **메인 페이지** ✅
+   - Hero 배너 슬라이더
+   - LIVE MEMBERS 시안색 펄스
+   - Shorts/VOD 그리드
 
-2. **조직도 (RG Info) 트리 구조**
-   - 대표 → 부장 → 팀장 → 멤버 계층
-   - 연결선 시각화
-   - 프로필 카드 호버 효과
+2. **조직도 (RG Info)** ✅
+   - 대표 → 부장 → 팀장 → 멤버 계층 구조
+   - 연결선 시각화 (vertical/horizontal)
+   - 프로필 카드 호버 & 상세 모달
 
-3. **랭킹 페이지 개선** ✅
-   - 수평 핑크 게이지 바 (그라디언트)
-   - Top 3 포디움 (골드/실버/브론즈)
-   - 퍼센티지 표시 뱃지
+3. **랭킹 페이지** ✅
+   - 수평 핑크 게이지 바
+   - Top 3 포디움
+   - 퍼센티지 뱃지
 
 4. **VIP SECRET 페이지** ✅
    - 프리미엄 다크 배경
-   - Special Thanks 비디오 섹션
-   - VIP Exclusive Signatures 갤러리
+   - Special Thanks 섹션
+   - VIP Signatures 갤러리
 
-### Phase 3: Admin 기능 강화
+5. **타임라인** ✅
+   - 시즌별 그룹화 & 헤더 카드
+   - 이미지 카드형 디자인
+   - 카테고리/시즌 필터
+
+6. **시그리스트** ✅
+   - 6-column 그리드 (cnine 스타일)
+   - 카테고리/검색 필터
+   - 재생버튼 & 상세 모달
+
+### Phase 3: Admin 기능 강화 ✅ (완료)
 
 1. **CSV 대량 업로드** ✅
    - 후원 데이터 일괄 등록
    - 미리보기 + 검증
    - PandaTV 형식 지원
 
-2. **배너 관리 드래그앤드롭**
-   - 순서 변경
-   - 실시간 미리보기
+2. **Admin CMS** ✅
+   - 11개 관리 페이지 완료
+   - CRUD 기능 구현
 
 ### Phase 4: 실시간 기능
 

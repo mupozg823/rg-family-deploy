@@ -65,13 +65,13 @@ export function useRanking(): UseRankingReturn {
         // Mock 데이터에서 랭킹 생성
         let filteredProfiles = [...mockProfiles]
 
-        // 유닛 필터
-        if (unitFilter !== 'all') {
+        // 유닛 필터 (VIP는 전체에서 Top 50)
+        if (unitFilter !== 'all' && unitFilter !== 'vip') {
           filteredProfiles = filteredProfiles.filter(p => p.unit === unitFilter)
         }
 
         // 후원 금액 기준 정렬 및 순위 부여
-        const sorted = filteredProfiles
+        let sorted = filteredProfiles
           .filter(p => (p.total_donation || 0) > 0)
           .sort((a, b) => (b.total_donation || 0) - (a.total_donation || 0))
           .map((profile, index) => ({
@@ -82,6 +82,11 @@ export function useRanking(): UseRankingReturn {
             seasonId: selectedSeasonId ?? undefined,
             rank: index + 1,
           }))
+
+        // VIP 필터: Top 50만 표시
+        if (unitFilter === 'vip') {
+          sorted = sorted.slice(0, 50)
+        }
 
         setRankings(sorted)
         setIsLoading(false)
@@ -108,8 +113,8 @@ export function useRanking(): UseRankingReturn {
         query = query.eq('season_id', selectedSeasonId)
       }
 
-      // 유닛 필터
-      if (unitFilter !== 'all') {
+      // 유닛 필터 (VIP는 전체에서 Top 50)
+      if (unitFilter !== 'all' && unitFilter !== 'vip') {
         query = query.eq('unit', unitFilter)
       }
 
@@ -138,12 +143,17 @@ export function useRanking(): UseRankingReturn {
       }, {} as Record<string, Omit<RankingItem, 'rank'>>)
 
       // 정렬 및 순위 부여
-      const sorted = Object.values(aggregated)
+      let sorted = Object.values(aggregated)
         .sort((a, b) => b.totalAmount - a.totalAmount)
         .map((item, index) => ({
           ...item,
           rank: index + 1,
         }))
+
+      // VIP 필터: Top 50만 표시
+      if (unitFilter === 'vip') {
+        sorted = sorted.slice(0, 50)
+      }
 
       setRankings(sorted)
     } catch (err) {

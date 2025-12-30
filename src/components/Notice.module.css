@@ -12,11 +12,14 @@
 }
 
 .header h3 {
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--text-primary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -25,20 +28,17 @@
   flex: 1;
   height: 1px;
   background: var(--glass-border);
-  min-width: 20px;
 }
 
 .viewAll {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  color: var(--text-muted);
+  gap: 4px;
   font-size: 0.85rem;
+  color: var(--text-muted);
   white-space: nowrap;
-  flex-shrink: 0;
   transition: color 0.2s;
 }
-
 .viewAll:hover {
   color: var(--color-primary);
 }
@@ -49,52 +49,111 @@
   gap: 1rem;
 }
 
+/* RG Logo Icon - Red/Pink Square Box */
+.rgIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--logo-bg);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--logo-text);
+  letter-spacing: -1px;
+  box-shadow: var(--shadow-sm);
+  margin-right: 0.5rem;
+}
+
+/* Notice List Item - Theme Adaptive Card */
 .item {
   position: relative;
-  background: var(--card-bg);
-  padding: 1.5rem;
+  background: var(--item-bg);
+  padding: 1.25rem;
   border-radius: 12px;
-  border: 1px solid var(--card-border);
-  overflow: hidden;
+  border: 1px solid var(--item-border);
+  display: flex;
+  flex-direction: column;
   transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .item:hover {
-  background: var(--surface-hover);
-  border-color: var(--glass-border);
+  background: var(--item-hover);
+  border-color: var(--item-border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
-/* Red Corner Pin */
+/* No left border gradient anymore, using pin for importance */
+.item::before {
+  display: none;
+}
+
+/* Updated Pin Badge - Top Right Red Bookmark */
 .pinBadge {
   position: absolute;
   top: 0;
-  right: 0;
-  width: 44px;
-  height: 44px;
-  background: #be123c; /* Rose-700 */
-  border-bottom-left-radius: 12px;
+  right: 12px;
+  width: 24px;
+  height: 32px;
+  background: var(--color-primary-deep);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: -2px 2px 6px rgba(0, 0, 0, 0.2);
+  padding-bottom: 4px;
+  box-shadow: var(--shadow-sm);
+
+  /* Bookmark Shape */
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
 }
 
 .pin {
-  color: var(--text-primary);
-  transform: rotate(45deg);
+  color: #ffffff;
+  width: 14px;
+  height: 14px;
+  transform: none;
 }
 
+/* Content Layout */
 .itemHeader {
-  margin-bottom: 1rem;
-  padding-right: 40px; /* Space for pin */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 0.5rem;
+  padding-right: 30px; /* Space for pin */
 }
 
-/* Tag style (Important/Notice) */
+/* RG Logo in Content (if designed as left column) */
+.itemLogo {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  background: var(--surface-hover);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--glass-border);
+}
+
+/* Thumbnail Image */
+.itemThumbnail {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* Tag style */
 .tag {
-  color: var(--color-primary);
-  font-size: 0.85rem;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
+  color: var(--color-primary); /* Pink text */
+  font-size: 0.9rem;
+  font-weight: 700;
   display: block;
 }
 

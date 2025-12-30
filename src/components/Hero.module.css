@@ -14,11 +14,12 @@
 .carousel {
   position: relative;
   width: 100%;
-  height: 600px;
+  height: 480px;
   overflow: hidden;
+  border-radius: 16px;
   /* Blend bottom with content */
-  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
 }
 
 /* Embla Slides Container */
@@ -38,233 +39,262 @@
   overflow: hidden;
 }
 
-/* Background Gradient */
+.slide.withImage {
+  justify-content: flex-start;
+}
+
+/* Member Image Section */
+/* Member Image Section - Moving to Right */
+.memberImageContainer {
+  position: absolute;
+  right: 0; /* Changed from left: 0 */
+  bottom: 0;
+  width: 60%; /* Increased for better visibility */
+  height: 110%;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  /* Mask gradient to blend with left content */
+  -webkit-mask-image: linear-gradient(to left, black 60%, transparent 100%);
+  mask-image: linear-gradient(to left, black 60%, transparent 100%);
+}
+
+.memberImage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.memberImg {
+  object-fit: cover;
+  object-position: center 20%;
+  filter: contrast(1.1) saturate(1.1);
+  will-change: transform;
+}
+
+/* Background Gradient - Pink Details */
 .background {
   position: absolute;
   inset: 0;
   z-index: 1;
 }
 
-/* Overlay for depth */
-.overlay {
+.background::before {
+  content: "";
   position: absolute;
   inset: 0;
-  z-index: 2;
+  background: radial-gradient(
+    circle at 20% 50%,
+    rgba(253, 104, 186, 0.15) 0%,
+    transparent 60%
+  ); /* Pink glow on left */
+  z-index: 1;
+}
+
+.background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0, 0, 0, 0.3) 100%
+    135deg,
+    var(--hero-gradient-base) 0%,
+    var(--hero-gradient-accent) 100%
   );
-  pointer-events: none;
+  z-index: 1;
 }
 
-/* Film Grain Effect */
-.grain {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  opacity: 0.1;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  pointer-events: none;
-}
-
-/* Content */
+/* Content - Default Center, but with Image it goes Left */
 .content {
   position: relative;
   z-index: 10;
   text-align: center;
   padding: 2rem;
   max-width: 800px;
+  margin: 0 auto;
+}
+
+.content.withImage {
+  position: absolute;
+  left: 5%;
+  text-align: left;
+  max-width: 500px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  padding: 0;
 }
 
 .info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
+}
+
+.withImage .info {
+  align-items: flex-start;
 }
 
 .subtitle {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 6px;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 4px;
   color: var(--color-primary);
   text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(253, 104, 186, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(253, 104, 186, 0.3);
 }
 
 .title {
-  font-size: 4rem;
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-size: 4.5rem; /* Large Headline */
+  font-weight: 800;
   color: var(--text-primary);
   text-transform: uppercase;
   margin: 0;
-  line-height: 1.1;
+  line-height: 0.9;
   letter-spacing: -2px;
-  text-shadow: 0 0 40px rgba(253, 104, 186, 0.5);
+  /* Premium Text Shadow */
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .description {
   color: var(--text-secondary);
   font-size: 1.1rem;
   font-weight: 400;
-  max-width: 500px;
+  max-width: 460px;
   line-height: 1.6;
   margin: 0;
 }
 
-/* CTA Button */
+/* Badges */
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--overlay-subtle);
+  border: 1px solid var(--overlay-medium);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.badge:first-child {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* CTA Button - Pink Pill */
 .ctaButton {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 1rem;
-  padding: 0.875rem 2rem;
+  padding: 0.8rem 2rem;
   background: var(--color-primary);
   color: white;
   font-weight: 700;
-  font-size: 0.9rem;
-  border-radius: 50px;
+  font-size: 0.95rem;
+  border-radius: 100px;
   text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.4);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(253, 104, 186, 0.3);
 }
 
 .ctaButton:hover {
+  background: var(--color-primary-deep);
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(253, 104, 186, 0.5);
+  box-shadow: 0 8px 20px rgba(253, 104, 186, 0.5);
 }
 
-/* Character Images */
-.characters {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  pointer-events: none;
-  z-index: 5;
-  overflow: hidden;
-}
-
-.characterContainer {
-  position: relative;
-  width: 40%;
-  height: 90%;
-  max-width: 450px;
-  filter: drop-shadow(0 0 60px rgba(253, 104, 186, 0.3));
-  animation: characterFloat 6s ease-in-out infinite;
-}
-
-@keyframes characterFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.characterImage {
-  object-fit: contain;
-  object-position: bottom center;
-  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-}
-
-.characterContainer:first-child {
-  transform: translateX(25%);
-  z-index: 1;
-  animation-delay: 0s;
-}
-
-.characterContainer:last-child {
-  transform: translateX(-25%);
-  z-index: 2;
-  animation-delay: 3s;
-}
-
-/* Single character - center it */
-.characterContainer:only-child {
-  transform: translateX(30%);
-  width: 35%;
-}
-
-/* Glow effect behind characters */
-.characterContainer::before {
-  content: '';
-  position: absolute;
-  bottom: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 150%;
-  height: 50%;
-  background: radial-gradient(ellipse, rgba(253, 104, 186, 0.2) 0%, transparent 70%);
-  z-index: -1;
-}
-
-/* Navigation Arrows */
+/* Navigation Arrows - Minimal */
 .navBtn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 20;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  width: 56px;
-  height: 56px;
+  background: transparent;
+  border: none;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--nav-btn-color);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .navBtn:hover {
   color: var(--text-primary);
-  background: rgba(253, 104, 186, 0.3);
-  border-color: var(--color-primary);
-  transform: translateY(-50%) scale(1.1);
+  background: var(--nav-btn-hover);
+  border-radius: 50%;
 }
 
 .prev {
-  left: 24px;
+  left: 10px;
 }
 
 .next {
-  right: 24px;
+  right: 10px;
 }
 
-/* Dot Navigation */
+/* Dot Navigation - Bar Style (Reverted per user request) */
 .dots {
   position: absolute;
-  bottom: 60px;
+  bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 30;
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
 .dot {
   position: relative;
   width: 40px;
   height: 4px;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--overlay-strong);
   border: none;
   border-radius: 2px;
   cursor: pointer;
-  overflow: hidden;
+  padding: 0;
+  margin: 0;
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .dot:hover {
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--nav-btn-color);
+  transform: none;
 }
 
 .dotActive {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--overlay-strong);
+  transform: none;
+  box-shadow: none;
 }
 
+/* Restore Progress Bar */
 .dotProgress {
+  display: block; /* Restore display */
   position: absolute;
   top: 0;
   left: 0;
@@ -273,16 +303,9 @@
   border-radius: 2px;
 }
 
-/* Slide Counter */
+/* Slide Counter - Removed for minimalism or styled simply */
 .counter {
-  position: absolute;
-  bottom: 60px;
-  right: 40px;
-  z-index: 30;
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  font-family: var(--font-mono, monospace);
+  display: none; /* Removing counter for minimal look */
 }
 
 .counterCurrent {
@@ -305,16 +328,20 @@
 /* Responsive */
 @media (max-width: 1024px) {
   .carousel {
-    height: 500px;
+    height: 420px;
+  }
+
+  .memberImageContainer {
+    width: 50%;
   }
 
   .title {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 
   .navBtn {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
   }
 
   .prev {
@@ -328,11 +355,21 @@
 
 @media (max-width: 768px) {
   .carousel {
-    height: 450px;
+    height: 320px;
+  }
+
+  .memberImageContainer {
+    width: 40%;
+    left: -5%;
+  }
+
+  .content.rightAlign {
+    right: 2%;
+    max-width: 55%;
   }
 
   .title {
-    font-size: 2.25rem;
+    font-size: 2rem;
     letter-spacing: -1px;
   }
 
@@ -343,6 +380,15 @@
 
   .description {
     font-size: 0.9rem;
+  }
+
+  .badges {
+    gap: 0.375rem;
+  }
+
+  .badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6rem;
   }
 
   .ctaButton {
@@ -379,47 +425,31 @@
   .counter {
     display: none;
   }
-
-  .characterContainer {
-    width: 50%;
-    height: 80%;
-    filter: drop-shadow(0 0 40px rgba(253, 104, 186, 0.2));
-  }
-
-  .characterContainer:first-child {
-    transform: translateX(15%);
-  }
-
-  .characterContainer:last-child {
-    transform: translateX(-15%);
-  }
-
-  .characterContainer:only-child {
-    transform: translateX(25%);
-    width: 45%;
-  }
 }
 
 @media (max-width: 480px) {
   .carousel {
-    height: 400px;
+    height: 280px;
+  }
+
+  .memberImageContainer {
+    width: 35%;
+    left: -8%;
+  }
+
+  .content.rightAlign {
+    max-width: 60%;
   }
 
   .title {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
   }
 
-  .characters {
-    opacity: 0.5;
+  .badges {
+    display: none;
   }
 
-  .characterContainer {
-    width: 60%;
-    height: 70%;
-  }
-
-  .characterContainer:only-child {
-    transform: translateX(20%);
-    width: 55%;
+  .description {
+    display: none;
   }
 }

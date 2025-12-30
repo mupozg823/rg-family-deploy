@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Trophy } from "lucide-react";
+import { Trophy, Crown } from "lucide-react";
 import { getRankingData } from "@/lib/mock/data";
 import styles from "./RankingBoard.module.css";
 
 export default function RankingBoard() {
+  const [activeTab, setActiveTab] = useState<"season" | "total">("season");
   const rankingData = getRankingData().slice(0, 5); // Top 5
   // Calculate max amount for progress bars
   const maxAmount = rankingData[0]?.amount || 1;
@@ -14,10 +16,29 @@ export default function RankingBoard() {
     <section className={styles.container}>
       <div className={styles.header}>
         <div className={styles.title}>
-          <Trophy size={20} className={styles.titleIcon} />
-          <span>SEASON RANKING</span>
+          <Trophy size={18} className={styles.titleIcon} />
+          <span>RANKING</span>
         </div>
-        <span style={{ fontSize: "0.8rem", color: "#666" }}>Total Top 5</span>
+
+        {/* Tabs */}
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${
+              activeTab === "season" ? styles.active : ""
+            }`}
+            onClick={() => setActiveTab("season")}
+          >
+            SEASON
+          </button>
+          <button
+            className={`${styles.tab} ${
+              activeTab === "total" ? styles.active : ""
+            }`}
+            onClick={() => setActiveTab("total")}
+          >
+            TOTAL
+          </button>
+        </div>
       </div>
 
       <div className={styles.list}>
@@ -42,7 +63,12 @@ export default function RankingBoard() {
             </span>
 
             <div className={styles.info}>
-              <span className={styles.nickname}>{item.name}</span>
+              <span className={styles.nickname}>
+                {item.rank === 1 && (
+                  <Crown size={14} className={styles.crown} />
+                )}
+                {item.name}
+              </span>
               <span className={styles.amount}>
                 {item.amount.toLocaleString()} 🪙
               </span>

@@ -109,9 +109,10 @@ export default function FreeBoardPage() {
           <div className={styles.board}>
             <div className={styles.boardHeader}>
               <span>제목</span>
-              <span className={styles.pcOnly}>작성자</span>
-              <span className={styles.pcOnly}>조회</span>
-              <span className={styles.pcOnly}>날짜</span>
+              <span>작성자</span>
+              <span>조회</span>
+              <span>날짜</span>
+              <span></span>
             </div>
             {posts.map((post) => (
               <Link

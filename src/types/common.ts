@@ -149,6 +149,6 @@ export interface PostItem {
 }
 
 // Filter types
-export type UnitFilter = 'all' | 'excel' | 'crew'
+export type UnitFilter = 'all' | 'excel' | 'crew' | 'vip'
 export type NoticeCategory = 'all' | 'official' | 'excel' | 'crew'
 export type SortOrder = 'latest' | 'popular' | 'oldest'

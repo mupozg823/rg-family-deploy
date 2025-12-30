@@ -1,109 +1,158 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap");
 
 :root {
   /* Typography - Minimal & Refined Hip */
-  --font-display: 'Space Grotesk', 'Outfit', -apple-system, sans-serif;
-  --font-body: 'Noto Sans KR', -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
-  --font-accent: 'Outfit', sans-serif;
+  --font-display: "Space Grotesk", "Outfit", -apple-system, sans-serif;
+  --font-body: "Noto Sans KR", -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", monospace;
+  --font-accent: "Outfit", sans-serif;
 
-  /* Brand Colors (shared) */
+  /* Brand Colors */
   --primary: #fd68ba;
   --color-primary: #fd68ba;
+  --color-primary-deep: #fb37a3;
   --color-primary-light: #fe9bd2;
-  --primary-glow: rgba(253, 104, 186, 0.5);
-  --primary-deep: #fb37a3;
-  --primary-light: #fe9bd2;
-  --secondary: #00f0ff;
+  --primary-glow: rgba(253, 104, 186, 0.4);
 
-  /* LIVE Status - Cyan (cnine.kr style) */
-  --live-color: #00d4ff;
-  --live-glow: rgba(0, 212, 255, 0.6);
+  --secondary: #00f0ff; /* Keep cyan for accents if needed, or mute it */
+
+  /* LIVE Status - Bright Pink/Red ish for 'LIVE' badge? Or standard Red? 
+     Ref image has Red/Pink badge. Let's use a variation of primary or a standard red.
+     User asked for variations of the pinks. Let's use Deep Pink for "LIVE". */
+  --live-color: #fb37a3;
+  --live-glow: rgba(251, 55, 163, 0.6);
 
   /* Ranking Colors */
   --gold: #ffd700;
-  --gold-glow: rgba(255, 215, 0, 0.4);
   --silver: #c0c0c0;
   --bronze: #cd7f32;
 
   /* Layout */
   --max-width: 1400px;
   --header-height: 80px;
-  --section-gap: 3rem;
+  --section-gap: 4rem; /* Increased for premium feel */
 
   /* Animation */
   --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-  --transition-fast: all 0.2s var(--ease-smooth);
-  --transition-medium: all 0.3s var(--ease-smooth);
+  --transition-theme: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Dark Theme (Default) */
 :root,
 [data-theme="dark"] {
-  --background: #050505;
+  --background: #050505; /* Deep Black */
   --foreground: #ffffff;
-  --foreground-muted: #a0a0a0;
+  --foreground-muted: #888888;
 
   /* Surface Colors */
-  --surface: #121212;
-  --surface-hover: #1a1a1a;
-  --surface-elevated: #1e1e1e;
-  --glass-bg: rgba(20, 20, 20, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --surface: #0a0a0a;
+  --surface-hover: #141414;
+  --surface-elevated: #1a1a1a;
 
-  /* Card & Component */
+  /* Glass - Darker, cleaner */
+  --glass-bg: rgba(10, 10, 10, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Card */
   --card-bg: #0a0a0a;
-  --card-border: rgba(255, 255, 255, 0.08);
-  --card-hover: #141414;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-hover: #121212;
 
   /* Text */
   --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
-  --text-muted: #707070;
+  --text-secondary: #a0a0a0;
+  --text-muted: #666666;
 
   /* Scrollbar */
   --scrollbar-track: #050505;
   --scrollbar-thumb: #333333;
 
+  /* Theme-Adaptive Overlays */
+  --overlay-subtle: rgba(255, 255, 255, 0.05);
+  --overlay-medium: rgba(255, 255, 255, 0.1);
+  --overlay-strong: rgba(255, 255, 255, 0.2);
+
+  /* Hero/Banner Gradients */
+  --hero-gradient-base: rgba(5, 5, 5, 0.9);
+  --hero-gradient-accent: rgba(251, 55, 163, 0.1);
+
+  /* Item/Card Backgrounds */
+  --item-bg: #111111;
+  --item-hover: #161616;
+  --item-border: rgba(255, 255, 255, 0.05);
+  --item-border-hover: rgba(255, 255, 255, 0.1);
+
+  /* Logo/Badge Backgrounds */
+  --logo-bg: #ffffff;
+  --logo-text: var(--color-primary-deep);
+
+  /* Navigation */
+  --nav-btn-color: rgba(255, 255, 255, 0.3);
+  --nav-btn-hover: rgba(255, 255, 255, 0.05);
+
   /* Shadows */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 /* Light Theme */
 [data-theme="light"] {
-  --background: #f5f5f7;
-  --foreground: #1a1a1a;
+  --background: #ffffff;
+  --foreground: #111111;
   --foreground-muted: #666666;
 
   /* Surface Colors */
-  --surface: #ffffff;
-  --surface-hover: #f0f0f0;
+  --surface: #f8f9fa;
+  --surface-hover: #f1f3f5;
   --surface-elevated: #ffffff;
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(0, 0, 0, 0.1);
 
-  /* Card & Component */
+  /* Glass - Light */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
+
+  /* Card */
   --card-bg: #ffffff;
-  --card-border: rgba(0, 0, 0, 0.08);
-  --card-hover: #fafafa;
+  --card-border: rgba(0, 0, 0, 0.06);
+  --card-hover: #f8f9fa;
 
   /* Text */
-  --text-primary: #1a1a1a;
-  --text-secondary: #4a4a4a;
+  --text-primary: #111111;
+  --text-secondary: #444444;
   --text-muted: #888888;
 
   /* Scrollbar */
-  --scrollbar-track: #f5f5f7;
+  --scrollbar-track: #f0f0f0;
   --scrollbar-thumb: #cccccc;
 
+  /* Theme-Adaptive Overlays */
+  --overlay-subtle: rgba(0, 0, 0, 0.03);
+  --overlay-medium: rgba(0, 0, 0, 0.06);
+  --overlay-strong: rgba(0, 0, 0, 0.1);
+
+  /* Hero/Banner Gradients */
+  --hero-gradient-base: rgba(255, 255, 255, 0.95);
+  --hero-gradient-accent: rgba(251, 55, 163, 0.08);
+
+  /* Item/Card Backgrounds */
+  --item-bg: #f8f9fa;
+  --item-hover: #f1f3f5;
+  --item-border: rgba(0, 0, 0, 0.06);
+  --item-border-hover: rgba(0, 0, 0, 0.12);
+
+  /* Logo/Badge Backgrounds */
+  --logo-bg: #ffffff;
+  --logo-text: var(--color-primary-deep);
+
+  /* Navigation */
+  --nav-btn-color: rgba(0, 0, 0, 0.4);
+  --nav-btn-hover: rgba(0, 0, 0, 0.05);
+
   /* Shadows */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.16);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
 * {
@@ -125,7 +174,12 @@ body {
 }
 
 /* Display headings use Outfit font */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -199,7 +253,7 @@ body {
 
 /* Noise texture overlay - subtle film grain effect */
 .noise-overlay::before {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
@@ -229,8 +283,11 @@ body {
 
 /* Gradient mesh backgrounds */
 .gradient-mesh {
-  background:
-    radial-gradient(at 20% 80%, rgba(253, 104, 186, 0.15) 0%, transparent 50%),
+  background: radial-gradient(
+      at 20% 80%,
+      rgba(253, 104, 186, 0.15) 0%,
+      transparent 50%
+    ),
     radial-gradient(at 80% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
     var(--background);
 }
@@ -250,7 +307,8 @@ body {
 
 /* Smooth hover lift */
 .hover-lift {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
 }
 
 .hover-lift:hover {
@@ -273,11 +331,21 @@ body {
 }
 
 /* Staggered animation delays */
-.stagger-1 { animation-delay: 0.05s; }
-.stagger-2 { animation-delay: 0.1s; }
-.stagger-3 { animation-delay: 0.15s; }
-.stagger-4 { animation-delay: 0.2s; }
-.stagger-5 { animation-delay: 0.25s; }
+.stagger-1 {
+  animation-delay: 0.05s;
+}
+.stagger-2 {
+  animation-delay: 0.1s;
+}
+.stagger-3 {
+  animation-delay: 0.15s;
+}
+.stagger-4 {
+  animation-delay: 0.2s;
+}
+.stagger-5 {
+  animation-delay: 0.25s;
+}
 
 /* Fade in up animation */
 @keyframes fadeInUp {
@@ -326,7 +394,11 @@ body {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, var(--color-primary), var(--primary-deep));
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--primary-deep)
+  );
   color: white;
   font-weight: 600;
   border: none;
