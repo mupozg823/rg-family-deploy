@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Users, Heart, Calendar, FileText, TrendingUp, Clock } from 'lucide-react'
 import { StatsCard, DataTable, Column } from '@/components/admin'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import type { JoinedProfile } from '@/types/common'
 import styles from './page.module.css'
 
 interface DashboardStats {
@@ -77,13 +78,15 @@ export default function AdminDashboardPage() {
         totalDonations,
         totalDonationAmount,
         activeSeasons: activeSeasonCount || 0,
-        recentDonations: (recentDonations || []).map((d) => ({
-          id: d.id,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          donorName: (d.profiles as any)?.nickname || '익명',
-          amount: d.amount,
-          createdAt: d.created_at,
-        })),
+        recentDonations: (recentDonations || []).map((d) => {
+          const profile = d.profiles as JoinedProfile | null
+          return {
+            id: d.id,
+            donorName: profile?.nickname || '익명',
+            amount: d.amount,
+            createdAt: d.created_at,
+          }
+        }),
         recentMembers: (recentMembers || []).map((m) => ({
           id: m.id,
           nickname: m.nickname,

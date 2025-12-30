@@ -2,11 +2,15 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
-import { User } from 'lucide-react'
+import Link from 'next/link'
+import { Radio, ChevronRight } from 'lucide-react'
 import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockOrganization } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
+import type { JoinedProfile } from '@/types/common'
 import styles from './LiveMembers.module.css'
+
+const MAX_DISPLAY_COUNT = 8
 
 interface LiveMember {
   id: number
@@ -50,15 +54,16 @@ export default function LiveMembers() {
       console.error('라이브 멤버 로드 실패:', error)
     } else {
       setMembers(
-        (data || []).map((o) => ({
-          id: o.id,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          nickname: (o.profiles as any)?.nickname || o.name,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          avatarUrl: (o.profiles as any)?.avatar_url || o.image_url,
-          isLive: o.is_live,
-          unit: o.unit,
-        }))
+        (data || []).map((o) => {
+          const profile = o.profiles as JoinedProfile | null
+          return {
+            id: o.id,
+            nickname: profile?.nickname || o.name,
+            avatarUrl: profile?.avatar_url || o.image_url,
+            isLive: o.is_live,
+            unit: o.unit,
+          }
+        })
       )
     }
 
@@ -91,7 +96,7 @@ export default function LiveMembers() {
     return (
       <section className={styles.section}>
         <div className={styles.header}>
-          <h3>LIVE MEMBERS</h3>
+          <h3>현재 방송중</h3>
           <div className={styles.line} />
         </div>
         <div className={styles.loading}>로딩 중...</div>
@@ -103,7 +108,7 @@ export default function LiveMembers() {
     return (
       <section className={styles.section}>
         <div className={styles.header}>
-          <h3>LIVE MEMBERS</h3>
+          <h3>현재 방송중</h3>
           <div className={styles.line} />
         </div>
         <div className={styles.empty}>현재 라이브 중인 멤버가 없습니다</div>
@@ -111,18 +116,35 @@ export default function LiveMembers() {
     )
   }
 
+  const liveCount = members.filter(m => m.isLive).length
+  const displayMembers = members.slice(0, MAX_DISPLAY_COUNT)
+  const hasMore = members.length > MAX_DISPLAY_COUNT
+
   return (
     <section className={styles.section}>
       <div className={styles.header}>
-        <h3>LIVE MEMBERS</h3>
+        <h3>현재 방송중</h3>
+        <div className={styles.liveCount}>
+          <span className={styles.liveCountDot} />
+          {liveCount}
+        </div>
         <div className={styles.line} />
+        <Link href="/info/live" className={styles.viewAll}>
+          전체보기 <ChevronRight size={16} />
+        </Link>
       </div>
 
-      <div className={`${styles.grid} ${members.length <= 5 ? styles.singleRow : ''}`}>
-        {members.map((member) => (
+      <div className={`${styles.grid} ${displayMembers.length <= 4 ? styles.singleRow : ''}`}>
+        {displayMembers.map((member) => (
           <div key={member.id} className={styles.member}>
-            <div className={`${styles.avatarWrapper} ${member.isLive ? styles.live : ''}`}>
-              <div className={`${styles.avatar} ${member.unit === 'crew' ? styles.crew : ''}`}>
+            <div className={styles.avatarWrapper}>
+              {member.isLive && (
+                <span className={styles.liveBadge}>
+                  <Radio size={10} />
+                  LIVE
+                </span>
+              )}
+              <div className={`${styles.avatar} ${member.isLive ? styles.avatarLive : ''} ${member.unit === 'crew' ? styles.crew : ''}`}>
                 {member.avatarUrl ? (
                   <Image
                     src={member.avatarUrl}
@@ -132,12 +154,10 @@ export default function LiveMembers() {
                     unoptimized
                   />
                 ) : (
-                  <User size={24} />
+                  <div className={styles.avatarPlaceholder}>
+                    {member.nickname.charAt(0)}
+                  </div>
                 )}
-              </div>
-              <div className={`${styles.badge} ${member.isLive ? styles.live : ''}`}>
-                <span className={styles.dot} />
-                {member.isLive ? 'LIVE' : 'OFF'}
               </div>
             </div>
             <span className={styles.name}>{member.nickname}</span>

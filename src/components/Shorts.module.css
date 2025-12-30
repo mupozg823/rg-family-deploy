@@ -28,15 +28,7 @@
 }
 
 .line::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 4px;
-  background: var(--primary);
-  border-radius: 50%;
+  display: none;
 }
 
 .arrows {
@@ -59,9 +51,9 @@
 }
 
 .arrowButton:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: rgba(253, 104, 186, 0.1);
+  border-color: var(--overlay-strong);
+  color: var(--text-primary);
+  background: var(--overlay-subtle);
 }
 
 /* Extended Grid to simple Flex with gap */
@@ -88,7 +80,7 @@
   cursor: pointer;
   flex-shrink: 0;
   width: 160px; /* Slightly larger vertical card */
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform var(--duration-base) var(--ease-spring);
   position: relative;
 }
 
@@ -99,12 +91,8 @@
 .thumbnail {
   position: relative;
   aspect-ratio: 9/16;
-  background: linear-gradient(
-    145deg,
-    var(--surface),
-    rgba(253, 104, 186, 0.05)
-  );
-  border-radius: 12px; /* Smooth rounded corners */
+  background: var(--surface);
+  border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--card-border);
   transition: all 0.3s ease;
@@ -112,8 +100,8 @@
 }
 
 .card:hover .thumbnail {
-  border-color: rgba(253, 104, 186, 0.5);
-  box-shadow: 0 12px 24px rgba(253, 104, 186, 0.25);
+  border-color: var(--overlay-strong);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
 }
 
 .thumbnailImage {
@@ -213,9 +201,9 @@
 }
 
 .unitBadge.crew {
-  background: rgba(0, 212, 255, 0.2);
-  border-color: rgba(0, 212, 255, 0.3);
-  color: #00d4ff;
+  background: var(--crew-bg);
+  border-color: var(--crew-border);
+  color: var(--crew-color);
 }
 
 /* Duration - Top Right now */
@@ -240,4 +228,212 @@
   width: 100%;
   height: 100%;
   background: var(--surface-elevated);
+}
+
+/* Unit Toggle Buttons */
+.unitToggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toggleBtn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggleBtn:hover {
+  border-color: var(--overlay-strong);
+  color: var(--text-primary);
+}
+
+.toggleBtn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.toggleBtn.crewBtn.active {
+  background: var(--live-color);
+  border-color: var(--live-color);
+  color: var(--background);
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.modalContent {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+}
+
+.closeBtn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+.videoWrapper {
+  width: 100%;
+  aspect-ratio: 9/16;
+  background: #000;
+}
+
+.videoFrame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.videoError {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.videoInfo {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.videoInfo h4 {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modalBadge {
+  padding: 4px 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--overlay-medium);
+  border: 1px solid var(--overlay-strong);
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+
+.modalBadge.crew {
+  background: var(--crew-bg);
+  border-color: var(--crew-border);
+  color: var(--crew-color);
+}
+
+/* Loading & Empty */
+.loading,
+.empty {
+  color: var(--text-muted);
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .unitToggle {
+    display: none;
+  }
+
+  .modal {
+    padding: 1rem;
+  }
+
+  .modalContent {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h3 {
+    font-size: 0.85rem;
+  }
+
+  .grid {
+    gap: 1rem;
+    padding: 0.5rem 0 1.5rem 0;
+  }
+
+  .card {
+    width: 140px;
+  }
+
+  .title {
+    font-size: 0.75rem;
+  }
+
+  .unitBadge {
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    top: 8px;
+    left: 8px;
+  }
+
+  .duration {
+    font-size: 0.6rem;
+    top: 8px;
+    right: 8px;
+  }
+
+  .arrowButton {
+    width: 28px;
+    height: 28px;
+  }
+
+  .playOverlay svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .info {
+    padding: 0.75rem;
+  }
 }

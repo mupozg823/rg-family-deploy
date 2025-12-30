@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { MessageSquare, Eye } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import type { JoinedProfile } from '@/types/common'
 import styles from '../shared.module.css'
 
 interface Post {
@@ -40,17 +41,19 @@ export default function PostsPage() {
       console.error('게시글 데이터 로드 실패:', error)
     } else {
       setPosts(
-        (data || []).map((p) => ({
-          id: p.id,
-          title: p.title,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          authorName: (p.profiles as any)?.nickname || '익명',
-          boardType: p.board_type,
-          viewCount: p.view_count || 0,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          commentCount: (p.comments as any[])?.length || 0,
-          createdAt: p.created_at,
-        }))
+        (data || []).map((p) => {
+          const profile = p.profiles as JoinedProfile | null
+          const comments = p.comments as unknown[] | null
+          return {
+            id: p.id,
+            title: p.title,
+            authorName: profile?.nickname || '익명',
+            boardType: p.board_type,
+            viewCount: p.view_count || 0,
+            commentCount: comments?.length || 0,
+            createdAt: p.created_at,
+          }
+        })
       )
     }
 

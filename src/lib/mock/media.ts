@@ -1,131 +1,181 @@
 /**
  * Mock Media Content Data
- * Shorts & VOD - 고품질 Picsum 썸네일 사용
+ * Shorts & VOD - 아이돌 직캠 YouTube 영상 (실제 YouTube ID 사용)
  */
 
 import type { MediaContent } from '@/types/database'
-import { getPicsumThumbnail } from './utils'
+
+// YouTube 썸네일 URL 생성
+const getYouTubeThumbnail = (videoId: string) =>
+  `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
 
 // ============================================
-// Shorts 콘텐츠
+// Shorts 콘텐츠 - 실제 아이돌 직캠
 // ============================================
 const baseShorts: MediaContent[] = [
   {
     id: 1,
     content_type: 'shorts',
-    title: '아이린의 귀여운 실수 모음',
-    description: '방송 중 귀여운 실수 모음집',
-    thumbnail_url: getPicsumThumbnail(101, 360, 640), // 세로형 Shorts
-    video_url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+    title: '카리나 - Supernova 직캠',
+    description: 'aespa 카리나 Supernova 뮤직뱅크 직캠 240524',
+    thumbnail_url: getYouTubeThumbnail('FFEKMEj2zfE'),
+    video_url: 'https://www.youtube.com/watch?v=FFEKMEj2zfE',
     unit: 'excel',
-    duration: 58,
-    view_count: 45230,
+    duration: 205,
+    view_count: 6400000,
     is_featured: true,
-    created_at: '2024-12-18T14:00:00Z',
+    created_at: '2024-05-24T14:00:00Z',
   },
   {
     id: 2,
     content_type: 'shorts',
-    title: '레오의 노래 커버',
-    description: '크리스마스 캐롤 커버',
-    thumbnail_url: getPicsumThumbnail(102, 360, 640),
-    video_url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
-    unit: 'crew',
-    duration: 45,
-    view_count: 32100,
+    title: '윈터 - Dirty Work 직캠',
+    description: 'aespa 윈터 Dirty Work + Rich Man 가요대축제 직캠 251219',
+    thumbnail_url: getYouTubeThumbnail('aATx6QdS5g0'),
+    video_url: 'https://www.youtube.com/watch?v=aATx6QdS5g0',
+    unit: 'excel',
+    duration: 230,
+    view_count: 2300000,
     is_featured: true,
-    created_at: '2024-12-15T20:00:00Z',
+    created_at: '2024-12-19T20:00:00Z',
   },
   {
     id: 3,
     content_type: 'shorts',
-    title: '루나 vs 비비 대결',
-    description: '게임 대결 하이라이트',
-    thumbnail_url: getPicsumThumbnail(103, 360, 640),
-    video_url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+    title: '장원영 - REBEL HEART 직캠',
+    description: 'IVE 장원영 REBEL HEART 뮤직뱅크 글로벌 페스티벌 251230',
+    thumbnail_url: getYouTubeThumbnail('OSz9y6mIeHE'),
+    video_url: 'https://www.youtube.com/watch?v=OSz9y6mIeHE',
     unit: 'excel',
-    duration: 60,
-    view_count: 28900,
-    is_featured: false,
-    created_at: '2024-12-12T16:00:00Z',
+    duration: 195,
+    view_count: 344000,
+    is_featured: true,
+    created_at: '2024-12-30T16:00:00Z',
   },
-]
-
-// ============================================
-// VOD 콘텐츠
-// ============================================
-const baseVods: MediaContent[] = [
   {
     id: 4,
-    content_type: 'vod',
-    title: '[풀영상] 연말 합동 방송',
-    description: '2024 연말 특별 합동 방송 풀영상',
-    thumbnail_url: getPicsumThumbnail(201, 640, 360), // 가로형 VOD
-    video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    unit: null,
-    duration: 10800,
-    view_count: 15670,
+    content_type: 'shorts',
+    title: '안유진 - XOXZ 직캠',
+    description: 'IVE 안유진 XOXZ 뮤직뱅크 글로벌 페스티벌 251230',
+    thumbnail_url: getYouTubeThumbnail('-qsus78K7jk'),
+    video_url: 'https://www.youtube.com/watch?v=-qsus78K7jk',
+    unit: 'excel',
+    duration: 185,
+    view_count: 344000,
     is_featured: true,
-    created_at: '2024-12-20T23:00:00Z',
+    created_at: '2024-12-30T18:00:00Z',
   },
   {
     id: 5,
-    content_type: 'vod',
-    title: '[풀영상] 아이린 게임 방송',
-    description: '발로란트 랭크 도전기',
-    thumbnail_url: getPicsumThumbnail(202, 640, 360),
-    video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    unit: 'excel',
-    duration: 7200,
-    view_count: 8940,
-    is_featured: false,
-    created_at: '2024-12-19T22:00:00Z',
+    content_type: 'shorts',
+    title: '해린 - New Jeans 직캠',
+    description: 'NewJeans 해린 New Jeans 뮤직뱅크 직캠 230714',
+    thumbnail_url: getYouTubeThumbnail('k3jV6DMTCSE'),
+    video_url: 'https://www.youtube.com/watch?v=k3jV6DMTCSE',
+    unit: 'crew',
+    duration: 213,
+    view_count: 21300000,
+    is_featured: true,
+    created_at: '2023-07-14T19:00:00Z',
   },
   {
     id: 6,
-    content_type: 'vod',
-    title: '[풀영상] 크루부 노래방 방송',
-    description: '크루부 멤버들의 노래 실력 대공개!',
-    thumbnail_url: getPicsumThumbnail(203, 640, 360),
-    video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    content_type: 'shorts',
+    title: '민지 - Supernatural 직캠',
+    description: 'NewJeans 민지 Supernatural 뮤직뱅크 직캠 240712',
+    thumbnail_url: getYouTubeThumbnail('KTIY11xxsBI'),
+    video_url: 'https://www.youtube.com/watch?v=KTIY11xxsBI',
     unit: 'crew',
-    duration: 5400,
-    view_count: 6780,
+    duration: 201,
+    view_count: 2600000,
     is_featured: true,
-    created_at: '2024-12-17T21:00:00Z',
+    created_at: '2024-07-12T20:00:00Z',
+  },
+  {
+    id: 7,
+    content_type: 'shorts',
+    title: '채원 - SPAGHETTI 직캠',
+    description: 'LE SSERAFIM 김채원 SPAGHETTI 뮤직뱅크 직캠 251024',
+    thumbnail_url: getYouTubeThumbnail('iZ-fHb5ayFs'),
+    video_url: 'https://www.youtube.com/watch?v=iZ-fHb5ayFs',
+    unit: 'excel',
+    duration: 198,
+    view_count: 600000,
+    is_featured: false,
+    created_at: '2024-10-24T20:00:00Z',
   },
 ]
 
 // ============================================
-// 추가 콘텐츠 (확장용)
+// VOD 콘텐츠 - 아이돌 풀 무대 영상
 // ============================================
-const additionalShorts: MediaContent[] = Array.from({ length: 12 }).map((_, i) => ({
-  id: 100 + i,
-  content_type: 'shorts' as const,
-  title: `숏폼 콘텐츠 ${i + 1}`,
-  description: `테스트용 숏폼 데이터 ${i + 1}`,
-  thumbnail_url: getPicsumThumbnail(110 + i, 360, 640),
-  video_url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
-  unit: (i % 2 === 0 ? 'excel' : 'crew') as 'excel' | 'crew',
-  duration: 30 + i * 5,
-  view_count: 1000 * (i + 1),
-  is_featured: false,
-  created_at: new Date(Date.now() - i * 86400000).toISOString(),
-}))
-
-const additionalVods: MediaContent[] = Array.from({ length: 5 }).map((_, i) => ({
-  id: 200 + i,
-  content_type: 'vod' as const,
-  title: `VOD 콘텐츠 ${i + 1}`,
-  description: `테스트용 VOD 데이터 ${i + 1}`,
-  thumbnail_url: getPicsumThumbnail(210 + i, 640, 360),
-  video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-  unit: (i % 2 === 0 ? 'crew' : 'excel') as 'excel' | 'crew',
-  duration: 3600 + i * 600,
-  view_count: 500 * (i + 1),
-  is_featured: false,
-  created_at: new Date(Date.now() - i * 86400000 * 2).toISOString(),
-}))
+const baseVods: MediaContent[] = [
+  {
+    id: 101,
+    content_type: 'vod',
+    title: '[풀버전] aespa - Supernova 뮤직뱅크',
+    description: 'aespa Supernova 뮤직뱅크 풀버전 240524',
+    thumbnail_url: getYouTubeThumbnail('FFEKMEj2zfE'),
+    video_url: 'https://www.youtube.com/watch?v=FFEKMEj2zfE',
+    unit: 'excel',
+    duration: 205,
+    view_count: 15670000,
+    is_featured: true,
+    created_at: '2024-05-24T23:00:00Z',
+  },
+  {
+    id: 102,
+    content_type: 'vod',
+    title: '[풀버전] IVE - REBEL HEART 글로벌 페스티벌',
+    description: 'IVE REBEL HEART 뮤직뱅크 글로벌 페스티벌 251230',
+    thumbnail_url: getYouTubeThumbnail('OSz9y6mIeHE'),
+    video_url: 'https://www.youtube.com/watch?v=OSz9y6mIeHE',
+    unit: 'excel',
+    duration: 195,
+    view_count: 12940000,
+    is_featured: true,
+    created_at: '2024-12-30T22:00:00Z',
+  },
+  {
+    id: 103,
+    content_type: 'vod',
+    title: '[풀버전] NewJeans - Supernatural 뮤직뱅크',
+    description: 'NewJeans Supernatural 뮤직뱅크 풀버전 240712',
+    thumbnail_url: getYouTubeThumbnail('KTIY11xxsBI'),
+    video_url: 'https://www.youtube.com/watch?v=KTIY11xxsBI',
+    unit: 'crew',
+    duration: 201,
+    view_count: 8780000,
+    is_featured: true,
+    created_at: '2024-07-12T21:00:00Z',
+  },
+  {
+    id: 104,
+    content_type: 'vod',
+    title: '[풀버전] LE SSERAFIM - SPAGHETTI 뮤직뱅크',
+    description: 'LE SSERAFIM SPAGHETTI 뮤직뱅크 풀버전 251024',
+    thumbnail_url: getYouTubeThumbnail('iZ-fHb5ayFs'),
+    video_url: 'https://www.youtube.com/watch?v=iZ-fHb5ayFs',
+    unit: 'excel',
+    duration: 198,
+    view_count: 9540000,
+    is_featured: false,
+    created_at: '2024-10-24T20:00:00Z',
+  },
+  {
+    id: 105,
+    content_type: 'vod',
+    title: '[풀버전] aespa - Dirty Work 가요대축제',
+    description: 'aespa Dirty Work + Rich Man 가요대축제 251219',
+    thumbnail_url: getYouTubeThumbnail('aATx6QdS5g0'),
+    video_url: 'https://www.youtube.com/watch?v=aATx6QdS5g0',
+    unit: 'crew',
+    duration: 230,
+    view_count: 5670000,
+    is_featured: false,
+    created_at: '2024-12-19T19:00:00Z',
+  },
+]
 
 // ============================================
 // Export
@@ -133,6 +183,4 @@ const additionalVods: MediaContent[] = Array.from({ length: 5 }).map((_, i) => (
 export const mockMediaContent: MediaContent[] = [
   ...baseShorts,
   ...baseVods,
-  ...additionalShorts,
-  ...additionalVods,
 ]

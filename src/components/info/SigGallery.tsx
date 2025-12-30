@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X } from 'lucide-react'
 import { mockSignatureData, signatureCategories, type SignatureData } from '@/lib/mock/signatures'
@@ -10,10 +10,12 @@ import SigDetailModal from './SigDetailModal'
 import styles from './SigGallery.module.css'
 
 type CategoryFilter = typeof signatureCategories[number]['id']
+type UnitFilter = 'all' | 'excel' | 'crew'
 
 export default function SigGallery() {
   const [signatures, setSignatures] = useState<SignatureData[]>([])
   const [selectedSig, setSelectedSig] = useState<SignatureData | null>(null)
+  const [unitFilter, setUnitFilter] = useState<UnitFilter>('all')
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -24,6 +26,11 @@ export default function SigGallery() {
     if (USE_MOCK_DATA) {
       let filtered = [...mockSignatureData]
 
+      // Unit filter
+      if (unitFilter !== 'all') {
+        filtered = filtered.filter(sig => sig.unit === unitFilter)
+      }
+
       // Category filter
       if (categoryFilter !== 'all' && categoryFilter !== 'new') {
         filtered = filtered.filter(sig => sig.category === categoryFilter)
@@ -31,7 +38,7 @@ export default function SigGallery() {
 
       // New filter - show most recent
       if (categoryFilter === 'new') {
-        filtered = [...mockSignatureData]
+        filtered = (unitFilter === 'all' ? [...mockSignatureData] : mockSignatureData.filter(s => s.unit === unitFilter))
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 10)
       }
@@ -56,7 +63,7 @@ export default function SigGallery() {
 
     // Supabase query would go here
     setIsLoading(false)
-  }, [categoryFilter, searchQuery])
+  }, [unitFilter, categoryFilter, searchQuery])
 
   useEffect(() => {
     fetchSignatures()
@@ -64,6 +71,28 @@ export default function SigGallery() {
 
   return (
     <div className={styles.container}>
+      {/* Unit Toggle */}
+      <div className={styles.unitToggle}>
+        <button
+          className={`${styles.unitBtn} ${unitFilter === 'all' ? styles.active : ''}`}
+          onClick={() => setUnitFilter('all')}
+        >
+          ALL
+        </button>
+        <button
+          className={`${styles.unitBtn} ${unitFilter === 'excel' ? styles.active : ''}`}
+          onClick={() => setUnitFilter('excel')}
+        >
+          EXCEL
+        </button>
+        <button
+          className={`${styles.unitBtn} ${styles.crewBtn} ${unitFilter === 'crew' ? styles.active : ''}`}
+          onClick={() => setUnitFilter('crew')}
+        >
+          CREW
+        </button>
+      </div>
+
       {/* Filters - cnine style */}
       <div className={styles.filterBar}>
         {/* Category Tabs */}

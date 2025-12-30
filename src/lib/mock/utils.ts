@@ -19,11 +19,31 @@ export const getPlaceholderAvatar = (seed: string): string => {
 }
 
 /**
- * DiceBear Notionists Neutral - 세련된 일러스트 스타일
- * 멤버 프로필용 (더 정교한 스타일)
+ * 실제 여성 인물 사진 (Unsplash)
+ * 멤버 프로필용 - 바스트샷 스타일
  */
-export const getMemberAvatar = (seed: string): string =>
-  `https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${seed}&backgroundColor=transparent&size=200`
+const femalePortraits = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face&q=80', // 1
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face&q=80', // 2
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop&crop=face&q=80', // 3
+  'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=400&fit=crop&crop=face&q=80', // 4
+  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop&crop=face&q=80', // 5
+  'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop&crop=face&q=80', // 6
+  'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=400&fit=crop&crop=face&q=80', // 7
+  'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400&h=400&fit=crop&crop=face&q=80', // 8
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face&q=80', // 9
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face&q=80', // 10
+  'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop&crop=face&q=80', // 11
+  'https://images.unsplash.com/photo-1496440737103-cd596325d314?w=400&h=400&fit=crop&crop=face&q=80', // 12
+  'https://images.unsplash.com/photo-1485893086445-ed75865251e0?w=400&h=400&fit=crop&crop=face&q=80', // 13
+  'https://images.unsplash.com/photo-1464863979621-258859e62245?w=400&h=400&fit=crop&crop=face&q=80', // 14
+]
+
+export const getMemberAvatar = (seed: string): string => {
+  // seed 문자열의 해시값을 기반으로 일관된 이미지 선택
+  const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+  return femalePortraits[hash % femalePortraits.length]
+}
 
 /**
  * DiceBear Shapes - 추상적 기하학 패턴

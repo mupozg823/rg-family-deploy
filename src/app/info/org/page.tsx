@@ -1,46 +1,26 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSupabase } from "@/lib/hooks/useSupabase";
 import { mockOrganization } from "@/lib/mock/data";
 import { USE_MOCK_DATA } from "@/lib/config";
-import { Radio, Youtube, Instagram, ExternalLink, X, ExternalLink as LinkIcon, ChevronDown } from "lucide-react";
+import { MemberCard, MemberDetailModal, type OrgMember } from "@/components/info";
 import styles from "./page.module.css";
 
-interface OrgMember {
-  id: number;
-  name: string;
-  role: string;
-  position_order: number;
-  parent_id: number | null;
-  image_url: string | null;
-  unit: 'excel' | 'crew';
-  social_links?: {
-    chzzk?: string;
-    youtube?: string;
-    instagram?: string;
-    pandatv?: string;
-  };
-  is_live?: boolean;
-}
-
-interface GroupedMembers {
-  [role: string]: OrgMember[];
-}
+type UnitType = 'excel' | 'crew';
 
 export default function OrganizationPage() {
   const supabase = useSupabase();
-  const [activeTab, setActiveTab] = useState<"excel" | "crew">("excel");
   const [members, setMembers] = useState<OrgMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMember, setSelectedMember] = useState<OrgMember | null>(null);
+  const [activeUnit, setActiveUnit] = useState<UnitType>('excel');
 
   const fetchOrganization = useCallback(async () => {
     setIsLoading(true);
 
     if (USE_MOCK_DATA) {
-      // Mock 데이터 사용
       const mockData = mockOrganization.map((m) => ({
         id: m.id,
         name: m.name,
@@ -77,192 +57,160 @@ export default function OrganizationPage() {
     fetchOrganization();
   }, [fetchOrganization]);
 
-  const filteredMembers = members.filter((m) => m.unit === activeTab);
-  const totalCount = filteredMembers.length;
+  // 유닛별 멤버 분류
+  const unitMembers = members.filter(m => m.unit === activeUnit);
 
-  // 역할별로 그룹화
-  const groupedByRole: GroupedMembers = filteredMembers.reduce((acc, member) => {
-    const role = member.role;
-    if (!acc[role]) {
-      acc[role] = [];
-    }
-    acc[role].push(member);
-    return acc;
-  }, {} as GroupedMembers);
-
-  // 역할 순서 정의 및 계층 레벨
-  const roleOrder = ['대표', 'PRESIDENT', '부장', 'DIRECTOR', '팀장', 'MANAGER', '멤버', 'MEMBER', '크루', 'CREW'];
-  const roleHierarchy: Record<string, number> = {
-    '대표': 0, 'PRESIDENT': 0,
-    '부장': 1, 'DIRECTOR': 1,
-    '팀장': 2, 'MANAGER': 2,
-    '멤버': 3, 'MEMBER': 3, '크루': 3, 'CREW': 3,
+  // 역할별 그룹화
+  const getGroupedMembers = (unitMembers: OrgMember[]) => {
+    const leaders = unitMembers.filter(m => m.role === '대표');
+    const directors = unitMembers.filter(m => m.role === '부장');
+    const managers = unitMembers.filter(m => m.role === '팀장');
+    const membersList = unitMembers.filter(m => m.role === '멤버' || m.role === '크루');
+    return { leaders, directors, managers, members: membersList };
   };
 
-  const sortedRoles = Object.keys(groupedByRole).sort((a, b) => {
-    const aIndex = roleOrder.findIndex(r => a.toUpperCase().includes(r.toUpperCase()));
-    const bIndex = roleOrder.findIndex(r => b.toUpperCase().includes(r.toUpperCase()));
-    if (aIndex === -1 && bIndex === -1) return 0;
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
+  const grouped = getGroupedMembers(unitMembers);
 
-  // 계층 레벨 가져오기
-  const getHierarchyLevel = (role: string): number => {
-    for (const [key, level] of Object.entries(roleHierarchy)) {
-      if (role.toUpperCase().includes(key.toUpperCase())) {
-        return level;
-      }
-    }
-    return 3; // 기본: 멤버 레벨
-  };
-
-  // 폴백 데이터
-  const fallbackExcel: OrgMember[] = [
-    { id: 1, name: "HEAD LINA", role: "대표", position_order: 0, parent_id: null, image_url: null, unit: 'excel', is_live: true },
-    { id: 2, name: "Manager A", role: "부장", position_order: 1, parent_id: 1, image_url: null, unit: 'excel' },
-    { id: 3, name: "Manager B", role: "부장", position_order: 2, parent_id: 1, image_url: null, unit: 'excel' },
-    { id: 4, name: "Member 01", role: "멤버", position_order: 3, parent_id: 2, image_url: null, unit: 'excel' },
-    { id: 5, name: "Member 02", role: "멤버", position_order: 4, parent_id: 2, image_url: null, unit: 'excel' },
-    { id: 6, name: "Member 03", role: "멤버", position_order: 5, parent_id: 3, image_url: null, unit: 'excel' },
-    { id: 7, name: "Member 04", role: "멤버", position_order: 6, parent_id: 3, image_url: null, unit: 'excel' },
-  ];
-
-  const fallbackCrew: OrgMember[] = [
-    { id: 8, name: "HEAD GAAE", role: "대표", position_order: 0, parent_id: null, image_url: null, unit: 'crew', is_live: false },
-    { id: 9, name: "Team Leader 1", role: "팀장", position_order: 1, parent_id: 8, image_url: null, unit: 'crew' },
-    { id: 10, name: "Crew 01", role: "크루", position_order: 2, parent_id: 9, image_url: null, unit: 'crew' },
-    { id: 11, name: "Crew 02", role: "크루", position_order: 3, parent_id: 9, image_url: null, unit: 'crew' },
-    { id: 12, name: "Crew 03", role: "크루", position_order: 4, parent_id: 9, image_url: null, unit: 'crew' },
-  ];
-
-  const displayMembers = filteredMembers.length > 0
-    ? filteredMembers
-    : (activeTab === 'excel' ? fallbackExcel : fallbackCrew);
-
-  const displayGrouped: GroupedMembers = displayMembers.reduce((acc, member) => {
-    const role = member.role;
-    if (!acc[role]) {
-      acc[role] = [];
-    }
-    acc[role].push(member);
-    return acc;
-  }, {} as GroupedMembers);
-
-  const displayRoles = Object.keys(displayGrouped).sort((a, b) => {
-    const aIndex = roleOrder.findIndex(r => a.toUpperCase().includes(r.toUpperCase()));
-    const bIndex = roleOrder.findIndex(r => b.toUpperCase().includes(r.toUpperCase()));
-    if (aIndex === -1 && bIndex === -1) return 0;
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
+  // 최상위 리더: 대표 또는 부장
+  const topLeaders = grouped.leaders.length > 0 ? grouped.leaders : grouped.directors;
+  // 중간 관리자: 팀장
+  const middleManagers = grouped.managers;
+  // 일반 멤버
+  const regularMembers = grouped.members;
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1>ORGANIZATION</h1>
-        <p>RG FAMILY 조직도</p>
+        <h1>RG Info</h1>
+        <p>조직도</p>
       </header>
 
-      {/* Tabs */}
-      <div className={styles.tabs}>
+      {/* Unit Toggle */}
+      <div className={styles.toggleWrapper}>
         <button
-          className={`${styles.tab} ${activeTab === "excel" ? styles.active : ""}`}
-          onClick={() => setActiveTab("excel")}
+          className={`${styles.toggleBtn} ${activeUnit === 'excel' ? styles.active : ''}`}
+          onClick={() => setActiveUnit('excel')}
         >
           EXCEL UNIT
         </button>
         <button
-          className={`${styles.tab} ${activeTab === "crew" ? styles.active : ""}`}
-          onClick={() => setActiveTab("crew")}
+          className={`${styles.toggleBtn} ${activeUnit === 'crew' ? styles.active : ''}`}
+          onClick={() => setActiveUnit('crew')}
         >
           CREW UNIT
         </button>
       </div>
 
-      {/* Total Count */}
-      <div className={styles.totalCount}>
-        총 인원 <span className={styles.countNumber}>{displayMembers.length}</span> 명
-      </div>
-
-      {/* Content - Tree Structure */}
-      <div className={styles.content}>
-        {isLoading ? (
-          <div className={styles.loading}>
-            <div className={styles.spinner} />
-            <span>조직도를 불러오는 중...</span>
-          </div>
-        ) : (
-          <div className={styles.orgTree}>
-            {displayRoles.map((role, roleIndex) => {
-              const hierarchyLevel = getHierarchyLevel(role);
-              const isTopLevel = hierarchyLevel === 0;
-              const memberCount = displayGrouped[role].length;
-
-              return (
-                <motion.section
-                  key={role}
-                  className={styles.treeLevel}
-                  data-level={hierarchyLevel}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: roleIndex * 0.1 }}
-                >
-                  {/* Connector Line from previous level */}
-                  {roleIndex > 0 && (
-                    <div className={styles.treeLine}>
-                      <div className={styles.verticalLine} />
-                      <ChevronDown className={styles.arrowIcon} size={20} />
-                    </div>
-                  )}
-
-                  {/* Role Header with Level Indicator */}
-                  <div className={styles.roleHeader} data-level={hierarchyLevel}>
-                    <div className={styles.levelIndicator}>
-                      <span className={styles.levelNumber}>L{hierarchyLevel + 1}</span>
-                    </div>
-                    <h2 className={styles.roleTitle}>
-                      {role}
-                    </h2>
-                    <span className={styles.roleCount}>{memberCount}명</span>
+      {isLoading ? (
+        <div className={styles.loading}>
+          <div className={styles.spinner} />
+          <span>조직도를 불러오는 중...</span>
+        </div>
+      ) : (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeUnit}
+            className={styles.orgChart}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Level 0: Top Leaders (대표/부장) */}
+            {topLeaders.length > 0 && (
+              <>
+                <div className={styles.level} data-level="0">
+                  <div className={styles.levelMembers}>
+                    {topLeaders.map((member) => (
+                      <MemberCard
+                        key={member.id}
+                        member={member}
+                        size="large"
+                        onClick={() => setSelectedMember(member)}
+                      />
+                    ))}
                   </div>
+                </div>
 
-                  <div className={styles.treeNodes}>
-                    {/* Horizontal connector for multiple members */}
-                    {memberCount > 1 && !isTopLevel && (
-                      <div className={styles.horizontalConnector} style={{
-                        width: `${Math.min(memberCount * 160, 800)}px`
-                      }} />
+                {/* Connector to Level 1 */}
+                {(middleManagers.length > 0 || regularMembers.length > 0) && (
+                  <div className={styles.connector}>
+                    <div className={styles.verticalLine} />
+                    {middleManagers.length > 1 && (
+                      <>
+                        <div className={styles.horizontalLine} />
+                        <div className={styles.branchLines}>
+                          {middleManagers.map((_, i) => (
+                            <div key={i} className={styles.branchLine} />
+                          ))}
+                        </div>
+                      </>
                     )}
-
-                    <div className={styles.membersGrid} data-count={memberCount}>
-                      {displayGrouped[role].map((member, memberIndex) => (
-                        <motion.div
-                          key={member.id}
-                          className={styles.treeNode}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: roleIndex * 0.1 + memberIndex * 0.05 }}
-                        >
-                          {/* Individual vertical line down to member */}
-                          {!isTopLevel && <div className={styles.nodeConnector} />}
-                          <MemberCard
-                            member={member}
-                            onClick={() => setSelectedMember(member)}
-                            isLeader={isTopLevel}
-                          />
-                        </motion.div>
-                      ))}
-                    </div>
                   </div>
-                </motion.section>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                )}
+              </>
+            )}
+
+            {/* Level 1: Middle Managers (팀장) */}
+            {middleManagers.length > 0 && (
+              <>
+                <div className={styles.level} data-level="1">
+                  <div className={styles.levelMembers}>
+                    {middleManagers.map((member) => (
+                      <MemberCard
+                        key={member.id}
+                        member={member}
+                        size="medium"
+                        onClick={() => setSelectedMember(member)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Connector to Level 2 */}
+                {regularMembers.length > 0 && (
+                  <div className={styles.connector}>
+                    <div className={styles.verticalLine} />
+                    {regularMembers.length > 1 && (
+                      <>
+                        <div className={styles.horizontalLine} style={{ width: `${Math.min(regularMembers.length * 100, 600)}px` }} />
+                        <div className={styles.branchLines} style={{ width: `${Math.min(regularMembers.length * 100, 600)}px` }}>
+                          {regularMembers.map((_, i) => (
+                            <div key={i} className={styles.branchLine} />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Level 2: Regular Members (멤버/크루) */}
+            {regularMembers.length > 0 && (
+              <div className={styles.level} data-level="2">
+                <div className={styles.levelMembers}>
+                  {regularMembers.map((member) => (
+                    <MemberCard
+                      key={member.id}
+                      member={member}
+                      size="small"
+                      onClick={() => setSelectedMember(member)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {topLeaders.length === 0 && middleManagers.length === 0 && regularMembers.length === 0 && (
+              <div className={styles.emptyState}>
+                <p>해당 유닛에 멤버가 없습니다.</p>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      )}
 
       {/* Member Detail Modal */}
       <AnimatePresence>
@@ -277,200 +225,3 @@ export default function OrganizationPage() {
   );
 }
 
-function MemberCard({ member, onClick, isLeader = false }: { member: OrgMember; onClick: () => void; isLeader?: boolean }) {
-  return (
-    <div
-      className={`${styles.memberCard} ${isLeader ? styles.leaderCard : ""}`}
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
-    >
-      <div className={styles.avatarWrapper}>
-        {member.is_live && (
-          <span className={styles.liveBadge}>
-            <Radio size={10} />
-            LIVE
-          </span>
-        )}
-        <div className={`${styles.avatar} ${member.is_live ? styles.avatarLive : ""} ${isLeader ? styles.leaderAvatar : ""}`}>
-          {member.image_url ? (
-            <img src={member.image_url} alt={member.name} />
-          ) : (
-            <div className={styles.avatarPlaceholder}>
-              {member.name.charAt(0)}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.memberInfo}>
-        <span className={styles.memberRole}>{member.role}</span>
-        <span className={styles.memberName}>{member.name}</span>
-      </div>
-
-      {member.social_links && (
-        <div className={styles.socialLinks} onClick={(e) => e.stopPropagation()}>
-          {member.social_links.pandatv && (
-            <a href={member.social_links.pandatv} target="_blank" rel="noopener noreferrer" className={styles.socialLink} title="팬더티비">
-              <Radio size={16} />
-            </a>
-          )}
-          {member.social_links.chzzk && (
-            <a href={member.social_links.chzzk} target="_blank" rel="noopener noreferrer" className={styles.socialLink} title="치지직">
-              <ExternalLink size={16} />
-            </a>
-          )}
-          {member.social_links.youtube && (
-            <a href={member.social_links.youtube} target="_blank" rel="noopener noreferrer" className={styles.socialLink} title="유튜브">
-              <Youtube size={16} />
-            </a>
-          )}
-          {member.social_links.instagram && (
-            <a href={member.social_links.instagram} target="_blank" rel="noopener noreferrer" className={styles.socialLink} title="인스타그램">
-              <Instagram size={16} />
-            </a>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MemberDetailModal({ member, onClose }: { member: OrgMember; onClose: () => void }) {
-  return (
-    <motion.div
-      className={styles.modalOverlay}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-    >
-      <motion.div
-        className={styles.modal}
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button className={styles.modalClose} onClick={onClose}>
-          <X size={24} />
-        </button>
-
-        {/* Header */}
-        <div className={styles.modalHeader}>
-          <div className={styles.modalAvatarWrapper}>
-            {member.is_live && (
-              <span className={styles.modalLiveBadge}>
-                <Radio size={12} />
-                LIVE
-              </span>
-            )}
-            <div className={`${styles.modalAvatar} ${member.is_live ? styles.modalAvatarLive : ""}`}>
-              {member.image_url ? (
-                <img src={member.image_url} alt={member.name} />
-              ) : (
-                <div className={styles.modalAvatarPlaceholder}>
-                  {member.name.charAt(0)}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className={styles.modalInfo}>
-            <span className={styles.modalUnit} data-unit={member.unit}>
-              {member.unit === 'excel' ? 'EXCEL UNIT' : 'CREW UNIT'}
-            </span>
-            <h2 className={styles.modalName}>{member.name}</h2>
-            <span className={styles.modalRole}>{member.role}</span>
-          </div>
-        </div>
-
-        {/* Status */}
-        <div className={styles.modalStatus}>
-          <div className={styles.statusItem}>
-            <span className={styles.statusLabel}>상태</span>
-            <span className={`${styles.statusValue} ${member.is_live ? styles.statusLive : ""}`}>
-              {member.is_live ? "🔴 방송 중" : "⚫ 오프라인"}
-            </span>
-          </div>
-          <div className={styles.statusItem}>
-            <span className={styles.statusLabel}>소속</span>
-            <span className={styles.statusValue}>
-              {member.unit === 'excel' ? '한국 엑셀방송' : '중국 단보방송'}
-            </span>
-          </div>
-        </div>
-
-        {/* Social Links */}
-        {member.social_links && Object.keys(member.social_links).length > 0 && (
-          <div className={styles.modalSocial}>
-            <h3 className={styles.modalSectionTitle}>소셜 링크</h3>
-            <div className={styles.modalSocialGrid}>
-              {member.social_links.pandatv && (
-                <a
-                  href={member.social_links.pandatv}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.modalSocialLink}
-                >
-                  <Radio size={20} />
-                  <span>팬더티비</span>
-                  <LinkIcon size={14} className={styles.linkIcon} />
-                </a>
-              )}
-              {member.social_links.chzzk && (
-                <a
-                  href={member.social_links.chzzk}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.modalSocialLink}
-                >
-                  <ExternalLink size={20} />
-                  <span>치지직</span>
-                  <LinkIcon size={14} className={styles.linkIcon} />
-                </a>
-              )}
-              {member.social_links.youtube && (
-                <a
-                  href={member.social_links.youtube}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.modalSocialLink}
-                >
-                  <Youtube size={20} />
-                  <span>유튜브</span>
-                  <LinkIcon size={14} className={styles.linkIcon} />
-                </a>
-              )}
-              {member.social_links.instagram && (
-                <a
-                  href={member.social_links.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.modalSocialLink}
-                >
-                  <Instagram size={20} />
-                  <span>인스타그램</span>
-                  <LinkIcon size={14} className={styles.linkIcon} />
-                </a>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Watch Button */}
-        {member.is_live && member.social_links?.pandatv && (
-          <a
-            href={member.social_links.pandatv}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.watchButton}
-          >
-            <Radio size={18} />
-            지금 방송 보러가기
-          </a>
-        )}
-      </motion.div>
-    </motion.div>
-  );
-}

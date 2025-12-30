@@ -1,0 +1,68 @@
+'use client'
+
+import { motion } from 'framer-motion'
+import Image from 'next/image'
+import { Radio } from 'lucide-react'
+import styles from './MemberCard.module.css'
+
+export interface OrgMember {
+  id: number
+  name: string
+  role: string
+  position_order: number
+  parent_id: number | null
+  image_url: string | null
+  unit: 'excel' | 'crew'
+  social_links?: {
+    chzzk?: string
+    youtube?: string
+    instagram?: string
+    pandatv?: string
+  }
+  is_live?: boolean
+}
+
+interface MemberCardProps {
+  member: OrgMember
+  size: 'large' | 'medium' | 'small'
+  onClick: () => void
+}
+
+export function MemberCard({ member, size, onClick }: MemberCardProps) {
+  return (
+    <motion.div
+      className={`${styles.memberCard} ${styles[size]}`}
+      onClick={onClick}
+      whileHover={{ y: -4 }}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+    >
+      <div className={styles.avatarWrapper}>
+        {member.is_live && (
+          <span className={styles.liveBadge}>
+            <Radio size={8} />
+            LIVE
+          </span>
+        )}
+        <div className={`${styles.avatar} ${member.is_live ? styles.avatarLive : ''}`}>
+          {member.image_url ? (
+            <Image
+              src={member.image_url}
+              alt={member.name}
+              fill
+              className={styles.avatarImage}
+            />
+          ) : (
+            <div className={styles.avatarPlaceholder}>
+              {member.name.charAt(0)}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className={styles.memberInfo}>
+        <span className={styles.memberName}>{member.name}</span>
+        <span className={styles.memberRole}>{member.role}</span>
+      </div>
+    </motion.div>
+  )
+}

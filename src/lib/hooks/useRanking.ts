@@ -3,9 +3,9 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useSupabase } from './useSupabase'
 import { USE_MOCK_DATA } from '@/lib/config'
-import { mockProfiles, mockSeasons } from '@/lib/mock/data'
+import { mockProfiles, mockSeasons, mockDonations } from '@/lib/mock'
 import type { Season } from '@/types/database'
-import type { RankingItem, UnitFilter } from '@/types/common'
+import type { RankingItem, UnitFilter, JoinedProfile } from '@/types/common'
 
 interface UseRankingReturn {
   rankings: RankingItem[]
@@ -63,6 +63,65 @@ export function useRanking(): UseRankingReturn {
     try {
       if (USE_MOCK_DATA) {
         // Mock 데이터에서 랭킹 생성
+        // 시즌 필터가 있으면 해당 시즌 후원 데이터 사용, 없으면 전체 프로필 기반
+        if (selectedSeasonId) {
+          // 시즌별 후원 데이터에서 랭킹 계산
+          let seasonDonations = mockDonations.filter(d => d.season_id === selectedSeasonId)
+
+          // 유닛 필터 적용 (VIP는 전체에서 Top 50)
+          if (unitFilter !== 'all' && unitFilter !== 'vip') {
+            seasonDonations = seasonDonations.filter(d => d.unit === unitFilter)
+          }
+
+          // 후원자별 합계 계산
+          const donorMap = new Map<string, {
+            donorId: string | null
+            donorName: string
+            totalAmount: number
+          }>()
+
+          seasonDonations.forEach(donation => {
+            const key = donation.donor_id || donation.donor_name
+            const existing = donorMap.get(key)
+            if (existing) {
+              existing.totalAmount += donation.amount
+            } else {
+              // mockProfiles에서 아바타 정보 가져오기
+              const profile = mockProfiles.find(p => p.id === donation.donor_id)
+              donorMap.set(key, {
+                donorId: donation.donor_id,
+                donorName: profile?.nickname || donation.donor_name,
+                totalAmount: donation.amount,
+              })
+            }
+          })
+
+          // 정렬 및 순위 부여
+          let sorted = Array.from(donorMap.values())
+            .sort((a, b) => b.totalAmount - a.totalAmount)
+            .map((item, index) => {
+              const profile = mockProfiles.find(p => p.id === item.donorId)
+              return {
+                donorId: item.donorId,
+                donorName: item.donorName,
+                avatarUrl: profile?.avatar_url || null,
+                totalAmount: item.totalAmount,
+                seasonId: selectedSeasonId,
+                rank: index + 1,
+              }
+            })
+
+          // VIP 필터: Top 50만 표시
+          if (unitFilter === 'vip') {
+            sorted = sorted.slice(0, 50)
+          }
+
+          setRankings(sorted)
+          setIsLoading(false)
+          return
+        }
+
+        // 시즌 선택 없으면 전체 프로필 기반 (기존 로직)
         let filteredProfiles = [...mockProfiles]
 
         // 유닛 필터 (VIP는 전체에서 Top 50)
@@ -126,14 +185,13 @@ export function useRanking(): UseRankingReturn {
       const aggregated = (data || []).reduce((acc, donation) => {
         const key = donation.donor_id || donation.donor_name
         if (!acc[key]) {
+          const profile = donation.profiles as JoinedProfile | null
           acc[key] = {
             donorId: donation.donor_id,
             donorName: donation.donor_id
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              ? (donation.profiles as any)?.nickname || donation.donor_name
+              ? profile?.nickname || donation.donor_name
               : donation.donor_name,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            avatarUrl: donation.donor_id ? (donation.profiles as any)?.avatar_url : null,
+            avatarUrl: donation.donor_id ? profile?.avatar_url || null : null,
             totalAmount: 0,
             seasonId: donation.season_id,
           }

@@ -1,3 +1,41 @@
+// Supabase Join Helper Types
+// Use these when accessing joined relations in Supabase queries
+
+/** Profile data from Supabase join */
+export interface JoinedProfile {
+  nickname?: string
+  avatar_url?: string | null
+  email?: string | null
+}
+
+/** Season data from Supabase join */
+export interface JoinedSeason {
+  name?: string
+  start_date?: string
+  end_date?: string
+}
+
+/** Comment count from Supabase join */
+export interface JoinedComments {
+  length?: number
+}
+
+/** Helper to safely extract joined profile data */
+export function getJoinedProfile(data: unknown): JoinedProfile | null {
+  if (data && typeof data === 'object') {
+    return data as JoinedProfile
+  }
+  return null
+}
+
+/** Helper to safely extract joined season data */
+export function getJoinedSeason(data: unknown): JoinedSeason | null {
+  if (data && typeof data === 'object') {
+    return data as JoinedSeason
+  }
+  return null
+}
+
 // API Response types
 export interface ApiResponse<T> {
   data: T | null
@@ -152,3 +190,52 @@ export interface PostItem {
 export type UnitFilter = 'all' | 'excel' | 'crew' | 'vip'
 export type NoticeCategory = 'all' | 'official' | 'excel' | 'crew'
 export type SortOrder = 'latest' | 'popular' | 'oldest'
+
+// Top 1-3 Tribute Page types
+export type TributeTheme = 'gold' | 'silver' | 'bronze'
+export type TributeRank = 1 | 2 | 3
+
+export interface TributeProfile {
+  id: string
+  nickname: string
+  avatarUrl: string | null
+  totalDonation: number
+  joinedAt: string
+}
+
+export interface TributeVideo {
+  id: number
+  url: string
+  thumbnailUrl: string | null
+  title: string
+  duration: number | null
+}
+
+export interface TributeGalleryImage {
+  id: number
+  url: string
+  title: string
+  description: string | null
+}
+
+export interface TributeDonation {
+  id: number
+  amount: number
+  message: string | null
+  createdAt: string
+  seasonName: string
+}
+
+export interface VipTributeData {
+  rank: TributeRank
+  theme: TributeTheme
+  seasonId: number
+  seasonName: string
+  profile: TributeProfile
+  personalMessage: string
+  streamerSignature: string | null
+  dedicationVideo: TributeVideo | null
+  exclusiveGallery: TributeGalleryImage[]
+  donationTimeline: TributeDonation[]
+  specialBadges: string[]
+}

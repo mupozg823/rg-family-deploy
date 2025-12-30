@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Crown, Plus, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import type { JoinedProfile, JoinedSeason } from '@/types/common'
 import styles from '../shared.module.css'
 
 interface VipReward {
@@ -59,19 +60,21 @@ export default function VipRewardsPage() {
       .limit(50)
 
     setRewards(
-      (rewardsData || []).map((r) => ({
-        id: r.id,
-        profileId: r.profile_id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        nickname: (r.profiles as any)?.nickname || '',
-        seasonId: r.season_id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        seasonName: (r.seasons as any)?.name || '',
-        rank: r.rank,
-        personalMessage: r.personal_message || '',
-        dedicationVideoUrl: r.dedication_video_url || '',
-        createdAt: r.created_at,
-      }))
+      (rewardsData || []).map((r) => {
+        const profile = r.profiles as JoinedProfile | null
+        const season = r.seasons as JoinedSeason | null
+        return {
+          id: r.id,
+          profileId: r.profile_id,
+          nickname: profile?.nickname || '',
+          seasonId: r.season_id,
+          seasonName: season?.name || '',
+          rank: r.rank,
+          personalMessage: r.personal_message || '',
+          dedicationVideoUrl: r.dedication_video_url || '',
+          createdAt: r.created_at,
+        }
+      })
     )
 
     setSeasons(seasonsData || [])

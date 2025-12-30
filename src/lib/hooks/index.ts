@@ -3,6 +3,14 @@
  *
  * @deprecated Context 기반 사용 권장
  * 새 코드에서는 @/lib/context 에서 직접 import
+ *
+ * 마이그레이션 가이드:
+ * - useSupabase() → useSupabaseContext()
+ * - useAuth() → useAuthContext()
+ * - useRanking() → useRankings() (from @/lib/context)
+ * - useDataProvider() → useDataProviderContext()
+ *
+ * 현재 훅들은 하위 호환성을 위해 유지됩니다.
  */
 
 // Legacy hooks (re-export from context)

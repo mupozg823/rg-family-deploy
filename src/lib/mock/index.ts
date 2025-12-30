@@ -33,6 +33,18 @@ export {
   type VipRewardData,
 } from './vip-content'
 
+// Top 1-3 Tribute Page
+export {
+  mockVipTributeData,
+  getVipTributeByRank,
+  getVipTributeByUserId,
+  isTop3Rank,
+  getTributeThemeColors,
+  getRankTheme,
+  TRIBUTE_THEMES,
+  TRIBUTE_COLORS,
+} from './vip-tribute'
+
 // ============================================
 // Utility Exports
 // ============================================

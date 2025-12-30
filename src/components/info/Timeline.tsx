@@ -8,7 +8,7 @@ import { useSupabase } from '@/lib/hooks/useSupabase'
 import { mockTimelineEvents, mockSeasons } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { formatDate } from '@/lib/utils/format'
-import type { TimelineItem } from '@/types/common'
+import type { TimelineItem, JoinedSeason } from '@/types/common'
 import type { Season } from '@/types/database'
 import styles from './Timeline.module.css'
 
@@ -128,17 +128,19 @@ export default function Timeline() {
       return
     }
 
-    const allFormattedEvents: TimelineItem[] = (eventsData || []).map((event) => ({
-      id: event.id,
-      eventDate: event.event_date,
-      title: event.title,
-      description: event.description,
-      imageUrl: event.image_url,
-      category: event.category,
-      seasonId: event.season_id,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      seasonName: (event.seasons as any)?.name,
-    }))
+    const allFormattedEvents: TimelineItem[] = (eventsData || []).map((event) => {
+      const season = event.seasons as JoinedSeason | null
+      return {
+        id: event.id,
+        eventDate: event.event_date,
+        title: event.title,
+        description: event.description,
+        imageUrl: event.image_url,
+        category: event.category,
+        seasonId: event.season_id,
+        seasonName: season?.name,
+      }
+    })
 
     setAllEvents(allFormattedEvents)
     setEvents(allFormattedEvents)

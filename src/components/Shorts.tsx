@@ -2,10 +2,11 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
-import { Play, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useSupabase } from "@/lib/hooks/useSupabase";
 import { mockMediaContent } from "@/lib/mock/data";
 import { USE_MOCK_DATA } from "@/lib/config";
+import { getYouTubeShortsEmbedUrl, getYouTubeThumbnail, extractYouTubeId } from "@/lib/utils/youtube";
 import styles from "./Shorts.module.css";
 
 interface ShortItem {
@@ -16,10 +17,14 @@ interface ShortItem {
   unit: "excel" | "crew" | null;
 }
 
+type UnitFilter = "all" | "excel" | "crew";
+
 export default function Shorts() {
   const supabase = useSupabase();
   const [shorts, setShorts] = useState<ShortItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeUnit, setActiveUnit] = useState<UnitFilter>("all");
+  const [selectedVideo, setSelectedVideo] = useState<ShortItem | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const fetchShorts = useCallback(async () => {
@@ -36,7 +41,7 @@ export default function Shorts() {
           id: s.id,
           title: s.title,
           videoUrl: s.video_url,
-          thumbnailUrl: s.thumbnail_url || "",
+          thumbnailUrl: s.thumbnail_url || getYouTubeThumbnail(s.video_url, "hq") || "",
           unit: s.unit,
         }))
       );
@@ -59,7 +64,7 @@ export default function Shorts() {
           id: s.id,
           title: s.title,
           videoUrl: s.video_url,
-          thumbnailUrl: s.thumbnail_url || "",
+          thumbnailUrl: s.thumbnail_url || getYouTubeThumbnail(s.video_url, "hq") || "",
           unit: s.unit,
         }))
       );
@@ -85,9 +90,18 @@ export default function Shorts() {
     }
   };
 
-  const handleClick = (videoUrl: string) => {
-    window.open(videoUrl, "_blank");
+  const handleClick = (short: ShortItem) => {
+    setSelectedVideo(short);
   };
+
+  const closeModal = () => {
+    setSelectedVideo(null);
+  };
+
+  // Filter shorts by unit
+  const filteredShorts = activeUnit === "all"
+    ? shorts
+    : shorts.filter((s) => s.unit === activeUnit);
 
   if (isLoading) {
     return (
@@ -105,7 +119,7 @@ export default function Shorts() {
     return (
       <section className={styles.section}>
         <div className={styles.header}>
-          <h3>SHORTS SECTION</h3>
+          <h3>SHORTS</h3>
           <div className={styles.line} />
         </div>
         <div className={styles.empty}>등록된 숏폼이 없습니다</div>
@@ -116,7 +130,27 @@ export default function Shorts() {
   return (
     <section className={styles.section}>
       <div className={styles.header}>
-        <h3>SHORTS SECTION</h3>
+        <h3>SHORTS</h3>
+        <div className={styles.unitToggle}>
+          <button
+            className={`${styles.toggleBtn} ${activeUnit === "all" ? styles.active : ""}`}
+            onClick={() => setActiveUnit("all")}
+          >
+            ALL
+          </button>
+          <button
+            className={`${styles.toggleBtn} ${activeUnit === "excel" ? styles.active : ""}`}
+            onClick={() => setActiveUnit("excel")}
+          >
+            EXCEL
+          </button>
+          <button
+            className={`${styles.toggleBtn} ${styles.crewBtn} ${activeUnit === "crew" ? styles.active : ""}`}
+            onClick={() => setActiveUnit("crew")}
+          >
+            CREW
+          </button>
+        </div>
         <div className={styles.line} />
         <div className={styles.arrows}>
           <button onClick={() => scroll("left")} className={styles.arrowButton}>
@@ -132,11 +166,11 @@ export default function Shorts() {
       </div>
 
       <div className={styles.grid} ref={scrollRef}>
-        {shorts.map((short) => (
+        {filteredShorts.map((short) => (
           <div
             key={short.id}
             className={styles.card}
-            onClick={() => handleClick(short.videoUrl)}
+            onClick={() => handleClick(short)}
           >
             <div className={styles.thumbnail}>
               {short.thumbnailUrl ? (
@@ -173,6 +207,40 @@ export default function Shorts() {
           </div>
         ))}
       </div>
+
+      {/* YouTube Embed Modal */}
+      {selectedVideo && (
+        <div className={styles.modal} onClick={closeModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closeBtn} onClick={closeModal}>
+              <X size={24} />
+            </button>
+            <div className={styles.videoWrapper}>
+              {extractYouTubeId(selectedVideo.videoUrl) ? (
+                <iframe
+                  src={getYouTubeShortsEmbedUrl(selectedVideo.videoUrl) || ""}
+                  title={selectedVideo.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className={styles.videoFrame}
+                />
+              ) : (
+                <div className={styles.videoError}>
+                  YouTube URL을 확인해주세요
+                </div>
+              )}
+            </div>
+            <div className={styles.videoInfo}>
+              <h4>{selectedVideo.title}</h4>
+              {selectedVideo.unit && (
+                <span className={`${styles.modalBadge} ${selectedVideo.unit === "crew" ? styles.crew : ""}`}>
+                  {selectedVideo.unit.toUpperCase()}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

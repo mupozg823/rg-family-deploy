@@ -121,3 +121,45 @@
   background: var(--color-background);
   color: var(--color-text);
 }
+
+/* Responsive - Tablet (1024px) */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 80px !important;
+  }
+
+  .logoText,
+  .label {
+    display: none;
+  }
+
+  .logo {
+    justify-content: center;
+    padding: 1.5rem 0.5rem;
+  }
+
+  .toggleButton {
+    display: none;
+  }
+
+  .navItem {
+    justify-content: center;
+    padding: 0.75rem;
+  }
+
+  .footerItem {
+    justify-content: center;
+    padding: 0.75rem;
+  }
+
+  .footerItem span {
+    display: none;
+  }
+}
+
+/* Responsive - Mobile (768px) */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+}

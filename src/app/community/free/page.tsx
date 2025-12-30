@@ -8,6 +8,7 @@ import { mockPosts, mockProfiles } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { formatRelativeTime } from '@/lib/utils/format'
 import TabFilter from '@/components/community/TabFilter'
+import type { JoinedProfile } from '@/types/common'
 import styles from './page.module.css'
 
 interface Post {
@@ -65,16 +66,18 @@ export default function FreeBoardPage() {
       console.error('게시글 로드 실패:', error)
     } else {
       setPosts(
-        (data || []).map((p) => ({
-          id: p.id,
-          title: p.title,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          authorName: (p.profiles as any)?.nickname || '익명',
-          viewCount: p.view_count || 0,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          commentCount: (p.comments as any[])?.length || 0,
-          createdAt: p.created_at,
-        }))
+        (data || []).map((p) => {
+          const profile = p.profiles as JoinedProfile | null
+          const comments = p.comments as unknown[] | null
+          return {
+            id: p.id,
+            title: p.title,
+            authorName: profile?.nickname || '익명',
+            viewCount: p.view_count || 0,
+            commentCount: comments?.length || 0,
+            createdAt: p.created_at,
+          }
+        })
       )
     }
 

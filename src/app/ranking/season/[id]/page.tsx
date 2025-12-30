@@ -11,11 +11,11 @@ import styles from './page.module.css'
 export default function SeasonRankingPage() {
   const params = useParams()
   const router = useRouter()
-  const seasonId = params.id ? Number(params.id) : null
 
   const {
     rankings,
     seasons,
+    currentSeason,
     selectedSeasonId,
     unitFilter,
     maxAmount,
@@ -24,6 +24,14 @@ export default function SeasonRankingPage() {
     setUnitFilter,
   } = useRanking()
 
+  // "current"인 경우 현재 활성 시즌 ID 사용, 아니면 숫자로 변환
+  const seasonId = useMemo(() => {
+    if (params.id === 'current') {
+      return currentSeason?.id || null
+    }
+    return params.id ? Number(params.id) : null
+  }, [params.id, currentSeason])
+
   // URL의 시즌 ID로 설정
   useEffect(() => {
     if (seasonId && seasonId !== selectedSeasonId) {
@@ -31,8 +39,8 @@ export default function SeasonRankingPage() {
     }
   }, [seasonId, selectedSeasonId, setSelectedSeasonId])
 
-  // 현재 시즌 정보
-  const currentSeason = useMemo(() => {
+  // 선택된 시즌 정보
+  const selectedSeason = useMemo(() => {
     return seasons.find(s => s.id === seasonId) || null
   }, [seasons, seasonId])
 
@@ -50,7 +58,7 @@ export default function SeasonRankingPage() {
   const rest = rankings.slice(3)
 
   // 시즌을 찾을 수 없는 경우
-  if (!isLoading && seasons.length > 0 && !currentSeason) {
+  if (!isLoading && seasons.length > 0 && !selectedSeason) {
     return (
       <main className={styles.main}>
         <div className={styles.container}>
@@ -76,18 +84,18 @@ export default function SeasonRankingPage() {
         </Link>
 
         <h1 className={styles.title}>
-          {currentSeason?.name || '시즌 랭킹'}
+          {selectedSeason?.name || '시즌 랭킹'}
         </h1>
 
-        {currentSeason && (
+        {selectedSeason && (
           <div className={styles.seasonInfo}>
             <div className={styles.dateRange}>
               <Calendar size={16} />
               <span>
-                {formatDate(currentSeason.start_date)} ~ {currentSeason.end_date ? formatDate(currentSeason.end_date) : '진행 중'}
+                {formatDate(selectedSeason.start_date)} ~ {selectedSeason.end_date ? formatDate(selectedSeason.end_date) : '진행 중'}
               </span>
             </div>
-            {currentSeason.is_active && (
+            {selectedSeason.is_active && (
               <span className={styles.activeBadge}>진행 중</span>
             )}
           </div>

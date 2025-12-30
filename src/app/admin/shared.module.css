@@ -440,14 +440,71 @@
   color: var(--color-primary);
 }
 
-/* Responsive */
+/* Responsive - Tablet (1024px) */
+@media (max-width: 1024px) {
+  .headerActions {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .tabButtons {
+    order: 2;
+    width: 100%;
+  }
+
+  .tabButton {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .modal {
+    max-width: 100%;
+    margin: 0 1rem;
+  }
+
+  .messageCell {
+    max-width: 200px;
+  }
+
+  .typeSelector {
+    flex-wrap: wrap;
+  }
+
+  .typeButton {
+    flex: 1 1 45%;
+  }
+}
+
+/* Responsive - Mobile (768px) */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
     align-items: flex-start;
   }
 
+  .headerActions {
+    width: 100%;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+
   .formRow {
     grid-template-columns: 1fr;
+  }
+
+  .messageCell {
+    max-width: 150px;
+  }
+
+  .uploadSection {
+    padding: 1rem;
+  }
+
+  .badge {
+    font-size: 0.6875rem;
+    padding: 0.2rem 0.5rem;
   }
 }

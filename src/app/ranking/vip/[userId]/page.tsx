@@ -6,14 +6,28 @@ import { Play, Download, User, Crown, Calendar, Gift, MessageCircle } from 'luci
 import Image from 'next/image'
 import { useSupabaseContext } from '@/lib/context'
 import { USE_MOCK_DATA } from '@/lib/config'
-import { mockProfiles, mockVipRewards, getVipRewardByProfileId } from '@/lib/mock'
-import type { VipPageData } from '@/types/common'
+import {
+  mockProfiles,
+  mockVipRewards,
+  getVipRewardByProfileId,
+  getVipTributeByUserId,
+  isTop3Rank,
+} from '@/lib/mock'
+import type { VipPageData, VipTributeData, JoinedSeason } from '@/types/common'
+import {
+  TributeHero,
+  TributeMessage,
+  TributeGallery,
+  TributeDonationTimeline,
+  TributeBadge,
+} from '@/components/tribute'
 import styles from './page.module.css'
 
 export default function VipPage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = use(params)
   const supabase = useSupabaseContext()
   const [data, setData] = useState<VipPageData | null>(null)
+  const [tributeData, setTributeData] = useState<VipTributeData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
 
@@ -22,6 +36,15 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
 
     // Mock 데이터 모드
     if (USE_MOCK_DATA) {
+      // 먼저 Top 1-3 Tribute 데이터 확인
+      const tribute = getVipTributeByUserId(userId)
+      if (tribute) {
+        setTributeData(tribute)
+        setIsLoading(false)
+        return
+      }
+
+      // 일반 VIP 데이터
       const mockProfile = mockProfiles.find(p => p.id === userId) || mockProfiles[0]
       const mockReward = getVipRewardByProfileId(userId) || mockVipRewards[0]
 
@@ -72,6 +95,12 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
         .limit(1)
         .single()
 
+      // Top 3 체크 - Supabase 환경에서도 Tribute 페이지 지원
+      if (reward && isTop3Rank(reward.rank)) {
+        // TODO: Supabase에서 Tribute 데이터 구조 구현
+        // 현재는 Mock 데이터만 지원
+      }
+
       // VIP 이미지
       const { data: images } = await supabase
         .from('vip_images')
@@ -87,6 +116,7 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
         .order('created_at', { ascending: false })
         .limit(10)
 
+      const rewardSeason = reward?.seasons as JoinedSeason | null
       setData({
         profile: {
           id: profile.id,
@@ -96,8 +126,7 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
         },
         reward: reward ? {
           seasonId: reward.season_id,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          seasonName: (reward.seasons as any)?.name || '',
+          seasonName: rewardSeason?.name || '',
           rank: reward.rank,
           personalMessage: reward.personal_message,
           dedicationVideoUrl: reward.dedication_video_url,
@@ -150,8 +179,6 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
     })
   }
 
-  // All VIPs get the same premium theme (no differentiation)
-
   if (isLoading) {
     return (
       <main className={styles.main}>
@@ -163,6 +190,69 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
     )
   }
 
+  // ========================================
+  // Top 1-3 Tribute Page (특별 헌정 페이지)
+  // ========================================
+  if (tributeData) {
+    return (
+      <main className={`${styles.main} ${styles.tributeMain}`}>
+        {/* Tribute Hero */}
+        <TributeHero
+          profile={tributeData.profile}
+          theme={tributeData.theme}
+          rank={tributeData.rank}
+          seasonName={tributeData.seasonName}
+        />
+
+        {/* Special Badges */}
+        <motion.div
+          className={styles.badgesSection}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className={styles.badgesContainer}>
+            {tributeData.specialBadges.map((badge, index) => (
+              <TributeBadge
+                key={index}
+                theme={tributeData.theme}
+                label={badge}
+                variant="glow"
+                size="md"
+              />
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Personal Message */}
+        <TributeMessage
+          message={tributeData.personalMessage}
+          signature={tributeData.streamerSignature}
+          theme={tributeData.theme}
+        />
+
+        {/* Exclusive Gallery */}
+        {tributeData.exclusiveGallery.length > 0 && (
+          <TributeGallery
+            images={tributeData.exclusiveGallery}
+            theme={tributeData.theme}
+          />
+        )}
+
+        {/* Donation Timeline */}
+        {tributeData.donationTimeline.length > 0 && (
+          <TributeDonationTimeline
+            donations={tributeData.donationTimeline}
+            theme={tributeData.theme}
+          />
+        )}
+      </main>
+    )
+  }
+
+  // ========================================
+  // Regular VIP Page (일반 VIP 페이지)
+  // ========================================
   if (!data) {
     return (
       <main className={styles.main}>
@@ -348,7 +438,7 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
                   </span>
                   {donation.message && (
                     <span className={styles.historyMessage}>
-                      "{donation.message}"
+                      &quot;{donation.message}&quot;
                     </span>
                   )}
                 </div>

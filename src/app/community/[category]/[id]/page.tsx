@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/hooks/useAuth'
 import { mockPosts, mockProfiles } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { formatDate } from '@/lib/utils/format'
+import type { JoinedProfile } from '@/types/common'
 import styles from './page.module.css'
 
 interface PostDetail {
@@ -113,15 +114,14 @@ export default function PostDetailPage({
       .update({ view_count: (postData.view_count || 0) + 1 })
       .eq('id', parseInt(id))
 
+    const postProfile = postData.profiles as JoinedProfile | null
     setPost({
       id: postData.id,
       title: postData.title,
       content: postData.content || '',
       authorId: postData.author_id,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      authorName: (postData.profiles as any)?.nickname || '익명',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      authorAvatar: (postData.profiles as any)?.avatar_url,
+      authorName: postProfile?.nickname || '익명',
+      authorAvatar: postProfile?.avatar_url || null,
       viewCount: (postData.view_count || 0) + 1,
       createdAt: postData.created_at,
     })
@@ -134,16 +134,17 @@ export default function PostDetailPage({
       .order('created_at', { ascending: true })
 
     setComments(
-      (commentsData || []).map((c) => ({
-        id: c.id,
-        content: c.content,
-        authorId: c.author_id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        authorName: (c.profiles as any)?.nickname || '익명',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        authorAvatar: (c.profiles as any)?.avatar_url,
-        createdAt: c.created_at,
-      }))
+      (commentsData || []).map((c) => {
+        const commentProfile = c.profiles as JoinedProfile | null
+        return {
+          id: c.id,
+          content: c.content,
+          authorId: c.author_id,
+          authorName: commentProfile?.nickname || '익명',
+          authorAvatar: commentProfile?.avatar_url || null,
+          createdAt: c.created_at,
+        }
+      })
     )
 
     setIsLoading(false)

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Plus, X, Save, Upload, List } from 'lucide-react'
 import { DataTable, Column, CsvUploader } from '@/components/admin'
 import { useSupabase } from '@/lib/hooks/useSupabase'
+import type { JoinedProfile, JoinedSeason } from '@/types/common'
 import styles from '../shared.module.css'
 
 interface Donation {
@@ -63,18 +64,20 @@ export default function DonationsPage() {
       .order('nickname')
 
     setDonations(
-      (donationsData || []).map((d) => ({
-        id: d.id,
-        donorId: d.donor_id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        donorName: (d.profiles as any)?.nickname || '익명',
-        amount: d.amount,
-        message: d.message || '',
-        seasonId: d.season_id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        seasonName: (d.seasons as any)?.name || '',
-        createdAt: d.created_at,
-      }))
+      (donationsData || []).map((d) => {
+        const profile = d.profiles as JoinedProfile | null
+        const season = d.seasons as JoinedSeason | null
+        return {
+          id: d.id,
+          donorId: d.donor_id,
+          donorName: profile?.nickname || '익명',
+          amount: d.amount,
+          message: d.message || '',
+          seasonId: d.season_id,
+          seasonName: season?.name || '',
+          createdAt: d.created_at,
+        }
+      })
     )
 
     setSeasons(seasonsData || [])

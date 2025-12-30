@@ -5,6 +5,45 @@
   padding: 0 2rem 4rem;
 }
 
+/* Unit Toggle */
+.unitToggle {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.unitBtn {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.unitBtn:hover {
+  border-color: var(--overlay-strong);
+  color: var(--text-primary);
+}
+
+.unitBtn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.unitBtn.crewBtn.active {
+  background: #00d4ff;
+  border-color: #00d4ff;
+  color: #050505;
+}
+
 /* Filter Bar - cnine style horizontal layout */
 .filterBar {
   display: flex;

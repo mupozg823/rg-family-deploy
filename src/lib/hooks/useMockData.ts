@@ -101,9 +101,15 @@ export function useMockSignatures(unit?: 'excel' | 'crew') {
 }
 
 // Schedules
-export function useMockSchedules(_month?: number, _year?: number) {
-  // For now, return all schedules. Can filter by month/year if needed.
-  return useMockDataLoader<Schedule[]>(mockSchedules);
+export function useMockSchedules(month?: number, year?: number) {
+  // Filter by month/year if provided
+  const filtered = (month !== undefined && year !== undefined)
+    ? mockSchedules.filter(s => {
+        const date = new Date(s.start_datetime)
+        return date.getMonth() + 1 === month && date.getFullYear() === year
+      })
+    : mockSchedules
+  return useMockDataLoader<Schedule[]>(filtered)
 }
 
 // Timeline Events

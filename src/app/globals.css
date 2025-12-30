@@ -7,6 +7,80 @@
   --font-mono: "JetBrains Mono", "SF Mono", monospace;
   --font-accent: "Outfit", sans-serif;
 
+  /* ============================================
+     Typography Scale
+     ============================================
+     Based on 16px base, using modular scale
+     ============================================ */
+
+  /* Micro sizes (for badges, labels, captions) */
+  --text-2xs: 0.625rem;  /* 10px */
+  --text-xs: 0.75rem;    /* 12px */
+
+  /* Small sizes (for secondary text, metadata) */
+  --text-sm: 0.875rem;   /* 14px */
+
+  /* Base and body sizes */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+
+  /* Heading sizes */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.75rem;   /* 28px */
+  --text-4xl: 2rem;      /* 32px */
+  --text-5xl: 2.5rem;    /* 40px */
+  --text-6xl: 3rem;      /* 48px */
+  --text-7xl: 3.5rem;    /* 56px */
+  --text-8xl: 4.5rem;    /* 72px - Hero headlines */
+
+  /* Common in-between sizes (for migration compatibility) */
+  --text-caption: 0.65rem;   /* ~10.4px - tiny captions */
+  --text-label: 0.7rem;      /* ~11.2px - small labels */
+  --text-meta: 0.8rem;       /* ~12.8px - metadata */
+  --text-body-sm: 0.85rem;   /* ~13.6px - small body */
+  --text-body: 0.9rem;       /* ~14.4px - compact body */
+  --text-body-lg: 0.95rem;   /* ~15.2px - large body */
+  --text-subtitle: 1.1rem;   /* ~17.6px - subtitles */
+
+  /* Spacing Scale (8px base) */
+  --space-1: 0.25rem;    /* 4px */
+  --space-2: 0.5rem;     /* 8px */
+  --space-3: 0.75rem;    /* 12px */
+  --space-4: 1rem;       /* 16px */
+  --space-5: 1.25rem;    /* 20px */
+  --space-6: 1.5rem;     /* 24px */
+  --space-8: 2rem;       /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* ============================================
+     Breakpoints System (Reference)
+     ============================================
+     CSS custom properties cannot be used in media queries.
+     Use these values directly in @media rules.
+
+     @media (max-width: 480px)  - Mobile (xs)
+     @media (max-width: 768px)  - Tablet (sm)
+     @media (max-width: 1024px) - Tablet Landscape (md)
+     @media (max-width: 1200px) - Desktop (lg)
+     @media (max-width: 1400px) - Wide Desktop (xl)
+     ============================================ */
+
+  /* Container widths for reference */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+
   /* Brand Colors */
   --primary: #fd68ba;
   --color-primary: #fd68ba;
@@ -16,25 +90,72 @@
 
   --secondary: #00f0ff; /* Keep cyan for accents if needed, or mute it */
 
-  /* LIVE Status - Bright Pink/Red ish for 'LIVE' badge? Or standard Red? 
-     Ref image has Red/Pink badge. Let's use a variation of primary or a standard red.
-     User asked for variations of the pinks. Let's use Deep Pink for "LIVE". */
-  --live-color: #fb37a3;
-  --live-glow: rgba(251, 55, 163, 0.6);
+  /* LIVE Status - Cyan (cnine.kr style) */
+  --live-color: #00d4ff;
+  --live-glow: rgba(0, 212, 255, 0.6);
+  --live-badge-bg: #ef4444;
+  --live-badge-glow: rgba(239, 68, 68, 0.4);
+
+  /* Unit Colors */
+  --crew-color: #00d4ff;
+  --crew-bg: rgba(0, 212, 255, 0.2);
+  --crew-border: rgba(0, 212, 255, 0.3);
+  --excel-color: #ff0050;
+  --excel-bg: rgba(255, 0, 80, 0.1);
+  --excel-border: rgba(255, 0, 80, 0.2);
 
   /* Ranking Colors */
   --gold: #ffd700;
   --silver: #c0c0c0;
   --bronze: #cd7f32;
 
+  /* Tribute Theme Colors (Top 1-3) */
+  --tribute-gold: #ffd700;
+  --tribute-gold-light: #ffe55c;
+  --tribute-gold-glow: rgba(255, 215, 0, 0.4);
+  --tribute-gold-gradient: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+
+  --tribute-silver: #c0c0c0;
+  --tribute-silver-light: #d8d8d8;
+  --tribute-silver-glow: rgba(192, 192, 192, 0.4);
+  --tribute-silver-gradient: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%);
+
+  --tribute-bronze: #cd7f32;
+  --tribute-bronze-light: #daa06d;
+  --tribute-bronze-glow: rgba(205, 127, 50, 0.4);
+  --tribute-bronze-gradient: linear-gradient(135deg, #cd7f32 0%, #b8860b 100%);
+
   /* Layout */
   --max-width: 1400px;
   --header-height: 80px;
   --section-gap: 4rem; /* Increased for premium feel */
 
-  /* Animation */
+  /* ============================================
+     Animation System
+     ============================================ */
+
+  /* Easing Functions */
+  --ease-default: ease;
   --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* Durations */
+  --duration-instant: 0.1s;
+  --duration-fast: 0.15s;
+  --duration-quick: 0.2s;
+  --duration-base: 0.3s;
+  --duration-medium: 0.4s;
+  --duration-slow: 0.5s;
+  --duration-slower: 1s;
+
+  /* Pre-composed Transitions */
+  --transition-fast: all var(--duration-quick) var(--ease-default);
+  --transition-base: all var(--duration-base) var(--ease-default);
+  --transition-smooth: all var(--duration-base) var(--ease-smooth);
+  --transition-bounce: all var(--duration-base) var(--ease-bounce);
+  --transition-spring: all var(--duration-base) var(--ease-spring);
   --transition-theme: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -63,6 +184,12 @@
   --text-primary: #ffffff;
   --text-secondary: #a0a0a0;
   --text-muted: #666666;
+
+  /* Legacy Compatibility (deprecated - use --text-* and --card-border instead) */
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border: var(--card-border);
+  --color-background: var(--background);
 
   /* Scrollbar */
   --scrollbar-track: #050505;
@@ -121,6 +248,12 @@
   --text-primary: #111111;
   --text-secondary: #444444;
   --text-muted: #888888;
+
+  /* Legacy Compatibility (deprecated - use --text-* and --card-border instead) */
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border: var(--card-border);
+  --color-background: var(--background);
 
   /* Scrollbar */
   --scrollbar-track: #f0f0f0;
@@ -220,7 +353,7 @@ body {
 /* Layout Grid Classes */
 .live-notice-grid {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
   align-items: start;
 }
@@ -307,8 +440,8 @@ body {
 
 /* Smooth hover lift */
 .hover-lift {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.3s ease;
+  transition: transform var(--duration-base) var(--ease-bounce),
+    box-shadow var(--duration-base) var(--ease-default);
 }
 
 .hover-lift:hover {
@@ -318,7 +451,7 @@ body {
 
 /* Scale on hover */
 .hover-scale {
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform var(--duration-quick) var(--ease-bounce);
 }
 
 .hover-scale:hover {
@@ -432,9 +565,9 @@ body {
 }
 
 .btn-ghost:hover {
-  background: var(--glass-bg);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  background: var(--overlay-subtle);
+  border-color: var(--overlay-strong);
+  color: var(--text-primary);
 }
 
 /* ============================================
@@ -450,8 +583,8 @@ body {
 }
 
 .card:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 8px 32px rgba(253, 104, 186, 0.1);
+  border-color: var(--overlay-strong);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .card-elevated {

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
-import { Play } from "lucide-react";
+import { Play, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useSupabase } from "@/lib/hooks/useSupabase";
 import { mockMediaContent } from "@/lib/mock/data";
 import { USE_MOCK_DATA } from "@/lib/config";
 import { formatShortDate } from "@/lib/utils/format";
+import { getYouTubeEmbedUrl, getYouTubeThumbnail, extractYouTubeId } from "@/lib/utils/youtube";
 import styles from "./VOD.module.css";
 
 interface VodItem {
@@ -19,10 +20,25 @@ interface VodItem {
   createdAt: string;
 }
 
+type UnitFilter = "all" | "excel" | "crew";
+
 export default function VOD() {
   const supabase = useSupabase();
   const [vods, setVods] = useState<VodItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeUnit, setActiveUnit] = useState<UnitFilter>("all");
+  const [selectedVideo, setSelectedVideo] = useState<VodItem | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const scrollAmount = 300;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const fetchVods = useCallback(async () => {
     // setIsLoading(true); // Removed to prevent synchronous state update in useEffect
@@ -32,14 +48,14 @@ export default function VOD() {
 
       const vodsData = mockMediaContent
         .filter((m) => m.content_type === "vod")
-        .slice(0, 4);
+        .slice(0, 8);
       setVods(
         vodsData.map((v) => ({
           id: v.id,
           title: v.title,
           description: v.description || "",
           videoUrl: v.video_url,
-          thumbnailUrl: v.thumbnail_url || "",
+          thumbnailUrl: v.thumbnail_url || getYouTubeThumbnail(v.video_url, "hq") || "",
           unit: v.unit,
           createdAt: v.created_at,
         }))
@@ -55,7 +71,7 @@ export default function VOD() {
       )
       .eq("content_type", "vod")
       .order("created_at", { ascending: false })
-      .limit(4);
+      .limit(8);
 
     if (error) {
       console.error("VOD 로드 실패:", error);
@@ -66,7 +82,7 @@ export default function VOD() {
           title: v.title,
           description: v.description || "",
           videoUrl: v.video_url,
-          thumbnailUrl: v.thumbnail_url || "",
+          thumbnailUrl: v.thumbnail_url || getYouTubeThumbnail(v.video_url, "hq") || "",
           unit: v.unit,
           createdAt: v.created_at,
         }))
@@ -83,9 +99,18 @@ export default function VOD() {
     init();
   }, [fetchVods]);
 
-  const handleClick = (videoUrl: string) => {
-    window.open(videoUrl, "_blank");
+  const handleClick = (vod: VodItem) => {
+    setSelectedVideo(vod);
   };
+
+  const closeModal = () => {
+    setSelectedVideo(null);
+  };
+
+  // Filter VODs by unit
+  const filteredVods = activeUnit === "all"
+    ? vods
+    : vods.filter((v) => v.unit === activeUnit);
 
   if (isLoading) {
     return (
@@ -103,7 +128,7 @@ export default function VOD() {
     return (
       <section className={styles.section}>
         <div className={styles.header}>
-          <h3>VOD SECTION</h3>
+          <h3>VOD</h3>
           <div className={styles.line} />
         </div>
         <div className={styles.empty}>등록된 VOD가 없습니다</div>
@@ -111,82 +136,123 @@ export default function VOD() {
     );
   }
 
-  const [featured, ...rest] = vods;
-
   return (
     <section className={styles.section}>
       <div className={styles.header}>
-        <h3>VOD SECTION</h3>
+        <h3>VOD</h3>
+        <div className={styles.unitToggle}>
+          <button
+            className={`${styles.toggleBtn} ${activeUnit === "all" ? styles.active : ""}`}
+            onClick={() => setActiveUnit("all")}
+          >
+            ALL
+          </button>
+          <button
+            className={`${styles.toggleBtn} ${activeUnit === "excel" ? styles.active : ""}`}
+            onClick={() => setActiveUnit("excel")}
+          >
+            EXCEL
+          </button>
+          <button
+            className={`${styles.toggleBtn} ${styles.crewBtn} ${activeUnit === "crew" ? styles.active : ""}`}
+            onClick={() => setActiveUnit("crew")}
+          >
+            CREW
+          </button>
+        </div>
         <div className={styles.line} />
+        <div className={styles.arrows}>
+          <button onClick={() => scroll("left")} className={styles.arrowButton}>
+            <ChevronLeft size={20} />
+          </button>
+          <button onClick={() => scroll("right")} className={styles.arrowButton}>
+            <ChevronRight size={20} />
+          </button>
+        </div>
       </div>
 
-      <div className={styles.container}>
-        {/* Large Featured VOD */}
-        <div
-          className={styles.featured}
-          onClick={() => handleClick(featured.videoUrl)}
-        >
-          <div className={styles.featuredThumb}>
-            {featured.thumbnailUrl ? (
-              <Image
-                src={featured.thumbnailUrl}
-                alt={featured.title}
-                fill
-                className={styles.featuredImage}
-              />
-            ) : (
-              <div className={styles.featuredPlaceholder} />
-            )}
-            <Play size={48} className={styles.playIcon} />
-          </div>
-          <div className={styles.featuredInfo}>
-            {featured.unit && (
-              <span
-                className={`${styles.unitBadge} ${
-                  featured.unit === "crew" ? styles.crew : ""
-                }`}
-              >
-                {featured.unit === "excel" ? "엑셀부" : "크루부"}
-              </span>
-            )}
-            <h4>{featured.title}</h4>
-            <p>{featured.description}</p>
-            <span className={styles.date}>
-              {formatShortDate(featured.createdAt)}
-            </span>
-          </div>
-        </div>
-
-        {/* List of Smaller VODs */}
-        <div className={styles.list}>
-          {rest.map((item) => (
-            <div
-              key={item.id}
-              className={styles.item}
-              onClick={() => handleClick(item.videoUrl)}
-            >
-              <div className={styles.itemThumb}>
-                {item.thumbnailUrl ? (
-                  <Image
-                    src={item.thumbnailUrl}
-                    alt={item.title}
-                    fill
-                    className={styles.itemImage}
-                  />
-                ) : (
-                  <div className={styles.itemPlaceholder} />
-                )}
+      <div className={styles.grid} ref={scrollRef}>
+        {filteredVods.map((item) => (
+          <div
+            key={item.id}
+            className={styles.card}
+            onClick={() => handleClick(item)}
+          >
+            <div className={styles.thumbnail}>
+              {item.thumbnailUrl ? (
+                <Image
+                  src={item.thumbnailUrl}
+                  alt={item.title}
+                  fill
+                  className={styles.thumbnailImage}
+                />
+              ) : (
+                <div className={styles.thumbnailPlaceholder} />
+              )}
+              <div className={styles.playOverlay}>
+                <Play />
               </div>
-              <div className={styles.itemInfo}>
-                <h5>{item.title}</h5>
-                <div className={styles.dateSmall}>
+              {item.unit && (
+                <span
+                  className={`${styles.unitBadge} ${
+                    item.unit === "crew" ? styles.crew : ""
+                  }`}
+                >
+                  {item.unit === "excel" ? "EXCEL" : "CREW"}
+                </span>
+              )}
+              <div className={styles.info}>
+                <span className={styles.date}>
                   {formatShortDate(item.createdAt)}
-                </div>
+                </span>
+                <span className={styles.title}>{item.title}</span>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
+
+      {/* YouTube Embed Modal */}
+      {selectedVideo && (
+        <div className={styles.modal} onClick={closeModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closeBtn} onClick={closeModal}>
+              <X size={24} />
+            </button>
+            <div className={styles.videoWrapper}>
+              {extractYouTubeId(selectedVideo.videoUrl) ? (
+                <iframe
+                  src={getYouTubeEmbedUrl(selectedVideo.videoUrl, { autoplay: true }) || ""}
+                  title={selectedVideo.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className={styles.videoFrame}
+                />
+              ) : (
+                <div className={styles.videoError}>
+                  YouTube URL을 확인해주세요
+                </div>
+              )}
+            </div>
+            <div className={styles.videoInfo}>
+              <div className={styles.videoMeta}>
+                <h4>{selectedVideo.title}</h4>
+                <span className={styles.videoDate}>
+                  {formatShortDate(selectedVideo.createdAt)}
+                </span>
+              </div>
+              {selectedVideo.unit && (
+                <span className={`${styles.modalBadge} ${selectedVideo.unit === "crew" ? styles.crew : ""}`}>
+                  {selectedVideo.unit.toUpperCase()}
+                </span>
+              )}
+            </div>
+            {selectedVideo.description && (
+              <p className={styles.videoDesc}>{selectedVideo.description}</p>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

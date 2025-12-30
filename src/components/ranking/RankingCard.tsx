@@ -111,10 +111,10 @@ export default function RankingCard({ item, maxAmount, index }: RankingCardProps
     </motion.div>
   )
 
-  // VIP 페이지 링크 (donorId가 있는 경우만)
-  if (item.donorId) {
+  // VIP 헌정 페이지 링크 (Top 3만)
+  if (item.rank <= 3 && item.donorId) {
     return (
-      <Link href={`/ranking/vip/${item.donorId}`} className={styles.link}>
+      <Link href={`/ranking/vip/${item.donorId}`} className={styles.link} title="헌정 페이지 보기">
         {CardContent}
       </Link>
     )

@@ -18,7 +18,7 @@ const navItems: NavItem[] = [
   {
     label: "RG 정보",
     subItems: [
-      { label: "라이브", href: "/", description: "현재 방송 중인 멤버" },
+      { label: "라이브", href: "/info/live", description: "현재 방송 중인 멤버" },
       { label: "조직도", href: "/info/org", description: "엑셀부 / 크루부 조직" },
       { label: "시그리스트", href: "/info/sig", description: "시그니처 모음" },
       { label: "타임라인", href: "/info/timeline", description: "RG 패밀리 연혁" },

@@ -15,16 +15,14 @@ export default function Footer() {
             <Image
               src="/assets/logo/rg_logo_flat.png"
               alt="RG"
-              width={32}
-              height={32}
+              width={60}
+              height={60}
               style={{
                 objectFit: "contain",
                 filter: "brightness(0) invert(1)",
               }}
             />
-            <strong className={styles.logo}>RG FAMILY</strong>
           </div>
-          <p className={styles.description}>PandaTV 스트리머 팬 커뮤니티</p>
         </div>
 
         {/* Links */}

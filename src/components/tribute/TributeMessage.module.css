@@ -1,0 +1,161 @@
+.section {
+  padding: 3rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Theme Variants */
+.gold {
+  --theme-color: var(--tribute-gold);
+  --theme-glow: var(--tribute-gold-glow);
+}
+
+.silver {
+  --theme-color: var(--tribute-silver);
+  --theme-glow: var(--tribute-silver-glow);
+}
+
+.bronze {
+  --theme-color: var(--tribute-bronze);
+  --theme-glow: var(--tribute-bronze-glow);
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--theme-glow);
+  color: var(--theme-color);
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--theme-color);
+  font-weight: 500;
+}
+
+/* Card */
+.card {
+  position: relative;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  overflow: hidden;
+}
+
+.cardGlow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--theme-glow) 0%,
+    transparent 50%
+  );
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* Content */
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+.paragraph {
+  font-size: 1.1rem;
+  line-height: 1.9;
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* Signature */
+.signatureSection {
+  position: relative;
+  z-index: 1;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+}
+
+.signatureDivider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  color: var(--theme-color);
+}
+
+.signatureDivider::before,
+.signatureDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--card-border),
+    transparent
+  );
+}
+
+.signature {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.signatureImage {
+  opacity: 0.8;
+  filter: brightness(1.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section {
+    padding: 2rem 1rem;
+  }
+
+  .card {
+    padding: 1.75rem;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .paragraph {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .signatureImage {
+    width: 150px;
+    height: auto;
+  }
+}

@@ -142,48 +142,50 @@ export default function Notice() {
                 <Pin size={14} className={styles.pin} />
               </div>
             )}
-            <div className={styles.itemHeader}>
-              {notice.thumbnailUrl ? (
-                <div className={styles.itemThumbnail}>
-                  <Image
-                    src={notice.thumbnailUrl}
-                    alt={notice.title}
-                    fill
-                    sizes="48px"
-                    style={{ objectFit: "cover" }}
-                  />
-                </div>
-              ) : (
-                <div className={styles.itemLogo}>
-                  <Image
-                    src="/assets/logo/rg_logo_flat.png"
-                    alt="RG"
-                    width={20}
-                    height={20}
-                    style={{
-                      objectFit: "contain",
-                      filter: "brightness(0) invert(1)",
-                    }}
-                  />
-                </div>
-              )}
+            {/* Thumbnail - Left */}
+            {notice.thumbnailUrl ? (
+              <div className={styles.itemThumbnail}>
+                <Image
+                  src={notice.thumbnailUrl}
+                  alt={notice.title}
+                  fill
+                  sizes="64px"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
+            ) : (
+              <div className={styles.itemLogo}>
+                <Image
+                  src="/assets/logo/rg_logo_flat.png"
+                  alt="RG"
+                  width={24}
+                  height={24}
+                  style={{
+                    objectFit: "contain",
+                    filter: "brightness(0) invert(1)",
+                  }}
+                />
+              </div>
+            )}
+            {/* Content - Right */}
+            <div className={styles.itemContent}>
               <span
                 className={styles.tag}
                 style={{
                   color: notice.isPinned
                     ? "var(--color-primary-deep)"
-                    : "var(--text-secondary)",
+                    : "var(--text-muted)",
                 }}
               >
-                {notice.isPinned ? "중요 픽킹 전체 공지" : "전체 공지"}
+                {notice.isPinned ? "중요 공지" : "전체 공지"}
               </span>
+              <div className={styles.content}>
+                {getPreviewLines(notice.content).map((line, idx) => (
+                  <p key={idx}>{line || "\u00A0"}</p>
+                ))}
+              </div>
+              <span className={styles.more}>자세히 보기</span>
             </div>
-            <div className={styles.content}>
-              {getPreviewLines(notice.content).map((line, idx) => (
-                <p key={idx}>{line || "\u00A0"}</p>
-              ))}
-            </div>
-            <span className={styles.more}>자세히 보기</span>
           </Link>
         ))}
       </div>
