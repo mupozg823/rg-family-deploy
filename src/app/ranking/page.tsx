@@ -1,42 +1,143 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Crown, Sparkles, ChevronDown } from "lucide-react";
+import { useRanking } from "@/lib/hooks/useRanking";
+import {
+  RankingPodium,
+  RankingFullList,
+  SeasonSelector,
+} from "@/components/ranking";
 import styles from "./page.module.css";
 
-export default function RankingPage() {
+export default function TotalRankingPage() {
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const scrollToList = () => {
+    listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const {
+    rankings,
+    seasons,
+    selectedSeasonId,
+    unitFilter,
+    maxAmount,
+    isLoading,
+    setSelectedSeasonId,
+    setUnitFilter,
+  } = useRanking();
+
+  // 50위까지만 표시
+  const top50 = rankings.slice(0, 50);
+  const top3 = top50.slice(0, 3);
+
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <h1>후원 랭킹</h1>
-        <p>RG FAMILY 명예의 전당</p>
-      </header>
-
-      <div className={styles.grid}>
-        {/* Total Ranking Card */}
-        <Link href="/ranking/total" className={styles.card}>
-          <div className={styles.cardContent}>
-            <h2>전체 랭킹</h2>
-            <p>RG FAMILY 출범 이후 누적 랭킹</p>
-            <div className={styles.icon}>
-              <ChevronRight color="var(--primary)" size={32} />
-            </div>
-          </div>
-          <div className={styles.bg} />
+    <main className={styles.main}>
+      {/* Minimal Navigation Bar */}
+      <nav className={styles.pageNav}>
+        <Link href="/" className={styles.backBtn}>
+          <ArrowLeft size={18} />
         </Link>
-
-        {/* Season Ranking Card */}
-        <Link href="/ranking/season/current" className={styles.card}>
-          <div className={styles.cardContent}>
-            <h2>이번 시즌 랭킹</h2>
-            <p>현재 진행중인 시즌의 실시간 랭킹</p>
-            <div className={styles.icon}>
-              <ChevronRight color="var(--primary)" size={32} />
-            </div>
-          </div>
-          <div className={styles.bg} />
+        <div className={styles.navTitle}>
+          <Sparkles size={14} />
+          <span>RANKINGS</span>
+        </div>
+        <Link href="/ranking/vip" className={styles.vipBtn}>
+          <Crown size={14} />
+          <span>VIP</span>
         </Link>
+      </nav>
+
+      {/* Premium Hero Section */}
+      <div className={styles.hero}>
+        <motion.div
+          className={styles.heroContent}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className={styles.heroBadge}>ELITE</span>
+          <h1 className={styles.title}>RANKINGS</h1>
+          <p className={styles.subtitle}>Top Supporters of RG Family</p>
+        </motion.div>
+
+        {/* Scroll Indicator */}
+        <motion.button
+          onClick={scrollToList}
+          className={styles.scrollIndicator}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, y: [0, 8, 0] }}
+          transition={{
+            opacity: { delay: 1 },
+            y: { duration: 1.5, repeat: Infinity }
+          }}
+        >
+          <ChevronDown size={24} />
+        </motion.button>
       </div>
-    </div>
+
+      <div className={styles.container}>
+        {/* Minimal Filters */}
+        <div className={styles.filters}>
+          <SeasonSelector
+            seasons={seasons}
+            selectedSeasonId={selectedSeasonId}
+            onSelect={setSelectedSeasonId}
+          />
+
+          <div className={styles.unitFilter}>
+            {(["excel", "crew", "all"] as const).map((unit) => (
+              <button
+                key={unit}
+                onClick={() => setUnitFilter(unit)}
+                className={`${styles.unitButton} ${
+                  unitFilter === unit ? styles.active : ""
+                }`}
+                data-unit={unit}
+              >
+                {unit === "excel"
+                  ? "EXCEL"
+                  : unit === "crew"
+                  ? "CREW"
+                  : "ALL"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className={styles.loading}>
+            <div className={styles.spinner} />
+          </div>
+        ) : rankings.length === 0 ? (
+          <div className={styles.empty}>
+            <p>No rankings available</p>
+          </div>
+        ) : (
+          <>
+            {/* Top 3 Podium */}
+            <section className={styles.podiumSection}>
+              <RankingPodium items={top3} />
+            </section>
+
+            {/* Full Ranking List */}
+            <section ref={listRef} className={styles.fullListSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Full Rankings</h2>
+                <span className={styles.sectionBadge}>TOP 50</span>
+              </div>
+              <RankingFullList
+                rankings={top50}
+                maxAmount={maxAmount}
+                limit={50}
+              />
+            </section>
+          </>
+        )}
+      </div>
+    </main>
   );
 }

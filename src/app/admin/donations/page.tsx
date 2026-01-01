@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Plus, X, Save, Upload, List } from 'lucide-react'
 import { DataTable, Column, CsvUploader } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import type { JoinedProfile, JoinedSeason } from '@/types/common'
 import styles from '../shared.module.css'
 
@@ -32,7 +32,7 @@ interface Profile {
 type ViewMode = 'list' | 'upload'
 
 export default function DonationsPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [donations, setDonations] = useState<Donation[]>([])
   const [seasons, setSeasons] = useState<Season[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])

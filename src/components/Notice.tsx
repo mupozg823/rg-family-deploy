@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Pin, ChevronRight } from "lucide-react";
-import { useSupabase } from "@/lib/hooks/useSupabase";
+import { useSupabaseContext } from "@/lib/context";
 import { mockNotices } from "@/lib/mock/data";
 import { USE_MOCK_DATA } from "@/lib/config";
 import styles from "./Notice.module.css";
@@ -19,7 +19,7 @@ interface NoticeItem {
 }
 
 export default function Notice() {
-  const supabase = useSupabase();
+  const supabase = useSupabaseContext();
   const [notices, setNotices] = useState<NoticeItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -170,7 +170,7 @@ export default function Notice() {
             {/* Content - Right */}
             <div className={styles.itemContent}>
               <span
-                className={styles.tag}
+                className={`${styles.tag} ${notice.isPinned ? styles.tagPinned : ""}`}
                 style={{
                   color: notice.isPinned
                     ? "var(--color-primary-deep)"

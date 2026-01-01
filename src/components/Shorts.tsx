@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Play, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useSupabase } from "@/lib/hooks/useSupabase";
+import { useSupabaseContext } from "@/lib/context";
 import { mockMediaContent } from "@/lib/mock/data";
 import { USE_MOCK_DATA } from "@/lib/config";
 import { getYouTubeShortsEmbedUrl, getYouTubeThumbnail, extractYouTubeId } from "@/lib/utils/youtube";
@@ -20,7 +20,7 @@ interface ShortItem {
 type UnitFilter = "all" | "excel" | "crew";
 
 export default function Shorts() {
-  const supabase = useSupabase();
+  const supabase = useSupabaseContext();
   const [shorts, setShorts] = useState<ShortItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeUnit, setActiveUnit] = useState<UnitFilter>("all");

@@ -25,23 +25,23 @@
 }
 
 .card.primary .iconWrapper {
-  background: rgba(253, 104, 186, 0.15);
+  background: var(--color-pink-overlay-10);
   color: var(--color-primary);
 }
 
 .card.success .iconWrapper {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: var(--color-success-bg);
+  color: var(--color-success);
 }
 
 .card.warning .iconWrapper {
-  background: rgba(234, 179, 8, 0.15);
-  color: #eab308;
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
 }
 
 .card.info .iconWrapper {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
+  background: var(--color-info-bg);
+  color: var(--color-info);
 }
 
 .content {
@@ -67,9 +67,9 @@
 }
 
 .change.positive {
-  color: #22c55e;
+  color: var(--color-success);
 }
 
 .change.negative {
-  color: #ef4444;
+  color: var(--color-error);
 }

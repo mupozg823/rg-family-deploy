@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useAuthContext } from '@/lib/context'
 import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react'
 import styles from './page.module.css'
 
@@ -11,7 +11,7 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/'
-  const { signIn, isAuthenticated, isLoading: authLoading } = useAuth()
+  const { signIn, isAuthenticated, isLoading: authLoading } = useAuthContext()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

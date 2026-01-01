@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { MessageSquare, Eye } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import type { JoinedProfile } from '@/types/common'
 import styles from '../shared.module.css'
 
@@ -18,7 +18,7 @@ interface Post {
 }
 
 export default function PostsPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<'all' | 'free' | 'vip'>('all')

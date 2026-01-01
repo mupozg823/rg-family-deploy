@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 import bannerStyles from './page.module.css'
 
@@ -30,7 +30,7 @@ interface Banner {
 }
 
 export default function BannersPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [banners, setBanners] = useState<Banner[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)

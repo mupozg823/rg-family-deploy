@@ -62,12 +62,12 @@
 }
 
 .statusButton.active {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: var(--color-success-bg);
+  color: var(--color-success);
 }
 
 .statusButton.active:hover {
-  background: rgba(34, 197, 94, 0.25);
+  background: var(--color-success-hover);
 }
 
 .statusButton.inactive {
@@ -94,8 +94,8 @@
 }
 
 .deleteButton:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: var(--color-error-bg);
+  color: var(--color-error);
 }
 
 /* Image Preview */

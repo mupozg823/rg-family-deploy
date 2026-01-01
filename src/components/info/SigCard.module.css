@@ -32,7 +32,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #4a0418 100%);
+  background: linear-gradient(135deg, var(--surface-elevated) 0%, var(--surface) 100%);
 }
 
 .placeholderNumber {
@@ -69,13 +69,13 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--color-primary);
+  background: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--background);
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(253, 104, 186, 0.4);
+  box-shadow: var(--shadow-md);
 }
 
 /* Hover Overlay */
@@ -97,7 +97,7 @@
 .sigNumber {
   font-size: 0.875rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--text-secondary);
   font-family: var(--font-display);
 }
 

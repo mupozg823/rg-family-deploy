@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Crown, Plus, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import type { JoinedProfile, JoinedSeason } from '@/types/common'
 import styles from '../shared.module.css'
 
@@ -31,7 +31,7 @@ interface Profile {
 }
 
 export default function VipRewardsPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [rewards, setRewards] = useState<VipReward[]>([])
   const [seasons, setSeasons] = useState<Season[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])

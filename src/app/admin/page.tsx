@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Heart, Calendar, FileText, TrendingUp, Clock } from 'lucide-react'
 import { StatsCard, DataTable, Column } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import type { JoinedProfile } from '@/types/common'
 import styles from './page.module.css'
 
@@ -32,7 +32,7 @@ interface RecentMember {
 }
 
 export default function AdminDashboardPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 

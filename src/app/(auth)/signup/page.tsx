@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useAuthContext } from '@/lib/context'
 import { Mail, Lock, Eye, EyeOff, Loader2, User } from 'lucide-react'
 import styles from './page.module.css'
 
 export default function SignupPage() {
   const router = useRouter()
-  const { signUp, isAuthenticated, isLoading: authLoading } = useAuth()
+  const { signUp, isAuthenticated, isLoading: authLoading } = useAuthContext()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

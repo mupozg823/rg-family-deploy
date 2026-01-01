@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Film, Plus, X, Save, ExternalLink } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
 type ContentType = 'shorts' | 'vod'
@@ -21,7 +21,7 @@ interface Media {
 }
 
 export default function MediaPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [mediaList, setMediaList] = useState<Media[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)

@@ -112,18 +112,18 @@
 
 /* Rank specific styles */
 .gold .percentage {
-  background: rgba(255, 215, 0, 0.15);
-  color: #ffd700;
+  background: var(--metallic-gold-bg);
+  color: var(--metallic-gold);
 }
 
 .silver .percentage {
-  background: rgba(192, 192, 192, 0.15);
-  color: #c0c0c0;
+  background: var(--metallic-silver-bg);
+  color: var(--metallic-silver);
 }
 
 .bronze .percentage {
-  background: rgba(205, 127, 50, 0.15);
-  color: #cd7f32;
+  background: var(--metallic-bronze-bg);
+  color: var(--metallic-bronze);
 }
 
 /* Hover state */

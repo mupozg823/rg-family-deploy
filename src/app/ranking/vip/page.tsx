@@ -1,57 +1,89 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
-import { motion } from 'framer-motion'
-import { Crown, Lock, Star, Heart, Play, Users, Trophy, ArrowRight, PenTool, Sparkles } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { useAuthContext } from '@/lib/context'
-import { useRanking } from '@/lib/hooks/useRanking'
-import { mockVipContent, type VipContent } from '@/lib/mock'
-import { USE_MOCK_DATA } from '@/lib/config'
-import styles from './page.module.css'
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Crown,
+  Lock,
+  Star,
+  Heart,
+  Play,
+  Users,
+  Trophy,
+  ArrowRight,
+  ArrowLeft,
+  PenTool,
+  Sparkles,
+  Film,
+} from "lucide-react";
+import Link from "next/link";
+import { useAuthContext } from "@/lib/context";
+import { useRanking } from "@/lib/hooks/useRanking";
+import { mockVipContent, type VipContent } from "@/lib/mock";
+import { USE_MOCK_DATA } from "@/lib/config";
+import styles from "./page.module.css";
 
 export default function VipLoungePage() {
-  const { user, isAuthenticated, isLoading: authLoading } = useAuthContext()
-  const { rankings } = useRanking()
-  const [vipContent, setVipContent] = useState<VipContent | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [activeVideo, setActiveVideo] = useState<number | null>(null)
+  const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
+  const { rankings } = useRanking();
+  const [vipContent, setVipContent] = useState<VipContent | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showGate, setShowGate] = useState(true);
+
+  useEffect(() => {
+    // 2.5초 후 자동으로 게이트 열림
+    const timer = setTimeout(() => {
+      setShowGate(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Mock 모드에서는 항상 VIP로 표시 (개발용)
   const userRank = useMemo(() => {
-    if (USE_MOCK_DATA) return 5 // Mock: 5위로 설정
-    if (!user) return null
-    const userRanking = rankings.find(r => r.donorId === user.id)
-    return userRanking ? rankings.indexOf(userRanking) + 1 : null
-  }, [user, rankings])
+    if (USE_MOCK_DATA) return 5; // Mock: 5위로 설정
+    if (!user) return null;
+    const userRanking = rankings.find((r) => r.donorId === user.id);
+    return userRanking ? rankings.indexOf(userRanking) + 1 : null;
+  }, [user, rankings]);
 
   const isVip = useMemo(() => {
-    if (USE_MOCK_DATA) return true // Mock: 항상 VIP
-    return userRank !== null && userRank <= 50
-  }, [userRank])
+    if (USE_MOCK_DATA) return true; // Mock: 항상 VIP
+    return userRank !== null && userRank <= 50;
+  }, [userRank]);
 
   const fetchVipContent = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     if (USE_MOCK_DATA) {
-      setVipContent(mockVipContent)
-      setIsLoading(false)
-      return
+      setVipContent(mockVipContent);
+      setIsLoading(false);
+      return;
     }
 
     // TODO: Replace with real Supabase query
-    setVipContent(mockVipContent)
-    setIsLoading(false)
-  }, [])
+    setVipContent(mockVipContent);
+    setIsLoading(false);
+  }, []);
 
   useEffect(() => {
+    let mounted = true;
+
     if (isVip) {
-      fetchVipContent()
+      // Async fetch
+      fetchVipContent();
     } else {
-      setIsLoading(false)
+      // Avoid immediate state update loops -> use small timeout or better:
+      // Since default isLoading is true, if not VIP, we turn it off.
+      // But doing it synchronously here triggers the warning.
+      // We can rely on the condition to render 'Access Denied' directly?
+      // No, isLoading is used to show spinner.
+      if (mounted) setIsLoading(false);
     }
-  }, [isVip, fetchVipContent])
+
+    return () => {
+      mounted = false;
+    };
+  }, [isVip, fetchVipContent]);
 
   // 로딩 중
   if (authLoading || isLoading) {
@@ -62,7 +94,7 @@ export default function VipLoungePage() {
           <span>VIP 라운지 확인 중...</span>
         </div>
       </main>
-    )
+    );
   }
 
   // 비로그인 상태
@@ -80,7 +112,7 @@ export default function VipLoungePage() {
           </Link>
         </div>
       </main>
-    )
+    );
   }
 
   // VIP 아닌 경우 (Top 50 이외)
@@ -101,18 +133,78 @@ export default function VipLoungePage() {
             </p>
           )}
           <div className={styles.deniedActions}>
-            <Link href="/ranking/total" className={styles.rankingButton}>
+            <Link href="/ranking" className={styles.rankingButton}>
               <Trophy size={18} />
               랭킹 확인하기
             </Link>
           </div>
         </div>
       </main>
-    )
+    );
   }
 
   return (
     <main className={styles.main}>
+      <AnimatePresence>
+        {showGate && (
+          <motion.div
+            className={styles.gateOverlay}
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
+            transition={{ duration: 0.8 }}
+            onClick={() => setShowGate(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.5, opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className={styles.gateIcon}
+            >
+              <Crown size={80} strokeWidth={1} />
+            </motion.div>
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ delay: 0.2 }}
+              className={styles.gateText}
+            >
+              VIP LOUNGE
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 0.4 }}
+              className={styles.gateSubtext}
+            >
+              ACCESS GRANTED
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Navigation Bar - Reference Style */}
+      <nav className={styles.pageNav}>
+        <Link href="/ranking" className={styles.backBtn}>
+          <ArrowLeft size={18} />
+          <span>랭킹</span>
+        </Link>
+        <div className={styles.navTitle}>
+          <Crown size={18} />
+          <span>VIP LOUNGE</span>
+        </div>
+        <div className={styles.navActions}>
+          <Link href="/ranking" className={styles.navBtn}>
+            <Trophy size={16} />
+            <span>랭킹</span>
+          </Link>
+          <Link href="/" className={styles.navBtn}>
+            <span>홈</span>
+          </Link>
+        </div>
+      </nav>
+
       {/* Hero */}
       <div className={styles.hero}>
         <motion.div
@@ -124,11 +216,9 @@ export default function VipLoungePage() {
             <Crown size={20} />
             <span>VIP LOUNGE</span>
           </div>
-          <h1 className={styles.heroTitle}>
-            환영합니다, VIP!
-          </h1>
+          <h1 className={styles.heroTitle}>환영합니다, VIP!</h1>
           <p className={styles.heroSubtitle}>
-            {user?.user_metadata?.nickname || '후원자'}님은 현재{' '}
+            {user?.user_metadata?.nickname || "후원자"}님은 현재{" "}
             <strong>{userRank}위</strong>입니다
           </p>
         </motion.div>
@@ -160,6 +250,35 @@ export default function VipLoungePage() {
           </motion.section>
         )}
 
+        {/* Exclusive Content - Featured Video */}
+        <motion.section
+          className={styles.exclusiveSection}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <div className={styles.sectionHeader}>
+            <Film size={20} />
+            <h2>EXCLUSIVE CONTENT</h2>
+          </div>
+          <div className={styles.exclusiveContent}>
+            <div className={styles.exclusiveInner}>
+              <div className={styles.exclusiveVideo}>
+                <div className={styles.exclusiveBadge}>
+                  <Crown size={12} />
+                  VIP ONLY
+                </div>
+                <button className={styles.exclusivePlayBtn}>
+                  <Play size={32} />
+                </button>
+                <span className={styles.exclusiveLabel}>
+                  RG Family Special Message
+                </span>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
         {/* Member Videos */}
         {vipContent?.memberVideos && vipContent.memberVideos.length > 0 && (
           <motion.section
@@ -174,11 +293,7 @@ export default function VipLoungePage() {
             </div>
             <div className={styles.videosGrid}>
               {vipContent.memberVideos.map((video) => (
-                <div
-                  key={video.id}
-                  className={styles.videoCard}
-                  onClick={() => setActiveVideo(video.id)}
-                >
+                <div key={video.id} className={styles.videoCard}>
                   <div className={styles.videoThumbnail}>
                     <div className={styles.videoPlaceholder}>
                       <Play size={32} />
@@ -187,7 +302,7 @@ export default function VipLoungePage() {
                       className={styles.unitBadge}
                       data-unit={video.memberUnit}
                     >
-                      {video.memberUnit === 'excel' ? 'EXCEL' : 'CREW'}
+                      {video.memberUnit === "excel" ? "EXCEL" : "CREW"}
                     </div>
                   </div>
                   <div className={styles.videoInfo}>
@@ -227,7 +342,9 @@ export default function VipLoungePage() {
                 >
                   <div className={styles.signaturePlaceholder}>
                     <PenTool size={24} />
-                    <span className={styles.signatureName}>{sig.memberName}</span>
+                    <span className={styles.signatureName}>
+                      {sig.memberName}
+                    </span>
                   </div>
                 </motion.div>
               ))}
@@ -275,19 +392,19 @@ export default function VipLoungePage() {
             {rankings.slice(0, 50).map((item, index) => (
               <div
                 key={item.donorId || index}
-                className={`${styles.memberItem} ${item.donorId === user?.id ? styles.currentUser : ''}`}
+                className={`${styles.memberItem} ${
+                  item.donorId === user?.id ? styles.currentUser : ""
+                }`}
               >
                 <span className={styles.memberRank} data-rank={index + 1}>
-                  {index < 3 ? (
-                    <Crown size={14} />
-                  ) : (
-                    index + 1
-                  )}
+                  {index < 3 ? <Crown size={14} /> : index + 1}
                 </span>
                 <span className={styles.memberName}>{item.donorName}</span>
                 <span className={styles.memberAmount}>
                   {item.totalAmount >= 10000
-                    ? `${Math.floor(item.totalAmount / 10000).toLocaleString()}만 하트`
+                    ? `${Math.floor(
+                        item.totalAmount / 10000
+                      ).toLocaleString()}만 하트`
                     : `${item.totalAmount.toLocaleString()} 하트`}
                 </span>
               </div>
@@ -296,5 +413,5 @@ export default function VipLoungePage() {
         </motion.section>
       </div>
     </main>
-  )
+  );
 }

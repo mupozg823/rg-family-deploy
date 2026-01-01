@@ -39,9 +39,9 @@
 }
 
 .unitBtn.crewBtn.active {
-  background: #00d4ff;
-  border-color: #00d4ff;
-  color: #050505;
+  background: var(--live-color);
+  border-color: var(--live-color);
+  color: var(--background);
 }
 
 /* Filter Bar - cnine style horizontal layout */

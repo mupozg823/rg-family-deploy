@@ -58,6 +58,9 @@ export interface RankingItem {
   donorName: string
   avatarUrl: string | null
   totalAmount: number
+  donationCount?: number      // 후원 횟수
+  messageCount?: number       // 메시지 수
+  lastDonationDate?: string   // 마지막 후원 날짜
   seasonId?: number
   seasonName?: string
 }

@@ -28,7 +28,7 @@ export const mockBanners: MockBanner[] = [
     // 어두운 배경 여성 - 얼굴 중앙
     memberImageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=1000&fit=crop&q=80',
     bgGradient: 'linear-gradient(125deg, #1a0a12 0%, #3d0f24 25%, #6b1a3d 45%, #8b2252 55%, #3d0f24 75%, #0a0508 100%)',
-    linkUrl: '/info/org',
+    linkUrl: '/organization',
     linkText: '멤버 보기',
     badges: ['EXCEL', 'CREW UNIT', 'RG', 'NEW MEMBER'],
     isActive: true,
@@ -70,7 +70,7 @@ export const mockBanners: MockBanner[] = [
     // 여성 그룹 - 친밀한 분위기
     memberImageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&h=800&fit=crop&q=80',
     bgGradient: 'linear-gradient(130deg, #1a0510 0%, #4a0f28 20%, #8b2252 40%, #fd68ba 50%, #8b2252 60%, #4a0f28 80%, #1a0510 100%)',
-    linkUrl: '/info/org',
+    linkUrl: '/organization',
     linkText: '조직도 보기',
     badges: ['EXCEL', 'CREW'],
     isActive: true,

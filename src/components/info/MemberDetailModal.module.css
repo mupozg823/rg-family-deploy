@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--modal-overlay-strong);
   backdrop-filter: blur(8px);
 }
 
@@ -61,6 +61,25 @@
   position: relative;
 }
 
+/* Pink ring for live members in modal */
+.modalAvatarWrapper.isLive::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-pink-light) 50%, var(--color-pink) 100%);
+  z-index: 0;
+}
+
+.modalAvatarWrapper.isLive::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  box-shadow: 0 0 16px var(--color-pink-glow);
+  z-index: 0;
+}
+
 .modalAvatar {
   position: relative;
   width: 100px;
@@ -69,21 +88,11 @@
   overflow: hidden;
   border: 3px solid var(--card-border);
   background: var(--surface);
+  z-index: 1;
 }
 
 .modalAvatar.modalAvatarLive {
-  border-color: var(--live-color);
-  box-shadow: 0 0 20px var(--live-glow);
-  animation: livePulse 2s ease-in-out infinite;
-}
-
-@keyframes livePulse {
-  0%, 100% {
-    box-shadow: 0 0 20px var(--live-glow);
-  }
-  50% {
-    box-shadow: 0 0 30px var(--live-glow);
-  }
+  border-color: var(--background);
 }
 
 .avatarImage {
@@ -105,24 +114,19 @@
 .modalLiveBadge {
   position: absolute;
   top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: -8px;
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
   background: var(--live-color);
-  color: #000;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: var(--radius-sm);
-  z-index: 1;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  border-radius: 20px;
+  z-index: 3;
+  box-shadow: 0 2px 8px var(--live-glow);
 }
 
 /* Modal Info */
@@ -137,7 +141,7 @@
 .modalUnit {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: rgba(253, 104, 186, 0.15);
+  background: var(--color-pink-overlay-10);
   color: var(--color-primary);
   font-size: var(--text-xs);
   font-weight: 600;
@@ -147,8 +151,8 @@
 }
 
 .modalUnit[data-unit='crew'] {
-  background: rgba(96, 165, 250, 0.15);
-  color: #60a5fa;
+  background: var(--crew-bg);
+  color: var(--crew-color);
 }
 
 .modalName {
@@ -248,18 +252,19 @@
   width: calc(100% - 3rem);
   margin: 1.5rem;
   padding: 1rem;
-  background: var(--live-color);
-  color: #000;
+  background: linear-gradient(135deg, var(--live-color), var(--live-color-dark));
+  color: white;
   font-size: var(--text-base);
   font-weight: 700;
   text-decoration: none;
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
+  box-shadow: 0 4px 15px var(--live-glow);
 }
 
 .watchButton:hover {
-  opacity: 0.9;
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--live-glow);
 }
 
 /* Responsive */

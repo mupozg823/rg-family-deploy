@@ -65,6 +65,11 @@
   overflow-y: hidden;
   padding: 1rem 0 2rem 0;
   scroll-behavior: smooth;
+
+  /* Scroll Snap for better mobile UX */
+  scroll-snap-type: x proximity;
+  scroll-padding: 0 1rem;
+
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -82,6 +87,7 @@
   width: 280px;
   transition: transform var(--duration-base) var(--ease-spring);
   position: relative;
+  scroll-snap-align: start;
 }
 
 .card:hover {
@@ -122,8 +128,9 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    transparent 40%,
-    rgba(0, 0, 0, 0.8) 100%
+    transparent 30%,
+    rgba(0, 0, 0, 0.5) 60%,
+    rgba(0, 0, 0, 0.9) 100%
   );
   pointer-events: none;
 }
@@ -180,7 +187,10 @@
   font-size: 0.9rem;
   font-weight: 700;
   line-height: 1.4;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  text-shadow:
+    0 0 10px rgba(0, 0, 0, 1),
+    0 2px 4px rgba(0, 0, 0, 1),
+    0 1px 2px rgba(0, 0, 0, 1);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -208,9 +218,9 @@
 }
 
 .unitBadge.crew {
-  background: rgba(96, 165, 250, 0.2);
-  border-color: rgba(96, 165, 250, 0.3);
-  color: #60a5fa;
+  background: var(--crew-bg);
+  border-color: var(--crew-border);
+  color: var(--crew-color);
 }
 
 /* Loading & Empty */
@@ -253,15 +263,15 @@
 }
 
 .toggleBtn.active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: white;
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--background);
 }
 
 .toggleBtn.crewBtn.active {
-  background: var(--live-color);
-  border-color: var(--live-color);
-  color: var(--background);
+  background: var(--crew-color);
+  border-color: var(--crew-color);
+  color: white;
 }
 
 /* Modal Styles */

@@ -16,7 +16,9 @@
 
 /* Member Card */
 .card {
-  background: var(--item-bg);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
   padding: 1.25rem 1rem;
@@ -34,18 +36,18 @@
 .rootCard {
   width: 180px;
   background: linear-gradient(135deg, var(--surface-elevated), var(--surface));
-  border-color: rgba(253, 104, 186, 0.5);
-  box-shadow: 0 0 25px rgba(253, 104, 186, 0.15);
+  border-color: var(--card-border-hover);
+  box-shadow: var(--shadow-lg);
 }
 
 .card:hover {
   transform: translateY(-6px);
-  border-color: var(--color-primary);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  border-color: var(--card-border-hover);
+  box-shadow: var(--shadow-xl);
 }
 
 .rootCard:hover {
-  box-shadow: 0 0 30px rgba(253, 104, 186, 0.25);
+  box-shadow: var(--shadow-2xl);
 }
 
 /* Avatar Circle */
@@ -56,8 +58,8 @@
   padding: 2px;
   background: linear-gradient(
     180deg,
-    var(--color-primary),
-    rgba(255, 255, 255, 0.1)
+    var(--text-secondary),
+    var(--overlay-strong)
   );
 }
 
@@ -87,7 +89,7 @@
 .role {
   display: block;
   font-size: 0.7rem;
-  color: var(--color-primary);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 700;
@@ -96,7 +98,7 @@
 
 .rootCard .role {
   font-size: 0.75rem;
-  color: var(--color-primary-light);
+  color: var(--text-primary);
 }
 
 .name {
@@ -109,18 +111,19 @@
   text-overflow: ellipsis;
 }
 
-/* Connector Lines */
+/* Connector Lines - Cybernetic Neon */
 .line {
-  width: 1px;
+  width: 2px; /* Slightly thicker */
   height: 30px;
-  background: var(--overlay-strong);
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary-glow); /* Neon Glow */
 }
 
 .children {
   display: grid;
   gap: 1.5rem;
   position: relative;
-  padding-top: 20px; /* Space for horizontal connector */
+  padding-top: 20px;
 }
 
 .childContainer {
@@ -135,9 +138,10 @@
   position: absolute;
   top: -20px;
   left: 50%;
-  width: 1px;
+  width: 2px;
   height: 20px;
-  background: var(--overlay-strong);
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary-glow);
 }
 
 /* Horizontal Line spanning children */
@@ -148,8 +152,9 @@
   left: 50%;
   transform: translateX(-50%);
   width: calc(100% - 150px);
-  height: 1px;
-  background: var(--overlay-strong);
+  height: 2px;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary-glow);
 }
 
 /* Hide horizontal line if only one child */

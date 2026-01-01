@@ -76,7 +76,7 @@
 }
 
 .navItem.active {
-  background: rgba(253, 104, 186, 0.1);
+  background: var(--color-pink-overlay-10);
   color: var(--color-primary);
 }
 

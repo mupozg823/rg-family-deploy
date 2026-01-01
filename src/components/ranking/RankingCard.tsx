@@ -29,6 +29,13 @@ export default function RankingCard({ item, maxAmount, index }: RankingCardProps
     return ''
   }
 
+  const getLinkRankClass = () => {
+    if (item.rank === 1) return styles.rank1
+    if (item.rank === 2) return styles.rank2
+    if (item.rank === 3) return styles.rank3
+    return ''
+  }
+
   // 하트 단위로 표시 (팬더티비 후원 형식)
   const formatAmount = (amount: number) => {
     if (amount >= 100000) {
@@ -114,9 +121,18 @@ export default function RankingCard({ item, maxAmount, index }: RankingCardProps
   // VIP 헌정 페이지 링크 (Top 3만)
   if (item.rank <= 3 && item.donorId) {
     return (
-      <Link href={`/ranking/vip/${item.donorId}`} className={styles.link} title="헌정 페이지 보기">
+      <Link href={`/ranking/vip/${item.donorId}`} className={`${styles.link} ${getLinkRankClass()}`} title="헌정 페이지 보기">
         {CardContent}
       </Link>
+    )
+  }
+
+  // Top 3이지만 donorId가 없는 경우에도 높이 적용
+  if (item.rank <= 3) {
+    return (
+      <div className={`${styles.link} ${getLinkRankClass()}`}>
+        {CardContent}
+      </div>
     )
   }
 

@@ -1,312 +1,683 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+/* ============================================
+   RG Family Design System v2.0
+   Theme: Premium Dark (High-End Brand Reference)
+
+   References: Apple, Stripe, Linear, Vercel
+
+   구조:
+   1. Typography (정밀한 타입 시스템)
+   2. Spacing & Layout
+   3. Core Colors
+   4. Brand Colors (커스터마이징)
+   5. Theme (Dark/Light)
+   6. Components
+   7. Utilities
+   ============================================ */
 
 :root {
-  /* Typography - Minimal & Refined Hip */
-  --font-display: "Space Grotesk", "Outfit", -apple-system, sans-serif;
-  --font-body: "Noto Sans KR", -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", "SF Mono", monospace;
-  --font-accent: "Outfit", sans-serif;
+  /* ============================================
+     1. Typography - Premium Type System
+
+     원칙:
+     - 본문: 가독성 최우선 (Noto Sans KR)
+     - 제목: 모던하고 단정한 (Inter)
+     - 충분한 line-height로 읽기 편안함
+     - letter-spacing으로 시각적 밀도 조절
+     ============================================ */
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "SF Mono", "Fira Code", monospace;
+
+  /* Type Scale - Major Third (1.25) */
+  --text-2xs: 0.625rem; /* 10px */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 2rem; /* 32px */
+  --text-4xl: 2.5rem; /* 40px */
+  --text-5xl: 3.5rem; /* 56px */
+
+  /* Line Heights - 가독성 최적화 */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 1.75;
+
+  /* Letter Spacing */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* Font Weights */
+  --font-light: 300;
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+
+  /* Legacy compatibility */
+  --text-meta: 0.8125rem;
+  --text-body: 0.9375rem;
+  --text-body-sm: 0.875rem;
+  --text-body-lg: 1rem;
+  --text-subtitle: 1.125rem;
+  --text-caption: 0.6875rem;
+  --text-label: 0.75rem;
 
   /* ============================================
-     Typography Scale
-     ============================================
-     Based on 16px base, using modular scale
+     2. Spacing & Layout - 8px Grid System
      ============================================ */
+  --space-0: 0;
+  --space-1: 0.25rem; /* 4px */
+  --space-1-5: 0.375rem; /* 6px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
+  --space-24: 6rem; /* 96px */
 
-  /* Micro sizes (for badges, labels, captions) */
-  --text-2xs: 0.625rem;  /* 10px */
-  --text-xs: 0.75rem;    /* 12px */
-
-  /* Small sizes (for secondary text, metadata) */
-  --text-sm: 0.875rem;   /* 14px */
-
-  /* Base and body sizes */
-  --text-base: 1rem;     /* 16px */
-  --text-lg: 1.125rem;   /* 18px */
-
-  /* Heading sizes */
-  --text-xl: 1.25rem;    /* 20px */
-  --text-2xl: 1.5rem;    /* 24px */
-  --text-3xl: 1.75rem;   /* 28px */
-  --text-4xl: 2rem;      /* 32px */
-  --text-5xl: 2.5rem;    /* 40px */
-  --text-6xl: 3rem;      /* 48px */
-  --text-7xl: 3.5rem;    /* 56px */
-  --text-8xl: 4.5rem;    /* 72px - Hero headlines */
-
-  /* Common in-between sizes (for migration compatibility) */
-  --text-caption: 0.65rem;   /* ~10.4px - tiny captions */
-  --text-label: 0.7rem;      /* ~11.2px - small labels */
-  --text-meta: 0.8rem;       /* ~12.8px - metadata */
-  --text-body-sm: 0.85rem;   /* ~13.6px - small body */
-  --text-body: 0.9rem;       /* ~14.4px - compact body */
-  --text-body-lg: 0.95rem;   /* ~15.2px - large body */
-  --text-subtitle: 1.1rem;   /* ~17.6px - subtitles */
-
-  /* Spacing Scale (8px base) */
-  --space-1: 0.25rem;    /* 4px */
-  --space-2: 0.5rem;     /* 8px */
-  --space-3: 0.75rem;    /* 12px */
-  --space-4: 1rem;       /* 16px */
-  --space-5: 1.25rem;    /* 20px */
-  --space-6: 1.5rem;     /* 24px */
-  --space-8: 2rem;       /* 32px */
-  --space-10: 2.5rem;    /* 40px */
-  --space-12: 3rem;      /* 48px */
-  --space-16: 4rem;      /* 64px */
-
-  /* Border Radius */
+  /* Border Radius - 부드러운 곡선 */
+  --radius-xs: 2px;
   --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 20px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
   --radius-full: 9999px;
 
-  /* ============================================
-     Breakpoints System (Reference)
-     ============================================
-     CSS custom properties cannot be used in media queries.
-     Use these values directly in @media rules.
-
-     @media (max-width: 480px)  - Mobile (xs)
-     @media (max-width: 768px)  - Tablet (sm)
-     @media (max-width: 1024px) - Tablet Landscape (md)
-     @media (max-width: 1200px) - Desktop (lg)
-     @media (max-width: 1400px) - Wide Desktop (xl)
-     ============================================ */
-
-  /* Container widths for reference */
-  --container-sm: 640px;
-  --container-md: 768px;
-  --container-lg: 1024px;
-  --container-xl: 1280px;
-
-  /* Brand Colors */
-  --primary: #fd68ba;
-  --color-primary: #fd68ba;
-  --color-primary-deep: #fb37a3;
-  --color-primary-light: #fe9bd2;
-  --primary-glow: rgba(253, 104, 186, 0.4);
-
-  --secondary: #00f0ff; /* Keep cyan for accents if needed, or mute it */
-
-  /* LIVE Status - Cyan (cnine.kr style) */
-  --live-color: #00d4ff;
-  --live-glow: rgba(0, 212, 255, 0.6);
-  --live-badge-bg: #ef4444;
-  --live-badge-glow: rgba(239, 68, 68, 0.4);
-
-  /* Unit Colors */
-  --crew-color: #00d4ff;
-  --crew-bg: rgba(0, 212, 255, 0.2);
-  --crew-border: rgba(0, 212, 255, 0.3);
-  --excel-color: #ff0050;
-  --excel-bg: rgba(255, 0, 80, 0.1);
-  --excel-border: rgba(255, 0, 80, 0.2);
-
-  /* Ranking Colors */
-  --gold: #ffd700;
-  --silver: #c0c0c0;
-  --bronze: #cd7f32;
-
-  /* Tribute Theme Colors (Top 1-3) */
-  --tribute-gold: #ffd700;
-  --tribute-gold-light: #ffe55c;
-  --tribute-gold-glow: rgba(255, 215, 0, 0.4);
-  --tribute-gold-gradient: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
-
-  --tribute-silver: #c0c0c0;
-  --tribute-silver-light: #d8d8d8;
-  --tribute-silver-glow: rgba(192, 192, 192, 0.4);
-  --tribute-silver-gradient: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%);
-
-  --tribute-bronze: #cd7f32;
-  --tribute-bronze-light: #daa06d;
-  --tribute-bronze-glow: rgba(205, 127, 50, 0.4);
-  --tribute-bronze-gradient: linear-gradient(135deg, #cd7f32 0%, #b8860b 100%);
-
   /* Layout */
-  --max-width: 1400px;
-  --header-height: 80px;
-  --section-gap: 4rem; /* Increased for premium feel */
+  --max-width: 1280px;
+  --max-width-wide: 1440px;
+  --header-height: 72px;
+  --content-padding: 1.5rem;
 
   /* ============================================
-     Animation System
+     3. Core Colors - Official Brand Palette
      ============================================ */
 
-  /* Easing Functions */
-  --ease-default: ease;
-  --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  /* Primary Brand Color: RG Deep Pink (The Only Accent) */
+  --color-pink: #c41e7f;
+  --color-pink-light: #d84a9a;
+  --color-pink-deep: #9a1a66;
+  --color-pink-glow: rgba(196, 30, 127, 0.3);
+  --color-pink-bg: rgba(196, 30, 127, 0.08);
+
+  /* Secondary Brand Color: Rose Gold (Luxury/VIP) */
+  --color-gold: #d4af37;
+  --color-gold-light: #f0d060;
+  --color-gold-dark: #b8962e;
+  --color-gold-glow: rgba(212, 175, 55, 0.25);
+  --color-gold-bg: rgba(212, 175, 55, 0.05);
+
+  /* Semantic Colors - Muted/Premium variants */
+  --color-success: #22c55e;
+  --color-success-bg: rgba(34, 197, 94, 0.15);
+  --color-success-bg-light: rgba(34, 197, 94, 0.1);
+  --color-success-border: rgba(34, 197, 94, 0.3);
+  --color-success-hover: rgba(34, 197, 94, 0.25);
+
+  --color-error: #ef4444;
+  --color-error-bg: rgba(239, 68, 68, 0.1);
+  --color-error-bg-strong: rgba(239, 68, 68, 0.15);
+  --color-error-border: rgba(239, 68, 68, 0.3);
+
+  --color-warning: #eab308;
+  --color-warning-bg: rgba(234, 179, 8, 0.15);
+
+  --color-info: #3b82f6;
+  --color-info-bg: rgba(59, 130, 246, 0.15);
+
+  --color-cyan: #00f0ff;
+  --color-cyan-bg: rgba(0, 240, 255, 0.15);
+
+  --color-collab: #60a5fa;
+  --color-collab-bg: rgba(96, 165, 250, 0.15);
+
+  /* Overlay for modal */
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --modal-overlay-strong: rgba(0, 0, 0, 0.8);
+  --modal-overlay-dark: rgba(0, 0, 0, 0.85);
+
+  /* LIVE Status - Universal Red */
+  --live-color: #ef4444;
+  --live-glow: rgba(239, 68, 68, 0.4);
+
+  /* Star/Particle Effects - Theme Aware */
+  --star-bright: rgba(255, 255, 255, 0.35);
+  --star-dim: rgba(255, 255, 255, 0.2);
+  --star-accent: rgba(0, 240, 255, 0.3);
+
+  /* Unit Identity Colors */
+  --unit-excel: #e4e4e7; /* Clean White/Silver */
+  --unit-crew: #a1a1aa; /* Cool Grey */
+
+  /* Primary Mapping */
+  --primary: var(--color-pink);
+  --primary-light: var(--color-pink-light);
+  --primary-deep: var(--color-pink-deep);
+  --primary-glow: var(--color-pink-glow);
+
+  /* ============================================
+     Rank System Colors (Default: Dark Mode / Glowing)
+     ============================================ */
+
+  /* Gold (Rank 1) */
+  --metallic-gold: #ffd700;
+  --metallic-gold-bg: rgba(255, 215, 0, 0.1);
+  --metallic-gold-border: rgba(255, 215, 0, 0.3);
+  --metallic-gold-glow: rgba(255, 215, 0, 0.4);
+  --metallic-gold-gradient: linear-gradient(135deg, #ffd700 0%, #fdb931 100%);
+
+  /* Silver (Rank 2) */
+  --metallic-silver: #e0e0e0;
+  --metallic-silver-bg: rgba(224, 224, 224, 0.1);
+  --metallic-silver-border: rgba(224, 224, 224, 0.3);
+  --metallic-silver-glow: rgba(224, 224, 224, 0.4);
+  --metallic-silver-gradient: linear-gradient(135deg, #e0e0e0 0%, #b0b0b0 100%);
+
+  /* Bronze (Rank 3) */
+  --metallic-bronze: #cd7f32;
+  --metallic-bronze-bg: rgba(205, 127, 50, 0.1);
+  --metallic-bronze-border: rgba(205, 127, 50, 0.3);
+  --metallic-bronze-glow: rgba(205, 127, 50, 0.4);
+  --metallic-bronze-gradient: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%);
+
+  /* Progress Bar Defaults */
+  --progress-gradient: linear-gradient(
+    90deg,
+    var(--color-pink) 0%,
+    var(--color-pink-light) 100%
+  );
+  --progress-glow: var(--color-pink-glow);
+
+  /* ============================================
+     4. Theme Tokens
+     ============================================ */
+
+  /* Pink Border (for badges/buttons) */
+  --color-pink-border: rgba(196, 30, 127, 0.4);
+  --color-pink-border-strong: rgba(196, 30, 127, 0.4);
+
+  /* Pink Gradients */
+  --pink-gradient-primary: linear-gradient(135deg, var(--color-pink), var(--color-pink-light));
+  --pink-gradient-horizontal: linear-gradient(90deg, var(--color-pink), var(--color-pink-light), var(--color-pink));
+  --pink-gradient-vertical: linear-gradient(180deg, var(--color-pink), var(--color-pink-light));
+
+  /* Pink Glow Shadows */
+  --pink-glow-sm: 0 4px 15px rgba(196, 30, 127, 0.3);
+  --pink-glow-md: 0 4px 15px rgba(196, 30, 127, 0.4);
+  --pink-glow-lg: 0 6px 20px rgba(196, 30, 127, 0.4);
+  --pink-glow-xl: 0 6px 25px rgba(196, 30, 127, 0.5);
+
+  /* Gold Light variant */
+  --metallic-gold-light: #f0d060;
+
+  /* 5. Animation - 절제된 모션 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-spring: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Durations */
-  --duration-instant: 0.1s;
   --duration-fast: 0.15s;
-  --duration-quick: 0.2s;
-  --duration-base: 0.3s;
-  --duration-medium: 0.4s;
-  --duration-slow: 0.5s;
-  --duration-slower: 1s;
+  --duration-base: 0.2s;
+  --duration-slow: 0.4s;
 
-  /* Pre-composed Transitions */
-  --transition-fast: all var(--duration-quick) var(--ease-default);
-  --transition-base: all var(--duration-base) var(--ease-default);
-  --transition-smooth: all var(--duration-base) var(--ease-smooth);
-  --transition-bounce: all var(--duration-base) var(--ease-bounce);
-  --transition-spring: all var(--duration-base) var(--ease-spring);
-  --transition-theme: background-color 0.3s ease, color 0.3s ease;
+  --transition-base: all var(--duration-base) var(--ease-smooth);
 }
 
-/* Dark Theme (Default) */
+/* ============================================
+   Dark Theme: 'Noir & Rose Gold'
+   ============================================ */
 :root,
 [data-theme="dark"] {
-  --background: #050505; /* Deep Black */
-  --foreground: #ffffff;
-  --foreground-muted: #888888;
+  /* Backgrounds: Matte Black */
+  --background: #0f1115;
+  --background-secondary: #141417;
 
-  /* Surface Colors */
-  --surface: #0a0a0a;
-  --surface-hover: #141414;
-  --surface-elevated: #1a1a1a;
+  /* Surfaces: Dark & Deep */
+  --surface: #1a1a1e;
+  --surface-secondary: #232328;
+  --surface-hover: #2a2a30;
 
-  /* Glass - Darker, cleaner */
-  --glass-bg: rgba(10, 10, 10, 0.8);
+  /* Text: Clean White & Soft Grey */
+  --text-primary: #ffffff;
+  --text-secondary: #e5e5e5;
+  --text-tertiary: #a1a1aa;
+  --text-muted: #71717a;
+
+  /* Components */
+  --card-bg: #141417;
+  --card-border: rgba(255, 255, 255, 0.08); /* Subtle White Border */
+  --card-hover: #1a1a1e;
+
+  --line-color: rgba(255, 255, 255, 0.08);
+
+  /* Overlays */
+  --glass-bg: rgba(15, 17, 21, 0.85); /* Dark Glass */
   --glass-border: rgba(255, 255, 255, 0.08);
 
-  /* Card */
-  --card-bg: #0a0a0a;
-  --card-border: rgba(255, 255, 255, 0.06);
-  --card-hover: #121212;
-
-  /* Text */
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-muted: #666666;
-
-  /* Legacy Compatibility (deprecated - use --text-* and --card-border instead) */
-  --color-text: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-  --color-border: var(--card-border);
-  --color-background: var(--background);
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.5);
 
   /* Scrollbar */
-  --scrollbar-track: #050505;
-  --scrollbar-thumb: #333333;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
 
-  /* Theme-Adaptive Overlays */
-  --overlay-subtle: rgba(255, 255, 255, 0.05);
-  --overlay-medium: rgba(255, 255, 255, 0.1);
-  --overlay-strong: rgba(255, 255, 255, 0.2);
+  /* Focus */
+  --focus-ring: 0 0 0 2px var(--primary);
 
-  /* Hero/Banner Gradients */
-  --hero-gradient-base: rgba(5, 5, 5, 0.9);
-  --hero-gradient-accent: rgba(251, 55, 163, 0.1);
+  /* Overlays & Interactive */
+  --overlay-subtle: rgba(255, 255, 255, 0.03);
+  --overlay-medium: rgba(255, 255, 255, 0.06);
+  --overlay-strong: rgba(255, 255, 255, 0.1);
+  --interactive-hover: rgba(255, 255, 255, 0.05);
 
-  /* Item/Card Backgrounds */
-  --item-bg: #111111;
-  --item-hover: #161616;
-  --item-border: rgba(255, 255, 255, 0.05);
-  --item-border-hover: rgba(255, 255, 255, 0.1);
+  /* Item Borders */
+  --item-border: rgba(255, 255, 255, 0.06);
+  --item-border-hover: rgba(255, 255, 255, 0.12);
+  --divider: rgba(255, 255, 255, 0.08);
 
-  /* Logo/Badge Backgrounds */
-  --logo-bg: #ffffff;
-  --logo-text: var(--color-primary-deep);
+  /* Page Navigation */
+  --pageNav-bg: #09090b;
+  --pageNav-border: rgba(255, 255, 255, 0.08);
 
-  /* Navigation */
-  --nav-btn-color: rgba(255, 255, 255, 0.3);
-  --nav-btn-hover: rgba(255, 255, 255, 0.05);
+  /* Hero Backgrounds */
+  --hero-bg: linear-gradient(180deg, #14141a 0%, #0f0f12 50%, #09090b 100%);
+  --hero-fade: linear-gradient(to top, var(--background), transparent);
 
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  /* Button Backgrounds */
+  --btn-secondary-bg: #121215;
+  --btn-secondary-border: rgba(255, 255, 255, 0.1);
+  --btn-secondary-color: rgba(255, 255, 255, 0.7);
+  --btn-secondary-hover: rgba(255, 255, 255, 0.1);
+
+  /* Unit Colors */
+  --excel-bg: rgba(228, 228, 231, 0.1);
+  --excel-color: #e4e4e7;
+  --excel-border: rgba(228, 228, 231, 0.2);
+  --crew-bg: rgba(161, 161, 170, 0.1);
+  --crew-color: #a1a1aa;
+  --crew-border: rgba(161, 161, 170, 0.2);
+
+  /* Transition */
+  --transition-fast: all 0.15s var(--ease-smooth);
+  --transition-theme: background 0.3s var(--ease-smooth), color 0.3s var(--ease-smooth), border-color 0.3s var(--ease-smooth);
+
+  /* ============================================
+     Premium/VIP Page Backgrounds (Dark Mode)
+     ============================================ */
+  --bg-deepest: #09090b;
+  --bg-darker: #0a0a0c;
+  --bg-dark: #0f0f12;
+  --bg-base: #14141a;
+  --bg-elevated: #121215;
+
+  /* VIP Hero Gradient */
+  --vip-hero-bg: linear-gradient(180deg, #14141a 0%, #0f0f12 50%, #09090b 100%);
+  --vip-hero-fade: linear-gradient(to top, #09090b 0%, transparent 100%);
+
+  /* Text Overlay Colors (투명도 기반) */
+  --text-overlay-100: rgba(255, 255, 255, 1);
+  --text-overlay-95: rgba(255, 255, 255, 0.95);
+  --text-overlay-90: rgba(255, 255, 255, 0.9);
+  --text-overlay-80: rgba(255, 255, 255, 0.8);
+  --text-overlay-70: rgba(255, 255, 255, 0.7);
+  --text-overlay-50: rgba(255, 255, 255, 0.5);
+  --text-overlay-40: rgba(255, 255, 255, 0.4);
+
+  /* Border Overlay Colors */
+  --border-overlay-25: rgba(255, 255, 255, 0.25);
+  --border-overlay-15: rgba(255, 255, 255, 0.15);
+  --border-overlay-08: rgba(255, 255, 255, 0.08);
+
+  /* ============================================
+     Elite/Platinum Styling (2위, 3위 동일) - Dark Mode
+     ============================================ */
+  --elite-text: rgba(255, 255, 255, 0.95);
+  --elite-text-secondary: rgba(255, 255, 255, 0.7);
+  --elite-border: rgba(255, 255, 255, 0.3);
+  --elite-border-subtle: rgba(255, 255, 255, 0.15);
+  --elite-glow: rgba(255, 255, 255, 0.2);
+  --elite-glow-strong: rgba(255, 255, 255, 0.4);
+  --elite-bg: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
+  --elite-badge-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0.15) 100%);
+  --elite-gradient-from: rgba(180, 180, 180, 0.9);
+  --elite-gradient-mid: rgba(255, 255, 255, 1);
+  --elite-gradient-to: rgba(200, 200, 200, 0.95);
+
+  /* Premium Card Gradient */
+  --premium-card-bg: linear-gradient(145deg, #0a0a0c, var(--metallic-gold-bg));
+  --premium-card-border: rgba(255, 255, 255, 0.08);
+
+  /* Video/Thumbnail Backgrounds */
+  --video-bg: linear-gradient(135deg, #121215, #0a0a0c);
+  --video-overlay: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.4) 100%);
+
+  /* Loading/Spinner */
+  --spinner-border: rgba(255, 255, 255, 0.08);
+  --loading-text: rgba(255, 255, 255, 0.5);
+
+  /* Message Card */
+  --message-quote-color: var(--metallic-gold);
+
+  /* ============================================
+     Utility Colors - Dark Mode
+     ============================================ */
+
+  /* Gray Overlays (neutral) */
+  --gray-overlay-10: rgba(100, 100, 100, 0.1);
+  --gray-overlay-15: rgba(100, 100, 100, 0.15);
+  --gray-overlay-20: rgba(150, 150, 150, 0.15);
+
+  /* Pink Utility - Various Opacities */
+  --color-pink-overlay-01: rgba(196, 30, 127, 0.01);
+  --color-pink-overlay-02: rgba(196, 30, 127, 0.02);
+  --color-pink-overlay-03: rgba(196, 30, 127, 0.03);
+  --color-pink-overlay-05: rgba(196, 30, 127, 0.05);
+  --color-pink-overlay-08: rgba(196, 30, 127, 0.08);
+  --color-pink-overlay-10: rgba(196, 30, 127, 0.1);
+
+  /* Live/Error Color Utility */
+  --live-overlay-02: rgba(239, 68, 68, 0.02);
+  --live-overlay-03: rgba(239, 68, 68, 0.03);
+  --live-overlay-05: rgba(239, 68, 68, 0.05);
+  --live-overlay-10: rgba(239, 68, 68, 0.1);
+  --live-overlay-20: rgba(239, 68, 68, 0.2);
+
+  /* Gold Utility - Various Opacities */
+  --gold-overlay-02: rgba(212, 175, 55, 0.02);
+  --gold-overlay-04: rgba(212, 175, 55, 0.04);
+  --gold-overlay-05: rgba(212, 175, 55, 0.05);
+  --gold-overlay-06: rgba(212, 175, 55, 0.06);
+  --gold-overlay-08: rgba(212, 175, 55, 0.08);
+  --gold-shadow-05: 0 0 40px rgba(212, 175, 55, 0.05);
+  --gold-shadow-30: 0 0 30px rgba(212, 175, 55, 0.05);
+
+  /* VIP Card Gradients */
+  --vip-card-gradient-dark: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.02) 0%,
+    transparent 50%,
+    rgba(196, 30, 127, 0.01) 100%
+  );
+  --vip-card-gradient-hover: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.05) 0%,
+    transparent 50%,
+    rgba(212, 175, 55, 0.05) 100%
+  );
+
+  /* Hero Glow */
+  --hero-glow: radial-gradient(ellipse at center, rgba(196, 30, 127, 0.15) 0%, transparent 60%);
+  --hero-padding: var(--space-16) var(--space-8) var(--space-12);
+  --hero-padding-mobile: var(--space-12) var(--space-4) var(--space-8);
 }
 
-/* Light Theme */
+/* ============================================
+   Light Theme: 'Studio Blanc'
+   ============================================ */
 [data-theme="light"] {
+  /* Backgrounds: Clean White */
   --background: #ffffff;
-  --foreground: #111111;
-  --foreground-muted: #666666;
+  --background-secondary: #fafafa;
 
-  /* Surface Colors */
-  --surface: #f8f9fa;
-  --surface-hover: #f1f3f5;
-  --surface-elevated: #ffffff;
+  /* Surfaces: Soft Grey & White */
+  --surface: #f4f4f5;
+  --surface-secondary: #fafafa;
+  --surface-hover: #e4e4e7;
 
-  /* Glass - Light */
-  --glass-bg: rgba(255, 255, 255, 0.85);
+  /* Text: Sharp Black */
+  --text-primary: #09090b;
+  --text-secondary: #27272a;
+  --text-tertiary: #52525b;
+  --text-muted: #71717a;
+
+  /* Components */
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --card-hover: #fafafa;
+
+  --line-color: rgba(0, 0, 0, 0.08);
+
+  /* Overlays */
+  --glass-bg: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(0, 0, 0, 0.08);
 
-  /* Card */
-  --card-bg: #ffffff;
-  --card-border: rgba(0, 0, 0, 0.06);
-  --card-hover: #f8f9fa;
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
 
-  /* Text */
-  --text-primary: #111111;
-  --text-secondary: #444444;
-  --text-muted: #888888;
+  /* ============================================
+     Rank System Colors (Light Mode Overrides - Darker/Richer for Contrast)
+     ============================================ */
 
-  /* Legacy Compatibility (deprecated - use --text-* and --card-border instead) */
-  --color-text: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-  --color-border: var(--card-border);
-  --color-background: var(--background);
+  /* Gold (Rank 1) - Darker Goldenrod */
+  --metallic-gold: #b8860b;
+  --metallic-gold-bg: rgba(184, 134, 11, 0.1);
+  --metallic-gold-border: rgba(184, 134, 11, 0.3);
+  --metallic-gold-glow: rgba(184, 134, 11, 0.2);
+  --metallic-gold-gradient: linear-gradient(135deg, #b8860b 0%, #daa520 100%);
+
+  /* Silver (Rank 2) - Cool Slate Grey */
+  --metallic-silver: #718096;
+  --metallic-silver-bg: rgba(113, 128, 150, 0.1);
+  --metallic-silver-border: rgba(113, 128, 150, 0.3);
+  --metallic-silver-glow: rgba(113, 128, 150, 0.2);
+  --metallic-silver-gradient: linear-gradient(135deg, #718096 0%, #a0aec0 100%);
+
+  /* Bronze (Rank 3) - Saddle Brown */
+  --metallic-bronze: #8b4513;
+  --metallic-bronze-bg: rgba(139, 69, 19, 0.1);
+  --metallic-bronze-border: rgba(139, 69, 19, 0.3);
+  --metallic-bronze-glow: rgba(139, 69, 19, 0.2);
+  --metallic-bronze-gradient: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
 
   /* Scrollbar */
-  --scrollbar-track: #f0f0f0;
-  --scrollbar-thumb: #cccccc;
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
 
-  /* Theme-Adaptive Overlays */
-  --overlay-subtle: rgba(0, 0, 0, 0.03);
-  --overlay-medium: rgba(0, 0, 0, 0.06);
-  --overlay-strong: rgba(0, 0, 0, 0.1);
+  /* Overlays & Interactive */
+  --overlay-subtle: rgba(0, 0, 0, 0.02);
+  --overlay-medium: rgba(0, 0, 0, 0.04);
+  --overlay-strong: rgba(0, 0, 0, 0.08);
+  --interactive-hover: rgba(0, 0, 0, 0.03);
 
-  /* Hero/Banner Gradients */
-  --hero-gradient-base: rgba(255, 255, 255, 0.95);
-  --hero-gradient-accent: rgba(251, 55, 163, 0.08);
+  /* Star/Particle Effects - Invisible on Light Theme */
+  --star-bright: rgba(0, 0, 0, 0.06);
+  --star-dim: rgba(0, 0, 0, 0.03);
+  --star-accent: rgba(0, 180, 200, 0.1);
 
-  /* Item/Card Backgrounds */
-  --item-bg: #f8f9fa;
-  --item-hover: #f1f3f5;
+  /* Item Borders */
   --item-border: rgba(0, 0, 0, 0.06);
   --item-border-hover: rgba(0, 0, 0, 0.12);
+  --divider: rgba(0, 0, 0, 0.08);
 
-  /* Logo/Badge Backgrounds */
-  --logo-bg: #ffffff;
-  --logo-text: var(--color-primary-deep);
+  /* Page Navigation */
+  --pageNav-bg: #ffffff;
+  --pageNav-border: rgba(0, 0, 0, 0.08);
 
-  /* Navigation */
-  --nav-btn-color: rgba(0, 0, 0, 0.4);
-  --nav-btn-hover: rgba(0, 0, 0, 0.05);
+  /* Hero Backgrounds */
+  --hero-bg: linear-gradient(180deg, #f8f8f8 0%, #fafafa 50%, #ffffff 100%);
+  --hero-fade: linear-gradient(to top, var(--background), transparent);
 
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  /* Button Backgrounds */
+  --btn-secondary-bg: #f4f4f5;
+  --btn-secondary-border: rgba(0, 0, 0, 0.1);
+  --btn-secondary-color: #52525b;
+  --btn-secondary-hover: rgba(0, 0, 0, 0.05);
+
+  /* Unit Colors */
+  --excel-bg: rgba(39, 39, 42, 0.08);
+  --excel-color: #27272a;
+  --excel-border: rgba(39, 39, 42, 0.15);
+  --crew-bg: rgba(82, 82, 91, 0.08);
+  --crew-color: #52525b;
+  --crew-border: rgba(82, 82, 91, 0.15);
+
+  /* ============================================
+     Premium/VIP Page Backgrounds (Light Mode)
+     ============================================ */
+  --bg-deepest: #f8f8fa;
+  --bg-darker: #f4f4f6;
+  --bg-dark: #efefef;
+  --bg-base: #fafafa;
+  --bg-elevated: #ffffff;
+
+  /* VIP Hero Gradient - Light */
+  --vip-hero-bg: linear-gradient(180deg, #fafafa 0%, #f4f4f6 50%, #f0f0f2 100%);
+  --vip-hero-fade: linear-gradient(to top, #f8f8fa 0%, transparent 100%);
+
+  /* Text Overlay Colors (라이트 모드 - 어두운 텍스트) */
+  --text-overlay-100: rgba(9, 9, 11, 1);
+  --text-overlay-95: rgba(9, 9, 11, 0.95);
+  --text-overlay-90: rgba(9, 9, 11, 0.9);
+  --text-overlay-80: rgba(9, 9, 11, 0.8);
+  --text-overlay-70: rgba(9, 9, 11, 0.7);
+  --text-overlay-50: rgba(9, 9, 11, 0.5);
+  --text-overlay-40: rgba(9, 9, 11, 0.4);
+
+  /* Border Overlay Colors - Light */
+  --border-overlay-25: rgba(0, 0, 0, 0.15);
+  --border-overlay-15: rgba(0, 0, 0, 0.1);
+  --border-overlay-08: rgba(0, 0, 0, 0.06);
+
+  /* ============================================
+     Elite/Platinum Styling (2위, 3위 동일) - Light Mode
+     ============================================ */
+  --elite-text: #27272a;
+  --elite-text-secondary: #52525b;
+  --elite-border: rgba(0, 0, 0, 0.2);
+  --elite-border-subtle: rgba(0, 0, 0, 0.1);
+  --elite-glow: rgba(100, 100, 100, 0.15);
+  --elite-glow-strong: rgba(100, 100, 100, 0.25);
+  --elite-bg: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 50%, #f0f0f0 100%);
+  --elite-badge-bg: linear-gradient(135deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.05) 100%);
+  --elite-gradient-from: #52525b;
+  --elite-gradient-mid: #27272a;
+  --elite-gradient-to: #3f3f46;
+
+  /* Premium Card Gradient - Light */
+  --premium-card-bg: linear-gradient(145deg, #ffffff, var(--metallic-gold-bg));
+  --premium-card-border: rgba(0, 0, 0, 0.08);
+
+  /* Video/Thumbnail Backgrounds - Light */
+  --video-bg: linear-gradient(135deg, #f4f4f5, #e4e4e7);
+  --video-overlay: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.15) 100%);
+
+  /* Loading/Spinner - Light */
+  --spinner-border: rgba(0, 0, 0, 0.08);
+  --loading-text: rgba(0, 0, 0, 0.5);
+
+  /* Message Card - Light */
+  --message-quote-color: var(--metallic-gold);
+
+  /* ============================================
+     Utility Colors - Light Mode
+     ============================================ */
+
+  /* Gray Overlays (neutral) - Light */
+  --gray-overlay-10: rgba(100, 100, 100, 0.08);
+  --gray-overlay-15: rgba(100, 100, 100, 0.12);
+  --gray-overlay-20: rgba(100, 100, 100, 0.15);
+
+  /* Pink Utility - Light Mode (slightly adjusted) */
+  --color-pink-overlay-01: rgba(196, 30, 127, 0.02);
+  --color-pink-overlay-02: rgba(196, 30, 127, 0.03);
+  --color-pink-overlay-03: rgba(196, 30, 127, 0.04);
+  --color-pink-overlay-05: rgba(196, 30, 127, 0.06);
+  --color-pink-overlay-08: rgba(196, 30, 127, 0.1);
+  --color-pink-overlay-10: rgba(196, 30, 127, 0.12);
+
+  /* Live/Error Color Utility - Light */
+  --live-overlay-02: rgba(239, 68, 68, 0.03);
+  --live-overlay-03: rgba(239, 68, 68, 0.04);
+  --live-overlay-05: rgba(239, 68, 68, 0.06);
+  --live-overlay-10: rgba(239, 68, 68, 0.12);
+  --live-overlay-20: rgba(239, 68, 68, 0.2);
+
+  /* Gold Utility - Light Mode */
+  --gold-overlay-02: rgba(184, 134, 11, 0.03);
+  --gold-overlay-04: rgba(184, 134, 11, 0.05);
+  --gold-overlay-05: rgba(184, 134, 11, 0.06);
+  --gold-overlay-06: rgba(184, 134, 11, 0.08);
+  --gold-overlay-08: rgba(184, 134, 11, 0.1);
+  --gold-shadow-05: 0 0 40px rgba(184, 134, 11, 0.08);
+  --gold-shadow-30: 0 0 30px rgba(184, 134, 11, 0.08);
+
+  /* VIP Card Gradients - Light */
+  --vip-card-gradient-dark: linear-gradient(
+    135deg,
+    rgba(184, 134, 11, 0.03) 0%,
+    transparent 50%,
+    rgba(196, 30, 127, 0.02) 100%
+  );
+  --vip-card-gradient-hover: linear-gradient(
+    135deg,
+    rgba(184, 134, 11, 0.06) 0%,
+    transparent 50%,
+    rgba(184, 134, 11, 0.06) 100%
+  );
+
+  /* Hero Glow - Light */
+  --hero-glow: radial-gradient(ellipse at center, rgba(196, 30, 127, 0.1) 0%, transparent 60%);
+  --hero-padding: var(--space-16) var(--space-8) var(--space-12);
+  --hero-padding-mobile: var(--space-12) var(--space-4) var(--space-8);
 }
 
-* {
+/* ============================================
+   Base Styles - Premium Typography
+   ============================================ */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
 }
 
-html,
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   max-width: 100vw;
   overflow-x: hidden;
   background-color: var(--background);
-  color: var(--foreground);
+  color: var(--text-primary);
   font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--font-regular);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Display headings use Outfit font */
+/* Typography Hierarchy */
 h1,
 h2,
 h3,
@@ -314,43 +685,120 @@ h4,
 h5,
 h6 {
   font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-extrabold);
+  letter-spacing: var(--tracking-tighter);
+}
+
+h2 {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+}
+
+h3 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+}
+
+h4 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+}
+
+h5 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-medium);
+}
+
+h6 {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+p {
+  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+}
+
+small {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+strong,
+b {
+  font-weight: var(--font-semibold);
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-smooth);
 }
 
-/* Scrollbar */
+a:hover {
+  color: var(--text-primary);
+}
+
+/* Lists */
+ul,
+ol {
+  padding-left: var(--space-6);
+}
+
+li {
+  line-height: var(--leading-relaxed);
+}
+
+/* Selection */
+::selection {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+}
+
+/* Focus Visible */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Scrollbar - Minimal */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-  border-radius: 4px;
+  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+  background: var(--scrollbar-thumb-hover);
 }
 
-/* Theme transition */
-html {
-  transition: var(--transition-theme);
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
-body {
-  transition: var(--transition-theme);
-}
-
-/* Layout Grid Classes */
+/* ============================================
+   Layout Components
+   ============================================ */
 .live-notice-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -358,145 +806,232 @@ body {
   align-items: start;
 }
 
-.live-notice-grid > * {
-  min-width: 0;
-  overflow: hidden;
-}
-
 @media (max-width: 1024px) {
   .live-notice-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
   }
+}
 
-  .live-notice-grid > * {
-    overflow: hidden;
-  }
+/* ============================================
+   Glass Effect
+   ============================================ */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+/* ============================================
+   Simple Hover Effects (no excessive animation)
+   ============================================ */
+.hover-lift {
+  transition: var(--transition-base);
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   Button Styles
+   ============================================ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--text-primary);
+  color: var(--background);
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* ============================================
+   New Premium Utilities (Glass & Neon)
+   ============================================ */
+
+/* Glass Containers */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s var(--ease-spring);
+}
+.glass-panel-hover:hover {
+  background: rgba(255, 255, 255, 0.03); /* Lighten slightly */
+  border-color: var(--primary-glow);
+  box-shadow: var(--pink-glow-md);
+  transform: translateY(-2px);
+}
+
+/* Neon Text Glow */
+.text-glow {
+  text-shadow: 0 0 10px var(--primary-glow);
+}
+.text-glow-gold {
+  text-shadow: 0 0 10px var(--color-gold-glow);
+}
+
+/* Neon Border Glow */
+.border-glow {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* Aurora Background Effect */
+.aurora-bg {
+  position: relative;
+  overflow: hidden;
+}
+.aurora-bg::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, var(--primary-glow) 0%, transparent 60%);
+  opacity: 0.15;
+  animation: aurora-spin 20s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes aurora-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Scrollbar Hide Utility */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 600;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-ghost:hover {
+  background: var(--overlay-subtle);
+  border-color: var(--overlay-strong);
+}
+
+/* ============================================
+   Card Styles - Premium Design
+   ============================================ */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+  border-color: var(--card-border-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Premium Card Variant */
+.card-premium {
+  background: linear-gradient(
+    180deg,
+    var(--card-bg) 0%,
+    rgba(20, 20, 23, 0.95) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.card-premium:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================
+   Text Utilities
+   ============================================ */
+.text-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--text-primary),
+    var(--text-secondary)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   Layout Utilities
+   ============================================ */
+.container-narrow {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.container-wide {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 @media (max-width: 768px) {
-  .live-notice-grid {
-    gap: 1.5rem;
+  .container-wide {
+    padding: 0 1rem;
   }
 }
 
 /* ============================================
-   Premium Visual Effects
+   Fade In Animation (단순화)
    ============================================ */
-
-/* Noise texture overlay - subtle film grain effect */
-.noise-overlay::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.015;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-}
-
-/* Enhanced glassmorphism */
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-}
-
-.glass-strong {
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(20px) saturate(200%);
-  -webkit-backdrop-filter: blur(20px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-/* Gradient mesh backgrounds */
-.gradient-mesh {
-  background: radial-gradient(
-      at 20% 80%,
-      rgba(253, 104, 186, 0.15) 0%,
-      transparent 50%
-    ),
-    radial-gradient(at 80% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
-    var(--background);
-}
-
-/* Premium glow effects */
-.glow-primary {
-  box-shadow: 0 0 40px rgba(253, 104, 186, 0.3);
-}
-
-.glow-gold {
-  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
-}
-
-/* ============================================
-   Micro-interactions
-   ============================================ */
-
-/* Smooth hover lift */
-.hover-lift {
-  transition: transform var(--duration-base) var(--ease-bounce),
-    box-shadow var(--duration-base) var(--ease-default);
-}
-
-.hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-}
-
-/* Scale on hover */
-.hover-scale {
-  transition: transform var(--duration-quick) var(--ease-bounce);
-}
-
-.hover-scale:hover {
-  transform: scale(1.02);
-}
-
-/* Subtle press effect */
-.press-effect:active {
-  transform: scale(0.98);
-}
-
-/* Staggered animation delays */
-.stagger-1 {
-  animation-delay: 0.05s;
-}
-.stagger-2 {
-  animation-delay: 0.1s;
-}
-.stagger-3 {
-  animation-delay: 0.15s;
-}
-.stagger-4 {
-  animation-delay: 0.2s;
-}
-.stagger-5 {
-  animation-delay: 0.25s;
-}
-
-/* Fade in up animation */
-@keyframes fadeInUp {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
-.animate-fadeInUp {
-  animation: fadeInUp 0.5s ease-out forwards;
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
 }
 
-/* Shimmer loading effect */
+/* ============================================
+   Shimmer Loading
+   ============================================ */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -518,124 +1053,20 @@ body {
 }
 
 /* ============================================
-   Button styles
+   Accessibility - Reduced Motion
+   사용자가 모션 감소를 선호하면 애니메이션 비활성화
    ============================================ */
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-primary),
-    var(--primary-deep)
-  );
-  color: white;
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(253, 104, 186, 0.4);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: transparent;
-  color: var(--text-primary);
-  font-weight: 600;
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-ghost:hover {
-  background: var(--overlay-subtle);
-  border-color: var(--overlay-strong);
-  color: var(--text-primary);
-}
-
-/* ============================================
-   Card styles
-   ============================================ */
-
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  border-color: var(--overlay-strong);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
-.card-elevated {
-  background: var(--surface-elevated);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: var(--shadow-lg);
-}
-
-/* ============================================
-   Text utilities
-   ============================================ */
-
-.text-gradient {
-  background: linear-gradient(135deg, var(--color-primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-glow {
-  text-shadow: 0 0 20px rgba(253, 104, 186, 0.5);
-}
-
-/* ============================================
-   Layout utilities
-   ============================================ */
-
-.container-narrow {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
-.container-wide {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-.section-spacing {
-  padding: 4rem 0;
-}
-
-@media (max-width: 768px) {
-  .section-spacing {
-    padding: 2.5rem 0;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 
-  .container-wide {
-    padding: 0 1rem;
+  .shimmer {
+    animation: none;
   }
 }

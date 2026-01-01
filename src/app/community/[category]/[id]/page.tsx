@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Eye, Calendar, User, MessageSquare, Send } from 'lucide-react'
-import { useSupabase } from '@/lib/hooks/useSupabase'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useSupabaseContext, useAuthContext } from '@/lib/context'
 import { mockPosts, mockProfiles } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { formatDate } from '@/lib/utils/format'
@@ -49,8 +48,8 @@ export default function PostDetailPage({
 }) {
   const { category, id } = use(params)
   const router = useRouter()
-  const supabase = useSupabase()
-  const { user, profile } = useAuth()
+  const supabase = useSupabaseContext()
+  const { user, profile } = useAuthContext()
   const [post, setPost] = useState<PostDetail | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState('')

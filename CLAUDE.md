@@ -321,8 +321,146 @@ NEXT_PUBLIC_USE_MOCK_DATA=true  # 개발용
 
 ---
 
+## 🤖 AI 워크플로우 자동화 (Claude Code)
+
+> **자동 매칭**: 사용자 프롬프트를 분석하여 최적의 도구/스킬을 자동 적용
+
+### 트리거 패턴 → 자동 워크플로우 매칭
+
+| 트리거 키워드/패턴 | 자동 적용 워크플로우 |
+|-------------------|---------------------|
+| `기능 추가`, `구현해줘`, `만들어줘`, `개발` | **새 기능 구현** 워크플로우 |
+| `버그`, `에러`, `안돼`, `수정`, `fix` | **버그 수정** 워크플로우 |
+| `리팩토링`, `구조 변경`, `정리`, `개선` | **리팩토링** 워크플로우 |
+| `디자인`, `UI`, `CSS`, `스타일`, `레이아웃` | **UI/디자인** 워크플로우 |
+| `API`, `라이브러리`, `패키지`, `npm` | **외부 라이브러리** 체크 |
+| `테스트`, `검증`, `확인해줘` | **테스트/검증** 워크플로우 |
+| `계획`, `설계`, `어떻게` (복잡한 요청) | **계획 수립** 먼저 |
+| 모호한 요청 (구체성 부족) | `code-prompt-coach` 스킬 |
+
+### 워크플로우별 도구 체인
+
+#### 1️⃣ 새 기능 구현
+```
+[모호하면] code-prompt-coach → feature-planner 스킬
+→ Explore Agent (코드베이스 파악)
+→ [외부 라이브러리] Context7 MCP
+→ frontend-design / software-architecture 스킬
+→ 구현 (Edit/Write)
+→ 빌드 검증 (npm run build)
+→ [프론트엔드] claude-in-chrome (스크린샷)
+→ workthrough-v2 스킬
+```
+
+#### 2️⃣ 버그 수정
+```
+→ Explore Agent (원인 분석)
+→ claude-in-chrome MCP:
+  - read_console_messages (에러 로그)
+  - read_network_requests (API 디버깅)
+→ ide MCP (getDiagnostics - TypeScript 오류)
+→ 수정 (Edit)
+→ 빌드 검증
+→ workthrough-v2 스킬
+```
+
+#### 3️⃣ 대규모 리팩토링
+```
+→ feature-planner 스킬 (계획)
+→ EnterPlanMode (복잡한 경우)
+→ software-architecture 스킬
+→ [심볼 변경] serena MCP
+→ 테스트 검증
+→ kaizen 스킬 (추가 개선점)
+→ workthrough-v2 스킬
+```
+
+#### 4️⃣ UI/디자인 작업
+```
+→ docs/RG_FAMILY_DESIGN_SYSTEM.md 참조 (필수)
+→ frontend-design 스킬
+→ 구현 (Edit CSS/TSX)
+→ claude-in-chrome MCP:
+  - screenshot (시각적 검증)
+  - gif_creator (변경 기록)
+→ workthrough-v2 스킬
+```
+
+#### 5️⃣ 외부 라이브러리 사용
+```
+→ Context7 MCP (최신 문서/예제 조회)
+→ WebSearch (버전별 변경사항)
+→ 구현
+→ 검증
+```
+
+### MCP 서버 활용 가이드
+
+| MCP | 자동 활용 시점 |
+|-----|---------------|
+| `context7` | 외부 라이브러리 API/버전 언급 시 |
+| `claude-in-chrome` | 프론트엔드 작업 완료 후 검증 |
+| `github` | PR 생성, 이슈 관리 요청 시 |
+| `supabase` | DB 스키마/쿼리 관련 작업 시 |
+| `playwright` | E2E 테스트 필요 시 |
+| `serena` | 대규모 심볼 리팩터링 시 |
+
+### Claude 스킬 자동 적용
+
+| 스킬 | 트리거 조건 |
+|------|------------|
+| `code-prompt-coach` | 모호하거나 구체성 부족한 요청 |
+| `feature-planner` | 새 기능 구현, 복잡한 작업 |
+| `frontend-design` | UI/CSS/스타일 관련 작업 |
+| `software-architecture` | 구조 설계, SOLID 원칙 필요 시 |
+| `test-driven-development` | 테스트 작성 요청 |
+| `kaizen` | 리팩토링, 코드 개선 |
+| `workthrough-v2` | **모든 작업 완료 후 자동 실행** |
+
+### 필수 참조 문서
+
+| 작업 유형 | 참조 문서 |
+|----------|----------|
+| 디자인/UI | `docs/RG_FAMILY_DESIGN_SYSTEM.md` |
+| 프로젝트 규칙 | `CLAUDE.md` (이 파일) |
+| 이전 작업 | `workthrough/*.md` |
+
+### 자동 워크플로우 예시
+
+**사용자**: "VIP 페이지에 애니메이션 추가해줘"
+```
+1. 트리거 감지: "VIP", "애니메이션" → UI/디자인 워크플로우
+2. 자동 적용:
+   - RG_FAMILY_DESIGN_SYSTEM.md 참조
+   - frontend-design 스킬 활성화
+   - 구현 후 claude-in-chrome으로 검증
+   - workthrough-v2로 문서화
+```
+
+**사용자**: "framer-motion 최신 버전으로 업그레이드"
+```
+1. 트리거 감지: "framer-motion", "최신 버전" → 외부 라이브러리
+2. 자동 적용:
+   - Context7 MCP로 최신 문서 조회
+   - 마이그레이션 가이드 확인
+   - 변경 사항 적용
+   - 빌드 검증
+```
+
+**사용자**: "로그인이 안돼"
+```
+1. 트리거 감지: "안돼" → 버그 수정 워크플로우
+2. 자동 적용:
+   - Explore Agent로 원인 분석
+   - claude-in-chrome으로 콘솔/네트워크 확인
+   - 수정 후 검증
+```
+
+---
+
 ## 문서 위치
 
 - 작업 기록: `/workthrough/YYYY-MM-DD_HH_MM_*.md`
 - 개발 계획: `/.claude/plans/`
 - 타입 정의: `/src/types/`
+- 디자인 시스템: `/docs/RG_FAMILY_DESIGN_SYSTEM.md`

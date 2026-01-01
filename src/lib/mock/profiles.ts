@@ -1,6 +1,9 @@
 /**
  * Mock Profiles Data
  * 후원자/사용자 데이터
+ *
+ * 참고: 후원자는 프로필 사진이 없으므로 avatar_url을 null로 설정
+ *       → 컴포넌트에서 화려한 닉네임 이니셜로 표시
  */
 
 import type { Profile } from '@/types/database'
@@ -25,7 +28,7 @@ export const mockProfiles: Profile[] = [
     id: 'user-1',
     nickname: 'gul***',
     email: null,
-    avatar_url: getPlaceholderAvatar('gul'),
+    avatar_url: null, // 후원자는 프로필 사진 없음 → 이니셜 표시
     role: 'vip',
     unit: 'excel',
     total_donation: 38002,
@@ -36,7 +39,7 @@ export const mockProfiles: Profile[] = [
     id: 'user-2',
     nickname: '별빛수호자',
     email: null,
-    avatar_url: getPlaceholderAvatar('starguard'),
+    avatar_url: null,
     role: 'vip',
     unit: 'crew',
     total_donation: 25000,
@@ -47,7 +50,7 @@ export const mockProfiles: Profile[] = [
     id: 'user-3',
     nickname: '달콤한팬심',
     email: null,
-    avatar_url: getPlaceholderAvatar('sweetfan'),
+    avatar_url: null,
     role: 'member',
     unit: 'excel',
     total_donation: 12000,
@@ -58,7 +61,7 @@ export const mockProfiles: Profile[] = [
     id: 'user-4',
     nickname: '행복한오늘',
     email: null,
-    avatar_url: getPlaceholderAvatar('happy'),
+    avatar_url: null,
     role: 'member',
     unit: 'crew',
     total_donation: 8000,
@@ -69,7 +72,7 @@ export const mockProfiles: Profile[] = [
     id: 'user-5',
     nickname: '영원한서포터',
     email: null,
-    avatar_url: getPlaceholderAvatar('forever'),
+    avatar_url: null,
     role: 'vip',
     unit: null,
     total_donation: 30000,
@@ -80,7 +83,7 @@ export const mockProfiles: Profile[] = [
     id: 'user-6',
     nickname: '핑크하트',
     email: null,
-    avatar_url: getPlaceholderAvatar('pinkheart'),
+    avatar_url: null,
     role: 'vip',
     unit: 'excel',
     total_donation: 45000,
@@ -91,7 +94,7 @@ export const mockProfiles: Profile[] = [
     id: 'user-7',
     nickname: '나노사랑',
     email: null,
-    avatar_url: getPlaceholderAvatar('nanolove'),
+    avatar_url: null,
     role: 'vip',
     unit: 'excel',
     total_donation: 22000,
@@ -102,7 +105,7 @@ export const mockProfiles: Profile[] = [
     id: 'user-8',
     nickname: '크루지킴이',
     email: null,
-    avatar_url: getPlaceholderAvatar('crewguard'),
+    avatar_url: null,
     role: 'member',
     unit: 'crew',
     total_donation: 15000,

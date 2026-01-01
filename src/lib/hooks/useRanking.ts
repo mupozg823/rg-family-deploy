@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { useSupabase } from './useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { mockProfiles, mockSeasons, mockDonations } from '@/lib/mock'
 import type { Season } from '@/types/database'
@@ -22,7 +22,7 @@ interface UseRankingReturn {
 }
 
 export function useRanking(): UseRankingReturn {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [rankings, setRankings] = useState<RankingItem[]>([])
   const [seasons, setSeasons] = useState<Season[]>([])
   const [currentSeason, setCurrentSeason] = useState<Season | null>(null)

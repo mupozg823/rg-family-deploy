@@ -1,18 +1,18 @@
-import { Calendar } from '@/components/schedule'
-import styles from './page.module.css'
+import { Calendar } from "@/components/schedule";
+import styles from "./page.module.css";
 
 export const metadata = {
-  title: '일정 | RG FAMILY',
-  description: 'RG FAMILY 방송 일정 및 이벤트 캘린더',
-}
+  title: "일정 | RG FAMILY",
+  description: "RG FAMILY 방송 일정 및 이벤트 캘린더",
+};
 
 const EVENT_TYPES = [
-  { label: '방송', color: '#4ade80' },
-  { label: '콜라보', color: '#60a5fa' },
-  { label: '이벤트', color: '#f472b6' },
-  { label: '공지', color: '#fbbf24' },
-  { label: '휴방', color: '#94a3b8' },
-]
+  { label: "방송", color: "#ff0050" }, // Brand Pink
+  { label: "콜라보", color: "#00d4ff" }, // Cyan (Crew)
+  { label: "이벤트", color: "#d4af37" }, // Gold (Special)
+  { label: "공지", color: "#ffffff" }, // White
+  { label: "휴방", color: "#52525b" }, // Zinc-600 (Muted)
+];
 
 export default function SchedulePage() {
   return (
@@ -36,5 +36,5 @@ export default function SchedulePage() {
       </div>
       <Calendar />
     </main>
-  )
+  );
 }

@@ -1,0 +1,372 @@
+/* RankingFullList.module.css - Premium Gauge List (Theme Compatible) */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.link {
+  text-decoration: none;
+  display: block;
+}
+
+.noLink {
+  display: block;
+  cursor: default;
+}
+
+/* Individual Ranking Item */
+.item {
+  display: grid;
+  grid-template-columns: 60px 48px 1fr 100px;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  transition: var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.link .item:hover {
+  border-color: var(--item-border-hover);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+
+.noLink .item:hover {
+  border-color: var(--card-border);
+  transform: none;
+  cursor: default;
+}
+
+/* Rank Styles - Gold (1위) */
+.item.gold {
+  background: linear-gradient(90deg, var(--metallic-gold-bg) 0%, var(--card-bg) 30%);
+  border-color: var(--metallic-gold-border);
+}
+
+.link .item.gold:hover {
+  border-color: var(--metallic-gold);
+  box-shadow: var(--gold-shadow-05);
+}
+
+/* 2,3위 Elite 스타일 (동일) */
+.item.elite {
+  background: linear-gradient(90deg, var(--overlay-subtle) 0%, var(--card-bg) 30%);
+  border-color: var(--border-overlay-15);
+}
+
+.link .item.elite:hover {
+  border-color: var(--border-overlay-25);
+  box-shadow: var(--shadow-md);
+}
+
+.item.top10 {
+  background: linear-gradient(90deg, var(--overlay-subtle) 0%, var(--card-bg) 20%);
+}
+
+/* Rank Number Section */
+.rankSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rank {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text-secondary);
+  width: 48px;
+  text-align: center;
+}
+
+.gold .rank {
+  background: var(--metallic-gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: var(--text-2xl);
+}
+
+/* 2,3위 Elite 순위 (동일) */
+.elite .rank {
+  color: var(--text-primary);
+  font-size: var(--text-2xl);
+}
+
+/* Avatar */
+.avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface);
+  border: 2px solid var(--card-border);
+  flex-shrink: 0;
+}
+
+.gold .avatar {
+  border-color: var(--metallic-gold);
+  box-shadow: 0 0 15px var(--metallic-gold-glow);
+  background: var(--surface);
+}
+
+/* 2,3위 Elite 아바타 (동일) */
+.elite .avatar {
+  border-color: var(--border-overlay-25);
+  box-shadow: var(--shadow-sm);
+  background: var(--surface);
+}
+
+.avatarImage {
+  object-fit: cover;
+}
+
+/* 닉네임 이니셜 스타일 - Premium Design */
+.initials {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 1위 - Luxurious Gold Initials */
+.gold .initials {
+  background: linear-gradient(
+    135deg,
+    #b8860b 0%,
+    #ffd700 20%,
+    #fff8dc 40%,
+    #ffd700 60%,
+    #b8860b 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: var(--text-xl);
+  font-weight: 900;
+  filter: drop-shadow(0 0 10px var(--metallic-gold-glow));
+  animation: listGoldShimmer 3s ease-in-out infinite;
+}
+
+@keyframes listGoldShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* 2,3위 - Elegant Platinum Initials (Theme Compatible) */
+.elite .initials {
+  background: linear-gradient(
+    135deg,
+    var(--elite-gradient-from) 0%,
+    var(--elite-gradient-mid) 30%,
+    var(--elite-gradient-to) 50%,
+    var(--elite-gradient-mid) 70%,
+    var(--elite-gradient-from) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: var(--text-lg);
+  font-weight: 900;
+  filter: drop-shadow(0 0 6px var(--elite-glow));
+  animation: listPlatinumShimmer 4s ease-in-out infinite;
+}
+
+@keyframes listPlatinumShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Top 10 이니셜 - Subtle Premium */
+.top10 .initials {
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+/* Info Section */
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gold .name {
+  color: var(--metallic-gold);
+}
+
+/* 2,3위 Elite 이름 (동일) */
+.elite .name {
+  color: var(--text-primary);
+}
+
+/* Stats Row */
+.statsRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.stat svg {
+  color: var(--text-muted);
+}
+
+/* Gauge Bar */
+.gaugeContainer {
+  position: relative;
+  height: 6px;
+  background: var(--surface-hover);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.gaugeFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--primary);
+  border-radius: var(--radius-full);
+  min-width: 4px;
+}
+
+.gold .gaugeFill {
+  background: var(--metallic-gold-gradient);
+}
+
+/* 2,3위 Elite 게이지 (동일) */
+.elite .gaugeFill {
+  background: linear-gradient(90deg, var(--text-tertiary), var(--text-secondary), var(--text-tertiary));
+}
+
+.gaugeGlow {
+  position: absolute;
+  top: -2px;
+  left: 0;
+  height: 10px;
+  border-radius: var(--radius-full);
+  filter: blur(4px);
+  opacity: 0.5;
+}
+
+.gold .gaugeGlow {
+  background: var(--metallic-gold);
+}
+
+.elite .gaugeGlow {
+  background: var(--text-secondary);
+}
+
+/* Amount Section */
+.amountSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.amount {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  color: var(--text-primary);
+}
+
+.gold .amount {
+  color: var(--metallic-gold);
+}
+
+/* 2,3위 Elite 금액 (동일) */
+.elite .amount {
+  color: var(--text-primary);
+}
+
+.unit {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .item {
+    grid-template-columns: 40px 36px 1fr 70px;
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .rank {
+    font-size: var(--text-base);
+    width: 32px;
+  }
+
+  .gold .rank,
+  .elite .rank {
+    font-size: var(--text-lg);
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .name {
+    font-size: var(--text-sm);
+  }
+
+  .statsRow {
+    display: none;
+  }
+
+  .amount {
+    font-size: var(--text-base);
+  }
+
+  .gaugeContainer {
+    height: 4px;
+  }
+}

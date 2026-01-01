@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Plus, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
 interface Season {
@@ -17,7 +17,7 @@ interface Season {
 }
 
 export default function SeasonsPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [seasons, setSeasons] = useState<Season[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)

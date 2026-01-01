@@ -45,7 +45,7 @@
   display: inline-block;
   font-size: 1.5rem;
   font-weight: 900;
-  color: var(--color-primary);
+  color: var(--text-primary);
   text-decoration: none;
   letter-spacing: 2px;
   margin-bottom: 1.5rem;
@@ -124,8 +124,8 @@
 
 .input:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(253, 104, 186, 0.1);
+  border-color: var(--text-secondary);
+  box-shadow: var(--focus-ring);
 }
 
 .togglePassword {
@@ -166,8 +166,8 @@
 }
 
 .submitButton:hover:not(:disabled) {
-  background: var(--color-primary-deep);
-  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.3);
+  background: var(--text-secondary);
+  box-shadow: var(--shadow-lg);
 }
 
 .submitButton:disabled {
@@ -189,7 +189,7 @@
 }
 
 .link {
-  color: var(--color-primary);
+  color: var(--text-secondary);
   text-decoration: none;
   font-weight: 600;
   transition: opacity 0.2s ease;

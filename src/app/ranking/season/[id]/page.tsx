@@ -1,16 +1,22 @@
 'use client'
 
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useRanking } from '@/lib/hooks/useRanking'
-import { RankingCard, RankingList } from '@/components/ranking'
-import { Calendar, ArrowLeft, Trophy } from 'lucide-react'
+import { RankingPodium, RankingFullList, SeasonSelector } from '@/components/ranking'
+import { Calendar, ArrowLeft, Trophy, Clock, Star, ChevronDown, Sparkles } from 'lucide-react'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 import styles from './page.module.css'
 
 export default function SeasonRankingPage() {
   const params = useParams()
   const router = useRouter()
+  const listRef = useRef<HTMLDivElement>(null)
+
+  const scrollToList = () => {
+    listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   const {
     rankings,
@@ -54,8 +60,18 @@ export default function SeasonRankingPage() {
     })
   }
 
-  const top3 = rankings.slice(0, 3)
-  const rest = rankings.slice(3)
+  // 시즌 남은 일수 계산
+  const daysRemaining = useMemo(() => {
+    if (!selectedSeason?.end_date || !selectedSeason.is_active) return null
+    const end = new Date(selectedSeason.end_date)
+    const now = new Date()
+    const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    return diff > 0 ? diff : 0
+  }, [selectedSeason])
+
+  // TOP 50으로 제한
+  const top50 = rankings.slice(0, 50)
+  const top3 = top50.slice(0, 3)
 
   // 시즌을 찾을 수 없는 경우
   if (!isLoading && seasons.length > 0 && !selectedSeason) {
@@ -66,7 +82,7 @@ export default function SeasonRankingPage() {
             <Trophy size={48} />
             <h2>시즌을 찾을 수 없습니다</h2>
             <p>존재하지 않는 시즌이거나 삭제된 시즌입니다.</p>
-            <Link href="/ranking/total" className={styles.backButton}>
+            <Link href="/ranking" className={styles.backButton}>
               전체 랭킹으로 이동
             </Link>
           </div>
@@ -77,33 +93,61 @@ export default function SeasonRankingPage() {
 
   return (
     <main className={styles.main}>
-      <div className={styles.hero}>
-        <Link href="/ranking/total" className={styles.backLink}>
-          <ArrowLeft size={20} />
-          전체 랭킹
+      {/* Minimal Navigation Bar */}
+      <nav className={styles.pageNav}>
+        <Link href="/ranking" className={styles.backBtn}>
+          <ArrowLeft size={18} />
         </Link>
+        <div className={styles.navTitle}>
+          <Sparkles size={14} />
+          <span>SEASON</span>
+        </div>
+        <Link href="/ranking/vip" className={styles.vipBtn}>
+          <Trophy size={14} />
+          <span>VIP</span>
+        </Link>
+      </nav>
 
-        <h1 className={styles.title}>
-          {selectedSeason?.name || '시즌 랭킹'}
-        </h1>
-
-        {selectedSeason && (
-          <div className={styles.seasonInfo}>
-            <div className={styles.dateRange}>
-              <Calendar size={16} />
-              <span>
+      {/* Premium Hero Section */}
+      <div className={styles.hero}>
+        <motion.div
+          className={styles.heroContent}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className={styles.heroBadge}>{selectedSeason?.name || 'SEASON'}</span>
+          <h1 className={styles.title}>RANKINGS</h1>
+          {selectedSeason && (
+            <div className={styles.seasonMeta}>
+              <span className={styles.dateRange}>
+                <Calendar size={14} />
                 {formatDate(selectedSeason.start_date)} ~ {selectedSeason.end_date ? formatDate(selectedSeason.end_date) : '진행 중'}
               </span>
+              {selectedSeason.is_active && daysRemaining !== null && daysRemaining > 0 && (
+                <span className={styles.daysLeft}>D-{daysRemaining}</span>
+              )}
             </div>
-            {selectedSeason.is_active && (
-              <span className={styles.activeBadge}>진행 중</span>
-            )}
-          </div>
-        )}
+          )}
+        </motion.div>
+
+        {/* Scroll Indicator */}
+        <motion.button
+          onClick={scrollToList}
+          className={styles.scrollIndicator}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, y: [0, 8, 0] }}
+          transition={{
+            opacity: { delay: 1 },
+            y: { duration: 1.5, repeat: Infinity }
+          }}
+        >
+          <ChevronDown size={24} />
+        </motion.button>
       </div>
 
       <div className={styles.container}>
-        {/* 시즌 선택 */}
+        {/* Minimal Filters */}
         <div className={styles.filters}>
           <div className={styles.seasonTabs}>
             {seasons.map((season) => (
@@ -119,14 +163,14 @@ export default function SeasonRankingPage() {
           </div>
 
           <div className={styles.unitFilter}>
-            {(['all', 'excel', 'crew'] as const).map((unit) => (
+            {(['excel', 'crew', 'all'] as const).map((unit) => (
               <button
                 key={unit}
                 onClick={() => setUnitFilter(unit)}
                 className={`${styles.unitButton} ${unitFilter === unit ? styles.active : ''}`}
                 data-unit={unit}
               >
-                {unit === 'all' ? '전체' : unit === 'excel' ? '엑셀부' : '크루부'}
+                {unit === 'excel' ? 'EXCEL' : unit === 'crew' ? 'CREW' : 'ALL'}
               </button>
             ))}
           </div>
@@ -144,29 +188,23 @@ export default function SeasonRankingPage() {
           </div>
         ) : (
           <>
-            {/* Top 3 Cards */}
-            <div className={styles.topRankers}>
-              {top3.map((item, index) => (
-                <RankingCard
-                  key={item.donorId || index}
-                  item={item}
-                  maxAmount={maxAmount}
-                  index={index}
-                />
-              ))}
-            </div>
+            {/* Top 3 Podium */}
+            <section className={styles.podiumSection}>
+              <RankingPodium items={top3} />
+            </section>
 
-            {/* Rest of Rankings */}
-            {rest.length > 0 && (
-              <div className={styles.restRankers}>
-                <h2 className={styles.sectionTitle}>4위 이하</h2>
-                <RankingList
-                  rankings={rest}
-                  maxAmount={maxAmount}
-                  startRank={4}
-                />
+            {/* Full Ranking List */}
+            <section ref={listRef} className={styles.fullListSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Season Rankings</h2>
+                <span className={styles.sectionBadge}>TOP 50</span>
               </div>
-            )}
+              <RankingFullList
+                rankings={top50}
+                maxAmount={maxAmount}
+                limit={50}
+              />
+            </section>
           </>
         )}
       </div>

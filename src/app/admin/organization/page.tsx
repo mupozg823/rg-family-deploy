@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Building, Plus, X, Save, GripVertical } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
 interface OrgMember {
@@ -23,7 +23,7 @@ interface Profile {
 }
 
 export default function OrganizationPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [members, setMembers] = useState<OrgMember[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [isLoading, setIsLoading] = useState(true)

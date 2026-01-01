@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Calendar, Filter, Tag, Sparkles, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import { mockTimelineEvents, mockSeasons } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { formatDate } from '@/lib/utils/format'
@@ -25,7 +25,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 export default function Timeline() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [events, setEvents] = useState<TimelineItem[]>([])
   const [allEvents, setAllEvents] = useState<TimelineItem[]>([])
   const [seasons, setSeasons] = useState<Season[]>([])

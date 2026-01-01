@@ -3,8 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { MessageSquare, Eye, ChevronRight, Crown, Lock } from 'lucide-react'
-import { useSupabase } from '@/lib/hooks/useSupabase'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useSupabaseContext, useAuthContext } from '@/lib/context'
 import { mockPosts, mockProfiles } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { formatRelativeTime } from '@/lib/utils/format'
@@ -22,8 +21,8 @@ interface Post {
 }
 
 export default function VipBoardPage() {
-  const supabase = useSupabase()
-  const { user, profile } = useAuth()
+  const supabase = useSupabaseContext()
+  const { user, profile } = useAuthContext()
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -101,13 +100,16 @@ export default function VipBoardPage() {
 
   return (
     <main className={styles.main}>
-      <header className={styles.header}>
-        <h1>
-          <Crown size={32} style={{ color: '#ffd700', marginRight: '0.5rem' }} />
-          VIP LOUNGE
-        </h1>
-        <p>VIP 후원자 전용 라운지</p>
-      </header>
+      {/* VIP Hero Section */}
+      <section className={`${styles.hero} ${styles.vipHero}`}>
+        <div className={styles.heroContent}>
+          <div className={styles.vipTitleRow}>
+            <Crown size={32} className={styles.vipCrown} />
+            <h1 className={styles.title}>VIP LOUNGE</h1>
+          </div>
+          <p className={styles.subtitle}>VIP 후원자 전용 프리미엄 커뮤니티</p>
+        </div>
+      </section>
 
       <div className={styles.container}>
         <TabFilter tabs={tabs} activeTab="vip" />
@@ -136,43 +138,56 @@ export default function VipBoardPage() {
             <p>등록된 게시글이 없습니다</p>
           </div>
         ) : (
-          <div className={styles.board}>
-            <div className={styles.boardHeader}>
-              <span>제목</span>
-              <span className={styles.pcOnly}>작성자</span>
-              <span className={styles.pcOnly}>조회</span>
-              <span className={styles.pcOnly}>날짜</span>
+          <div className={`${styles.board} ${styles.vipBoard}`}>
+            <div className={styles.tableHeader}>
+              <span className={styles.colNumber}>번호</span>
+              <span className={styles.colTitle}>제목</span>
+              <span className={styles.colAuthor}>글쓴이</span>
+              <span className={styles.colDate}>작성일</span>
+              <span className={styles.colViews}>조회</span>
             </div>
-            {posts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/community/vip/${post.id}`}
-                className={styles.post}
-              >
-                <span className={styles.postTitle}>
-                  {post.title}
-                  {post.commentCount > 0 && (
-                    <span className={styles.commentBadge}>
-                      <MessageSquare size={12} />
-                      {post.commentCount}
-                    </span>
-                  )}
-                </span>
-                <span className={styles.postAuthor}>{post.authorName}</span>
-                <span className={styles.postViews}>
-                  <Eye size={14} />
-                  {post.viewCount}
-                </span>
-                <span className={styles.postDate}>{formatRelativeTime(post.createdAt)}</span>
-                <ChevronRight size={16} className={styles.arrow} />
-              </Link>
-            ))}
+            <div className={styles.tableBody}>
+              {posts.map((post, index) => (
+                <Link
+                  key={post.id}
+                  href={`/community/vip/${post.id}`}
+                  className={`${styles.row} ${styles.vipRow}`}
+                >
+                  <div className={styles.cellNumber}>{posts.length - index}</div>
+                  <div className={styles.cellTitle}>
+                    <h3 className={styles.postTitle}>{post.title}</h3>
+                    <div className={styles.titleMeta}>
+                      {post.commentCount > 0 && (
+                        <span className={styles.commentCount}>
+                          <MessageSquare size={12} />
+                          {post.commentCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className={`${styles.cellAuthor} ${styles.authorVip}`}>
+                    <Crown size={10} />
+                    {post.authorName}
+                  </span>
+                  <span className={styles.cellDate}>{formatRelativeTime(post.createdAt)}</span>
+                  <span className={styles.cellViews}>{post.viewCount.toLocaleString()}</span>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 
         {isVip && (
-          <div className={styles.actions}>
-            <button className={styles.writeBtn}>글쓰기</button>
+          <div className={styles.boardFooter}>
+            <div className={styles.pagination}>
+              <button className={styles.pageBtn} disabled>«</button>
+              <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
+              <button className={styles.pageBtn}>»</button>
+            </div>
+            <button className={`${styles.writeBtn} ${styles.vipWriteBtn}`}>
+              <Crown size={14} />
+              글쓰기
+            </button>
           </div>
         )}
       </div>

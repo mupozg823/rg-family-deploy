@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
 interface Member {
@@ -18,7 +18,7 @@ interface Member {
 }
 
 export default function MembersPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [members, setMembers] = useState<Member[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [editingMember, setEditingMember] = useState<Member | null>(null)

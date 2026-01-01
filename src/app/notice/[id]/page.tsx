@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Pin, Calendar } from 'lucide-react'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import { mockNotices } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { formatDate } from '@/lib/utils/format'
@@ -21,7 +21,7 @@ interface NoticeDetail {
 export default function NoticeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [notice, setNotice] = useState<NoticeDetail | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 

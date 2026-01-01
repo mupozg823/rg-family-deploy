@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Image as ImageIcon, Plus, X, Save, Video, FileImage } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
 type MediaType = 'video' | 'image' | 'gif'
@@ -23,7 +23,7 @@ interface Signature {
 }
 
 export default function SignaturesPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [signatures, setSignatures] = useState<Signature[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)

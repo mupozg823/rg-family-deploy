@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { useSupabase } from './useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import type { Schedule } from '@/types/database'
 import type { CalendarDay, ScheduleEvent, UnitFilter } from '@/types/common'
 
@@ -23,7 +23,7 @@ interface UseScheduleReturn {
 }
 
 export function useSchedule(): UseScheduleReturn {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [events, setEvents] = useState<Schedule[]>([])
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)

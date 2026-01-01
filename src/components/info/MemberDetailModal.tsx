@@ -32,10 +32,9 @@ export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
         </button>
 
         <div className={styles.modalHeader}>
-          <div className={styles.modalAvatarWrapper}>
+          <div className={`${styles.modalAvatarWrapper} ${member.is_live ? styles.isLive : ''}`}>
             {member.is_live && (
               <span className={styles.modalLiveBadge}>
-                <Radio size={12} />
                 LIVE
               </span>
             )}

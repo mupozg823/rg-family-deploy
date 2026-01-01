@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Youtube, MessageCircle, ExternalLink } from "lucide-react";
+import { Youtube, MessageCircle, ExternalLink, Crown, Heart } from "lucide-react";
 import styles from "./Footer.module.css";
 
 export default function Footer() {
@@ -13,16 +13,22 @@ export default function Footer() {
         <div className={styles.brand}>
           <div className={styles.logoWrapper}>
             <Image
-              src="/assets/logo/rg_logo_flat.png"
+              src="/assets/logo/rg_logo_3d_pink.png"
               alt="RG"
-              width={60}
-              height={60}
-              style={{
-                objectFit: "contain",
-                filter: "brightness(0) invert(1)",
-              }}
+              width={48}
+              height={48}
+              style={{ objectFit: "contain" }}
             />
+            <span className={styles.logo}>RG FAMILY</span>
           </div>
+          <p className={styles.description}>
+            PandaTV 공식 팬 커뮤니티<br />
+            함께하는 즐거움, RG와 함께
+          </p>
+          <Link href="/ranking/vip" className={styles.vipLink}>
+            <Crown size={14} />
+            <span>VIP LOUNGE</span>
+          </Link>
         </div>
 
         {/* Links */}
@@ -41,10 +47,10 @@ export default function Footer() {
           </div>
           <div className={styles.linkGroup}>
             <h4 className={styles.linkTitle}>정보</h4>
-            <Link href="/info/org" className={styles.link}>
+            <Link href="/organization" className={styles.link}>
               조직도
             </Link>
-            <Link href="/info/sig" className={styles.link}>
+            <Link href="/signature" className={styles.link}>
               시그리스트
             </Link>
             <Link href="/ranking" className={styles.link}>
@@ -80,7 +86,7 @@ export default function Footer() {
       <div className={styles.bottom}>
         <div className={styles.bottomInner}>
           <span className={styles.copyright}>
-            © {currentYear} RG FAMILY. All rights reserved.
+            © {currentYear} RG FAMILY. Made with <Heart size={12} className={styles.heartIcon} /> by fans, for fans.
           </span>
           <div className={styles.legal}>
             <Link href="#" className={styles.legalLink}>

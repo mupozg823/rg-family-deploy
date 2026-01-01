@@ -1,21 +1,22 @@
-/* Main Page Styles */
+/* Main Page Styles - Broadcast Dashboard Layout */
 .main {
   min-height: 100vh;
+  background: var(--background);
 }
 
 .content {
-  max-width: var(--max-width);
+  max-width: var(--max-width-wide); /* Wider layout */
   margin: 0 auto;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  padding: 1.5rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem; /* Distinct sections */
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .content {
     padding: 1rem;
-    gap: 1.5rem;
+    gap: 2rem;
   }
 }

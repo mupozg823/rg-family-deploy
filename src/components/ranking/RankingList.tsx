@@ -1,124 +1,135 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { User, ChevronRight } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
-import type { RankingItem } from '@/types/common'
-import GaugeBar from './GaugeBar'
-import styles from './RankingList.module.css'
+import { motion } from "framer-motion";
+import { User, ChevronRight, Medal } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import type { RankingItem } from "@/types/common";
+import styles from "./RankingList.module.css";
 
 interface RankingListProps {
-  rankings: RankingItem[]
-  maxAmount: number
-  startRank?: number
+  rankings: RankingItem[];
+  maxAmount?: number; // Kept for compatibility but unused
+  startRank?: number;
 }
 
-const containerVariants = {
+const listVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.03,
-      delayChildren: 0.1,
+      staggerChildren: 0.05,
     },
   },
-}
+};
 
 const itemVariants = {
-  hidden: { opacity: 0, x: -20 },
+  hidden: { opacity: 0, y: 10 },
   visible: {
     opacity: 1,
-    x: 0,
-    transition: { duration: 0.2 },
+    y: 0,
+    transition: { duration: 0.3 },
   },
-}
+};
 
-export default function RankingList({ rankings, maxAmount, startRank = 1 }: RankingListProps) {
-  // 하트 단위로 표시 (팬더티비 후원 형식)
+export default function RankingList({
+  rankings,
+  startRank = 1,
+}: RankingListProps) {
+  const getRankClass = (rank: number) => {
+    if (rank === 1) return styles.rank1;
+    if (rank === 2) return styles.rank2;
+    if (rank === 3) return styles.rank3;
+    return "";
+  };
+
   const formatAmount = (amount: number) => {
-    if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(1)}만`
-    }
-    return amount.toLocaleString()
-  }
+    return amount.toLocaleString();
+  };
 
   return (
-    <motion.div
-      className={styles.list}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {rankings.map((item, index) => {
-        const actualRank = startRank + index
+    <div className={styles.list}>
+      {/* Header Row */}
+      <div className={styles.header}>
+        <span className={styles.headerTitle}>RANK</span>
+        <span className={`${styles.headerTitle} ${styles.left}`}>USER</span>
+        <span className={`${styles.headerTitle} ${styles.right}`}>SCORE</span>
+        <span className={styles.headerTitle}>BADGE</span>
+      </div>
 
-        const ItemContent = (
-          <motion.div
-            className={styles.item}
-            variants={itemVariants}
-            whileHover={{ x: 4 }}
-          >
-            {/* Rank */}
-            <div className={styles.rank}>
-              <span>{actualRank}</span>
-            </div>
+      <motion.div
+        variants={listVariants}
+        initial="hidden"
+        animate="visible"
+        className={styles.listContainer}
+      >
+        {rankings.map((item, index) => {
+          const actualRank = startRank + index;
 
-            {/* Avatar */}
-            <div className={styles.avatar}>
-              {item.avatarUrl ? (
-                <Image
-                  src={item.avatarUrl}
-                  alt={item.donorName}
-                  fill
-                  className={styles.avatarImage}
-                  unoptimized
-                />
-              ) : (
-                <User size={20} />
-              )}
-            </div>
-
-            {/* Info */}
-            <div className={styles.info}>
-              <span className={styles.name}>{item.donorName}</span>
-              <div className={styles.gaugeWrapper}>
-                <GaugeBar
-                  value={item.totalAmount}
-                  maxValue={maxAmount}
-                  rank={actualRank}
-                  size="sm"
-                  animated={false}
-                />
-              </div>
-            </div>
-
-            {/* Amount */}
-            <div className={styles.amount}>
-              <span>{formatAmount(item.totalAmount)}</span>
-            </div>
-
-            {/* Arrow */}
-            {item.donorId && (
-              <ChevronRight size={20} className={styles.arrow} />
-            )}
-          </motion.div>
-        )
-
-        if (item.donorId) {
-          return (
-            <Link
-              key={item.donorId || index}
-              href={`/ranking/vip/${item.donorId}`}
-              className={styles.link}
+          const ItemContent = (
+            <motion.div
+              className={`${styles.item} ${getRankClass(actualRank)}`}
+              variants={itemVariants}
             >
-              {ItemContent}
-            </Link>
-          )
-        }
+              {/* Rank Column */}
+              <div className={styles.rank}>{actualRank}</div>
 
-        return <div key={item.donorId || index}>{ItemContent}</div>
-      })}
-    </motion.div>
-  )
+              {/* User Column */}
+              <div className={styles.userSection}>
+                <div className={styles.avatar}>
+                  {item.avatarUrl ? (
+                    <Image
+                      src={item.avatarUrl}
+                      alt={item.donorName}
+                      fill
+                      className={styles.avatarImage}
+                      unoptimized
+                    />
+                  ) : (
+                    <User size={18} className="text-gray-400 m-auto" />
+                  )}
+                </div>
+                <span className={styles.name}>{item.donorName}</span>
+              </div>
+
+              {/* Score Column */}
+              <div className={styles.score}>
+                {formatAmount(item.totalAmount)}
+              </div>
+
+              {/* Badge Column */}
+              <div className={styles.badge}>
+                {/* Visual placeholder for badge, can be replaced with real badge logic */}
+                <div className={styles.badgeIcon}>
+                  {/* Simple circle or icon */}
+                  <div
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: "50%",
+                      background: "currentColor",
+                    }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          );
+
+          if (item.donorId) {
+            return (
+              <Link
+                key={item.donorId || index}
+                href={`/ranking/vip/${item.donorId}`}
+                className={styles.link}
+              >
+                {ItemContent}
+              </Link>
+            );
+          }
+
+          return <div key={item.donorId || index}>{ItemContent}</div>;
+        })}
+      </motion.div>
+    </div>
+  );
 }

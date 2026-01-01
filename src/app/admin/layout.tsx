@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/admin'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useAuthContext } from '@/lib/context'
 import styles from './layout.module.css'
 
 export default function AdminLayout({
@@ -11,7 +11,7 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { user, profile, isLoading } = useAuth()
+  const { user, profile, isLoading } = useAuthContext()
   const router = useRouter()
   const [isAuthorized, setIsAuthorized] = useState(false)
 

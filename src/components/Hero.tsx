@@ -151,11 +151,18 @@ function BannerSlide({
     <div
       className={`${styles.slide} ${hasMemberImage ? styles.withImage : ""}`}
     >
-      {/* Background */}
-      <div
-        className={styles.background}
-        style={{ background: banner.bgGradient }}
-      />
+      {/* Background w/ Aurora Effect */}
+      <div className={`${styles.background} aurora-bg`}>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: banner.bgGradient,
+            opacity: 0.9,
+            zIndex: 1,
+          }}
+        />
+      </div>
 
       {/* Member Image (Left Side) */}
       {hasMemberImage && (
@@ -164,10 +171,10 @@ function BannerSlide({
             {isActive && (
               <motion.div
                 className={styles.memberImage}
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -30, opacity: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
+                initial={{ x: -60, opacity: 0, scale: 1.05 }}
+                animate={{ x: 0, opacity: 1, scale: 1 }}
+                exit={{ x: -40, opacity: 0 }}
+                transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
                 <Image
                   src={banner.memberImageUrl!}
@@ -192,10 +199,10 @@ function BannerSlide({
           {isActive && (
             <motion.div
               key={banner.id}
-              initial={{ y: 30, opacity: 0 }}
+              initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -20, opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              exit={{ y: -30, opacity: 0 }}
+              transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
               className={styles.info}
             >
               <motion.span

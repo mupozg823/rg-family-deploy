@@ -43,26 +43,26 @@ export const TRIBUTE_COLORS: Record<TributeTheme, { primary: string; glow: strin
   },
 }
 
-// Mock Profiles (Top 3 후원자와 일치)
+// Mock Profiles (Top 3 후원자와 일치 - 프로필 사진 없음 → 이니셜 표시)
 const mockTributeProfiles: Record<TributeRank, TributeProfile> = {
   1: {
     id: 'user-6',
     nickname: '핑크하트',
-    avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop',
+    avatarUrl: null, // 후원자는 프로필 사진 없음 → 이니셜 표시
     totalDonation: 45000,
     joinedAt: '2024-06-01',
   },
   2: {
     id: 'user-1',
     nickname: 'gul***',
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop',
+    avatarUrl: null,
     totalDonation: 38002,
     joinedAt: '2024-01-15',
   },
   3: {
     id: 'user-5',
     nickname: '영원한서포터',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop',
+    avatarUrl: null,
     totalDonation: 30000,
     joinedAt: '2024-05-01',
   },

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, User, LogIn } from "lucide-react";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { ChevronDown, User, LogIn, Crown } from "lucide-react";
+import { useAuthContext } from "@/lib/context";
 import ThemeToggle from "./ThemeToggle";
 import styles from "./Navbar.module.css";
 
@@ -18,16 +18,16 @@ const navItems: NavItem[] = [
   {
     label: "RG 정보",
     subItems: [
-      { label: "라이브", href: "/info/live", description: "현재 방송 중인 멤버" },
-      { label: "조직도", href: "/info/org", description: "엑셀부 / 크루부 조직" },
-      { label: "시그리스트", href: "/info/sig", description: "시그니처 모음" },
-      { label: "타임라인", href: "/info/timeline", description: "RG 패밀리 연혁" },
+      { label: "라이브", href: "/rg/live", description: "현재 방송 중인 멤버" },
+      { label: "조직도", href: "/organization", description: "엑셀부 / 크루부 조직" },
+      { label: "시그리스트", href: "/signature", description: "시그니처 모음" },
+      { label: "타임라인", href: "/timeline", description: "RG 패밀리 연혁" },
     ],
   },
   {
     label: "후원 랭킹",
     subItems: [
-      { label: "전체 랭킹", href: "/ranking/total", description: "누적 후원 순위" },
+      { label: "전체 랭킹", href: "/ranking", description: "누적 후원 순위" },
       { label: "시즌별 랭킹", href: "/ranking/season", description: "시즌별 후원 순위" },
     ],
   },
@@ -56,7 +56,7 @@ const navItems: NavItem[] = [
 ];
 
 export default function Navbar() {
-  const { user, profile } = useAuth();
+  const { user, profile } = useAuthContext();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -131,6 +131,10 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className={styles.actions}>
+          <Link href="/ranking/vip" className={styles.vipBtn}>
+            <Crown size={14} />
+            <span>VIP</span>
+          </Link>
           <ThemeToggle />
           {user ? (
             <Link href="/mypage" className={styles.profileButton}>
@@ -163,6 +167,38 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className={styles.mobileMenu}>
+          {/* Mobile Actions */}
+          <div className={styles.mobileActions}>
+            <Link
+              href="/ranking/vip"
+              className={styles.mobileVipBtn}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Crown size={16} />
+              <span>VIP LOUNGE</span>
+            </Link>
+            {user ? (
+              <Link
+                href="/mypage"
+                className={styles.mobileProfileBtn}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <User size={16} />
+                <span>{profile?.nickname || "마이페이지"}</span>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className={styles.mobileLoginBtn}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <LogIn size={16} />
+                <span>로그인</span>
+              </Link>
+            )}
+          </div>
+
+          {/* Navigation Items */}
           {navItems.map((item) => (
             <div key={item.label} className={styles.mobileNavItem}>
               <div className={styles.mobileNavHeader}>{item.label}</div>

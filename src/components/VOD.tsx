@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Play, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useSupabase } from "@/lib/hooks/useSupabase";
+import { useSupabaseContext } from "@/lib/context";
 import { mockMediaContent } from "@/lib/mock/data";
 import { USE_MOCK_DATA } from "@/lib/config";
 import { formatShortDate } from "@/lib/utils/format";
@@ -23,7 +23,7 @@ interface VodItem {
 type UnitFilter = "all" | "excel" | "crew";
 
 export default function VOD() {
-  const supabase = useSupabase();
+  const supabase = useSupabaseContext();
   const [vods, setVods] = useState<VodItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeUnit, setActiveUnit] = useState<UnitFilter>("all");

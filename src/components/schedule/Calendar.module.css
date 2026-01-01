@@ -37,10 +37,10 @@
 }
 
 .navButton:hover {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: white;
-  box-shadow: 0 0 20px rgba(253, 104, 186, 0.3);
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--background);
+  box-shadow: var(--shadow-lg);
 }
 
 .monthTitle {
@@ -75,10 +75,10 @@
 }
 
 .filterButton.active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: white;
-  box-shadow: 0 0 15px rgba(253, 104, 186, 0.3);
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--background);
+  box-shadow: var(--shadow-md);
 }
 
 .filterButton[data-unit="excel"].active {
@@ -86,10 +86,10 @@
 }
 
 .filterButton[data-unit="crew"].active {
-  background: #00d4ff;
-  border-color: #00d4ff;
-  color: #050505;
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: var(--cyan-dark);
+  box-shadow: 0 0 15px var(--cyan-glow);
 }
 
 /* Weekdays */
@@ -115,11 +115,11 @@
 }
 
 .weekday.sunday {
-  color: #ef4444;
+  color: var(--sunday-color);
 }
 
 .weekday.saturday {
-  color: #3b82f6;
+  color: var(--saturday-color);
 }
 
 /* Grid */
@@ -146,7 +146,7 @@
 }
 
 .dayCell:hover {
-  background: rgba(253, 104, 186, 0.1);
+  background: var(--interactive-hover);
 }
 
 .dayCell.otherMonth {
@@ -154,12 +154,12 @@
 }
 
 .dayCell.today {
-  background: rgba(253, 104, 186, 0.15);
+  background: var(--interactive-active);
 }
 
 .dayCell.today .dayNumber {
-  background: linear-gradient(135deg, var(--color-primary), #ff8ed4);
-  color: white;
+  background: var(--text-primary);
+  color: var(--background);
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -167,24 +167,14 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  box-shadow: 0 0 15px rgba(253, 104, 186, 0.5);
-  animation: todayPulse 2s ease-in-out infinite;
+  box-shadow: var(--shadow-md);
 }
 
-@keyframes todayPulse {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(253, 104, 186, 0.5);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(253, 104, 186, 0.7);
-    transform: scale(1.05);
-  }
-}
+/* Pulse animation removed for minimal design */
 
 .dayCell.selected {
-  background: rgba(253, 104, 186, 0.2);
-  box-shadow: inset 0 0 0 2px var(--color-primary);
+  background: var(--interactive-focus);
+  box-shadow: inset 0 0 0 2px var(--text-secondary);
 }
 
 .dayNumber {
@@ -200,11 +190,11 @@
 }
 
 .dayNumber.sunday {
-  color: #ef4444;
+  color: var(--sunday-color);
 }
 
 .dayNumber.saturday {
-  color: #3b82f6;
+  color: var(--saturday-color);
 }
 
 /* Events in Cell */
@@ -221,7 +211,7 @@
   border-radius: 6px;
   font-size: 0.7rem;
   font-weight: 600;
-  color: #050505;
+  color: var(--background);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -284,7 +274,7 @@
   transform: translateX(-50%);
   z-index: 100;
   background: var(--surface-elevated);
-  border: 1px solid rgba(253, 104, 186, 0.2);
+  border: 1px solid var(--glass-border);
   border-radius: 12px;
   padding: 0.875rem;
   min-width: 200px;
@@ -299,7 +289,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-primary), #ff8ed4, var(--color-primary));
+  background: linear-gradient(90deg, var(--text-secondary), var(--text-muted), var(--text-secondary));
   border-radius: 12px 12px 0 0;
 }
 
@@ -485,13 +475,13 @@
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 600;
-  background: rgba(253, 104, 186, 0.2);
-  color: var(--color-primary);
+  background: var(--overlay-medium);
+  color: var(--text-secondary);
 }
 
 .eventUnit[data-unit="crew"] {
-  background: rgba(0, 212, 255, 0.2);
-  color: #00d4ff;
+  background: var(--cyan-bg);
+  color: var(--cyan);
 }
 
 .eventTitle {

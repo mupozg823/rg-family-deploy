@@ -2,8 +2,20 @@
 .footer {
   width: 100%;
   margin-top: 4rem;
-  background: var(--surface);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--card-bg) 100%);
   border-top: 1px solid var(--glass-border);
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--color-pink-border) 50%, transparent 100%);
 }
 
 .container {
@@ -19,31 +31,57 @@
 .brand {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .logoWrapper {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 0.75rem;
 }
 
 .logo {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, white, #e0e0e0);
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--color-pink) 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .description {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
-  line-height: 1.5;
+  line-height: 1.6;
   margin: 0;
+}
+
+.vipLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  width: fit-content;
+  background: linear-gradient(135deg, var(--metallic-gold-bg) 0%, rgba(180, 140, 45, 0.15) 100%);
+  border: 1px solid var(--metallic-gold-border);
+  border-radius: 20px;
+  color: var(--metallic-gold);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.vipLink:hover {
+  background: linear-gradient(135deg, var(--metallic-gold-bg) 0%, rgba(180, 140, 45, 0.3) 100%);
+  box-shadow: 0 0 12px var(--metallic-gold-glow);
+}
+
+.vipLink svg {
+  filter: drop-shadow(0 0 2px var(--metallic-gold-glow));
 }
 
 /* Links Section */
@@ -59,12 +97,12 @@
 }
 
 .linkTitle {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-secondary);
-  margin: 0 0 0.25rem 0;
+  letter-spacing: 0.15em;
+  color: var(--color-pink);
+  margin: 0 0 0.5rem 0;
 }
 
 .link {
@@ -74,7 +112,7 @@
 }
 
 .link:hover {
-  color: var(--color-primary);
+  color: var(--text-primary);
 }
 
 /* Social Section */
@@ -103,9 +141,10 @@
 }
 
 .socialLink:hover {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: white;
+  background: var(--color-pink-bg);
+  border-color: var(--color-pink-border);
+  color: var(--color-pink);
+  transform: translateY(-2px);
 }
 
 /* Bottom Bar */
@@ -140,7 +179,19 @@
 }
 
 .legalLink:hover {
-  color: var(--color-primary);
+  color: var(--color-pink);
+}
+
+.heartIcon {
+  display: inline-block;
+  color: var(--color-pink);
+  animation: heartBeat 1.5s ease-in-out infinite;
+  vertical-align: middle;
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
 }
 
 /* Responsive */

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CalendarDays, Plus, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
 type EventType = 'broadcast' | 'collab' | 'event' | 'notice' | '休'
@@ -30,7 +30,7 @@ const eventTypeLabels: Record<EventType, string> = {
 }
 
 const eventTypeColors: Record<EventType, string> = {
-  broadcast: 'rgba(253, 104, 186, 0.15)',
+  broadcast: 'rgba(196, 30, 127, 0.15)',
   collab: 'rgba(96, 165, 250, 0.15)',
   event: 'rgba(59, 130, 246, 0.15)',
   notice: 'rgba(234, 179, 8, 0.15)',
@@ -38,7 +38,7 @@ const eventTypeColors: Record<EventType, string> = {
 }
 
 export default function SchedulesPage() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)

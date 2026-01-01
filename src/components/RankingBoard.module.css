@@ -60,9 +60,9 @@
 }
 
 .tab.active {
-  background: var(--color-primary);
-  color: white;
-  box-shadow: 0 2px 6px rgba(253, 104, 186, 0.3);
+  background: var(--text-primary);
+  color: var(--background);
+  box-shadow: none;
 }
 
 .list {
@@ -102,16 +102,16 @@
 }
 
 .rank1 {
-  color: #ffd700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  color: var(--metallic-gold);
+  text-shadow: 0 0 10px var(--metallic-gold-glow);
 }
 .rank2 {
-  color: #c0c0c0;
-  text-shadow: 0 0 10px rgba(192, 192, 192, 0.4);
+  color: var(--metallic-silver);
+  text-shadow: 0 0 10px var(--metallic-silver-glow);
 }
 .rank3 {
-  color: #cd7f32;
-  text-shadow: 0 0 10px rgba(205, 127, 50, 0.4);
+  color: var(--metallic-bronze);
+  text-shadow: 0 0 10px var(--metallic-bronze-glow);
 }
 
 .info {
@@ -141,9 +141,9 @@
 
 /* Crown Icon for Top 1 */
 .crown {
-  color: #ffd700;
+  color: var(--metallic-gold);
   margin-right: 4px;
-  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+  filter: drop-shadow(0 0 4px var(--metallic-gold-glow));
 }
 
 /* Progress bar background */
@@ -154,12 +154,12 @@
   bottom: 0;
   background: linear-gradient(
     90deg,
-    rgba(253, 104, 186, 0.1),
-    rgba(253, 104, 186, 0.02)
+    var(--overlay-medium),
+    transparent
   );
   z-index: 0;
   transition: width 0.5s ease-out;
-  border-right: 2px solid rgba(253, 104, 186, 0.2);
+  border-right: 1px solid var(--divider);
 }
 
 .unitBadge {

@@ -29,6 +29,9 @@ interface MemberCardProps {
 }
 
 export function MemberCard({ member, size, onClick }: MemberCardProps) {
+  // Check if member is a leader (대표, 부장, 팀장)
+  const isLeader = ['대표', '부장', '팀장'].includes(member.role)
+
   return (
     <motion.div
       className={`${styles.memberCard} ${styles[size]}`}
@@ -37,10 +40,9 @@ export function MemberCard({ member, size, onClick }: MemberCardProps) {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
     >
-      <div className={styles.avatarWrapper}>
+      <div className={`${styles.avatarWrapper} ${member.is_live ? styles.isLive : ''} ${isLeader ? styles.isLeader : ''}`}>
         {member.is_live && (
           <span className={styles.liveBadge}>
-            <Radio size={8} />
             LIVE
           </span>
         )}

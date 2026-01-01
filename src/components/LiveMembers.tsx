@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Radio, ChevronRight } from 'lucide-react'
-import { useSupabase } from '@/lib/hooks/useSupabase'
+import { ChevronRight } from 'lucide-react'
+import { useSupabaseContext } from '@/lib/context'
 import { mockOrganization } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
 import type { JoinedProfile } from '@/types/common'
@@ -21,7 +21,7 @@ interface LiveMember {
 }
 
 export default function LiveMembers() {
-  const supabase = useSupabase()
+  const supabase = useSupabaseContext()
   const [members, setMembers] = useState<LiveMember[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -129,7 +129,7 @@ export default function LiveMembers() {
           {liveCount}
         </div>
         <div className={styles.line} />
-        <Link href="/info/live" className={styles.viewAll}>
+        <Link href="/rg/live" className={styles.viewAll}>
           전체보기 <ChevronRight size={16} />
         </Link>
       </div>
@@ -137,10 +137,9 @@ export default function LiveMembers() {
       <div className={`${styles.grid} ${displayMembers.length <= 4 ? styles.singleRow : ''}`}>
         {displayMembers.map((member) => (
           <div key={member.id} className={styles.member}>
-            <div className={styles.avatarWrapper}>
+            <div className={`${styles.avatarWrapper} ${member.isLive ? styles.isLive : ''}`}>
               {member.isLive && (
                 <span className={styles.liveBadge}>
-                  <Radio size={10} />
                   LIVE
                 </span>
               )}

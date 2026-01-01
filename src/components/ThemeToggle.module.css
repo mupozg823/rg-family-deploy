@@ -43,18 +43,18 @@
 }
 
 .sunIcon {
-  color: #fbbf24;
+  color: var(--sun-color);
 }
 
 .moonIcon {
-  color: #a78bfa;
+  color: var(--moon-color);
 }
 
 /* Hover effects */
 .toggle:hover .sunIcon.active {
-  color: #f59e0b;
+  color: var(--sun-color-hover);
 }
 
 .toggle:hover .moonIcon.active {
-  color: #8b5cf6;
+  color: var(--moon-color-hover);
 }

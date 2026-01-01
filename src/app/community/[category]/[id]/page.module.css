@@ -1,6 +1,5 @@
 .main {
   min-height: 100vh;
-  padding-top: var(--header-height);
   background: var(--color-background);
 }
 
