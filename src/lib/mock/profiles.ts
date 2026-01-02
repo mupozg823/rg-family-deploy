@@ -13,7 +13,7 @@ import { getPlaceholderAvatar } from './utils'
 export const mockAdminProfile: Profile = {
   id: 'admin-user',
   nickname: 'Admin',
-  email: 'admin@rgfamily.com',
+  email: 'admin@example.com',  // Mock email - not real
   avatar_url: getPlaceholderAvatar('admin'),
   role: 'superadmin',
   unit: null,
