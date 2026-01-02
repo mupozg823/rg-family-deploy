@@ -2,6 +2,20 @@
   "name": "rg-family",
   "version": "0.1.0",
   "private": true,
+  "description": "PandaTV 스트리머 팬 커뮤니티 공식 웹사이트 - 후원 랭킹, 조직도, 커뮤니티, 일정 관리",
+  "keywords": [
+    "nextjs",
+    "react",
+    "typescript",
+    "supabase",
+    "fan-community",
+    "pandatv"
+  ],
+  "author": "RG Family Team",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/rg-family.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -29,5 +43,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.17.0"
   }
 }
