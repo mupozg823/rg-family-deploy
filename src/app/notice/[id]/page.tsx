@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Pin, Calendar } from 'lucide-react'
+import Image from 'next/image'
+import { motion } from 'framer-motion'
+import { ArrowLeft, Pin, Calendar, Eye, Tag, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
 import { useSupabaseContext } from '@/lib/context'
 import { mockNotices } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
@@ -14,8 +16,23 @@ interface NoticeDetail {
   id: number
   title: string
   content: string
+  category: string
+  thumbnailUrl: string | null
   isPinned: boolean
+  viewCount: number
   createdAt: string
+}
+
+interface NavNotice {
+  id: number
+  title: string
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  official: '공식',
+  excel: '엑셀부',
+  crew: '크루부',
+  event: '이벤트',
 }
 
 export default function NoticeDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,21 +40,47 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
   const router = useRouter()
   const supabase = useSupabaseContext()
   const [notice, setNotice] = useState<NoticeDetail | null>(null)
+  const [prevNotice, setPrevNotice] = useState<NavNotice | null>(null)
+  const [nextNotice, setNextNotice] = useState<NavNotice | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchNotice = useCallback(async () => {
     setIsLoading(true)
+    const currentId = parseInt(id)
 
     if (USE_MOCK_DATA) {
-      const found = mockNotices.find((n) => n.id === parseInt(id))
+      const found = mockNotices.find((n) => n.id === currentId)
       if (found) {
         setNotice({
           id: found.id,
           title: found.title,
           content: found.content || '',
+          category: found.category || 'official',
+          thumbnailUrl: found.thumbnail_url,
           isPinned: found.is_pinned,
+          viewCount: found.view_count || 0,
           createdAt: found.created_at,
         })
+
+        // 이전/다음 공지 찾기
+        const sortedNotices = [...mockNotices].sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
+        const currentIndex = sortedNotices.findIndex((n) => n.id === currentId)
+
+        if (currentIndex > 0) {
+          const prev = sortedNotices[currentIndex - 1]
+          setNextNotice({ id: prev.id, title: prev.title })
+        } else {
+          setNextNotice(null)
+        }
+
+        if (currentIndex < sortedNotices.length - 1) {
+          const next = sortedNotices[currentIndex + 1]
+          setPrevNotice({ id: next.id, title: next.title })
+        } else {
+          setPrevNotice(null)
+        }
       }
       setIsLoading(false)
       return
@@ -45,8 +88,8 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
 
     const { data, error } = await supabase
       .from('notices')
-      .select('id, title, content, is_pinned, created_at')
-      .eq('id', parseInt(id))
+      .select('id, title, content, category, thumbnail_url, is_pinned, view_count, created_at')
+      .eq('id', currentId)
       .single()
 
     if (error) {
@@ -56,7 +99,10 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
         id: data.id,
         title: data.title,
         content: data.content || '',
+        category: data.category || 'official',
+        thumbnailUrl: data.thumbnail_url,
         isPinned: data.is_pinned,
+        viewCount: data.view_count || 0,
         createdAt: data.created_at,
       })
     }
@@ -68,6 +114,21 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
     fetchNotice()
   }, [fetchNotice])
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: notice?.title,
+          url: window.location.href,
+        })
+      } catch {
+        // 사용자가 공유 취소
+      }
+    } else {
+      await navigator.clipboard.writeText(window.location.href)
+      alert('링크가 복사되었습니다.')
+    }
+  }
 
   if (isLoading) {
     return (
@@ -95,46 +156,119 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
 
   return (
     <main className={styles.main}>
-      <div className={styles.container}>
-        {/* Header */}
-        <header className={styles.header}>
-          <button onClick={() => router.back()} className={styles.backButton}>
-            <ArrowLeft size={20} />
-            <span>목록</span>
-          </button>
-        </header>
-
-        {/* Article */}
-        <article className={styles.article}>
-          {/* Title Area */}
-          <div className={styles.titleArea}>
-            {notice.isPinned && (
-              <span className={styles.pinnedBadge}>
-                <Pin size={14} />
-                중요 공지
-              </span>
-            )}
-            <h1 className={styles.title}>{notice.title}</h1>
-            <div className={styles.meta}>
-              <Calendar size={14} />
-              <span>{formatDate(notice.createdAt)}</span>
-            </div>
+      {/* Hero Section with Thumbnail */}
+      <div className={styles.hero}>
+        {notice.thumbnailUrl && (
+          <div className={styles.heroImage}>
+            <Image
+              src={notice.thumbnailUrl}
+              alt={notice.title}
+              fill
+              style={{ objectFit: 'cover' }}
+              priority
+              unoptimized
+            />
+            <div className={styles.heroOverlay} />
           </div>
+        )}
 
-          {/* Content */}
+        <div className={styles.heroContent}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Navigation */}
+            <button onClick={() => router.back()} className={styles.backButton}>
+              <ArrowLeft size={18} />
+              <span>목록</span>
+            </button>
+
+            {/* Badges */}
+            <div className={styles.badges}>
+              {notice.isPinned && (
+                <span className={styles.pinnedBadge}>
+                  <Pin size={12} />
+                  중요
+                </span>
+              )}
+              <span className={styles.categoryBadge} data-category={notice.category}>
+                <Tag size={12} />
+                {CATEGORY_LABELS[notice.category] || notice.category}
+              </span>
+            </div>
+
+            {/* Title */}
+            <h1 className={styles.heroTitle}>{notice.title}</h1>
+
+            {/* Meta */}
+            <div className={styles.heroMeta}>
+              <span className={styles.metaItem}>
+                <Calendar size={14} />
+                {formatDate(notice.createdAt)}
+              </span>
+              <span className={styles.metaItem}>
+                <Eye size={14} />
+                조회 {notice.viewCount.toLocaleString()}
+              </span>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className={styles.container}>
+        {/* Article */}
+        <motion.article
+          className={styles.article}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           <div className={styles.content}>
             {notice.content.split('\n').map((paragraph, index) => (
               <p key={index}>{paragraph || '\u00A0'}</p>
             ))}
           </div>
-        </article>
 
-        {/* Footer */}
-        <footer className={styles.footer}>
-          <Link href="/notice" className={styles.listButton}>
-            목록으로
+          {/* Share Button */}
+          <div className={styles.actions}>
+            <button onClick={handleShare} className={styles.shareBtn}>
+              <Share2 size={16} />
+              공유하기
+            </button>
+          </div>
+        </motion.article>
+
+        {/* Navigation */}
+        <div className={styles.navigation}>
+          {prevNotice ? (
+            <Link href={`/notice/${prevNotice.id}`} className={styles.navItem}>
+              <ChevronLeft size={16} />
+              <div className={styles.navContent}>
+                <span className={styles.navLabel}>이전 글</span>
+                <span className={styles.navTitle}>{prevNotice.title}</span>
+              </div>
+            </Link>
+          ) : (
+            <div className={styles.navPlaceholder} />
+          )}
+
+          <Link href="/notice" className={styles.listBtn}>
+            목록
           </Link>
-        </footer>
+
+          {nextNotice ? (
+            <Link href={`/notice/${nextNotice.id}`} className={`${styles.navItem} ${styles.navRight}`}>
+              <div className={styles.navContent}>
+                <span className={styles.navLabel}>다음 글</span>
+                <span className={styles.navTitle}>{nextNotice.title}</span>
+              </div>
+              <ChevronRight size={16} />
+            </Link>
+          ) : (
+            <div className={styles.navPlaceholder} />
+          )}
+        </div>
       </div>
     </main>
   )

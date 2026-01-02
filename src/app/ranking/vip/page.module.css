@@ -960,6 +960,19 @@
   text-shadow: 0 2px 12px var(--metallic-gold-glow);
 }
 
+.playIcon {
+  position: absolute;
+  bottom: var(--space-3);
+  right: var(--space-3);
+  color: var(--text-overlay-40);
+  transition: var(--transition-base);
+}
+
+.signatureCard:hover .playIcon {
+  color: var(--metallic-gold);
+  transform: scale(1.2);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .hero {
@@ -1146,4 +1159,301 @@
   color: var(--text-overlay-60);
   letter-spacing: 2px;
   text-transform: uppercase;
+}
+
+/* ============================================
+   Light Mode Overrides
+   VIP 페이지 라이트 모드 가독성 개선
+   ============================================ */
+@media (prefers-color-scheme: light) {
+  :global([data-theme="light"]) .heroTitle,
+  .heroTitle {
+    background: linear-gradient(
+      135deg,
+      #1a1a1a 0%,
+      var(--metallic-gold) 40%,
+      #8b6914 70%,
+      #5a4510 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
+
+:global([data-theme="light"]) .heroTitle {
+  background: linear-gradient(
+    135deg,
+    #1a1a1a 0%,
+    var(--metallic-gold) 40%,
+    #8b6914 70%,
+    #5a4510 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: none;
+}
+
+:global([data-theme="light"]) .vipBadge {
+  background: linear-gradient(
+    135deg,
+    rgba(184, 134, 11, 0.15),
+    rgba(150, 110, 20, 0.25)
+  );
+  border-color: rgba(184, 134, 11, 0.4);
+  color: #8b6914;
+}
+
+:global([data-theme="light"]) .vipBadge svg {
+  color: #8b6914;
+  filter: none;
+}
+
+:global([data-theme="light"]) .hero {
+  background: linear-gradient(
+    180deg,
+    #faf8f5 0%,
+    #f5f3f0 50%,
+    #f0ece8 100%
+  );
+}
+
+:global([data-theme="light"]) .hero::before {
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 20%,
+    rgba(184, 134, 11, 0.1) 0%,
+    transparent 50%
+  );
+}
+
+:global([data-theme="light"]) .heroSubtitle {
+  color: #52525b;
+}
+
+:global([data-theme="light"]) .heroSubtitle strong {
+  color: #8b6914;
+}
+
+:global([data-theme="light"]) .sectionHeader {
+  color: #27272a;
+}
+
+:global([data-theme="light"]) .sectionHeader svg {
+  color: #8b6914;
+  filter: none;
+}
+
+:global([data-theme="light"]) .messageCard {
+  background: linear-gradient(145deg, #ffffff, #faf8f5);
+  border-color: rgba(184, 134, 11, 0.15);
+}
+
+:global([data-theme="light"]) .messageCard::after {
+  color: #c9a227;
+  opacity: 0.15;
+}
+
+:global([data-theme="light"]) .messageCard p {
+  color: #3f3f46;
+}
+
+:global([data-theme="light"]) .exclusiveContent {
+  background: linear-gradient(
+    135deg,
+    #8b6914 0%,
+    #b8860b 25%,
+    #daa520 50%,
+    #b8860b 75%,
+    #8b6914 100%
+  );
+  box-shadow: 0 0 40px rgba(184, 134, 11, 0.2);
+}
+
+:global([data-theme="light"]) .exclusiveInner {
+  background: #f8f6f2;
+}
+
+:global([data-theme="light"]) .exclusiveVideo {
+  background: linear-gradient(135deg, #f0ece5, #e8e4dd);
+}
+
+:global([data-theme="light"]) .exclusivePlayBtn {
+  background: rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+:global([data-theme="light"]) .exclusiveLabel {
+  color: #3f3f46;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+:global([data-theme="light"]) .videoCard {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .videoCard:hover {
+  border-color: rgba(184, 134, 11, 0.3);
+  box-shadow: 0 8px 24px rgba(184, 134, 11, 0.1);
+}
+
+:global([data-theme="light"]) .videoThumbnail {
+  background: linear-gradient(135deg, #f4f4f5, #e4e4e7);
+}
+
+:global([data-theme="light"]) .videoInfo h3 {
+  color: #27272a;
+}
+
+:global([data-theme="light"]) .videoInfo p {
+  color: #71717a;
+}
+
+:global([data-theme="light"]) .signaturesSection {
+  background: linear-gradient(
+    180deg,
+    rgba(184, 134, 11, 0.08) 0%,
+    #faf8f5 100%
+  );
+  border-color: rgba(184, 134, 11, 0.15);
+}
+
+:global([data-theme="light"]) .secretBadge {
+  background: linear-gradient(135deg, #8b6914, #daa520);
+  color: #ffffff;
+}
+
+:global([data-theme="light"]) .secretHeader h2 {
+  color: #27272a;
+}
+
+:global([data-theme="light"]) .secretHeader p {
+  color: #71717a;
+}
+
+:global([data-theme="light"]) .signatureCard {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .signatureCard:hover {
+  border-color: rgba(184, 134, 11, 0.3);
+  box-shadow: 0 12px 32px rgba(184, 134, 11, 0.12);
+}
+
+:global([data-theme="light"]) .signaturePlaceholder {
+  color: #a1a1aa;
+}
+
+:global([data-theme="light"]) .signatureCard:hover .signaturePlaceholder {
+  color: #8b6914;
+}
+
+:global([data-theme="light"]) .signatureName {
+  color: #52525b;
+}
+
+:global([data-theme="light"]) .signatureCard:hover .signatureName {
+  color: #8b6914;
+}
+
+:global([data-theme="light"]) .secretBanner {
+  background: linear-gradient(135deg, #8b6914, #daa520);
+}
+
+:global([data-theme="light"]) .secretContent {
+  background: #faf8f5;
+}
+
+:global([data-theme="light"]) .secretContent h3 {
+  color: #27272a;
+}
+
+:global([data-theme="light"]) .secretContent p {
+  color: #52525b;
+}
+
+:global([data-theme="light"]) .secretLink {
+  background: linear-gradient(135deg, #8b6914, #daa520);
+  color: #ffffff;
+}
+
+:global([data-theme="light"]) .membersList {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .memberItem {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme="light"]) .memberItem:hover {
+  background: #faf8f5;
+}
+
+:global([data-theme="light"]) .memberItem.currentUser {
+  background: rgba(184, 134, 11, 0.1);
+}
+
+:global([data-theme="light"]) .memberRank {
+  color: #52525b;
+  background: #f4f4f5;
+}
+
+:global([data-theme="light"]) .memberName {
+  color: #27272a;
+}
+
+:global([data-theme="light"]) .memberAmount {
+  color: #8b6914;
+}
+
+:global([data-theme="light"]) .pageNav {
+  background: rgba(250, 248, 245, 0.95);
+  border-color: rgba(184, 134, 11, 0.15);
+}
+
+:global([data-theme="light"]) .navTitle {
+  color: #8b6914;
+}
+
+:global([data-theme="light"]) .backBtn {
+  background: rgba(184, 134, 11, 0.08);
+  border-color: rgba(184, 134, 11, 0.2);
+  color: #8b6914;
+}
+
+:global([data-theme="light"]) .backBtn:hover {
+  background: rgba(184, 134, 11, 0.15);
+  color: #6b5210;
+}
+
+:global([data-theme="light"]) .navBtn {
+  background: rgba(184, 134, 11, 0.08);
+  border-color: rgba(184, 134, 11, 0.2);
+  color: #8b6914;
+}
+
+:global([data-theme="light"]) .navBtn:hover {
+  border-color: rgba(184, 134, 11, 0.4);
+  box-shadow: 0 0 12px rgba(184, 134, 11, 0.15);
+}
+
+:global([data-theme="light"]) .container {
+  background: #faf8f5;
+}
+
+:global([data-theme="light"]) .star1,
+:global([data-theme="light"]) .star2,
+:global([data-theme="light"]) .star3 {
+  color: #c9a227;
+  filter: drop-shadow(0 0 4px rgba(184, 134, 11, 0.3));
+}
+
+:global([data-theme="light"]) .glow {
+  background: radial-gradient(
+    circle,
+    rgba(184, 134, 11, 0.15) 0%,
+    transparent 50%
+  );
 }

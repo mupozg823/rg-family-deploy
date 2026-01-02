@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, User, LogIn, Crown } from "lucide-react";
+import { ChevronDown, User, LogIn } from "lucide-react";
 import { useAuthContext } from "@/lib/context";
 import ThemeToggle from "./ThemeToggle";
 import styles from "./Navbar.module.css";
@@ -28,7 +28,7 @@ const navItems: NavItem[] = [
     label: "후원 랭킹",
     subItems: [
       { label: "전체 랭킹", href: "/ranking", description: "누적 후원 순위" },
-      { label: "시즌별 랭킹", href: "/ranking/season", description: "시즌별 후원 순위" },
+      { label: "시즌별 랭킹", href: "/ranking/season", description: "시즌 선택 및 랭킹" },
     ],
   },
   {
@@ -131,10 +131,6 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className={styles.actions}>
-          <Link href="/ranking/vip" className={styles.vipBtn}>
-            <Crown size={14} />
-            <span>VIP</span>
-          </Link>
           <ThemeToggle />
           {user ? (
             <Link href="/mypage" className={styles.profileButton}>
@@ -169,14 +165,6 @@ export default function Navbar() {
         <div className={styles.mobileMenu}>
           {/* Mobile Actions */}
           <div className={styles.mobileActions}>
-            <Link
-              href="/ranking/vip"
-              className={styles.mobileVipBtn}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <Crown size={16} />
-              <span>VIP LOUNGE</span>
-            </Link>
             {user ? (
               <Link
                 href="/mypage"

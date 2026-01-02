@@ -369,6 +369,19 @@
   --premium-card-bg: linear-gradient(145deg, #0a0a0c, var(--metallic-gold-bg));
   --premium-card-border: rgba(255, 255, 255, 0.08);
 
+  /* Card Background Gradients (Theme-aware) */
+  --card-bg-gradient: linear-gradient(180deg, rgba(20, 20, 23, 0.98) 0%, rgba(15, 15, 18, 0.95) 100%);
+  --card-bg-dark: rgba(20, 20, 23, 0.98);
+  --highlight-line: rgba(255, 255, 255, 0.1);
+  --highlight-line-subtle: rgba(255, 255, 255, 0.04);
+  --highlight-line-hover: rgba(255, 255, 255, 0.06);
+  --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --inset-highlight-hover: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shimmer-white: rgba(255, 255, 255, 0.03);
+  --shimmer-gold: rgba(212, 175, 55, 0.08);
+  --shimmer-silver: rgba(184, 196, 206, 0.06);
+  --shimmer-bronze: rgba(205, 127, 50, 0.06);
+
   /* Video/Thumbnail Backgrounds */
   --video-bg: linear-gradient(135deg, #121215, #0a0a0c);
   --video-overlay: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.4) 100%);
@@ -580,6 +593,19 @@
   /* Premium Card Gradient - Light */
   --premium-card-bg: linear-gradient(145deg, #ffffff, var(--metallic-gold-bg));
   --premium-card-border: rgba(0, 0, 0, 0.08);
+
+  /* Card Background Gradients - Light Mode */
+  --card-bg-gradient: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  --card-bg-dark: #ffffff;
+  --highlight-line: rgba(0, 0, 0, 0.06);
+  --highlight-line-subtle: rgba(0, 0, 0, 0.03);
+  --highlight-line-hover: rgba(0, 0, 0, 0.04);
+  --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --inset-highlight-hover: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shimmer-white: rgba(0, 0, 0, 0.02);
+  --shimmer-gold: rgba(184, 134, 11, 0.06);
+  --shimmer-silver: rgba(113, 128, 150, 0.05);
+  --shimmer-bronze: rgba(139, 69, 19, 0.05);
 
   /* Video/Thumbnail Backgrounds - Light */
   --video-bg: linear-gradient(135deg, #f4f4f5, #e4e4e7);
@@ -801,9 +827,15 @@ li {
    ============================================ */
 .live-notice-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
+  width: 100%;
+}
+
+.live-notice-grid > * {
+  min-width: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 1024px) {

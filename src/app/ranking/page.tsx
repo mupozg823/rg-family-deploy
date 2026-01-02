@@ -8,7 +8,6 @@ import { useRanking } from "@/lib/hooks/useRanking";
 import {
   RankingPodium,
   RankingFullList,
-  SeasonSelector,
 } from "@/components/ranking";
 import styles from "./page.module.css";
 
@@ -21,12 +20,9 @@ export default function TotalRankingPage() {
 
   const {
     rankings,
-    seasons,
-    selectedSeasonId,
     unitFilter,
     maxAmount,
     isLoading,
-    setSelectedSeasonId,
     setUnitFilter,
   } = useRanking();
 
@@ -82,12 +78,6 @@ export default function TotalRankingPage() {
       <div className={styles.container}>
         {/* Minimal Filters */}
         <div className={styles.filters}>
-          <SeasonSelector
-            seasons={seasons}
-            selectedSeasonId={selectedSeasonId}
-            onSelect={setSelectedSeasonId}
-          />
-
           <div className={styles.unitFilter}>
             {(["excel", "crew", "all"] as const).map((unit) => (
               <button

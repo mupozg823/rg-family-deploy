@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { Calendar, Filter, Tag, Sparkles, ChevronRight } from 'lucide-react'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { Calendar, Filter, Tag, Sparkles, ChevronRight, X, ExternalLink } from 'lucide-react'
 import Image from 'next/image'
 import { useSupabaseContext } from '@/lib/context'
 import { mockTimelineEvents, mockSeasons } from '@/lib/mock/data'
@@ -32,6 +32,7 @@ export default function Timeline() {
   const [selectedSeasonId, setSelectedSeasonId] = useState<number | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedEvent, setSelectedEvent] = useState<TimelineItem | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // 카테고리 목록 추출
@@ -333,7 +334,13 @@ export default function Timeline() {
                       />
 
                       {/* Content Card */}
-                      <div className={styles.card}>
+                      <div
+                        className={styles.card}
+                        onClick={() => setSelectedEvent(event)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && setSelectedEvent(event)}
+                      >
                         {/* Date */}
                         <div className={styles.date}>
                           <Calendar size={14} />
@@ -371,6 +378,12 @@ export default function Timeline() {
                         {event.description && (
                           <p className={styles.description}>{event.description}</p>
                         )}
+
+                        {/* View More Indicator */}
+                        <div className={styles.viewMore}>
+                          <ExternalLink size={14} />
+                          <span>자세히 보기</span>
+                        </div>
                       </div>
                     </motion.div>
                   )
@@ -380,6 +393,82 @@ export default function Timeline() {
           })}
         </div>
       )}
+
+      {/* Detail Modal */}
+      <AnimatePresence>
+        {selectedEvent && (
+          <motion.div
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedEvent(null)}
+          >
+            <motion.div
+              className={styles.modalContent}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className={styles.modalClose}
+                onClick={() => setSelectedEvent(null)}
+              >
+                <X size={24} />
+              </button>
+
+              {/* Modal Image */}
+              {selectedEvent.imageUrl && (
+                <div className={styles.modalImageWrapper}>
+                  <Image
+                    src={selectedEvent.imageUrl}
+                    alt={selectedEvent.title}
+                    fill
+                    className={styles.modalImage}
+                    unoptimized
+                  />
+                </div>
+              )}
+
+              {/* Modal Info */}
+              <div className={styles.modalInfo}>
+                {/* Date & Category */}
+                <div className={styles.modalMeta}>
+                  <div className={styles.modalDate}>
+                    <Calendar size={16} />
+                    {formatDate(selectedEvent.eventDate)}
+                  </div>
+                  {selectedEvent.category && (
+                    <span
+                      className={styles.modalCategory}
+                      style={{
+                        backgroundColor: `${getCategoryColor(selectedEvent.category)}20`,
+                        color: getCategoryColor(selectedEvent.category),
+                      }}
+                    >
+                      {CATEGORY_LABELS[selectedEvent.category] || selectedEvent.category}
+                    </span>
+                  )}
+                  {selectedEvent.seasonName && (
+                    <span className={styles.modalSeason}>
+                      {selectedEvent.seasonName}
+                    </span>
+                  )}
+                </div>
+
+                {/* Title */}
+                <h2 className={styles.modalTitle}>{selectedEvent.title}</h2>
+
+                {/* Description */}
+                {selectedEvent.description && (
+                  <p className={styles.modalDescription}>{selectedEvent.description}</p>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

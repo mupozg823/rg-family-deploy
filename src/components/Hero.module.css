@@ -7,8 +7,9 @@
 
 .container {
   position: relative;
-  max-width: var(--max-width);
+  max-width: var(--max-width-wide);
   margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .carousel {
@@ -364,6 +365,10 @@
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+
   .carousel {
     height: 340px;
   }

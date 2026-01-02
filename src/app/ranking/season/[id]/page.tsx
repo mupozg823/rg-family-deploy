@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useRanking } from '@/lib/hooks/useRanking'
 import { RankingPodium, RankingFullList, SeasonSelector } from '@/components/ranking'
-import { Calendar, ArrowLeft, Trophy, Clock, Star, ChevronDown, Sparkles } from 'lucide-react'
+import { Calendar, ArrowLeft, Trophy, Clock, Star, ChevronDown, Sparkles, Users, Heart, Award, TrendingUp, Archive } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import styles from './page.module.css'
@@ -72,6 +72,31 @@ export default function SeasonRankingPage() {
   // TOP 50으로 제한
   const top50 = rankings.slice(0, 50)
   const top3 = top50.slice(0, 3)
+
+  // 시즌 통계 계산
+  const seasonStats = useMemo(() => {
+    if (rankings.length === 0) return null
+
+    const totalAmount = rankings.reduce((sum, r) => sum + r.totalAmount, 0)
+    const participantCount = rankings.length
+    const avgAmount = Math.round(totalAmount / participantCount)
+    const topAmount = rankings[0]?.totalAmount || 0
+
+    return {
+      totalAmount,
+      participantCount,
+      avgAmount,
+      topAmount
+    }
+  }, [rankings])
+
+  // 금액 포맷
+  const formatAmount = (amount: number) => {
+    if (amount >= 10000) {
+      return `${(amount / 10000).toFixed(1)}만`
+    }
+    return amount.toLocaleString()
+  }
 
   // 시즌을 찾을 수 없는 경우
   if (!isLoading && seasons.length > 0 && !selectedSeason) {
@@ -147,6 +172,61 @@ export default function SeasonRankingPage() {
       </div>
 
       <div className={styles.container}>
+        {/* Season Stats Summary */}
+        {seasonStats && (
+          <motion.section
+            className={styles.statsSection}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className={styles.statsGrid}>
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>
+                  <Heart size={18} />
+                </div>
+                <div className={styles.statInfo}>
+                  <span className={styles.statValue}>{formatAmount(seasonStats.totalAmount)}</span>
+                  <span className={styles.statLabel}>총 후원</span>
+                </div>
+              </div>
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>
+                  <Users size={18} />
+                </div>
+                <div className={styles.statInfo}>
+                  <span className={styles.statValue}>{seasonStats.participantCount}</span>
+                  <span className={styles.statLabel}>참여자</span>
+                </div>
+              </div>
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>
+                  <TrendingUp size={18} />
+                </div>
+                <div className={styles.statInfo}>
+                  <span className={styles.statValue}>{formatAmount(seasonStats.avgAmount)}</span>
+                  <span className={styles.statLabel}>평균</span>
+                </div>
+              </div>
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>
+                  <Award size={18} />
+                </div>
+                <div className={styles.statInfo}>
+                  <span className={styles.statValue}>{formatAmount(seasonStats.topAmount)}</span>
+                  <span className={styles.statLabel}>1위 기록</span>
+                </div>
+              </div>
+            </div>
+            {!selectedSeason?.is_active && (
+              <div className={styles.archiveBadge}>
+                <Archive size={14} />
+                <span>아카이브 시즌</span>
+              </div>
+            )}
+          </motion.section>
+        )}
+
         {/* Minimal Filters */}
         <div className={styles.filters}>
           <div className={styles.seasonTabs}>

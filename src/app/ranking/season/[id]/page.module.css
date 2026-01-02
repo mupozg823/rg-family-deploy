@@ -239,6 +239,88 @@
 }
 
 /* =======================================
+   Season Stats - Historical Records
+   ======================================= */
+.statsSection {
+  position: relative;
+  margin-bottom: var(--space-8);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  transition: all 0.3s ease;
+}
+
+.statCard:hover {
+  border-color: var(--color-success-border);
+  background: var(--overlay-subtle);
+}
+
+.statIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-success-bg);
+  border-radius: var(--radius-lg);
+  color: var(--color-success);
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.statLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.archiveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--overlay-subtle);
+  border: 1px solid var(--border-overlay-15);
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.archiveBadge svg {
+  opacity: 0.7;
+}
+
+/* =======================================
    Filters - Sleek & Minimal
    ======================================= */
 .filters {
@@ -512,6 +594,24 @@
     padding: 0 var(--space-4) var(--space-16);
   }
 
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  .statCard {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .statIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .statValue {
+    font-size: var(--text-base);
+  }
+
   .filters {
     gap: var(--space-3);
   }
@@ -566,6 +666,39 @@
 
   .dateRange {
     font-size: var(--text-xs);
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .statCard {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .statIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .statIcon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .statInfo {
+    align-items: center;
+  }
+
+  .statValue {
+    font-size: var(--text-sm);
+  }
+
+  .statLabel {
+    font-size: 9px;
   }
 
   .scrollIndicator {

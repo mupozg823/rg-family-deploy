@@ -12,9 +12,9 @@ import {
   Trophy,
   ArrowRight,
   ArrowLeft,
-  PenTool,
   Sparkles,
   Film,
+  Video,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuthContext } from "@/lib/context";
@@ -315,7 +315,7 @@ export default function VipLoungePage() {
           </motion.section>
         )}
 
-        {/* VIP SECRET - Signatures Section */}
+        {/* VIP SECRET - Signature Reactions Section */}
         {vipContent?.signatures && vipContent.signatures.length > 0 && (
           <motion.section
             className={styles.signaturesSection}
@@ -328,8 +328,8 @@ export default function VipLoungePage() {
                 <Sparkles size={16} />
                 <span>VIP SECRET</span>
               </div>
-              <h2>VIP Exclusive Signatures</h2>
-              <p>멤버들의 친필 사인</p>
+              <h2>VIP Signature Reactions</h2>
+              <p>VIP를 위한 특별 시그니처 리액션</p>
             </div>
             <div className={styles.signaturesGrid}>
               {vipContent.signatures.map((sig, index) => (
@@ -341,10 +341,11 @@ export default function VipLoungePage() {
                   transition={{ delay: 0.3 + index * 0.1 }}
                 >
                   <div className={styles.signaturePlaceholder}>
-                    <PenTool size={24} />
+                    <Video size={24} />
                     <span className={styles.signatureName}>
                       {sig.memberName}
                     </span>
+                    <Play size={16} className={styles.playIcon} />
                   </div>
                 </motion.div>
               ))}

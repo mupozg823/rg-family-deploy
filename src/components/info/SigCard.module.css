@@ -1,11 +1,20 @@
-/* cnine.kr style - Minimal Signature Card */
+/* Signature Card - Premium Design */
+
 .card {
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-xl);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  overflow: hidden;
 }
 
 .card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-6px);
+  border-color: var(--metallic-gold-border);
+  box-shadow:
+    0 15px 30px rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(212, 175, 55, 0.05);
 }
 
 /* Thumbnail - Square */
@@ -13,17 +22,16 @@
   position: relative;
   aspect-ratio: 1 / 1;
   background: var(--surface);
-  border-radius: 8px;
   overflow: hidden;
 }
 
 .image {
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover .image {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .placeholder {
@@ -140,4 +148,27 @@
     width: 20px;
     height: 20px;
   }
+}
+
+/* =======================================
+   Light Mode Overrides
+   ======================================= */
+:global([data-theme="light"]) .card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .card:hover {
+  border-color: rgba(184, 134, 11, 0.3);
+  box-shadow:
+    0 15px 30px rgba(0, 0, 0, 0.08),
+    0 0 20px rgba(184, 134, 11, 0.05);
+}
+
+:global([data-theme="light"]) .title {
+  color: #1a1a1a;
+}
+
+:global([data-theme="light"]) .sigNumber {
+  color: #8b6914;
 }

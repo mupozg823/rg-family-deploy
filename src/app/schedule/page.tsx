@@ -18,6 +18,7 @@ export default function SchedulePage() {
   return (
     <main className={styles.main}>
       <div className={styles.hero}>
+        <span className={styles.heroBadge}>CALENDAR</span>
         <h1 className={styles.title}>SCHEDULE</h1>
         <p className={styles.subtitle}>RG FAMILY 방송 일정 및 이벤트</p>
 

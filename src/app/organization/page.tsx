@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Users, Radio, Calendar, FileText, Zap } from "lucide-react";
 import { useSupabaseContext } from "@/lib/context";
@@ -68,7 +69,9 @@ export default function OrganizationPage() {
 
   // 역할별 그룹화
   const getGroupedMembers = (unitMembers: OrgMember[]) => {
-    const leaders = unitMembers.filter((m) => m.role === "대표");
+    const leaders = unitMembers.filter((m) =>
+      m.role === "대표" || m.role === "R대표" || m.role === "G대표"
+    );
     const directors = unitMembers.filter((m) => m.role === "부장");
     const managers = unitMembers.filter((m) => m.role === "팀장");
     const membersList = unitMembers.filter(
@@ -79,11 +82,18 @@ export default function OrganizationPage() {
 
   const grouped = getGroupedMembers(unitMembers);
 
-  // 최상위 리더: 대표 또는 부장
+  // 최상위 리더: 대표 → 부장 → 팀장 순으로 폴백
   const topLeaders =
-    grouped.leaders.length > 0 ? grouped.leaders : grouped.directors;
-  // 중간 관리자: 팀장
-  const middleManagers = grouped.managers;
+    grouped.leaders.length > 0
+      ? grouped.leaders
+      : grouped.directors.length > 0
+      ? grouped.directors
+      : grouped.managers;
+  // 중간 관리자: 팀장 (topLeaders가 팀장이면 빈 배열)
+  const middleManagers =
+    grouped.leaders.length > 0 || grouped.directors.length > 0
+      ? grouped.managers
+      : [];
   // 일반 멤버
   const regularMembers = grouped.members;
 
@@ -126,7 +136,14 @@ export default function OrganizationPage() {
       <header className={styles.header}>
         <div className={styles.logoSection}>
           <div className={styles.logoCircle}>
-            <span className={styles.logoText}>RG</span>
+            <Image
+              src="/assets/logo/rg_logo_3d_pink.png"
+              alt="RG"
+              width={60}
+              height={60}
+              style={{ objectFit: "contain" }}
+              priority
+            />
           </div>
           <span className={styles.logoSubtext}>RG FAMILY</span>
         </div>
