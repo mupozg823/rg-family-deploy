@@ -1,9 +1,33 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle, X, Trash2 } from 'lucide-react'
-import styles from './CsvUploader.module.css'
+import {
+  Group,
+  Text,
+  Button,
+  Alert,
+  Table,
+  Paper,
+  Stack,
+  ActionIcon,
+  Badge,
+  ScrollArea,
+  Loader,
+  Anchor,
+  rem,
+  CloseButton,
+} from '@mantine/core'
+import { Dropzone, MIME_TYPES } from '@mantine/dropzone'
+import {
+  IconUpload,
+  IconFileSpreadsheet,
+  IconAlertCircle,
+  IconCircleCheck,
+  IconTrash,
+  IconX,
+} from '@tabler/icons-react'
+import '@mantine/dropzone/styles.css'
 
 interface CsvRow {
   [key: string]: string
@@ -16,12 +40,10 @@ interface CsvUploaderProps {
 }
 
 export default function CsvUploader({ onUpload, columns, sampleFile }: CsvUploaderProps) {
-  const [isDragOver, setIsDragOver] = useState(false)
   const [parsedData, setParsedData] = useState<CsvRow[]>([])
   const [errors, setErrors] = useState<string[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [uploadResult, setUploadResult] = useState<{ success: number; errors: string[] } | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const parseCSV = useCallback((text: string): CsvRow[] => {
     const lines = text.trim().split('\n')
@@ -57,11 +79,9 @@ export default function CsvUploader({ onUpload, columns, sampleFile }: CsvUpload
     return errors
   }, [columns])
 
-  const handleFile = useCallback((file: File) => {
-    if (!file.name.endsWith('.csv')) {
-      setErrors(['CSV 파일만 업로드 가능합니다.'])
-      return
-    }
+  const handleDrop = useCallback((files: File[]) => {
+    const file = files[0]
+    if (!file) return
 
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -76,19 +96,6 @@ export default function CsvUploader({ onUpload, columns, sampleFile }: CsvUpload
     reader.readAsText(file)
   }, [parseCSV, validateData])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(false)
-
-    const file = e.dataTransfer.files[0]
-    if (file) handleFile(file)
-  }, [handleFile])
-
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) handleFile(file)
-  }, [handleFile])
-
   const handleUpload = async () => {
     if (parsedData.length === 0 || errors.length > 0) return
 
@@ -99,7 +106,7 @@ export default function CsvUploader({ onUpload, columns, sampleFile }: CsvUpload
       if (result.success > 0 && result.errors.length === 0) {
         setParsedData([])
       }
-    } catch (error) {
+    } catch {
       setUploadResult({
         success: 0,
         errors: ['업로드 중 오류가 발생했습니다.'],
@@ -112,187 +119,206 @@ export default function CsvUploader({ onUpload, columns, sampleFile }: CsvUpload
     setParsedData([])
     setErrors([])
     setUploadResult(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
   }
 
   return (
-    <div className={styles.container}>
-      {/* Drop Zone */}
-      <div
-        className={`${styles.dropZone} ${isDragOver ? styles.dragOver : ''} ${parsedData.length > 0 ? styles.hasData : ''}`}
-        onDragOver={(e) => {
-          e.preventDefault()
-          setIsDragOver(true)
-        }}
-        onDragLeave={() => setIsDragOver(false)}
+    <Stack gap="md">
+      {/* Dropzone */}
+      <Dropzone
         onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
+        accept={[MIME_TYPES.csv, 'text/csv']}
+        maxSize={5 * 1024 * 1024}
+        multiple={false}
       >
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".csv"
-          onChange={handleFileSelect}
-          className={styles.fileInput}
-        />
-
-        {parsedData.length === 0 ? (
-          <>
-            <Upload size={40} className={styles.uploadIcon} />
-            <p className={styles.dropText}>
-              CSV 파일을 드래그하거나 클릭하여 선택
-            </p>
-            <p className={styles.dropHint}>
-              {columns.map(c => c.label).join(', ')} 컬럼이 포함되어야 합니다
-            </p>
-            {sampleFile && (
-              <a
-                href={sampleFile}
-                download
-                className={styles.sampleLink}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <FileSpreadsheet size={14} />
-                샘플 파일 다운로드
-              </a>
+        <Group justify="center" gap="xl" mih={parsedData.length > 0 ? 80 : 140} style={{ pointerEvents: 'none' }}>
+          <Dropzone.Accept>
+            <IconUpload
+              style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-pink-6)' }}
+              stroke={1.5}
+            />
+          </Dropzone.Accept>
+          <Dropzone.Reject>
+            <IconX
+              style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-red-6)' }}
+              stroke={1.5}
+            />
+          </Dropzone.Reject>
+          <Dropzone.Idle>
+            {parsedData.length === 0 ? (
+              <IconUpload
+                style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-dimmed)' }}
+                stroke={1.5}
+              />
+            ) : (
+              <IconFileSpreadsheet
+                style={{ width: rem(40), height: rem(40), color: 'var(--mantine-color-pink-6)' }}
+                stroke={1.5}
+              />
             )}
-          </>
-        ) : (
-          <div className={styles.fileInfo}>
-            <FileSpreadsheet size={32} className={styles.fileIcon} />
-            <div>
-              <p className={styles.fileCount}>{parsedData.length}개 데이터</p>
-              <p className={styles.fileHint}>다시 클릭하여 파일 변경</p>
-            </div>
-            <button
-              className={styles.clearButton}
-              onClick={(e) => {
-                e.stopPropagation()
-                handleClear()
-              }}
-            >
-              <Trash2 size={16} />
-            </button>
+          </Dropzone.Idle>
+
+          <div>
+            {parsedData.length === 0 ? (
+              <>
+                <Text size="lg" inline fw={600}>
+                  CSV 파일을 드래그하거나 클릭하여 선택
+                </Text>
+                <Text size="sm" c="dimmed" inline mt={7}>
+                  {columns.map(c => c.label).join(', ')} 컬럼이 포함되어야 합니다
+                </Text>
+                {sampleFile && (
+                  <Anchor
+                    href={sampleFile}
+                    download
+                    size="xs"
+                    mt="xs"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    <Group gap={4}>
+                      <IconFileSpreadsheet size={14} />
+                      샘플 파일 다운로드
+                    </Group>
+                  </Anchor>
+                )}
+              </>
+            ) : (
+              <Group>
+                <div>
+                  <Text size="md" fw={600}>
+                    {parsedData.length}개 데이터
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    다시 클릭하여 파일 변경
+                  </Text>
+                </div>
+                <ActionIcon
+                  variant="light"
+                  color="red"
+                  size="lg"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleClear()
+                  }}
+                  style={{ pointerEvents: 'auto' }}
+                >
+                  <IconTrash size={18} />
+                </ActionIcon>
+              </Group>
+            )}
           </div>
-        )}
-      </div>
+        </Group>
+      </Dropzone>
 
       {/* Errors */}
       <AnimatePresence>
         {errors.length > 0 && (
           <motion.div
-            className={styles.errorBox}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
           >
-            <div className={styles.errorHeader}>
-              <AlertCircle size={18} />
-              <span>검증 오류 ({errors.length}개)</span>
-            </div>
-            <ul className={styles.errorList}>
-              {errors.slice(0, 5).map((err, idx) => (
-                <li key={idx}>{err}</li>
-              ))}
-              {errors.length > 5 && (
-                <li className={styles.moreErrors}>
-                  ... 외 {errors.length - 5}개 오류
-                </li>
-              )}
-            </ul>
+            <Alert
+              icon={<IconAlertCircle size={18} />}
+              title={`검증 오류 (${errors.length}개)`}
+              color="red"
+              variant="light"
+              radius="md"
+            >
+              <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+                {errors.slice(0, 5).map((err, idx) => (
+                  <li key={idx} style={{ fontSize: '0.8125rem' }}>{err}</li>
+                ))}
+                {errors.length > 5 && (
+                  <li style={{ fontStyle: 'italic', color: 'var(--mantine-color-dimmed)' }}>
+                    ... 외 {errors.length - 5}개 오류
+                  </li>
+                )}
+              </ul>
+            </Alert>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Preview Table */}
       {parsedData.length > 0 && errors.length === 0 && (
-        <div className={styles.previewSection}>
-          <h4 className={styles.previewTitle}>미리보기 (처음 5개)</h4>
-          <div className={styles.tableWrapper}>
-            <table className={styles.previewTable}>
-              <thead>
-                <tr>
+        <Paper withBorder radius="md" p={0}>
+          <Text fw={600} size="sm" p="sm" style={{ borderBottom: '1px solid var(--mantine-color-dark-4)' }}>
+            미리보기 (처음 5개)
+          </Text>
+          <ScrollArea>
+            <Table striped highlightOnHover horizontalSpacing="md" verticalSpacing="sm">
+              <Table.Thead>
+                <Table.Tr>
                   {columns.map(col => (
-                    <th key={col.key}>
+                    <Table.Th key={col.key}>
                       {col.label}
-                      {col.required && <span className={styles.required}>*</span>}
-                    </th>
+                      {col.required && <Badge size="xs" color="red" ml={4}>필수</Badge>}
+                    </Table.Th>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
                 {parsedData.slice(0, 5).map((row, idx) => (
-                  <tr key={idx}>
+                  <Table.Tr key={idx}>
                     {columns.map(col => (
-                      <td key={col.key}>{row[col.key] || '-'}</td>
+                      <Table.Td key={col.key}>{row[col.key] || '-'}</Table.Td>
                     ))}
-                  </tr>
+                  </Table.Tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </Table.Tbody>
+            </Table>
+          </ScrollArea>
+        </Paper>
       )}
 
       {/* Upload Result */}
       <AnimatePresence>
         {uploadResult && (
           <motion.div
-            className={`${styles.resultBox} ${uploadResult.errors.length === 0 ? styles.success : styles.error}`}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            {uploadResult.errors.length === 0 ? (
-              <>
-                <CheckCircle size={20} />
-                <span>{uploadResult.success}개 데이터가 성공적으로 등록되었습니다.</span>
-              </>
-            ) : (
-              <>
-                <AlertCircle size={20} />
-                <div>
-                  <p>{uploadResult.success}개 성공, {uploadResult.errors.length}개 실패</p>
-                  <ul className={styles.resultErrors}>
+            <Alert
+              icon={uploadResult.errors.length === 0 ? <IconCircleCheck size={20} /> : <IconAlertCircle size={20} />}
+              color={uploadResult.errors.length === 0 ? 'green' : 'red'}
+              variant="light"
+              radius="md"
+              withCloseButton
+              onClose={() => setUploadResult(null)}
+            >
+              {uploadResult.errors.length === 0 ? (
+                <Text>{uploadResult.success}개 데이터가 성공적으로 등록되었습니다.</Text>
+              ) : (
+                <>
+                  <Text>{uploadResult.success}개 성공, {uploadResult.errors.length}개 실패</Text>
+                  <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem', fontSize: '0.75rem' }}>
                     {uploadResult.errors.slice(0, 3).map((err, idx) => (
                       <li key={idx}>{err}</li>
                     ))}
                   </ul>
-                </div>
-              </>
-            )}
-            <button
-              className={styles.closeResult}
-              onClick={() => setUploadResult(null)}
-            >
-              <X size={16} />
-            </button>
+                </>
+              )}
+            </Alert>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Upload Button */}
       {parsedData.length > 0 && (
-        <button
-          className={styles.uploadButton}
+        <Button
+          size="md"
+          radius="md"
+          color="pink"
+          leftSection={isUploading ? <Loader size={18} color="white" /> : <IconUpload size={18} />}
           onClick={handleUpload}
           disabled={isUploading || errors.length > 0}
+          fullWidth
         >
-          {isUploading ? (
-            <>
-              <div className={styles.spinner} />
-              업로드 중...
-            </>
-          ) : (
-            <>
-              <Upload size={18} />
-              {parsedData.length}개 데이터 업로드
-            </>
-          )}
-        </button>
+          {isUploading ? '업로드 중...' : `${parsedData.length}개 데이터 업로드`}
+        </Button>
       )}
-    </div>
+    </Stack>
   )
 }

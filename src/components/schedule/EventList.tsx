@@ -3,7 +3,15 @@
 import { motion } from 'framer-motion'
 import { X, Clock, Radio, Users, Megaphone, Calendar } from 'lucide-react'
 import type { ScheduleEvent } from '@/types/common'
-import styles from './Calendar.module.css'
+import {
+  Paper,
+  Group,
+  Stack,
+  Text,
+  ActionIcon,
+  Badge,
+  ThemeIcon,
+} from '@mantine/core'
 
 interface EventListProps {
   date: Date
@@ -51,21 +59,33 @@ export default function EventList({ date, events, onClose }: EventListProps) {
   }
 
   return (
-    <div className={styles.eventList}>
-      <div className={styles.eventListHeader}>
-        <h3 className={styles.eventListTitle}>{formattedDate}</h3>
-        <button onClick={onClose} className={styles.closeButton}>
+    <Paper
+      p="lg"
+      radius="lg"
+      className="bg-[var(--card-bg)] border border-[var(--glass-border)] backdrop-blur-lg"
+    >
+      <Group justify="space-between" align="center" mb="lg" pb="md" className="border-b border-[var(--glass-border)]">
+        <Text size="lg" fw={700} className="text-[var(--text-primary)]">
+          {formattedDate}
+        </Text>
+        <ActionIcon
+          onClick={onClose}
+          variant="subtle"
+          size="lg"
+          radius="xl"
+          className="bg-[var(--glass-bg)] text-[var(--text-muted)] hover:bg-[var(--color-pink)] hover:text-white transition-all"
+        >
           <X size={20} />
-        </button>
-      </div>
+        </ActionIcon>
+      </Group>
 
       {events.length === 0 ? (
-        <div className={styles.noEvents}>
-          <Calendar size={48} strokeWidth={1} />
-          <p>등록된 일정이 없습니다</p>
-        </div>
+        <Stack align="center" justify="center" py="xl" gap="md">
+          <Calendar size={48} strokeWidth={1} className="text-[var(--text-muted)]" />
+          <Text c="dimmed">등록된 일정이 없습니다</Text>
+        </Stack>
       ) : (
-        <div className={styles.eventItems}>
+        <Stack gap="md">
           {events.map((event, index) => {
             const Icon = EVENT_ICONS[event.eventType]
             const color = event.color || EVENT_COLORS[event.eventType] || '#fd68ba'
@@ -76,58 +96,78 @@ export default function EventList({ date, events, onClose }: EventListProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className={styles.eventItemCard}
-                style={{ borderLeftColor: color }}
+                className="flex gap-4 p-5 bg-[var(--overlay-subtle)] rounded-xl transition-all hover:bg-[var(--overlay-medium)] hover:translate-x-1"
+                style={{ borderLeft: `4px solid ${color}` }}
               >
-                <div className={styles.eventIcon} style={{ backgroundColor: color }}>
+                <ThemeIcon
+                  size={40}
+                  radius="md"
+                  style={{ backgroundColor: color }}
+                  className="flex-shrink-0"
+                >
                   <Icon size={16} />
-                </div>
+                </ThemeIcon>
 
-                <div className={styles.eventContent}>
-                  <div className={styles.eventMeta}>
-                    <span
-                      className={styles.eventType}
-                      style={{ backgroundColor: `${color}20`, color }}
+                <div className="flex-1 min-w-0">
+                  <Group gap="xs" mb="xs">
+                    <Badge
+                      size="sm"
+                      variant="light"
+                      style={{
+                        backgroundColor: `${color}20`,
+                        color: color,
+                      }}
                     >
                       {EVENT_LABELS[event.eventType]}
-                    </span>
+                    </Badge>
                     {event.unit && (
-                      <span
-                        className={styles.eventUnit}
-                        data-unit={event.unit}
+                      <Badge
+                        size="sm"
+                        variant="light"
+                        className={
+                          event.unit === 'crew'
+                            ? 'bg-[var(--color-cyan-bg)] text-[var(--color-cyan)]'
+                            : 'bg-[var(--overlay-medium)] text-[var(--text-secondary)]'
+                        }
                       >
                         {event.unit === 'excel' ? '엑셀부' : '크루부'}
-                      </span>
+                      </Badge>
                     )}
-                  </div>
+                  </Group>
 
-                  <h4 className={styles.eventTitle}>{event.title}</h4>
+                  <Text fw={600} className="text-[var(--text-primary)] mb-1">
+                    {event.title}
+                  </Text>
 
                   {event.description && (
-                    <p className={styles.eventDescription}>{event.description}</p>
+                    <Text size="sm" c="dimmed" className="mb-2 leading-relaxed">
+                      {event.description}
+                    </Text>
                   )}
 
-                  <div className={styles.eventDetails}>
+                  <Group gap="md">
                     {!event.isAllDay && (
-                      <span className={styles.eventTime}>
+                      <Group gap="xs" className="text-[var(--text-muted)]">
                         <Clock size={14} />
-                        {formatTime(event.startDatetime)}
-                        {event.endDatetime && ` - ${formatTime(event.endDatetime)}`}
-                      </span>
+                        <Text size="sm">
+                          {formatTime(event.startDatetime)}
+                          {event.endDatetime && ` - ${formatTime(event.endDatetime)}`}
+                        </Text>
+                      </Group>
                     )}
                     {event.isAllDay && (
-                      <span className={styles.eventTime}>
+                      <Group gap="xs" className="text-[var(--text-muted)]">
                         <Clock size={14} />
-                        하루 종일
-                      </span>
+                        <Text size="sm">하루 종일</Text>
+                      </Group>
                     )}
-                  </div>
+                  </Group>
                 </div>
               </motion.div>
             )
           })}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Paper>
   )
 }

@@ -3,13 +3,18 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Crown, Sparkles, ChevronDown } from "lucide-react";
+import { ArrowLeft, Crown, Sparkles, ChevronDown, Calendar } from "lucide-react";
+import Footer from "@/components/Footer";
 import { useRanking } from "@/lib/hooks/useRanking";
+import { mockSeasons } from "@/lib/mock";
 import {
   RankingPodium,
   RankingFullList,
 } from "@/components/ranking";
 import styles from "./page.module.css";
+
+// 현재 활성 시즌 가져오기
+const getCurrentSeason = () => mockSeasons.find(s => s.is_active) || mockSeasons[mockSeasons.length - 1];
 
 export default function TotalRankingPage() {
   const listRef = useRef<HTMLDivElement>(null);
@@ -29,11 +34,12 @@ export default function TotalRankingPage() {
   // 50위까지만 표시
   const top50 = rankings.slice(0, 50);
   const top3 = top50.slice(0, 3);
+  const currentSeason = getCurrentSeason();
 
   return (
-    <main className={styles.main}>
-      {/* Minimal Navigation Bar */}
-      <nav className={styles.pageNav}>
+      <div className={styles.main}>
+        {/* Minimal Navigation Bar */}
+        <nav className={styles.pageNav}>
         <Link href="/" className={styles.backBtn}>
           <ArrowLeft size={18} />
         </Link>
@@ -76,7 +82,7 @@ export default function TotalRankingPage() {
       </div>
 
       <div className={styles.container}>
-        {/* Minimal Filters */}
+        {/* Filters & Season Navigation */}
         <div className={styles.filters}>
           <div className={styles.unitFilter}>
             {(["excel", "crew", "all"] as const).map((unit) => (
@@ -95,6 +101,18 @@ export default function TotalRankingPage() {
                   : "ALL"}
               </button>
             ))}
+          </div>
+
+          {/* Season Info & Link */}
+          <div className={styles.seasonNav}>
+            <span className={styles.currentSeason}>
+              <span className={styles.seasonLive} />
+              {currentSeason.name}
+            </span>
+            <Link href="/ranking/season" className={styles.seasonBtn}>
+              <Calendar size={12} />
+              <span>시즌별 랭킹</span>
+            </Link>
           </div>
         </div>
 
@@ -127,7 +145,8 @@ export default function TotalRankingPage() {
             </section>
           </>
         )}
+        </div>
+        <Footer />
       </div>
-    </main>
   );
 }

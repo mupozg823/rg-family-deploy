@@ -15,13 +15,23 @@
 
 ```
 Frontend: Next.js 16+ (App Router, React 19)
-Styling: CSS Modules + CSS Variables (다크/라이트 모드)
+Styling: Tailwind CSS 4 + CSS Modules + CSS Variables
+UI Components: shadcn/ui (Radix) + Mantine 7
 State: React Hooks + Context API
 Animation: Framer Motion
 Carousel: Embla Carousel
 Icons: Lucide React
 Backend: Supabase
 ```
+
+### UI 라이브러리 용도
+
+| 라이브러리 | 용도 | 예시 |
+|-----------|------|------|
+| **Tailwind CSS 4** | 유틸리티 스타일링 | `className="flex gap-4 p-6"` |
+| **shadcn/ui** | 버튼, 카드, 모달 | `<Button variant="pink">` |
+| **Mantine** | 폼, 테이블, 알림 | `useForm()`, `notifications.show()` |
+| **CSS Modules** | 컴포넌트 고유 스타일 | `styles.hero` |
 
 ---
 
@@ -405,13 +415,38 @@ NEXT_PUBLIC_USE_MOCK_DATA=true  # 개발용
 | `playwright` | E2E 테스트 필요 시 |
 | `serena` | 대규모 심볼 리팩터링 시 |
 
+### Context7 UI 라이브러리 문서 조회
+
+프론트엔드 작업 시 **반드시** Context7로 최신 문서 확인:
+
+```bash
+# Tailwind CSS 4
+context7: resolve tailwindcss -> get /docs/installation
+context7: resolve tailwindcss -> get /docs/theme
+
+# shadcn/ui 컴포넌트
+context7: resolve shadcn-ui -> get /docs/components/button
+context7: resolve shadcn-ui -> get /docs/components/dialog
+context7: resolve shadcn-ui -> get /docs/components/card
+
+# Mantine
+context7: resolve mantine -> get /docs/core/button
+context7: resolve mantine -> get /docs/form/use-form
+context7: resolve mantine -> get /docs/x/notifications
+```
+
+**트리거 조건:**
+- `Tailwind`, `tw-`, `className` 언급 → Tailwind 문서 조회
+- `shadcn`, `ui/`, `Button variant` 언급 → shadcn/ui 문서 조회
+- `Mantine`, `useForm`, `notifications` 언급 → Mantine 문서 조회
+
 ### Claude 스킬 자동 적용
 
 | 스킬 | 트리거 조건 |
 |------|------------|
 | `code-prompt-coach` | 모호하거나 구체성 부족한 요청 |
 | `feature-planner` | 새 기능 구현, 복잡한 작업 |
-| `frontend-design` | UI/CSS/스타일 관련 작업 |
+| `frontend-design` | UI/CSS/Tailwind/shadcn/Mantine 관련 작업 + **Context7 문서 조회** |
 | `software-architecture` | 구조 설계, SOLID 원칙 필요 시 |
 | `test-driven-development` | 테스트 작성 요청 |
 | `kaizen` | 리팩토링, 코드 개선 |

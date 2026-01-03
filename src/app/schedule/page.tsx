@@ -1,3 +1,5 @@
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Calendar } from "@/components/schedule";
 import styles from "./page.module.css";
 
@@ -16,7 +18,8 @@ const EVENT_TYPES = [
 
 export default function SchedulePage() {
   return (
-    <main className={styles.main}>
+    <div className={styles.main}>
+      <Navbar />
       <div className={styles.hero}>
         <span className={styles.heroBadge}>CALENDAR</span>
         <h1 className={styles.title}>SCHEDULE</h1>
@@ -36,6 +39,7 @@ export default function SchedulePage() {
         </div>
       </div>
       <Calendar />
-    </main>
+      <Footer />
+    </div>
   );
 }

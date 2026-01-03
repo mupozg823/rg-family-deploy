@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Pin, Search, Eye, ChevronDown, Bell } from 'lucide-react'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 import { useSupabaseContext } from '@/lib/context'
 import { mockNotices } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
@@ -115,17 +117,18 @@ export default function NoticePage() {
   const normalNotices = filteredNotices.filter(n => !n.isPinned)
 
   return (
-    <main className={styles.main}>
-      {/* Hero Section */}
-      <section className={styles.hero}>
-        <div className={styles.heroContent}>
-          <div className={styles.heroIcon}>
-            <Bell size={32} />
+      <div className={styles.main}>
+        <Navbar />
+        {/* Hero Section */}
+        <section className={styles.hero}>
+          <div className={styles.heroContent}>
+            <div className={styles.heroIcon}>
+              <Bell size={32} />
+            </div>
+            <h1 className={styles.title}>공지사항</h1>
+            <p className={styles.subtitle}>RG FAMILY 공식 공지 및 소식</p>
           </div>
-          <h1 className={styles.title}>공지사항</h1>
-          <p className={styles.subtitle}>RG FAMILY 공식 공지 및 소식</p>
-        </div>
-      </section>
+        </section>
 
       <div className={styles.container}>
         {/* Board Header */}
@@ -361,7 +364,8 @@ export default function NoticePage() {
             </div>
           </>
         )}
+        </div>
+        <Footer />
       </div>
-    </main>
   )
 }

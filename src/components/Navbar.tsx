@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, User, LogIn } from "lucide-react";
+import { ChevronDown, User, LogIn, Crown } from "lucide-react";
 import { useAuthContext } from "@/lib/context";
+import { hasHonorPageQualification } from "@/lib/mock";
+import { USE_MOCK_DATA } from "@/lib/config";
 import ThemeToggle from "./ThemeToggle";
 import styles from "./Navbar.module.css";
 
@@ -59,6 +61,19 @@ export default function Navbar() {
   const { user, profile } = useAuthContext();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // VIP 자격 확인 (시즌 TOP 3 또는 회차별 고액 후원자 또는 admin)
+  const isVipQualified = useMemo(() => {
+    if (!user) return false;
+    // Admin은 항상 VIP 접근 가능
+    if (profile?.role === 'admin') return true;
+    // Mock 모드에서 HallOfFame 자격 확인
+    if (USE_MOCK_DATA) {
+      return hasHonorPageQualification(user.id);
+    }
+    // TODO: Supabase에서 VIP 자격 확인
+    return false;
+  }, [user, profile]);
 
   const handleMouseEnter = (label: string) => {
     setActiveDropdown(label);
@@ -131,6 +146,13 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className={styles.actions}>
+          {/* VIP Button - 자격이 있는 사용자에게만 표시 */}
+          {isVipQualified && (
+            <Link href={`/ranking/${user?.id}`} className={styles.vipBtn}>
+              <Crown size={14} />
+              <span>VIP</span>
+            </Link>
+          )}
           <ThemeToggle />
           {user ? (
             <Link href="/mypage" className={styles.profileButton}>
@@ -165,6 +187,17 @@ export default function Navbar() {
         <div className={styles.mobileMenu}>
           {/* Mobile Actions */}
           <div className={styles.mobileActions}>
+            {/* VIP Button - 모바일 */}
+            {isVipQualified && (
+              <Link
+                href={`/ranking/${user?.id}`}
+                className={styles.vipBtn}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Crown size={14} />
+                <span>VIP</span>
+              </Link>
+            )}
             {user ? (
               <Link
                 href="/mypage"

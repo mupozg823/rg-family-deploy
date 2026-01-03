@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { MessageSquare, Eye, ChevronRight, Crown, Lock } from 'lucide-react'
+import { PageLayout } from '@/components/layout'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 import { useSupabaseContext, useAuthContext } from '@/lib/context'
 import { mockPosts, mockProfiles } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
@@ -99,17 +102,19 @@ export default function VipBoardPage() {
 
 
   return (
-    <main className={styles.main}>
-      {/* VIP Hero Section */}
-      <section className={`${styles.hero} ${styles.vipHero}`}>
-        <div className={styles.heroContent}>
-          <div className={styles.vipTitleRow}>
-            <Crown size={32} className={styles.vipCrown} />
-            <h1 className={styles.title}>VIP LOUNGE</h1>
+    <PageLayout>
+      <div className={styles.main}>
+        <Navbar />
+        {/* VIP Hero Section */}
+        <section className={`${styles.hero} ${styles.vipHero}`}>
+          <div className={styles.heroContent}>
+            <div className={styles.vipTitleRow}>
+              <Crown size={32} className={styles.vipCrown} />
+              <h1 className={styles.title}>VIP LOUNGE</h1>
+            </div>
+            <p className={styles.subtitle}>VIP 후원자 전용 프리미엄 커뮤니티</p>
           </div>
-          <p className={styles.subtitle}>VIP 후원자 전용 프리미엄 커뮤니티</p>
-        </div>
-      </section>
+        </section>
 
       <div className={styles.container}>
         <TabFilter tabs={tabs} activeTab="vip" />
@@ -190,7 +195,9 @@ export default function VipBoardPage() {
             </button>
           </div>
         )}
+        </div>
+        <Footer />
       </div>
-    </main>
+    </PageLayout>
   )
 }

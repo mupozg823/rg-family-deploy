@@ -1,79 +1,91 @@
 'use client'
 
 import { useState, useEffect, useCallback, use } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
-import { Play, Download, User, Crown, Calendar, Gift, MessageCircle, ArrowLeft, Trophy, Star } from 'lucide-react'
 import Image from 'next/image'
+import {
+  Crown,
+  Play,
+  Heart,
+  ArrowLeft,
+  Trophy,
+  Star,
+  Sparkles,
+  Film,
+  Download,
+  Video,
+  ImageIcon,
+  Upload,
+} from 'lucide-react'
+import Footer from '@/components/Footer'
 import { useSupabaseContext } from '@/lib/context'
 import { USE_MOCK_DATA } from '@/lib/config'
 import {
   mockProfiles,
   mockVipRewards,
   getVipRewardByProfileId,
-  getVipTributeByUserId,
-  isTop3Rank,
+  getHallOfFameByUserId,
+  type HallOfFameHonor,
 } from '@/lib/mock'
-import type { VipPageData, VipTributeData, JoinedSeason } from '@/types/common'
-import {
-  TributeHero,
-  TributeMessage,
-  TributeGallery,
-  TributeDonationTimeline,
-  TributeBadge,
-} from '@/components/tribute'
 import styles from './page.module.css'
 
-export default function VipPage({ params }: { params: Promise<{ userId: string }> }) {
+export default function TributePage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = use(params)
   const supabase = useSupabaseContext()
-  const [data, setData] = useState<VipPageData | null>(null)
-  const [tributeData, setTributeData] = useState<VipTributeData | null>(null)
+  const [hallOfFameData, setHallOfFameData] = useState<HallOfFameHonor[] | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [showGate, setShowGate] = useState(true)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
 
-  const fetchVipData = useCallback(async () => {
+  // 2.5초 후 자동으로 게이트 열림
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowGate(false)
+    }, 2500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const fetchTributeData = useCallback(async () => {
     setIsLoading(true)
 
     // Mock 데이터 모드
     if (USE_MOCK_DATA) {
-      // 먼저 Top 1-3 Tribute 데이터 확인
-      const tribute = getVipTributeByUserId(userId)
-      if (tribute) {
-        setTributeData(tribute)
+      // 명예의 전당 데이터 확인 (시즌 TOP 3 + 회차별 고액 후원자)
+      const hofData = getHallOfFameByUserId(userId)
+      if (hofData && hofData.length > 0) {
+        setHallOfFameData(hofData)
         setIsLoading(false)
         return
       }
 
-      // 일반 VIP 데이터
+      // 일반 VIP 데이터 (fallback)
       const mockProfile = mockProfiles.find(p => p.id === userId) || mockProfiles[0]
       const mockReward = getVipRewardByProfileId(userId) || mockVipRewards[0]
 
-      setData({
-        profile: {
-          id: mockProfile.id,
-          nickname: mockProfile.nickname,
-          avatarUrl: mockProfile.avatar_url || null,
-          totalDonation: mockProfile.total_donation,
-        },
-        reward: {
-          seasonId: mockReward.seasonId,
-          seasonName: '시즌 4',
-          rank: mockReward.rank,
-          personalMessage: mockReward.personalMessage,
-          dedicationVideoUrl: mockReward.dedicationVideoUrl,
-        },
-        images: mockReward.giftImages.map(img => ({
-          id: img.id,
-          imageUrl: img.url,
-          title: img.title,
-        })),
-        donationHistory: [],
-      })
+      // 일반 VIP도 HallOfFame 형식으로 변환
+      const fallbackHofData: HallOfFameHonor[] = [{
+        id: `fallback-${mockProfile.id}`,
+        donorId: mockProfile.id,
+        donorName: mockProfile.nickname,
+        donorAvatar: mockProfile.avatar_url || '',
+        honorType: 'season_top3',
+        rank: mockReward?.rank || 1,
+        seasonId: 4,
+        seasonName: '시즌 4',
+        amount: mockProfile.total_donation,
+        unit: mockProfile.unit as 'excel' | 'crew' | null,
+        tributeMessage: mockReward?.personalMessage ?? undefined,
+        tributeVideoUrl: mockReward?.dedicationVideoUrl ?? undefined,
+        tributeImageUrl: mockReward?.giftImages?.[0]?.url,
+        createdAt: new Date().toISOString(),
+      }]
+      setHallOfFameData(fallbackHofData)
       setIsLoading(false)
       return
     }
 
+    // Supabase 모드 (TODO: 실제 구현)
     try {
       // 프로필 정보
       const { data: profile } = await supabase
@@ -87,79 +99,17 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
         return
       }
 
-      // VIP 보상 정보
-      const { data: reward } = await supabase
-        .from('vip_rewards')
-        .select('*, seasons(name)')
-        .eq('profile_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-
-      // Top 3 체크 - Supabase 환경에서도 Tribute 페이지 지원
-      if (reward && isTop3Rank(reward.rank)) {
-        // TODO: Supabase에서 Tribute 데이터 구조 구현
-        // 현재는 Mock 데이터만 지원
-      }
-
-      // VIP 이미지
-      const { data: images } = await supabase
-        .from('vip_images')
-        .select('*')
-        .eq('reward_id', reward?.id || 0)
-        .order('order_index')
-
-      // 후원 히스토리
-      const { data: donations } = await supabase
-        .from('donations')
-        .select('id, amount, message, created_at')
-        .eq('donor_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(10)
-
-      const rewardSeason = reward?.seasons as JoinedSeason | null
-      setData({
-        profile: {
-          id: profile.id,
-          nickname: profile.nickname,
-          avatarUrl: profile.avatar_url,
-          totalDonation: profile.total_donation,
-        },
-        reward: reward ? {
-          seasonId: reward.season_id,
-          seasonName: rewardSeason?.name || '',
-          rank: reward.rank,
-          personalMessage: reward.personal_message,
-          dedicationVideoUrl: reward.dedication_video_url,
-        } : {
-          seasonId: 0,
-          seasonName: '',
-          rank: 0,
-          personalMessage: null,
-          dedicationVideoUrl: null,
-        },
-        images: (images || []).map(img => ({
-          id: img.id,
-          imageUrl: img.image_url,
-          title: img.title,
-        })),
-        donationHistory: (donations || []).map(d => ({
-          id: d.id,
-          amount: d.amount,
-          message: d.message,
-          createdAt: d.created_at,
-        })),
-      })
+      // TODO: Supabase에서 Hall of Fame 데이터 구조 구현
+      setIsLoading(false)
     } catch (error) {
-      console.error('VIP 데이터 로드 실패:', error)
+      console.error('Tribute 데이터 로드 실패:', error)
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }, [supabase, userId])
 
   useEffect(() => {
-    fetchVipData()
-  }, [fetchVipData])
+    fetchTributeData()
+  }, [fetchTributeData])
 
   // 하트 단위로 표시 (팬더티비 후원 형식)
   const formatAmount = (amount: number) => {
@@ -172,342 +122,411 @@ export default function VipPage({ params }: { params: Promise<{ userId: string }
     return `${amount.toLocaleString()} 하트`
   }
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-
+  // 로딩 중
   if (isLoading) {
     return (
-      <main className={styles.main}>
+      <div className={styles.main}>
         <div className={styles.loading}>
           <div className={styles.spinner} />
-          <span>VIP 페이지를 불러오는 중...</span>
+          <span>헌정 페이지 확인 중...</span>
         </div>
-      </main>
+        <Footer />
+      </div>
     )
   }
 
-  // ========================================
-  // Top 1-3 Tribute Page (특별 헌정 페이지)
-  // ========================================
-  if (tributeData) {
+  // 데이터 없음
+  if (!hallOfFameData || hallOfFameData.length === 0) {
     return (
-      <main className={`${styles.main} ${styles.tributeMain}`}>
-        {/* Tribute Hero */}
-        <TributeHero
-          profile={tributeData.profile}
-          theme={tributeData.theme}
-          rank={tributeData.rank}
-          seasonName={tributeData.seasonName}
-        />
-
-        {/* Special Badges */}
-        <motion.div
-          className={styles.badgesSection}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className={styles.badgesContainer}>
-            {tributeData.specialBadges.map((badge, index) => (
-              <TributeBadge
-                key={index}
-                theme={tributeData.theme}
-                label={badge}
-                variant="glow"
-                size="md"
-              />
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Personal Message */}
-        <TributeMessage
-          message={tributeData.personalMessage}
-          signature={tributeData.streamerSignature}
-          theme={tributeData.theme}
-        />
-
-        {/* Exclusive Gallery */}
-        {tributeData.exclusiveGallery.length > 0 && (
-          <TributeGallery
-            images={tributeData.exclusiveGallery}
-            theme={tributeData.theme}
-          />
-        )}
-
-        {/* Donation Timeline */}
-        {tributeData.donationTimeline.length > 0 && (
-          <TributeDonationTimeline
-            donations={tributeData.donationTimeline}
-            theme={tributeData.theme}
-          />
-        )}
-      </main>
-    )
-  }
-
-  // ========================================
-  // Regular VIP Page (일반 VIP 페이지)
-  // ========================================
-  if (!data) {
-    return (
-      <main className={styles.main}>
+      <div className={styles.main}>
         <div className={styles.empty}>
-          <p>VIP 정보를 찾을 수 없습니다</p>
-        </div>
-      </main>
-    )
-  }
-
-  return (
-    <main className={styles.main}>
-      {/* Page Navigation - Reference Style */}
-      <nav className={styles.pageNav}>
-        <Link href="/ranking/vip" className={styles.backBtn}>
-          <ArrowLeft size={18} />
-          <span>VIP</span>
-        </Link>
-        <div className={styles.navTitle}>
-          <Crown size={16} />
-          <span>VIP LOUNGE</span>
-        </div>
-        <div className={styles.navActions}>
-          <Link href="/ranking" className={styles.navBtn}>
-            <Trophy size={16} />
-            <span>랭킹</span>
+          <Crown size={48} />
+          <p>헌정 페이지 정보를 찾을 수 없습니다</p>
+          <Link href="/ranking" className={styles.backBtn}>
+            <ArrowLeft size={18} />
+            <span>랭킹으로 돌아가기</span>
           </Link>
         </div>
-      </nav>
+        <Footer />
+      </div>
+    )
+  }
 
-      {/* Hero Section - Welcome Area */}
-      <div className={styles.hero}>
-        <motion.div
-          className={styles.heroContent}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          {/* Welcome Text */}
-          <motion.span
-            className={styles.welcomeText}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            Welcome, VIP
-          </motion.span>
+  const primaryHonor = hallOfFameData[0]
+  const isSeasonTop3 = primaryHonor.honorType === 'season_top3'
+  const badgeText = isSeasonTop3
+    ? `${primaryHonor.seasonName} TOP ${primaryHonor.rank}`
+    : 'LEGENDARY SUPPORTER'
 
-          {/* Season Badge */}
-          {data.reward.seasonName && (
-            <motion.span
-              className={styles.seasonBadge}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
+  return (
+      <div className={styles.main}>
+        {/* Entrance Gate Animation */}
+        <AnimatePresence>
+          {showGate && (
+            <motion.div
+              className={styles.gateOverlay}
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
+              transition={{ duration: 0.8 }}
+              onClick={() => setShowGate(false)}
             >
-              <Calendar size={14} />
-              {data.reward.seasonName}
-            </motion.span>
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 1.5, opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className={styles.gateIcon}
+              >
+                <Crown size={80} strokeWidth={1} />
+              </motion.div>
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -20, opacity: 0 }}
+                transition={{ delay: 0.2 }}
+                className={styles.gateText}
+              >
+                TRIBUTE PAGE
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ delay: 0.4 }}
+                className={styles.gateSubtext}
+              >
+                {primaryHonor.donorName}
+              </motion.div>
+            </motion.div>
           )}
+        </AnimatePresence>
 
-          {/* Avatar */}
+        {/* Navigation Bar */}
+        <nav className={styles.pageNav}>
+          <Link href="/ranking" className={styles.backBtn}>
+            <ArrowLeft size={18} />
+            <span>랭킹</span>
+          </Link>
+          <div className={styles.navTitle}>
+            <Trophy size={18} />
+            <span>TRIBUTE PAGE</span>
+          </div>
+          <div className={styles.navActions}>
+            <Link href="/ranking" className={styles.navBtn}>
+              <Trophy size={16} />
+              <span>랭킹</span>
+            </Link>
+            <Link href="/" className={styles.navBtn}>
+              <span>홈</span>
+            </Link>
+          </div>
+        </nav>
+
+        {/* Hero */}
+        <div className={styles.hero}>
           <motion.div
-            className={styles.avatar}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
+            className={styles.heroContent}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
           >
-            {data.profile.avatarUrl ? (
-              <Image
-                src={data.profile.avatarUrl}
-                alt={data.profile.nickname}
-                fill
-                className={styles.avatarImage}
-              />
-            ) : (
-              <User size={48} />
-            )}
-            {data.reward.rank > 0 && (
-              <div className={styles.rankBadge}>
-                <Crown size={16} />
-                <span>VIP</span>
-              </div>
-            )}
+            <div className={styles.vipBadge}>
+              {isSeasonTop3 ? <Crown size={20} /> : <Star size={20} />}
+              <span>{badgeText}</span>
+            </div>
+            <h1 className={styles.heroTitle}>{primaryHonor.donorName}</h1>
+            <p className={styles.heroSubtitle}>
+              총 후원: <strong>{formatAmount(primaryHonor.amount)}</strong>
+            </p>
           </motion.div>
 
-          {/* Name & Stats */}
-          <motion.h1
-            className={styles.name}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            {data.profile.nickname}
-          </motion.h1>
-          <motion.p
-            className={styles.stats}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            총 후원: <strong>{formatAmount(data.profile.totalDonation)}</strong>
-            {data.reward.rank > 0 && (
-              <span className={styles.rank}> (랭킹 {data.reward.rank}위)</span>
-            )}
-          </motion.p>
-        </motion.div>
-
-        {/* Background Decoration - Particles & Glow */}
-        <div className={styles.heroDecoration}>
-          <div className={styles.glow} />
-          <div className={styles.particles}>
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className={styles.particle} />
-            ))}
-          </div>
-          <div className={styles.rings}>
-            <div className={styles.ring} />
-            <div className={styles.ring} />
-            <div className={styles.ring} />
+          <div className={styles.heroDecoration}>
+            <div className={styles.glow} />
+            <Star className={styles.star1} size={24} />
+            <Star className={styles.star2} size={16} />
+            <Star className={styles.star3} size={20} />
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className={styles.container}>
-        <div className={styles.grid}>
-          {/* Personal Message */}
-          {data.reward.personalMessage && (
+        <div className={styles.container}>
+          {/* Thank You Message */}
+          {primaryHonor.tributeMessage && (
             <motion.section
               className={styles.messageSection}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <div className={styles.sectionHeader}>
+                <Heart size={20} />
+                <h2>TO. {primaryHonor.donorName}</h2>
+              </div>
+              <div className={styles.messageCard}>
+                <p>{primaryHonor.tributeMessage}</p>
+              </div>
+            </motion.section>
+          )}
+
+          {/* Exclusive Content - Tribute Video */}
+          {primaryHonor.tributeVideoUrl && (
+            <motion.section
+              className={styles.exclusiveSection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <div className={styles.sectionHeader}>
+                <Film size={20} />
+                <h2>EXCLUSIVE VIDEO</h2>
+              </div>
+              <div className={styles.exclusiveContent}>
+                <div className={styles.exclusiveInner}>
+                  <div
+                    className={styles.exclusiveVideo}
+                    onClick={() => setIsVideoPlaying(true)}
+                  >
+                    {isVideoPlaying ? (
+                      <video
+                        src={primaryHonor.tributeVideoUrl}
+                        controls
+                        autoPlay
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <>
+                        <div className={styles.exclusiveBadge}>
+                          <Crown size={12} />
+                          TRIBUTE
+                        </div>
+                        <button className={styles.exclusivePlayBtn}>
+                          <Play size={32} />
+                        </button>
+                        <span className={styles.exclusiveLabel}>
+                          {primaryHonor.donorName} 헌정 영상
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.section>
+          )}
+
+          {/* Member Thank You Videos */}
+          {primaryHonor.memberVideos && primaryHonor.memberVideos.length > 0 && (
+            <motion.section
+              className={styles.videosSection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
               <div className={styles.sectionHeader}>
-                <MessageCircle size={20} />
-                <h2>TO. {data.profile.nickname}</h2>
+                <Play size={20} />
+                <h2>멤버 감사 영상</h2>
               </div>
-              <div className={styles.messageCard}>
-                <p className={styles.messageText}>{data.reward.personalMessage}</p>
+              <div className={styles.videosGrid}>
+                {primaryHonor.memberVideos.map((video) => (
+                  <div key={video.id} className={styles.videoCard}>
+                    <div className={styles.videoThumbnail}>
+                      <div className={styles.videoPlaceholder}>
+                        <Play size={32} />
+                      </div>
+                      <div
+                        className={styles.unitBadge}
+                        data-unit={video.memberUnit}
+                      >
+                        {video.memberUnit === 'excel' ? 'EXCEL' : 'CREW'}
+                      </div>
+                    </div>
+                    <div className={styles.videoInfo}>
+                      <h3>{video.memberName}</h3>
+                      <p>{video.message}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </motion.section>
           )}
 
-          {/* Dedication Video */}
-          {data.reward.dedicationVideoUrl && (
+          {/* Member Videos Empty State (Admin Upload Placeholder) */}
+          {(!primaryHonor.memberVideos || primaryHonor.memberVideos.length === 0) && (
             <motion.section
-              className={styles.videoSection}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
+              className={styles.emptySection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className={styles.emptySectionContent}>
+                <Video size={32} />
+                <h3>멤버 감사 영상</h3>
+                <p>아직 등록된 감사 영상이 없습니다</p>
+                <span className={styles.adminHint}>Admin에서 영상을 업로드할 수 있습니다</span>
+              </div>
+            </motion.section>
+          )}
+
+          {/* Tribute Images Gallery */}
+          {primaryHonor.tributeImages && primaryHonor.tributeImages.length > 0 && (
+            <motion.section
+              className={styles.gallerySection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              <div className={styles.sectionHeader}>
+                <ImageIcon size={20} />
+                <h2>감사 포토</h2>
+              </div>
+              <div className={styles.galleryGrid}>
+                {primaryHonor.tributeImages.map((imageUrl, index) => (
+                  <a
+                    key={index}
+                    href={imageUrl}
+                    download
+                    className={styles.galleryCard}
+                  >
+                    <Image
+                      src={imageUrl}
+                      alt={`Tribute Photo ${index + 1}`}
+                      fill
+                      className={styles.galleryImage}
+                      unoptimized
+                    />
+                    <div className={styles.galleryOverlay}>
+                      <Download size={20} />
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </motion.section>
+          )}
+
+          {/* Gallery Empty State (Admin Upload Placeholder) */}
+          {(!primaryHonor.tributeImages || primaryHonor.tributeImages.length === 0) && !primaryHonor.tributeImageUrl && (
+            <motion.section
+              className={styles.emptySection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              <div className={styles.emptySectionContent}>
+                <ImageIcon size={32} />
+                <h3>감사 포토</h3>
+                <p>아직 등록된 감사 사진이 없습니다</p>
+                <span className={styles.adminHint}>Admin에서 이미지를 업로드할 수 있습니다</span>
+              </div>
+            </motion.section>
+          )}
+
+          {/* VIP SECRET - Exclusive Signature Reactions */}
+          {primaryHonor.exclusiveSignatures && primaryHonor.exclusiveSignatures.length > 0 && (
+            <motion.section
+              className={styles.signaturesSection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className={styles.secretHeader}>
+                <div className={styles.secretBadge}>
+                  <Sparkles size={16} />
+                  <span>VIP SECRET</span>
+                </div>
+                <h2>VIP Exclusive Signature Reactions</h2>
+                <p>{primaryHonor.donorName}님을 위한 전용 시그니처 리액션</p>
+              </div>
+              <div className={styles.signaturesGrid}>
+                {primaryHonor.exclusiveSignatures.map((sig) => (
+                  <div key={sig.id} className={styles.signatureCard}>
+                    <div className={styles.signaturePlaceholder}>
+                      <Video size={24} />
+                      <span className={styles.signatureName}>{sig.memberName}</span>
+                      <Play size={16} className={styles.playIcon} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.section>
+          )}
+
+          {/* Signatures Empty State (Admin Upload Placeholder) */}
+          {(!primaryHonor.exclusiveSignatures || primaryHonor.exclusiveSignatures.length === 0) && (
+            <motion.section
+              className={styles.emptySection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className={styles.emptySectionContent}>
+                <Sparkles size={32} />
+                <h3>VIP 전용 시그니처</h3>
+                <p>아직 등록된 시그니처 리액션이 없습니다</p>
+                <span className={styles.adminHint}>Admin에서 시그니처를 업로드할 수 있습니다</span>
+              </div>
+            </motion.section>
+          )}
+
+          {/* Legacy: Single Tribute Image (fallback) */}
+          {primaryHonor.tributeImageUrl && (!primaryHonor.tributeImages || primaryHonor.tributeImages.length === 0) && (
+            <motion.section
+              className={styles.gallerySection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+            >
+              <div className={styles.sectionHeader}>
+                <ImageIcon size={20} />
+                <h2>감사 포토</h2>
+              </div>
+              <div className={styles.galleryGrid}>
+                <a
+                  href={primaryHonor.tributeImageUrl}
+                  download
+                  className={styles.galleryCard}
+                >
+                  <Image
+                    src={primaryHonor.tributeImageUrl}
+                    alt="Exclusive Signature"
+                    fill
+                    className={styles.galleryImage}
+                    unoptimized
+                  />
+                  <div className={styles.galleryOverlay}>
+                    <Download size={20} />
+                  </div>
+                </a>
+              </div>
+            </motion.section>
+          )}
+
+          {/* Hall of Fame History */}
+          {hallOfFameData.length > 1 && (
+            <motion.section
+              className={styles.historySection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
               <div className={styles.sectionHeader}>
-                <Play size={20} />
-                <h2>헌정 영상</h2>
+                <Trophy size={20} />
+                <h2>명예의 전당 기록</h2>
               </div>
-              <div className={styles.videoWrapper}>
-                {isVideoPlaying ? (
-                  <video
-                    src={data.reward.dedicationVideoUrl}
-                    controls
-                    autoPlay
-                    className={styles.video}
-                  />
-                ) : (
-                  <div className={styles.videoThumbnail}>
-                    <button
-                      onClick={() => setIsVideoPlaying(true)}
-                      className={styles.playButton}
-                    >
-                      <Play size={32} fill="white" />
-                    </button>
+              <div className={styles.historyList}>
+                {hallOfFameData.map((honor) => (
+                  <div key={honor.id} className={styles.historyItem}>
+                    <span className={styles.historyDate}>
+                      {honor.honorType === 'season_top3'
+                        ? `${honor.seasonName} TOP ${honor.rank}`
+                        : honor.episodeName}
+                    </span>
+                    <span className={styles.historyAmount}>
+                      {formatAmount(honor.amount)}
+                    </span>
                   </div>
-                )}
+                ))}
               </div>
             </motion.section>
           )}
         </div>
-
-        {/* Gift Images / VIP Exclusive Signatures */}
-        {data.images.length > 0 && (
-          <motion.section
-            className={styles.imagesSection}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <div className={styles.sectionHeader}>
-              <Gift size={20} />
-              <h2>VIP Exclusive Signatures</h2>
-            </div>
-            <div className={styles.imagesGrid}>
-              {data.images.map((image) => (
-                <a
-                  key={image.id}
-                  href={image.imageUrl}
-                  download
-                  className={styles.imageCard}
-                >
-                  <div className={styles.giftImageWrapper}>
-                    <Image
-                      src={image.imageUrl}
-                      alt={image.title || 'Signature'}
-                      fill
-                      className={styles.giftImage}
-                    />
-                    <div className={styles.imageOverlay}>
-                      <Download size={24} />
-                      <span>다운로드</span>
-                    </div>
-                  </div>
-                  {image.title && (
-                    <div className={styles.imageCardTitle}>
-                      <span>{image.title}</span>
-                    </div>
-                  )}
-                </a>
-              ))}
-            </div>
-          </motion.section>
-        )}
-
-        {/* Donation History */}
-        {data.donationHistory.length > 0 && (
-          <motion.section
-            className={styles.historySection}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div className={styles.sectionHeader}>
-              <Calendar size={20} />
-              <h2>후원 히스토리</h2>
-            </div>
-            <div className={styles.historyList}>
-              {data.donationHistory.map((donation) => (
-                <div key={donation.id} className={styles.historyItem}>
-                  <span className={styles.historyDate}>
-                    {formatDate(donation.createdAt)}
-                  </span>
-                  <span className={styles.historyAmount}>
-                    {formatAmount(donation.amount)}
-                  </span>
-                  {donation.message && (
-                    <span className={styles.historyMessage}>
-                      &quot;{donation.message}&quot;
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </motion.section>
-        )}
+        <Footer />
       </div>
-    </main>
   )
 }

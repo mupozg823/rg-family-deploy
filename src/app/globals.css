@@ -1,5 +1,27 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 
+@import "tailwindcss";
+
+/* Tailwind CSS 4.x Theme Configuration */
+@theme {
+  /* Brand Colors */
+  --color-primary: #fd68ba;
+  --color-primary-light: #ff8ed4;
+  --color-primary-deep: #fb37a3;
+
+  /* Live Status */
+  --color-live: #00d4ff;
+
+  /* Ranking Colors */
+  --color-gold: #ffd700;
+  --color-silver: #c0c0c0;
+  --color-bronze: #cd7f32;
+
+  /* Fonts */
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 /* ============================================
    RG Family Design System v2.0
    Theme: Premium Dark (High-End Brand Reference)
@@ -103,6 +125,30 @@
   --radius-3xl: 24px;
   --radius-full: 9999px;
 
+  /* ============================================
+     shadcn/ui HSL Variables
+     ============================================ */
+  --radius: 0.5rem;
+  --background: 0 0% 3%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 98%;
+  --popover: 0 0% 5%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 330 90% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 64%;
+  --accent: 0 0% 15%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 15%;
+  --input: 0 0% 15%;
+  --ring: 330 90% 60%;
+
   /* Layout */
   --max-width: 1280px;
   --max-width-wide: 1440px;
@@ -150,6 +196,11 @@
 
   --color-collab: #60a5fa;
   --color-collab-bg: rgba(96, 165, 250, 0.15);
+
+  /* Legacy/Component Specific Colors */
+  --red: #ef4444;
+  --logo-bg: var(--color-pink);
+  --logo-text: #ffffff;
 
   /* Overlay for modal */
   --modal-overlay: rgba(0, 0, 0, 0.7);
@@ -669,6 +720,11 @@
   --hero-glow: radial-gradient(ellipse at center, rgba(196, 30, 127, 0.1) 0%, transparent 60%);
   --hero-padding: var(--space-16) var(--space-8) var(--space-12);
   --hero-padding-mobile: var(--space-12) var(--space-4) var(--space-8);
+
+  /* Legacy/Component Specific Colors - Light Mode */
+  --red: #dc2626;
+  --logo-bg: var(--color-pink);
+  --logo-text: #ffffff;
 }
 
 /* ============================================

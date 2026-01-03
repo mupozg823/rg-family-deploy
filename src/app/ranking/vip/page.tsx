@@ -17,6 +17,7 @@ import {
   Video,
 } from "lucide-react";
 import Link from "next/link";
+import Footer from "@/components/Footer";
 import { useAuthContext } from "@/lib/context";
 import { useRanking } from "@/lib/hooks/useRanking";
 import { mockVipContent, type VipContent } from "@/lib/mock";
@@ -88,19 +89,20 @@ export default function VipLoungePage() {
   // 로딩 중
   if (authLoading || isLoading) {
     return (
-      <main className={styles.main}>
+      <div className={styles.main}>
         <div className={styles.loading}>
           <div className={styles.spinner} />
           <span>VIP 라운지 확인 중...</span>
         </div>
-      </main>
+        <Footer />
+      </div>
     );
   }
 
   // 비로그인 상태
   if (!isAuthenticated) {
     return (
-      <main className={styles.main}>
+      <div className={styles.main}>
         <div className={styles.accessDenied}>
           <div className={styles.lockIcon}>
             <Lock size={48} />
@@ -111,14 +113,15 @@ export default function VipLoungePage() {
             로그인하기
           </Link>
         </div>
-      </main>
+        <Footer />
+      </div>
     );
   }
 
   // VIP 아닌 경우 (Top 50 이외)
   if (!isVip) {
     return (
-      <main className={styles.main}>
+      <div className={styles.main}>
         <div className={styles.accessDenied}>
           <div className={styles.lockIcon}>
             <Lock size={48} />
@@ -139,12 +142,13 @@ export default function VipLoungePage() {
             </Link>
           </div>
         </div>
-      </main>
+        <Footer />
+      </div>
     );
   }
 
   return (
-    <main className={styles.main}>
+    <div className={styles.main}>
       <AnimatePresence>
         {showGate && (
           <motion.div
@@ -412,7 +416,8 @@ export default function VipLoungePage() {
             ))}
           </div>
         </motion.section>
+        </div>
+        <Footer />
       </div>
-    </main>
   );
 }

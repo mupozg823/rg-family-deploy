@@ -5,6 +5,8 @@ import { User, ChevronRight, Medal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RankingItem } from "@/types/common";
+import { hasHonorPageQualification } from "@/lib/mock";
+import { USE_MOCK_DATA } from "@/lib/config";
 import styles from "./RankingList.module.css";
 
 interface RankingListProps {
@@ -115,11 +117,15 @@ export default function RankingList({
             </motion.div>
           );
 
-          if (item.donorId) {
+          // 시즌 TOP 3 또는 회차별 고액 후원자만 개인 헌정 페이지로 이동 가능
+          const hasHonorPage = actualRank <= 3 ||
+            (USE_MOCK_DATA && item.donorId && hasHonorPageQualification(item.donorId));
+
+          if (item.donorId && hasHonorPage) {
             return (
               <Link
                 key={item.donorId || index}
-                href={`/ranking/vip/${item.donorId}`}
+                href={`/ranking/${item.donorId}`}
                 className={styles.link}
               >
                 {ItemContent}

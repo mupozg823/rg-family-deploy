@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { LucideIcon } from 'lucide-react'
-import styles from './StatsCard.module.css'
+import { Paper, ThemeIcon, Text, Group, Stack, Badge } from '@mantine/core'
 
 interface StatsCardProps {
   title: string
@@ -13,6 +13,13 @@ interface StatsCardProps {
   delay?: number
 }
 
+const colorMap = {
+  primary: { bg: 'pink', iconColor: 'pink' },
+  success: { bg: 'green', iconColor: 'green' },
+  warning: { bg: 'yellow', iconColor: 'yellow' },
+  info: { bg: 'cyan', iconColor: 'cyan' },
+}
+
 export default function StatsCard({
   title,
   value,
@@ -21,25 +28,60 @@ export default function StatsCard({
   color = 'primary',
   delay = 0,
 }: StatsCardProps) {
+  const colorConfig = colorMap[color]
+
   return (
     <motion.div
-      className={`${styles.card} ${styles[color]}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
     >
-      <div className={styles.iconWrapper}>
-        <Icon size={24} />
-      </div>
-      <div className={styles.content}>
-        <span className={styles.title}>{title}</span>
-        <span className={styles.value}>{value}</span>
-        {change !== undefined && (
-          <span className={`${styles.change} ${change >= 0 ? styles.positive : styles.negative}`}>
-            {change >= 0 ? '+' : ''}{change}%
-          </span>
-        )}
-      </div>
+      <Paper
+        withBorder
+        p="lg"
+        radius="md"
+        style={{
+          transition: 'all 0.2s ease',
+          cursor: 'default',
+        }}
+        styles={{
+          root: {
+            '&:hover': {
+              borderColor: 'var(--mantine-color-pink-5)',
+              transform: 'translateY(-2px)',
+            },
+          },
+        }}
+      >
+        <Group align="flex-start" gap="md">
+          <ThemeIcon
+            size={48}
+            radius="md"
+            variant="light"
+            color={colorConfig.iconColor}
+          >
+            <Icon size={24} />
+          </ThemeIcon>
+
+          <Stack gap={4} style={{ flex: 1 }}>
+            <Text size="sm" c="dimmed">
+              {title}
+            </Text>
+            <Text size="xl" fw={700}>
+              {value}
+            </Text>
+            {change !== undefined && (
+              <Badge
+                size="sm"
+                variant="light"
+                color={change >= 0 ? 'green' : 'red'}
+              >
+                {change >= 0 ? '+' : ''}{change}%
+              </Badge>
+            )}
+          </Stack>
+        </Group>
+      </Paper>
     </motion.div>
   )
 }

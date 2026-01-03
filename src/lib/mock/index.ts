@@ -45,6 +45,22 @@ export {
   TRIBUTE_COLORS,
 } from './vip-tribute'
 
+// Hall of Fame (명예의 전당)
+export {
+  mockHallOfFameSeasons,
+  mockHallOfFameEpisodes,
+  getAllHallOfFameHonors,
+  getHallOfFameByUserId,
+  hasHonorPageQualification,
+  getHonorPageQualifiedDonorIds,
+  EPISODE_HIGH_DONOR_THRESHOLD,
+  type HallOfFameHonor,
+  type HallOfFameSeason,
+  type HallOfFameEpisode,
+  type TributeMemberVideo,
+  type TributeSignature,
+} from './hall-of-fame'
+
 // ============================================
 // Utility Exports
 // ============================================

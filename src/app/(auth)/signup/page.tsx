@@ -4,8 +4,21 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuthContext } from '@/lib/context'
-import { Mail, Lock, Eye, EyeOff, Loader2, User } from 'lucide-react'
-import styles from './page.module.css'
+import {
+  TextInput,
+  PasswordInput,
+  Button,
+  Paper,
+  Title,
+  Text,
+  Alert,
+  Stack,
+  Loader,
+  Anchor,
+  Box,
+  ThemeIcon,
+} from '@mantine/core'
+import { IconMail, IconLock, IconUser, IconAlertCircle, IconCheck } from '@tabler/icons-react'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -15,8 +28,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [nickname, setNickname] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -72,167 +83,196 @@ export default function SignupPage() {
 
   if (authLoading) {
     return (
-      <main className={styles.main}>
-        <div className={styles.loading}>
-          <Loader2 className={styles.spinner} />
-        </div>
-      </main>
+      <Box
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--background)',
+        }}
+      >
+        <Loader color="pink" size="lg" />
+      </Box>
     )
   }
 
   if (success) {
     return (
-      <main className={styles.main}>
-        <div className={styles.container}>
-          <div className={styles.successContent}>
-            <div className={styles.successIcon}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            </div>
-            <h1 className={styles.title}>가입 완료!</h1>
-            <p className={styles.subtitle}>
-              이메일 인증 링크를 발송했습니다.<br />
+      <Box
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem',
+          background: 'var(--background)',
+        }}
+      >
+        <Paper
+          radius="lg"
+          p="xl"
+          withBorder
+          style={{
+            width: '100%',
+            maxWidth: 420,
+          }}
+        >
+          <Stack align="center" gap="lg">
+            <ThemeIcon size={64} radius="xl" color="green" variant="light">
+              <IconCheck size={32} />
+            </ThemeIcon>
+            <Title order={2} ta="center">
+              가입 완료!
+            </Title>
+            <Text c="dimmed" size="sm" ta="center" style={{ lineHeight: 1.6 }}>
+              이메일 인증 링크를 발송했습니다.
+              <br />
               이메일을 확인해주세요.
-            </p>
-            <Link href="/login" className={styles.submitButton}>
+            </Text>
+            <Button
+              component={Link}
+              href="/login"
+              fullWidth
+              size="md"
+              radius="md"
+              color="pink"
+            >
               로그인하기
-            </Link>
-          </div>
-        </div>
-      </main>
+            </Button>
+          </Stack>
+        </Paper>
+      </Box>
     )
   }
 
   return (
-    <main className={styles.main}>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <Link href="/" className={styles.logo}>
-            RG FAMILY
-          </Link>
-          <h1 className={styles.title}>회원가입</h1>
-          <p className={styles.subtitle}>RG 패밀리의 새로운 멤버가 되어주세요</p>
-        </div>
-
-        <form className={styles.form} onSubmit={handleSubmit}>
-          {error && (
-            <div className={styles.error}>
-              {error}
-            </div>
-          )}
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="nickname" className={styles.label}>닉네임</label>
-            <div className={styles.inputWrapper}>
-              <User className={styles.inputIcon} />
-              <input
-                id="nickname"
-                type="text"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                placeholder="닉네임을 입력하세요"
-                className={styles.input}
-                required
-                minLength={2}
-                maxLength={20}
-              />
-            </div>
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="email" className={styles.label}>이메일</label>
-            <div className={styles.inputWrapper}>
-              <Mail className={styles.inputIcon} />
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@email.com"
-                className={styles.input}
-                required
-                autoComplete="email"
-              />
-            </div>
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="password" className={styles.label}>비밀번호</label>
-            <div className={styles.inputWrapper}>
-              <Lock className={styles.inputIcon} />
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="6자 이상 입력하세요"
-                className={styles.input}
-                required
-                minLength={6}
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className={styles.togglePassword}
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="confirmPassword" className={styles.label}>비밀번호 확인</label>
-            <div className={styles.inputWrapper}>
-              <Lock className={styles.inputIcon} />
-              <input
-                id="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="비밀번호를 다시 입력하세요"
-                className={styles.input}
-                required
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className={styles.togglePassword}
-                tabIndex={-1}
-              >
-                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className={styles.submitButton}
-            disabled={isLoading}
+    <Box
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem',
+        background: 'var(--background)',
+      }}
+    >
+      <Paper
+        radius="lg"
+        p="xl"
+        withBorder
+        style={{
+          width: '100%',
+          maxWidth: 420,
+          backdropFilter: 'blur(10px)',
+        }}
+      >
+        <Stack align="center" mb="xl">
+          <Anchor
+            component={Link}
+            href="/"
+            fw={900}
+            fz="xl"
+            c="white"
+            underline="never"
+            style={{ letterSpacing: 2 }}
           >
-            {isLoading ? (
-              <>
-                <Loader2 className={styles.buttonSpinner} />
-                처리 중...
-              </>
-            ) : (
-              '가입하기'
+            RG FAMILY
+          </Anchor>
+          <Title order={2} ta="center">
+            회원가입
+          </Title>
+          <Text c="dimmed" size="sm" ta="center">
+            RG 패밀리의 새로운 멤버가 되어주세요
+          </Text>
+        </Stack>
+
+        <form onSubmit={handleSubmit}>
+          <Stack gap="md">
+            {error && (
+              <Alert
+                icon={<IconAlertCircle size={16} />}
+                color="red"
+                variant="light"
+                radius="md"
+              >
+                {error}
+              </Alert>
             )}
-          </button>
+
+            <TextInput
+              label="닉네임"
+              placeholder="닉네임을 입력하세요"
+              leftSection={<IconUser size={18} />}
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              required
+              minLength={2}
+              maxLength={20}
+              size="md"
+              radius="md"
+            />
+
+            <TextInput
+              label="이메일"
+              placeholder="example@email.com"
+              leftSection={<IconMail size={18} />}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              type="email"
+              autoComplete="email"
+              size="md"
+              radius="md"
+            />
+
+            <PasswordInput
+              label="비밀번호"
+              placeholder="6자 이상 입력하세요"
+              leftSection={<IconLock size={18} />}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              autoComplete="new-password"
+              size="md"
+              radius="md"
+            />
+
+            <PasswordInput
+              label="비밀번호 확인"
+              placeholder="비밀번호를 다시 입력하세요"
+              leftSection={<IconLock size={18} />}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              autoComplete="new-password"
+              size="md"
+              radius="md"
+            />
+
+            <Button
+              type="submit"
+              fullWidth
+              size="md"
+              radius="md"
+              color="pink"
+              loading={isLoading}
+              loaderProps={{ type: 'dots' }}
+              mt="sm"
+            >
+              가입하기
+            </Button>
+          </Stack>
         </form>
 
-        <div className={styles.footer}>
-          <p>
-            이미 계정이 있으신가요?{' '}
-            <Link href="/login" className={styles.link}>
-              로그인
-            </Link>
-          </p>
-        </div>
-      </div>
-    </main>
+        <Text ta="center" mt="xl" size="sm" c="dimmed">
+          이미 계정이 있으신가요?{' '}
+          <Anchor component={Link} href="/login" fw={600}>
+            로그인
+          </Anchor>
+        </Text>
+      </Paper>
+    </Box>
   )
 }

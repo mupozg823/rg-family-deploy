@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Users, Radio, Calendar, FileText, Zap } from "lucide-react";
+import Footer from "@/components/Footer";
 import { useSupabaseContext } from "@/lib/context";
 import { mockOrganization } from "@/lib/mock/data";
 import { USE_MOCK_DATA } from "@/lib/config";
@@ -98,9 +99,9 @@ export default function OrganizationPage() {
   const regularMembers = grouped.members;
 
   return (
-    <div className={styles.container}>
-      {/* Navigation Bar - Reference Style with Centered Title */}
-      <nav className={styles.pageNav}>
+      <div className={styles.container}>
+        {/* Navigation Bar - Reference Style with Centered Title */}
+        <nav className={styles.pageNav}>
         <Link href="/" className={styles.backBtn}>
           <ArrowLeft size={18} />
           <span>홈</span>
@@ -306,15 +307,16 @@ export default function OrganizationPage() {
         </AnimatePresence>
       )}
 
-      {/* Member Detail Modal */}
-      <AnimatePresence>
-        {selectedMember && (
-          <MemberDetailModal
-            member={selectedMember}
-            onClose={() => setSelectedMember(null)}
-          />
-        )}
-      </AnimatePresence>
-    </div>
+        {/* Member Detail Modal */}
+        <AnimatePresence>
+          {selectedMember && (
+            <MemberDetailModal
+              member={selectedMember}
+              onClose={() => setSelectedMember(null)}
+            />
+          )}
+        </AnimatePresence>
+        <Footer />
+      </div>
   );
 }

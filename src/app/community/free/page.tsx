@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Search, Eye, MessageSquare, ThumbsUp, PenLine, ChevronDown } from 'lucide-react'
+import { PageLayout } from '@/components/layout'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 import { useSupabaseContext } from '@/lib/context'
 import { mockPosts, mockProfiles } from '@/lib/mock/data'
 import { USE_MOCK_DATA } from '@/lib/config'
@@ -140,14 +143,16 @@ export default function FreeBoardPage() {
   })
 
   return (
-    <main className={styles.main}>
-      {/* Hero Section */}
-      <section className={styles.hero}>
-        <div className={styles.heroContent}>
-          <h1 className={styles.title}>커뮤니티</h1>
-          <p className={styles.subtitle}>RG FAMILY 팬들과 소통하는 자유 공간</p>
-        </div>
-      </section>
+    <PageLayout>
+      <div className={styles.main}>
+        <Navbar />
+        {/* Hero Section */}
+        <section className={styles.hero}>
+          <div className={styles.heroContent}>
+            <h1 className={styles.title}>커뮤니티</h1>
+            <p className={styles.subtitle}>RG FAMILY 팬들과 소통하는 자유 공간</p>
+          </div>
+        </section>
 
       <div className={styles.container}>
         {/* Tab Filter */}
@@ -345,7 +350,9 @@ export default function FreeBoardPage() {
             </div>
           </>
         )}
+        </div>
+        <Footer />
       </div>
-    </main>
+    </PageLayout>
   )
 }
