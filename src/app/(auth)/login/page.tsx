@@ -112,7 +112,7 @@ export default function LoginPage() {
           >
             RG FAMILY
           </Anchor>
-          <Title order={2} ta="center">
+          <Title order={2} ta="center" c="pink">
             로그인
           </Title>
           <Text c="gray.5" size="sm" ta="center">

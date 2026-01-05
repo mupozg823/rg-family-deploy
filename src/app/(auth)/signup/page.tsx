@@ -122,7 +122,7 @@ export default function SignupPage() {
             <ThemeIcon size={64} radius="xl" color="green" variant="light">
               <IconCheck size={32} />
             </ThemeIcon>
-            <Title order={2} ta="center">
+            <Title order={2} ta="center" c="pink">
               가입 완료!
             </Title>
             <Text c="dimmed" size="sm" ta="center" style={{ lineHeight: 1.6 }}>
@@ -178,7 +178,7 @@ export default function SignupPage() {
           >
             RG FAMILY
           </Anchor>
-          <Title order={2} ta="center">
+          <Title order={2} ta="center" c="pink">
             회원가입
           </Title>
           <Text c="gray.5" size="sm" ta="center">
