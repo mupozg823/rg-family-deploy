@@ -116,16 +116,20 @@ export default function SignupPage() {
           radius="lg"
           p="xl"
           withBorder
-          style={{ width: "100%", maxWidth: 420 }}
+          style={{
+            width: "100%",
+            maxWidth: 420,
+            boxShadow: "0 0 40px rgba(253, 104, 186, 0.15)",
+          }}
         >
           <Stack align="center" gap="lg">
-            <ThemeIcon size={64} radius="xl" color="green" variant="light">
+            <ThemeIcon size={64} radius="xl" color="pink" variant="light">
               <IconCheck size={32} />
             </ThemeIcon>
             <Title order={2} ta="center" c="pink">
               가입 완료!
             </Title>
-            <Text c="dimmed" size="sm" ta="center" style={{ lineHeight: 1.6 }}>
+            <Text c="pink.2" size="sm" ta="center" style={{ lineHeight: 1.6 }}>
               이메일 인증 링크를 발송했습니다.
               <br />
               이메일을 확인해주세요.
@@ -165,6 +169,7 @@ export default function SignupPage() {
           width: "100%",
           maxWidth: 420,
           backdropFilter: "blur(10px)",
+          boxShadow: "0 0 40px rgba(253, 104, 186, 0.15)",
         }}
       >
         <Stack align="center" mb="xl">
@@ -181,7 +186,7 @@ export default function SignupPage() {
           <Title order={2} ta="center" c="pink">
             회원가입
           </Title>
-          <Text c="gray.5" size="sm" ta="center">
+          <Text c="pink.2" size="sm" ta="center">
             RG 패밀리의 새로운 멤버가 되어주세요
           </Text>
         </Stack>
@@ -191,7 +196,7 @@ export default function SignupPage() {
             <TextInput
               label="닉네임"
               placeholder="닉네임을 입력하세요"
-              leftSection={<IconUser size={18} stroke={1.5} />}
+              leftSection={<IconUser size={18} stroke={1.5} color="var(--mantine-color-pink-4)" />}
               key={form.key("nickname")}
               {...form.getInputProps("nickname")}
               maxLength={20}
@@ -202,7 +207,7 @@ export default function SignupPage() {
             <TextInput
               label="이메일"
               placeholder="example@email.com"
-              leftSection={<IconMail size={18} stroke={1.5} />}
+              leftSection={<IconMail size={18} stroke={1.5} color="var(--mantine-color-pink-4)" />}
               key={form.key("email")}
               {...form.getInputProps("email")}
               autoComplete="email"
@@ -213,7 +218,7 @@ export default function SignupPage() {
             <PasswordInput
               label="비밀번호"
               placeholder="6자 이상 입력하세요"
-              leftSection={<IconLock size={18} stroke={1.5} />}
+              leftSection={<IconLock size={18} stroke={1.5} color="var(--mantine-color-pink-4)" />}
               key={form.key("password")}
               {...form.getInputProps("password")}
               autoComplete="new-password"
@@ -224,7 +229,7 @@ export default function SignupPage() {
             <PasswordInput
               label="비밀번호 확인"
               placeholder="비밀번호를 다시 입력하세요"
-              leftSection={<IconLock size={18} stroke={1.5} />}
+              leftSection={<IconLock size={18} stroke={1.5} color="var(--mantine-color-pink-4)" />}
               key={form.key("confirmPassword")}
               {...form.getInputProps("confirmPassword")}
               autoComplete="new-password"
@@ -247,9 +252,9 @@ export default function SignupPage() {
           </Stack>
         </form>
 
-        <Text ta="center" mt="xl" size="sm" c="gray.5">
+        <Text ta="center" mt="xl" size="sm" c="pink.2">
           이미 계정이 있으신가요?{" "}
-          <Anchor component={Link} href="/login" fw={600} c="pink.4">
+          <Anchor component={Link} href="/login" fw={600} c="pink">
             로그인
           </Anchor>
         </Text>

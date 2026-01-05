@@ -99,6 +99,7 @@ export default function LoginPage() {
           width: "100%",
           maxWidth: 420,
           backdropFilter: "blur(10px)",
+          boxShadow: "0 0 40px rgba(253, 104, 186, 0.15)",
         }}
       >
         <Stack align="center" mb="xl">
@@ -115,7 +116,7 @@ export default function LoginPage() {
           <Title order={2} ta="center" c="pink">
             로그인
           </Title>
-          <Text c="gray.5" size="sm" ta="center">
+          <Text c="pink.2" size="sm" ta="center">
             RG 패밀리에 오신 것을 환영합니다
           </Text>
         </Stack>
@@ -136,7 +137,7 @@ export default function LoginPage() {
             <TextInput
               label="이메일 / 아이디"
               placeholder="이메일 또는 아이디"
-              leftSection={<IconMail size={18} stroke={1.5} />}
+              leftSection={<IconMail size={18} stroke={1.5} color="var(--mantine-color-pink-4)" />}
               key={form.key("email")}
               {...form.getInputProps("email")}
               autoComplete="username"
@@ -147,7 +148,7 @@ export default function LoginPage() {
             <PasswordInput
               label="비밀번호"
               placeholder="비밀번호를 입력하세요"
-              leftSection={<IconLock size={18} stroke={1.5} />}
+              leftSection={<IconLock size={18} stroke={1.5} color="var(--mantine-color-pink-4)" />}
               key={form.key("password")}
               {...form.getInputProps("password")}
               autoComplete="current-password"
@@ -170,9 +171,9 @@ export default function LoginPage() {
           </Stack>
         </form>
 
-        <Text ta="center" mt="xl" size="sm" c="gray.5">
+        <Text ta="center" mt="xl" size="sm" c="pink.2">
           아직 계정이 없으신가요?{" "}
-          <Anchor component={Link} href="/signup" fw={600} c="pink.4">
+          <Anchor component={Link} href="/signup" fw={600} c="pink">
             회원가입
           </Anchor>
         </Text>
