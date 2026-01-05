@@ -107,7 +107,6 @@ export default function LoginPage() {
             href="/"
             fw={900}
             fz="xl"
-            c="white"
             underline="never"
             style={{ letterSpacing: 2 }}
           >

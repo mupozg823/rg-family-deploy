@@ -173,7 +173,6 @@ export default function SignupPage() {
             href="/"
             fw={900}
             fz="xl"
-            c="white"
             underline="never"
             style={{ letterSpacing: 2 }}
           >
