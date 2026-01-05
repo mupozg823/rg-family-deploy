@@ -125,30 +125,6 @@
   --radius-3xl: 24px;
   --radius-full: 9999px;
 
-  /* ============================================
-     shadcn/ui HSL Variables
-     ============================================ */
-  --radius: 0.5rem;
-  --background: 0 0% 3%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 5%;
-  --card-foreground: 0 0% 98%;
-  --popover: 0 0% 5%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 330 90% 60%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 15%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 15%;
-  --muted-foreground: 0 0% 64%;
-  --accent: 0 0% 15%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 15%;
-  --input: 0 0% 15%;
-  --ring: 330 90% 60%;
-
   /* Layout */
   --max-width: 1280px;
   --max-width-wide: 1440px;
@@ -268,9 +244,22 @@
   --color-pink-border-strong: rgba(196, 30, 127, 0.4);
 
   /* Pink Gradients */
-  --pink-gradient-primary: linear-gradient(135deg, var(--color-pink), var(--color-pink-light));
-  --pink-gradient-horizontal: linear-gradient(90deg, var(--color-pink), var(--color-pink-light), var(--color-pink));
-  --pink-gradient-vertical: linear-gradient(180deg, var(--color-pink), var(--color-pink-light));
+  --pink-gradient-primary: linear-gradient(
+    135deg,
+    var(--color-pink),
+    var(--color-pink-light)
+  );
+  --pink-gradient-horizontal: linear-gradient(
+    90deg,
+    var(--color-pink),
+    var(--color-pink-light),
+    var(--color-pink)
+  );
+  --pink-gradient-vertical: linear-gradient(
+    180deg,
+    var(--color-pink),
+    var(--color-pink-light)
+  );
 
   /* Pink Glow Shadows */
   --pink-glow-sm: 0 4px 15px rgba(196, 30, 127, 0.3);
@@ -372,7 +361,9 @@
 
   /* Transition */
   --transition-fast: all 0.15s var(--ease-smooth);
-  --transition-theme: background 0.3s var(--ease-smooth), color 0.3s var(--ease-smooth), border-color 0.3s var(--ease-smooth);
+  --transition-theme:
+    background 0.3s var(--ease-smooth), color 0.3s var(--ease-smooth),
+    border-color 0.3s var(--ease-smooth);
 
   /* ============================================
      Premium/VIP Page Backgrounds (Dark Mode)
@@ -411,7 +402,12 @@
   --elite-glow: rgba(255, 255, 255, 0.2);
   --elite-glow-strong: rgba(255, 255, 255, 0.4);
   --elite-bg: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
-  --elite-badge-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0.15) 100%);
+  --elite-badge-bg: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
   --elite-gradient-from: rgba(180, 180, 180, 0.9);
   --elite-gradient-mid: rgba(255, 255, 255, 1);
   --elite-gradient-to: rgba(200, 200, 200, 0.95);
@@ -421,7 +417,11 @@
   --premium-card-border: rgba(255, 255, 255, 0.08);
 
   /* Card Background Gradients (Theme-aware) */
-  --card-bg-gradient: linear-gradient(180deg, rgba(20, 20, 23, 0.98) 0%, rgba(15, 15, 18, 0.95) 100%);
+  --card-bg-gradient: linear-gradient(
+    180deg,
+    rgba(20, 20, 23, 0.98) 0%,
+    rgba(15, 15, 18, 0.95) 100%
+  );
   --card-bg-dark: rgba(20, 20, 23, 0.98);
   --highlight-line: rgba(255, 255, 255, 0.1);
   --highlight-line-subtle: rgba(255, 255, 255, 0.04);
@@ -435,7 +435,11 @@
 
   /* Video/Thumbnail Backgrounds */
   --video-bg: linear-gradient(135deg, #121215, #0a0a0c);
-  --video-overlay: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.4) 100%);
+  --video-overlay: linear-gradient(
+    180deg,
+    transparent 50%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
 
   /* Loading/Spinner */
   --spinner-border: rgba(255, 255, 255, 0.08);
@@ -492,7 +496,11 @@
   );
 
   /* Hero Glow */
-  --hero-glow: radial-gradient(ellipse at center, rgba(196, 30, 127, 0.15) 0%, transparent 60%);
+  --hero-glow: radial-gradient(
+    ellipse at center,
+    rgba(196, 30, 127, 0.15) 0%,
+    transparent 60%
+  );
   --hero-padding: var(--space-16) var(--space-8) var(--space-12);
   --hero-padding-mobile: var(--space-12) var(--space-4) var(--space-8);
 }
@@ -636,7 +644,12 @@
   --elite-glow: rgba(100, 100, 100, 0.15);
   --elite-glow-strong: rgba(100, 100, 100, 0.25);
   --elite-bg: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 50%, #f0f0f0 100%);
-  --elite-badge-bg: linear-gradient(135deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.05) 100%);
+  --elite-badge-bg: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.05) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
   --elite-gradient-from: #52525b;
   --elite-gradient-mid: #27272a;
   --elite-gradient-to: #3f3f46;
@@ -660,7 +673,11 @@
 
   /* Video/Thumbnail Backgrounds - Light */
   --video-bg: linear-gradient(135deg, #f4f4f5, #e4e4e7);
-  --video-overlay: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.15) 100%);
+  --video-overlay: linear-gradient(
+    180deg,
+    transparent 50%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
 
   /* Loading/Spinner - Light */
   --spinner-border: rgba(0, 0, 0, 0.08);
@@ -717,7 +734,11 @@
   );
 
   /* Hero Glow - Light */
-  --hero-glow: radial-gradient(ellipse at center, rgba(196, 30, 127, 0.1) 0%, transparent 60%);
+  --hero-glow: radial-gradient(
+    ellipse at center,
+    rgba(196, 30, 127, 0.1) 0%,
+    transparent 60%
+  );
   --hero-padding: var(--space-16) var(--space-8) var(--space-12);
   --hero-padding-mobile: var(--space-12) var(--space-4) var(--space-8);
 
@@ -985,13 +1006,17 @@ li {
   overflow: hidden;
 }
 .aurora-bg::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle at center, var(--primary-glow) 0%, transparent 60%);
+  background: radial-gradient(
+    circle at center,
+    var(--primary-glow) 0%,
+    transparent 60%
+  );
   opacity: 0.15;
   animation: aurora-spin 20s linear infinite;
   pointer-events: none;
@@ -999,17 +1024,21 @@ li {
 }
 
 @keyframes aurora-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Scrollbar Hide Utility */
 .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .btn-ghost {
@@ -1058,12 +1087,16 @@ li {
     rgba(20, 20, 23, 0.95) 100%
   );
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .card-premium:hover {
   border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 /* ============================================
@@ -1156,5 +1189,34 @@ li {
 
   .shimmer {
     animation: none;
+  }
+}
+
+/* ============================================
+   Mantine Dark Theme Overrides
+   다크 모드에서 입력 필드 시인성 개선
+   ============================================ */
+[data-mantine-color-scheme="dark"] {
+  /* 입력 필드 라벨 색상 - 흰색으로 더 밝게 */
+  .mantine-TextInput-label,
+  .mantine-PasswordInput-label,
+  .mantine-Select-label,
+  .mantine-Textarea-label,
+  .mantine-NumberInput-label {
+    color: #ffffff !important;
+  }
+
+  /* 입력 필드 아이콘 색상 - 더 밝게 */
+  .mantine-TextInput-section,
+  .mantine-PasswordInput-section,
+  .mantine-Select-section {
+    color: #d0d0d0 !important;
+  }
+
+  /* 입력 필드 아이콘 내부 SVG */
+  .mantine-TextInput-section svg,
+  .mantine-PasswordInput-section svg,
+  .mantine-Select-section svg {
+    color: #d0d0d0 !important;
   }
 }
