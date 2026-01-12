@@ -47,3 +47,10 @@ next-env.d.ts
 .claude/cache/
 .claude/hooks/node_modules/
 .claude/settings.local.json
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so

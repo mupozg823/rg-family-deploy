@@ -23,6 +23,7 @@ export { useVipStatus } from './useVipStatus'
 export { useHonorQualification } from './useHonorQualification'
 export { useLiveRoster } from './useLiveRoster'
 export { useTributeData } from './useTributeData'
+export { useGuestbook } from './useGuestbook'
 export { useDonationsData, type DonationItem, type SeasonItem, type ProfileItem } from './useDonationsData'
 export {
   useTimelineData,

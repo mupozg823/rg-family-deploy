@@ -447,6 +447,123 @@
   text-align: center;
 }
 
+.guestbookCharCount {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: right;
+}
+
+/* Guestbook Entry Count */
+.entryCount {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Guestbook Loading/Error/Empty States */
+.guestbookLoading,
+.guestbookError,
+.guestbookEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.guestbookLoading {
+  color: rgba(255, 215, 0, 0.7);
+}
+
+.guestbookError {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+}
+
+.guestbookEmpty {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.guestbookEmpty p {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.guestbookEmpty span {
+  font-size: 0.85rem;
+}
+
+/* Spinner Animation */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Member Avatar Styles */
+.memberAvatar {
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.3), rgba(253, 104, 186, 0.15)) !important;
+  border-color: rgba(253, 104, 186, 0.4) !important;
+  color: #fd68ba !important;
+}
+
+.memberAvatar[data-unit="excel"] {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 212, 255, 0.15)) !important;
+  border-color: rgba(0, 212, 255, 0.4) !important;
+  color: #00d4ff !important;
+}
+
+.memberAvatar[data-unit="crew"] {
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.3), rgba(253, 104, 186, 0.15)) !important;
+  border-color: rgba(253, 104, 186, 0.4) !important;
+  color: #fd68ba !important;
+}
+
+/* Member Badge */
+.memberBadge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border-radius: 3px;
+  background: rgba(253, 104, 186, 0.2);
+  color: #fd68ba;
+}
+
+.memberBadge[data-unit="excel"] {
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+}
+
+.memberBadge[data-unit="crew"] {
+  background: rgba(253, 104, 186, 0.2);
+  color: #fd68ba;
+}
+
+/* Guestbook Input Enabled State */
+.guestbookInput input:not(:disabled) {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.guestbookSendBtn:not(:disabled) {
+  color: #ffd700;
+  cursor: pointer;
+}
+
 /* Empty Section */
 .emptySection {
   margin-bottom: 3rem;
@@ -675,4 +792,54 @@
 
 :global([data-theme='light']) .guestbookHint {
   color: rgba(0, 0, 0, 0.4);
+}
+
+:global([data-theme='light']) .guestbookCharCount {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+:global([data-theme='light']) .entryCount {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+:global([data-theme='light']) .guestbookLoading {
+  color: rgba(184, 134, 11, 0.7);
+}
+
+:global([data-theme='light']) .guestbookEmpty {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+:global([data-theme='light']) .guestbookEmpty p {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+:global([data-theme='light']) .memberAvatar {
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.2), rgba(253, 104, 186, 0.1)) !important;
+  border-color: rgba(253, 104, 186, 0.35) !important;
+  color: #d63384 !important;
+}
+
+:global([data-theme='light']) .memberAvatar[data-unit="excel"] {
+  background: linear-gradient(135deg, rgba(0, 180, 216, 0.2), rgba(0, 180, 216, 0.1)) !important;
+  border-color: rgba(0, 180, 216, 0.35) !important;
+  color: #00b4d8 !important;
+}
+
+:global([data-theme='light']) .memberBadge {
+  background: rgba(253, 104, 186, 0.15);
+  color: #d63384;
+}
+
+:global([data-theme='light']) .memberBadge[data-unit="excel"] {
+  background: rgba(0, 180, 216, 0.15);
+  color: #00b4d8;
+}
+
+:global([data-theme='light']) .guestbookInput input:not(:disabled) {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+:global([data-theme='light']) .guestbookSendBtn:not(:disabled) {
+  color: #8b6914;
 }
