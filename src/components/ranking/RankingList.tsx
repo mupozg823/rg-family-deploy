@@ -7,6 +7,7 @@ import Link from "next/link";
 import type { RankingItem } from "@/types/common";
 import { hasHonorPageQualification } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
+import { getTributePageUrl } from "@/lib/utils";
 import styles from "./RankingList.module.css";
 
 // Local helper function
@@ -132,7 +133,7 @@ export default function RankingList({
             return (
               <Link
                 key={item.donorId || index}
-                href={`/ranking/${item.donorId}`}
+                href={getTributePageUrl(item.donorId)}
                 className={styles.link}
               >
                 {ItemContent}

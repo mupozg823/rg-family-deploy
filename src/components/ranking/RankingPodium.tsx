@@ -5,7 +5,7 @@ import { Crown, Medal, Award } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RankingItem } from "@/types/common";
-import { formatAmountShort, getInitials } from "@/lib/utils";
+import { formatAmountShort, getInitials, getTributePageUrl } from "@/lib/utils";
 import styles from "./RankingPodium.module.css";
 
 interface RankingPodiumProps {
@@ -109,12 +109,12 @@ export default function RankingPodium({ items }: RankingPodiumProps) {
           </motion.div>
         );
 
-        // Top 3만 개인 페이지 링크 (올바른 경로: /ranking/${item.donorId})
+        // Top 3만 개인 페이지 링크 (해시 URL 사용)
         if (item.donorId) {
           return (
             <Link
               key={item.donorId}
-              href={`/ranking/${item.donorId}`}
+              href={getTributePageUrl(item.donorId)}
               style={{ display: "contents" }}
             >
               {Content}
