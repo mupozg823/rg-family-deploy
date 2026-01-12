@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Heart, Calendar, FileText, TrendingUp, Clock } from 'lucide-react'
+import { Users, Heart, Calendar, FileText, TrendingUp, Clock, Radio, Eye, RefreshCw } from 'lucide-react'
 import { StatsCard, DataTable, Column } from '@/components/admin'
 import { useSupabaseContext } from '@/lib/context'
+import { useLiveRoster } from '@/lib/hooks'
 import type { JoinedProfile } from '@/types/common'
 import styles from './page.module.css'
 
@@ -59,6 +60,14 @@ export default function AdminDashboardPage() {
   const supabase = useSupabaseContext()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+
+  // 실시간 라이브 상태
+  const { members, liveStatusByMemberId, isLoading: liveLoading, refetch: refetchLive } = useLiveRoster({ realtime: true })
+  const liveMembers = members.filter(m => m.is_live)
+  const totalViewers = Object.values(liveStatusByMemberId)
+    .flat()
+    .filter(status => status.isLive)
+    .reduce((sum, status) => sum + status.viewerCount, 0)
 
   const fetchStats = useCallback(async () => {
     setIsLoading(true)
@@ -210,6 +219,90 @@ export default function AdminDashboardPage() {
           delay={0.3}
         />
       </div>
+
+      {/* Live Status Section */}
+      <motion.section
+        className={styles.liveSection}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+      >
+        <div className={styles.sectionHeader}>
+          <div className={styles.liveHeaderLeft}>
+            <Radio size={20} className={styles.liveIcon} />
+            <h2>실시간 라이브 현황</h2>
+            {liveMembers.length > 0 && (
+              <span className={styles.liveBadge}>{liveMembers.length} LIVE</span>
+            )}
+          </div>
+          <button
+            onClick={() => refetchLive()}
+            className={styles.refreshBtn}
+            disabled={liveLoading}
+          >
+            <RefreshCw size={16} className={liveLoading ? styles.spinning : ''} />
+            <span>새로고침</span>
+          </button>
+        </div>
+
+        <div className={styles.liveStatsRow}>
+          <div className={styles.liveStat}>
+            <Radio size={18} className={styles.liveStatIcon} />
+            <div className={styles.liveStatInfo}>
+              <span className={styles.liveStatValue}>{liveMembers.length}</span>
+              <span className={styles.liveStatLabel}>방송 중</span>
+            </div>
+          </div>
+          <div className={styles.liveStat}>
+            <Eye size={18} />
+            <div className={styles.liveStatInfo}>
+              <span className={styles.liveStatValue}>{totalViewers.toLocaleString()}</span>
+              <span className={styles.liveStatLabel}>총 시청자</span>
+            </div>
+          </div>
+          <div className={styles.liveStat}>
+            <Users size={18} />
+            <div className={styles.liveStatInfo}>
+              <span className={styles.liveStatValue}>{members.length}</span>
+              <span className={styles.liveStatLabel}>전체 멤버</span>
+            </div>
+          </div>
+        </div>
+
+        {liveMembers.length > 0 ? (
+          <div className={styles.liveList}>
+            {liveMembers.map((member) => {
+              const liveEntries = liveStatusByMemberId[member.id] || []
+              const activeLive = liveEntries.find(e => e.isLive)
+              return (
+                <div key={member.id} className={styles.liveCard}>
+                  <div className={styles.liveCardHeader}>
+                    <div className={styles.liveIndicator} />
+                    <span className={styles.liveName}>{member.name}</span>
+                    <span className={`${styles.liveUnit} ${member.unit === 'excel' ? styles.excel : styles.crew}`}>
+                      {member.unit === 'excel' ? 'EXCEL' : 'CREW'}
+                    </span>
+                  </div>
+                  {activeLive && (
+                    <div className={styles.liveCardStats}>
+                      <span className={styles.livePlatform}>{activeLive.platform}</span>
+                      <span className={styles.liveViewers}>
+                        <Eye size={12} />
+                        {activeLive.viewerCount.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <div className={styles.noLive}>
+            <Radio size={24} />
+            <p>현재 방송 중인 멤버가 없습니다</p>
+          </div>
+        )}
+      </motion.section>
 
       {/* Recent Activity */}
       <div className={styles.activityGrid}>

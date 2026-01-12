@@ -26,6 +26,9 @@ import {
   IconCircleCheck,
   IconTrash,
   IconX,
+  IconCopy,
+  IconReplace,
+  IconPlus,
 } from '@tabler/icons-react'
 import '@mantine/dropzone/styles.css'
 
@@ -33,17 +36,28 @@ interface CsvRow {
   [key: string]: string
 }
 
-interface CsvUploaderProps {
-  onUpload: (data: CsvRow[]) => Promise<{ success: number; errors: string[] }>
-  columns: { key: string; label: string; required?: boolean }[]
-  sampleFile?: string
+export type DuplicateHandling = 'skip' | 'overwrite' | 'accumulate'
+
+interface UploadResult {
+  success: number
+  errors: string[]
+  skipped?: number
+  updated?: number
 }
 
-export default function CsvUploader({ onUpload, columns, sampleFile }: CsvUploaderProps) {
+interface CsvUploaderProps {
+  onUpload: (data: CsvRow[], options?: { duplicateHandling?: DuplicateHandling }) => Promise<UploadResult>
+  columns: { key: string; label: string; required?: boolean }[]
+  sampleFile?: string
+  showDuplicateOptions?: boolean
+}
+
+export default function CsvUploader({ onUpload, columns, sampleFile, showDuplicateOptions = false }: CsvUploaderProps) {
   const [parsedData, setParsedData] = useState<CsvRow[]>([])
   const [errors, setErrors] = useState<string[]>([])
   const [isUploading, setIsUploading] = useState(false)
-  const [uploadResult, setUploadResult] = useState<{ success: number; errors: string[] } | null>(null)
+  const [uploadResult, setUploadResult] = useState<UploadResult | null>(null)
+  const [duplicateHandling, setDuplicateHandling] = useState<DuplicateHandling>('skip')
 
   const parseCSV = useCallback((text: string): CsvRow[] => {
     const lines = text.trim().split('\n')
@@ -101,7 +115,7 @@ export default function CsvUploader({ onUpload, columns, sampleFile }: CsvUpload
 
     setIsUploading(true)
     try {
-      const result = await onUpload(parsedData)
+      const result = await onUpload(parsedData, { duplicateHandling })
       setUploadResult(result)
       if (result.success > 0 && result.errors.length === 0) {
         setParsedData([])
@@ -272,6 +286,47 @@ export default function CsvUploader({ onUpload, columns, sampleFile }: CsvUpload
         </Paper>
       )}
 
+      {/* Duplicate Handling Options */}
+      {showDuplicateOptions && parsedData.length > 0 && errors.length === 0 && (
+        <Paper withBorder radius="md" p="md">
+          <Text fw={600} size="sm" mb="sm">중복 데이터 처리 방식</Text>
+          <Group gap="sm">
+            <Button
+              variant={duplicateHandling === 'skip' ? 'filled' : 'light'}
+              color={duplicateHandling === 'skip' ? 'pink' : 'gray'}
+              size="sm"
+              leftSection={<IconCopy size={16} />}
+              onClick={() => setDuplicateHandling('skip')}
+            >
+              건너뛰기
+            </Button>
+            <Button
+              variant={duplicateHandling === 'overwrite' ? 'filled' : 'light'}
+              color={duplicateHandling === 'overwrite' ? 'pink' : 'gray'}
+              size="sm"
+              leftSection={<IconReplace size={16} />}
+              onClick={() => setDuplicateHandling('overwrite')}
+            >
+              덮어쓰기
+            </Button>
+            <Button
+              variant={duplicateHandling === 'accumulate' ? 'filled' : 'light'}
+              color={duplicateHandling === 'accumulate' ? 'pink' : 'gray'}
+              size="sm"
+              leftSection={<IconPlus size={16} />}
+              onClick={() => setDuplicateHandling('accumulate')}
+            >
+              누적
+            </Button>
+          </Group>
+          <Text size="xs" c="dimmed" mt="xs">
+            {duplicateHandling === 'skip' && '동일한 후원자+날짜의 기존 데이터가 있으면 건너뜁니다.'}
+            {duplicateHandling === 'overwrite' && '동일한 후원자+날짜의 기존 데이터를 새 데이터로 교체합니다.'}
+            {duplicateHandling === 'accumulate' && '동일한 후원자+날짜의 기존 데이터에 금액을 누적합니다.'}
+          </Text>
+        </Paper>
+      )}
+
       {/* Upload Result */}
       <AnimatePresence>
         {uploadResult && (
@@ -289,10 +344,48 @@ export default function CsvUploader({ onUpload, columns, sampleFile }: CsvUpload
               onClose={() => setUploadResult(null)}
             >
               {uploadResult.errors.length === 0 ? (
-                <Text>{uploadResult.success}개 데이터가 성공적으로 등록되었습니다.</Text>
+                <Stack gap={4}>
+                  <Text fw={500}>업로드 완료!</Text>
+                  <Group gap="md">
+                    {uploadResult.success > 0 && (
+                      <Badge color="green" variant="light" size="sm">
+                        신규 등록: {uploadResult.success}건
+                      </Badge>
+                    )}
+                    {(uploadResult.updated ?? 0) > 0 && (
+                      <Badge color="blue" variant="light" size="sm">
+                        업데이트: {uploadResult.updated}건
+                      </Badge>
+                    )}
+                    {(uploadResult.skipped ?? 0) > 0 && (
+                      <Badge color="gray" variant="light" size="sm">
+                        건너뜀: {uploadResult.skipped}건
+                      </Badge>
+                    )}
+                  </Group>
+                </Stack>
               ) : (
                 <>
-                  <Text>{uploadResult.success}개 성공, {uploadResult.errors.length}개 실패</Text>
+                  <Group gap="md" mb="xs">
+                    {uploadResult.success > 0 && (
+                      <Badge color="green" variant="light" size="sm">
+                        성공: {uploadResult.success}건
+                      </Badge>
+                    )}
+                    {(uploadResult.updated ?? 0) > 0 && (
+                      <Badge color="blue" variant="light" size="sm">
+                        업데이트: {uploadResult.updated}건
+                      </Badge>
+                    )}
+                    {(uploadResult.skipped ?? 0) > 0 && (
+                      <Badge color="gray" variant="light" size="sm">
+                        건너뜀: {uploadResult.skipped}건
+                      </Badge>
+                    )}
+                    <Badge color="red" variant="light" size="sm">
+                      실패: {uploadResult.errors.length}건
+                    </Badge>
+                  </Group>
                   <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem', fontSize: '0.75rem' }}>
                     {uploadResult.errors.slice(0, 3).map((err, idx) => (
                       <li key={idx}>{err}</li>

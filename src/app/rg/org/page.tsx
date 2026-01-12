@@ -43,7 +43,7 @@ export default function OrganizationPage() {
   const regularMembers = grouped.members;
 
   return (
-      <div className={styles.container}>
+      <div className={`${styles.container} ${activeUnit === 'crew' ? styles.crewTheme : styles.excelTheme}`}>
         {/* Navigation Bar - Reference Style with Centered Title */}
         <nav className={styles.pageNav}>
         <Link href="/" className={styles.backBtn}>
