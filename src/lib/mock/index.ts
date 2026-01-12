@@ -17,6 +17,14 @@ export { mockSchedules } from './schedules'
 export { mockTimelineEvents } from './timeline'
 export { mockNotices } from './notices'
 export { mockPosts } from './posts'
+export {
+  mockComments,
+  getCommentsByPostId,
+  getRootCommentsByPostId,
+  getRepliesByParentId,
+  getCommentById,
+  getCommentCountByPostId,
+} from './comments'
 export { mockMediaContent } from './media'
 export { mockLiveStatus } from './live-status'
 export { mockBanners, type MockBanner } from './banners'
@@ -44,6 +52,18 @@ export {
   TRIBUTE_THEMES,
   TRIBUTE_COLORS,
 } from './vip-tribute'
+
+// VIP Rewards (Database Schema 기반)
+export {
+  mockVipRewards as mockVipRewardsDB,
+  mockVipImages,
+  getVipRewardByProfileId as getVipRewardDBByProfileId,
+  getVipRewardByRank as getVipRewardDBByRank,
+  getVipImagesByRewardId,
+  getVipImagesByProfileId,
+  getTop3Rewards,
+  getTop50Rewards,
+} from './vip-rewards'
 
 // Hall of Fame (명예의 전당)
 export {

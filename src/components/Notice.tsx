@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Pin, ChevronRight } from "lucide-react";
 import { useSupabaseContext } from "@/lib/context";
-import { mockNotices } from "@/lib/mock/data";
+import { mockNotices } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
 import styles from "./Notice.module.css";
 

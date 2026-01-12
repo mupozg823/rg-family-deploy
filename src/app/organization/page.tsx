@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Users, Radio, Calendar, FileText, Zap } from "lucide-react";
 import Footer from "@/components/Footer";
 import { useSupabaseContext } from "@/lib/context";
-import { mockOrganization } from "@/lib/mock/data";
+import { mockOrganization } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
 import {
   MemberCard,

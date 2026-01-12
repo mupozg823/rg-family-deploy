@@ -122,6 +122,97 @@
   padding: var(--space-8);
 }
 
+/* Access Denied State */
+.accessDenied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  background: var(--bg-deepest);
+}
+
+.accessDeniedContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+  padding: var(--space-8);
+  max-width: 400px;
+}
+
+.accessDeniedIcon {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-subtle);
+  border: 1px solid var(--border-overlay-15);
+  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  margin-bottom: var(--space-2);
+}
+
+.accessDeniedContent h2 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--text-overlay-90);
+  font-family: var(--font-display);
+}
+
+.accessDeniedContent p {
+  font-size: var(--text-sm);
+  color: var(--text-overlay-50);
+  line-height: 1.6;
+}
+
+.accessDeniedActions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.primaryBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-lg);
+  color: white;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+.primaryBtn:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(253, 104, 186, 0.3);
+}
+
+/* Light mode access denied */
+:global([data-theme="light"]) .accessDenied {
+  background: #faf8f5;
+}
+
+:global([data-theme="light"]) .accessDeniedIcon {
+  background: rgba(253, 104, 186, 0.1);
+  border-color: rgba(253, 104, 186, 0.2);
+}
+
+:global([data-theme="light"]) .accessDeniedContent h2 {
+  color: #27272a;
+}
+
+:global([data-theme="light"]) .accessDeniedContent p {
+  color: #71717a;
+}
+
 /* Hero - Premium Gold Theme */
 .hero {
   position: relative;

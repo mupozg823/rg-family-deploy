@@ -80,15 +80,17 @@ src/
 | **인증** | 로그인/회원가입 | `src/app/(auth)/` |
 | **Admin** | CMS 11개 페이지 | `src/app/admin/` |
 | **시스템** | 다크/라이트 모드 | `src/lib/context/ThemeContext.tsx` |
-| **시스템** | Mock 데이터 시스템 | `src/lib/mock/data.ts` |
+| **시스템** | Mock 데이터 시스템 | `src/lib/mock/index.ts` |
+| **데이터베이스** | Supabase 스키마 (15개 테이블) | `supabase/migrations/` |
+| **접근 제어** | VIP/Admin 권한 체크 | `src/lib/auth/access-control.ts` |
 
 ### ❌ 미구현 (우선순위순)
 
-| 기능 | 설명 | 우선순위 |
-|------|------|---------|
-| **Top 1-3 헌정 페이지** | `/ranking/vip/[userId]` 개인 페이지 | 🔴 높음 |
-| **실시간 라이브 상태** | PandaTV API 연동 | 🟡 중간 |
-| **알림 시스템** | 공지/일정 알림 | 🟢 낮음 |
+| 기능 | 설명 | 우선순위 | 진행률 |
+|------|------|---------|--------|
+| **Top 1-3 헌정 페이지** | `/ranking/[userId]` 개인 페이지 | 🔴 높음 | 25% |
+| **실시간 라이브 상태** | PandaTV API 연동 | 🟡 중간 | 0% |
+| **알림 시스템** | 공지/일정 알림 | 🟢 낮음 | 0% |
 
 ---
 
@@ -495,7 +497,11 @@ context7: resolve mantine -> get /docs/x/notifications
 
 ## 문서 위치
 
-- 작업 기록: `/workthrough/YYYY-MM-DD_HH_MM_*.md`
+- 작업 기록: `/workthrough/YYYY-MM-DD_*.md`
+- 아카이브: `/workthrough/archive_2025/`, `/workthrough/archive_2026_jan/`
 - 개발 계획: `/.claude/plans/`
 - 타입 정의: `/src/types/`
 - 디자인 시스템: `/docs/RG_FAMILY_DESIGN_SYSTEM.md`
+- DB 스키마: `/docs/SUPABASE_SCHEMA.md`
+- 아키텍처: `/docs/ARCHITECTURE_ANALYSIS_REPORT.md`
+- Kaizen 보드: `/docs/KAIZEN_BOARD.md`

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useSupabaseContext } from "@/lib/context";
-import { mockOrganization } from "@/lib/mock/data";
+import { mockOrganization } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
 import { Radio, Youtube, Instagram, ExternalLink, X, ArrowLeft, Users, Filter } from "lucide-react";
 import styles from "./page.module.css";

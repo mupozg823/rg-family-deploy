@@ -17,9 +17,12 @@ import {
   Video,
   ImageIcon,
   Upload,
+  Lock,
+  LogIn,
+  ShieldX,
 } from 'lucide-react'
 import Footer from '@/components/Footer'
-import { useSupabaseContext } from '@/lib/context'
+import { useSupabaseContext, useAuthContext } from '@/lib/context'
 import { USE_MOCK_DATA } from '@/lib/config'
 import {
   mockProfiles,
@@ -28,25 +31,52 @@ import {
   getHallOfFameByUserId,
   type HallOfFameHonor,
 } from '@/lib/mock'
+import {
+  checkTributePageAccess,
+  getAccessDeniedMessage,
+  type AccessDeniedReason,
+} from '@/lib/auth/access-control'
 import styles from './page.module.css'
 
 export default function TributePage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = use(params)
   const supabase = useSupabaseContext()
+  const { user, profile, isLoading: authLoading } = useAuthContext()
   const [hallOfFameData, setHallOfFameData] = useState<HallOfFameHonor[] | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showGate, setShowGate] = useState(true)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
+  const [accessDenied, setAccessDenied] = useState<AccessDeniedReason | null>(null)
+
+  // 접근 제어 확인
+  useEffect(() => {
+    if (authLoading) return
+
+    const accessResult = checkTributePageAccess(userId, user, profile)
+    if (!accessResult.hasAccess && accessResult.reason) {
+      setAccessDenied(accessResult.reason)
+      setIsLoading(false)
+    } else {
+      setAccessDenied(null)
+    }
+  }, [userId, user, profile, authLoading])
 
   // 2.5초 후 자동으로 게이트 열림
   useEffect(() => {
+    if (accessDenied) return // 접근 거부 시 게이트 애니메이션 스킵
     const timer = setTimeout(() => {
       setShowGate(false)
     }, 2500)
     return () => clearTimeout(timer)
-  }, [])
+  }, [accessDenied])
 
   const fetchTributeData = useCallback(async () => {
+    // 접근 거부 상태면 데이터 로드 스킵
+    if (accessDenied) {
+      setIsLoading(false)
+      return
+    }
+
     setIsLoading(true)
 
     // Mock 데이터 모드
@@ -88,13 +118,13 @@ export default function TributePage({ params }: { params: Promise<{ userId: stri
     // Supabase 모드 (TODO: 실제 구현)
     try {
       // 프로필 정보
-      const { data: profile } = await supabase
+      const { data: profileData } = await supabase
         .from('profiles')
         .select('id, nickname, avatar_url, total_donation')
         .eq('id', userId)
         .single()
 
-      if (!profile) {
+      if (!profileData) {
         setIsLoading(false)
         return
       }
@@ -105,11 +135,13 @@ export default function TributePage({ params }: { params: Promise<{ userId: stri
       console.error('Tribute 데이터 로드 실패:', error)
       setIsLoading(false)
     }
-  }, [supabase, userId])
+  }, [supabase, userId, accessDenied])
 
   useEffect(() => {
-    fetchTributeData()
-  }, [fetchTributeData])
+    if (!authLoading && !accessDenied) {
+      fetchTributeData()
+    }
+  }, [fetchTributeData, authLoading, accessDenied])
 
   // 하트 단위로 표시 (팬더티비 후원 형식)
   const formatAmount = (amount: number) => {
@@ -120,6 +152,57 @@ export default function TributePage({ params }: { params: Promise<{ userId: stri
       return `${Math.floor(amount / 10000).toLocaleString()}만 하트`
     }
     return `${amount.toLocaleString()} 하트`
+  }
+
+  // 인증 로딩 중
+  if (authLoading) {
+    return (
+      <div className={styles.main}>
+        <div className={styles.loading}>
+          <div className={styles.spinner} />
+          <span>인증 확인 중...</span>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  // 접근 거부
+  if (accessDenied) {
+    const { title, description } = getAccessDeniedMessage(accessDenied)
+    const IconComponent = accessDenied === 'not_authenticated' ? LogIn : accessDenied === 'not_owner' ? ShieldX : Lock
+
+    return (
+      <div className={styles.main}>
+        <div className={styles.accessDenied}>
+          <motion.div
+            className={styles.accessDeniedContent}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className={styles.accessDeniedIcon}>
+              <IconComponent size={48} />
+            </div>
+            <h2>{title}</h2>
+            <p>{description}</p>
+            <div className={styles.accessDeniedActions}>
+              {accessDenied === 'not_authenticated' ? (
+                <Link href="/login" className={styles.primaryBtn}>
+                  <LogIn size={18} />
+                  <span>로그인하기</span>
+                </Link>
+              ) : (
+                <Link href="/ranking" className={styles.backBtn}>
+                  <ArrowLeft size={18} />
+                  <span>랭킹으로 돌아가기</span>
+                </Link>
+              )}
+            </div>
+          </motion.div>
+        </div>
+        <Footer />
+      </div>
+    )
   }
 
   // 로딩 중

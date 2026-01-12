@@ -20,7 +20,7 @@ import {
   mockNotices,
   mockPosts,
   mockDonations,
-} from '@/lib/mock/data'
+} from '@/lib/mock'
 import type { RankingItem, UnitFilter } from '@/types/common'
 import type { Season, Profile, Organization, Notice, Donation, Post } from '@/types/database'
 

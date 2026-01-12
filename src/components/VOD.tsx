@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Play, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useSupabaseContext } from "@/lib/context";
-import { mockMediaContent } from "@/lib/mock/data";
+import { mockMediaContent } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
 import { formatShortDate } from "@/lib/utils/format";
 import { getYouTubeEmbedUrl, getYouTubeThumbnail, extractYouTubeId } from "@/lib/utils/youtube";

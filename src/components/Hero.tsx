@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { mockBanners, type Banner } from "@/lib/mock/data";
+import { mockBanners, type MockBanner as Banner } from "@/lib/mock";
 import styles from "./Hero.module.css";
 
 const AUTOPLAY_DELAY = 5000; // 5초

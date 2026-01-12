@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Trophy, Crown } from "lucide-react";
-import { getRankingData } from "@/lib/mock/data";
+import { getRankingData } from "@/lib/mock";
 import styles from "./RankingBoard.module.css";
 
 export default function RankingBoard() {
