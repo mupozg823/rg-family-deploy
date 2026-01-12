@@ -104,3 +104,9 @@
 .glow:hover {
   box-shadow: 0 0 20px var(--badge-glow);
 }
+
+/* Light Mode - Glow variant adjustment */
+:global([data-theme='light']) .glow {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 10px var(--badge-glow);
+}

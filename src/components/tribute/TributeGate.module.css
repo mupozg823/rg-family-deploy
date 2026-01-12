@@ -90,6 +90,36 @@
   /* Uses original pink theme */
 }
 
+/* Light Mode */
+:global([data-theme='light']) .gateOverlay {
+  background: radial-gradient(circle at center, rgba(253, 104, 186, 0.1), transparent 50%),
+              linear-gradient(180deg, #f8f8f8 0%, #ffffff 100%);
+}
+
+:global([data-theme='light']) .gateText {
+  color: #1a1a1a;
+  text-shadow: none;
+}
+
+:global([data-theme='light']) .gateSubtext {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='light']) .gold {
+  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.15), transparent 50%),
+              linear-gradient(180deg, #fffef5 0%, #fffff5 100%);
+}
+
+:global([data-theme='light']) .silver {
+  background: radial-gradient(circle at center, rgba(150, 150, 150, 0.15), transparent 50%),
+              linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+}
+
+:global([data-theme='light']) .bronze {
+  background: radial-gradient(circle at center, rgba(205, 127, 50, 0.15), transparent 50%),
+              linear-gradient(180deg, #fff8f0 0%, #fffcf5 100%);
+}
+
 @media (max-width: 768px) {
   .gateText {
     font-size: 1.5rem;

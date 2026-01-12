@@ -22,6 +22,7 @@ export function useHonorQualification(): HonorQualificationResult {
 
   useEffect(() => {
     const fetchQualification = async () => {
+      setIsLoading(true)
       if (authLoading) return
 
       if (!user) {
@@ -34,32 +35,42 @@ export function useHonorQualification(): HonorQualificationResult {
 
       if (profile?.role === 'admin' || profile?.role === 'superadmin') {
         setIsQualified(true)
+        setRank(null)
+        setSeasonId(null)
         setIsLoading(false)
         return
       }
 
       if (USE_MOCK_DATA) {
         setIsQualified(hasHonorPageQualification(user.id))
+        setRank(null)
+        setSeasonId(null)
         setIsLoading(false)
         return
       }
 
-      const { data, error } = await supabase.rpc('get_user_rank_active_season', {
-        p_user_id: user.id,
-      })
+      const { data, error } = await supabase
+        .from('vip_rewards')
+        .select('rank, season_id')
+        .eq('profile_id', user.id)
+        .lte('rank', 3)
+        .order('created_at', { ascending: false })
+        .limit(1)
 
       if (error) {
         console.error('헌정 자격 조회 실패:', error)
         setIsQualified(false)
+        setRank(null)
+        setSeasonId(null)
         setIsLoading(false)
         return
       }
 
-      const row = Array.isArray(data) ? data[0] : null
-      const userRank = row?.rank ?? null
-      setRank(userRank)
-      setSeasonId(row?.season_id ?? null)
-      setIsQualified(userRank !== null && userRank <= 3)
+      const reward = Array.isArray(data) ? data[0] : null
+      const rewardRank = reward?.rank ?? null
+      setRank(rewardRank)
+      setSeasonId(reward?.season_id ?? null)
+      setIsQualified(rewardRank !== null && rewardRank <= 3)
       setIsLoading(false)
     }
 
@@ -68,4 +79,3 @@ export function useHonorQualification(): HonorQualificationResult {
 
   return { isQualified, isLoading, rank, seasonId }
 }
-

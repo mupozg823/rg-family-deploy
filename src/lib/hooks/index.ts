@@ -17,7 +17,8 @@ export {
 // Domain hooks
 export { useSchedule } from './useSchedule'
 export { useRanking } from './useRanking'
-export { useOrganizationData, useOrganizationData as useOrganization } from './useOrganizationData'
+export { useOrganizationData } from './useOrganizationData'
+export { useOrganization } from './useOrganization'
 export { useVipStatus } from './useVipStatus'
 export { useHonorQualification } from './useHonorQualification'
 export { useLiveRoster } from './useLiveRoster'

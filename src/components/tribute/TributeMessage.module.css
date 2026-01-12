@@ -135,6 +135,34 @@
 }
 
 /* Responsive */
+/* Light Mode */
+:global([data-theme='light']) .title {
+  color: #1a1a1a;
+}
+
+:global([data-theme='light']) .card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme='light']) .paragraph {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+:global([data-theme='light']) .signatureDivider::before,
+:global([data-theme='light']) .signatureDivider::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 0, 0, 0.1),
+    transparent
+  );
+}
+
+:global([data-theme='light']) .signatureImage {
+  filter: brightness(0.8);
+}
+
 @media (max-width: 768px) {
   .section {
     padding: 2rem 1rem;

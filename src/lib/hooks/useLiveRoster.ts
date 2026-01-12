@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useSupabaseContext } from '@/lib/context'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { mockOrganization, mockLiveStatus } from '@/lib/mock'
+import type { JoinedProfile } from '@/types/common'
 import type { OrgMember } from '@/types/organization'
 import type { LiveStatus } from '@/types/database'
 
@@ -81,7 +82,7 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
 
     const { data: orgData, error: orgError } = await supabase
       .from('organization')
-      .select('id, name, role, unit, position_order, parent_id, image_url, social_links, is_live')
+      .select('id, name, role, unit, position_order, parent_id, image_url, social_links, is_live, profiles(nickname, avatar_url)')
       .eq('is_active', true)
       .order('position_order')
 
@@ -113,6 +114,7 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
 
     const liveMap = buildLiveStatusMap(liveEntries)
     const mappedMembers: OrgMember[] = (orgData || []).map((member) => {
+      const profile = member.profiles as JoinedProfile | null
       const liveEntriesForMember = liveMap[member.id] || []
       const hasLiveStatus = liveEntriesForMember.length > 0
       const isLive = hasLiveStatus
@@ -121,12 +123,12 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
 
       return {
         id: member.id,
-        name: member.name,
+        name: profile?.nickname || member.name,
         role: member.role,
         unit: member.unit,
         position_order: member.position_order,
         parent_id: member.parent_id,
-        image_url: member.image_url,
+        image_url: profile?.avatar_url || member.image_url,
         social_links: (member.social_links || undefined) as OrgMember['social_links'],
         is_live: isLive,
       }
@@ -156,4 +158,3 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
 
   return { members, liveStatusByMemberId, isLoading, refetch: fetchRoster }
 }
-

@@ -24,6 +24,7 @@ export function useVipStatus(): VipStatusResult {
 
   useEffect(() => {
     const fetchVipStatus = async () => {
+      setIsLoading(true)
       if (authLoading) return
 
       if (!user) {
@@ -36,12 +37,16 @@ export function useVipStatus(): VipStatusResult {
 
       if (USE_MOCK_DATA) {
         setIsVip(true)
+        setRank(5)
+        setTotalAmount(null)
         setIsLoading(false)
         return
       }
 
       if (profile?.role && VIP_ROLES.includes(profile.role)) {
         setIsVip(true)
+        setRank(null)
+        setTotalAmount(null)
         setIsLoading(false)
         return
       }
@@ -53,6 +58,8 @@ export function useVipStatus(): VipStatusResult {
       if (error) {
         console.error('VIP 순위 조회 실패:', error)
         setIsVip(false)
+        setRank(null)
+        setTotalAmount(null)
         setIsLoading(false)
         return
       }
@@ -70,4 +77,3 @@ export function useVipStatus(): VipStatusResult {
 
   return { isVip, isLoading, rank, totalAmount }
 }
-

@@ -138,7 +138,7 @@ export default function VipBoardPage() {
           <div className={styles.locked}>
             <Crown size={48} style={{ color: '#ffd700' }} />
             <h3>VIP 전용 공간입니다</h3>
-            <p>10만원 이상 후원 시 VIP 라운지 이용이 가능합니다.</p>
+            <p>후원 랭킹 <strong>Top 50</strong>만 VIP 라운지 이용이 가능합니다.</p>
             <Link href="/ranking" className={styles.loginBtn}>후원 랭킹 보기</Link>
           </div>
         ) : isLoading ? (

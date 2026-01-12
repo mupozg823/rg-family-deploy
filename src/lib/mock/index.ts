@@ -53,6 +53,16 @@ export {
   TRIBUTE_COLORS,
 } from './vip-tribute'
 
+// Tribute Guestbook (방명록)
+export {
+  mockTributeGuestbook,
+  getGuestbookByTributeUserId,
+  getGuestbookByRank,
+  getGuestbookCountByTributeUserId,
+  getMemberGuestbookByTributeUserId,
+  type GuestbookEntry,
+} from './guestbook'
+
 // VIP Rewards (Database Schema 기반)
 export {
   mockVipRewards as mockVipRewardsDB,

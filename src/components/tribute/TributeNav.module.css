@@ -59,6 +59,30 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+/* Light Mode */
+:global([data-theme='light']) .nav {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme='light']) .backBtn {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='light']) .backBtn:hover {
+  color: #1a1a1a;
+}
+
+:global([data-theme='light']) .navBtn {
+  color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+:global([data-theme='light']) .navBtn:hover {
+  color: #1a1a1a;
+  background: rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 640px) {
   .navBtn span {
     display: none;

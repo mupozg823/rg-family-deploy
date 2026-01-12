@@ -221,6 +221,50 @@
 }
 
 /* Responsive */
+/* Light Mode */
+:global([data-theme='light']) .title {
+  color: #1a1a1a;
+}
+
+:global([data-theme='light']) .subtitle {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='light']) .imageWrapper {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+:global([data-theme='light']) .overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 50%);
+}
+
+:global([data-theme='light']) .lightbox {
+  background: rgba(255, 255, 255, 0.98);
+}
+
+:global([data-theme='light']) .closeBtn,
+:global([data-theme='light']) .navBtn {
+  background: rgba(0, 0, 0, 0.08);
+  color: #1a1a1a;
+}
+
+:global([data-theme='light']) .closeBtn:hover,
+:global([data-theme='light']) .navBtn:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+:global([data-theme='light']) .lightboxImageWrapper {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+:global([data-theme='light']) .lightboxTitle {
+  color: #1a1a1a;
+}
+
+:global([data-theme='light']) .lightboxDesc {
+  color: rgba(0, 0, 0, 0.6);
+}
+
 @media (max-width: 768px) {
   .section {
     padding: 2rem 1rem;

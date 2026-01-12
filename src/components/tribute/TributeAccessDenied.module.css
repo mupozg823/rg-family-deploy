@@ -74,3 +74,38 @@
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
+
+/* Light Mode */
+:global([data-theme='light']) .accessDenied {
+  background: var(--background);
+}
+
+:global([data-theme='light']) .icon {
+  background: rgba(253, 104, 186, 0.1);
+}
+
+:global([data-theme='light']) .title {
+  color: #1a1a1a;
+}
+
+:global([data-theme='light']) .description {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='light']) .primaryBtn {
+  box-shadow: 0 4px 12px rgba(253, 104, 186, 0.2);
+}
+
+:global([data-theme='light']) .primaryBtn:hover {
+  box-shadow: 0 6px 20px rgba(253, 104, 186, 0.3);
+}
+
+:global([data-theme='light']) .backBtn {
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+:global([data-theme='light']) .backBtn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #1a1a1a;
+}

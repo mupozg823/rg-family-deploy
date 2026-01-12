@@ -118,6 +118,9 @@ begin
 end;
 $$;
 
+grant execute on function public.get_user_rank(uuid, bigint) to anon, authenticated;
+grant execute on function public.get_user_rank_active_season(uuid) to anon, authenticated;
+
 create or replace function public.is_vip_user(user_id uuid)
 returns boolean
 language plpgsql
@@ -395,4 +398,3 @@ create policy "Staff can manage banners"
   on public.banners for all
   using (public.is_staff(auth.uid()))
   with check (public.is_staff(auth.uid()));
-

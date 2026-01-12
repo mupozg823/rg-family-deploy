@@ -655,6 +655,58 @@ export type Database = {
         }
         Relationships: []
       }
+      tribute_guestbook: {
+        Row: {
+          id: number
+          tribute_user_id: string
+          author_id: string | null
+          author_name: string
+          message: string
+          is_member: boolean
+          is_approved: boolean
+          is_deleted: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          tribute_user_id: string
+          author_id?: string | null
+          author_name: string
+          message: string
+          is_member?: boolean
+          is_approved?: boolean
+          is_deleted?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          tribute_user_id?: string
+          author_id?: string | null
+          author_name?: string
+          message?: string
+          is_member?: boolean
+          is_approved?: boolean
+          is_deleted?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'tribute_guestbook_tribute_user_id_fkey'
+            columns: ['tribute_user_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tribute_guestbook_author_id_fkey'
+            columns: ['author_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -719,6 +771,7 @@ export type Comment = Tables<'comments'>
 export type MediaContent = Tables<'media_content'>
 export type LiveStatus = Tables<'live_status'>
 export type Banner = Tables<'banners'>
+export type TributeGuestbook = Tables<'tribute_guestbook'>
 
 // Unit type
 export type Unit = 'excel' | 'crew'

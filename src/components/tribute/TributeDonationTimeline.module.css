@@ -182,6 +182,45 @@
 }
 
 /* Responsive */
+/* Light Mode */
+:global([data-theme='light']) .title {
+  color: #1a1a1a;
+}
+
+:global([data-theme='light']) .subtitle {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='light']) .timelineContent {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme='light']) .timelineContent:hover {
+  border-color: var(--theme-glow);
+}
+
+:global([data-theme='light']) .date {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+:global([data-theme='light']) .message {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+:global([data-theme='light']) .message p {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+:global([data-theme='light']) .messageIcon {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+:global([data-theme='light']) .season {
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.6);
+}
+
 @media (max-width: 768px) {
   .section {
     padding: 2rem 1rem;

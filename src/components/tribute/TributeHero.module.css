@@ -247,6 +247,36 @@
 }
 
 /* Responsive */
+/* Light Mode */
+:global([data-theme='light']) .hero {
+  background: var(--background);
+}
+
+:global([data-theme='light']) .gradientOrb1,
+:global([data-theme='light']) .gradientOrb2 {
+  opacity: 0.3;
+}
+
+:global([data-theme='light']) .particle {
+  opacity: 0.6;
+}
+
+:global([data-theme='light']) .nickname {
+  color: #1a1a1a;
+}
+
+:global([data-theme='light']) .avatarPlaceholder {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+:global([data-theme='light']) .stat {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='light']) .statDivider {
+  background: rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 768px) {
   .hero {
     min-height: 40vh;

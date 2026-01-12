@@ -211,7 +211,7 @@ export default function VipLoungePage() {
           <h1 className={styles.heroTitle}>환영합니다, VIP!</h1>
           <p className={styles.heroSubtitle}>
             {user?.user_metadata?.nickname || "후원자"}님은 현재{" "}
-            <strong>{userRank}위</strong>입니다
+            {userRank ? <strong>{userRank}위</strong> : "순위 집계 중입니다"}
           </p>
         </motion.div>
 
