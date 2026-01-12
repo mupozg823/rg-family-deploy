@@ -3,6 +3,393 @@
 .container {
   min-height: 100vh;
   background: var(--background);
+  transition: background 0.5s ease, background-color 0.5s ease;
+}
+
+/* =======================================
+   Unit Theme Switching
+   기획안 요구사항: 엑셀부/크루부 전환 시 배경 톤 전환
+   엑셀부: Black dominant
+   크루부: Pink dominant
+   ======================================= */
+
+/* Excel Unit Theme - Black Dominant (Default) */
+.excelTheme {
+  background: linear-gradient(
+    180deg,
+    #050505 0%,
+    #0a0a0a 30%,
+    #080808 70%,
+    #050505 100%
+  );
+}
+
+.excelTheme::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 20%,
+    rgba(212, 175, 55, 0.03) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Crew Unit Theme - Pink Dominant */
+.crewTheme {
+  background: linear-gradient(
+    180deg,
+    #0a0508 0%,
+    #0d0609 30%,
+    #100810 70%,
+    #0a0508 100%
+  );
+}
+
+.crewTheme::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 20%,
+    rgba(253, 104, 186, 0.06) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    ellipse 60% 40% at 30% 80%,
+    rgba(253, 104, 186, 0.03) 0%,
+    transparent 40%
+  ),
+  radial-gradient(
+    ellipse 60% 40% at 70% 80%,
+    rgba(253, 104, 186, 0.03) 0%,
+    transparent 40%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Theme-specific toggle button colors */
+.crewTheme .toggleBtn.active {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 104, 186, 0.2) 0%,
+    rgba(253, 104, 186, 0.08) 100%
+  );
+  border-color: rgba(253, 104, 186, 0.4);
+  color: var(--color-primary);
+  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.15);
+}
+
+.crewTheme .toggleBtn.active::before {
+  background: linear-gradient(90deg, transparent, rgba(253, 104, 186, 0.5), transparent);
+}
+
+/* Theme-specific connector lines */
+.crewTheme .connector::before {
+  background: var(--color-primary);
+  box-shadow: 0 0 10px rgba(253, 104, 186, 0.4);
+}
+
+.crewTheme .verticalLine {
+  background: linear-gradient(
+    180deg,
+    var(--color-primary) 0%,
+    rgba(253, 104, 186, 0.3) 100%
+  );
+  box-shadow: 0 0 8px rgba(253, 104, 186, 0.2);
+}
+
+.crewTheme .horizontalLine {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(253, 104, 186, 0.4) 10%,
+    var(--color-primary) 50%,
+    rgba(253, 104, 186, 0.4) 90%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px rgba(253, 104, 186, 0.15);
+}
+
+.crewTheme .branchLine {
+  background: linear-gradient(
+    180deg,
+    var(--color-primary) 0%,
+    rgba(253, 104, 186, 0.2) 80%,
+    transparent 100%
+  );
+}
+
+.crewTheme .branchLine::before {
+  background: var(--color-primary);
+  box-shadow: 0 0 6px rgba(253, 104, 186, 0.5);
+}
+
+/* Theme-specific org chart glow */
+.crewTheme .orgChart::before {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(253, 104, 186, 0.04) 0%,
+    transparent 70%
+  );
+}
+
+/* Theme-specific header gradient */
+.crewTheme .header::before {
+  background: radial-gradient(
+    ellipse 60% 60% at 50% 30%,
+    rgba(253, 104, 186, 0.08) 0%,
+    transparent 60%
+  );
+}
+
+/* Theme-specific member card hover */
+.crewTheme .memberCard:hover {
+  border-color: rgba(253, 104, 186, 0.3);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.2),
+    0 0 30px rgba(253, 104, 186, 0.08);
+}
+
+.crewTheme .memberCard.large {
+  background: linear-gradient(
+    145deg,
+    rgba(253, 104, 186, 0.08) 0%,
+    var(--card-bg) 100%
+  );
+  border-color: rgba(253, 104, 186, 0.25);
+}
+
+.crewTheme .memberCard.large::before {
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+}
+
+.crewTheme .memberCard.large .memberRole {
+  color: var(--color-primary);
+}
+
+/* Theme-specific unit label */
+.crewTheme .unitLabel {
+  background: rgba(253, 104, 186, 0.1);
+  border-color: rgba(253, 104, 186, 0.3);
+  color: var(--color-primary);
+}
+
+/* Theme-specific spinner */
+.crewTheme .spinner {
+  border-top-color: var(--color-primary);
+}
+
+/* Theme-specific nav tab active state */
+.crewTheme .navTab.active {
+  background: rgba(253, 104, 186, 0.15);
+  border-color: rgba(253, 104, 186, 0.3);
+  color: var(--color-primary);
+}
+
+/* Theme-specific logo circle for crew */
+.crewTheme .logoCircle {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 104, 186, 0.15) 0%,
+    rgba(253, 104, 186, 0.05) 100%
+  );
+  border-color: rgba(253, 104, 186, 0.3);
+  box-shadow:
+    0 0 40px rgba(253, 104, 186, 0.15),
+    inset 0 0 30px rgba(253, 104, 186, 0.05);
+}
+
+.crewTheme .logoCircle::before {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 104, 186, 0.3) 0%,
+    transparent 50%,
+    rgba(253, 104, 186, 0.3) 100%
+  );
+}
+
+/* =======================================
+   Light Mode Theme Overrides
+   ======================================= */
+:global([data-theme="light"]) .excelTheme {
+  background: linear-gradient(
+    180deg,
+    #fafafa 0%,
+    #f5f5f5 30%,
+    #f8f8f8 70%,
+    #fafafa 100%
+  );
+}
+
+:global([data-theme="light"]) .excelTheme::before {
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 20%,
+    rgba(184, 134, 11, 0.05) 0%,
+    transparent 50%
+  );
+}
+
+:global([data-theme="light"]) .crewTheme {
+  background: linear-gradient(
+    180deg,
+    #fdf7fa 0%,
+    #fef5f9 30%,
+    #fdf7fa 70%,
+    #fdf5f8 100%
+  );
+}
+
+:global([data-theme="light"]) .crewTheme::before {
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 20%,
+    rgba(253, 104, 186, 0.08) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    ellipse 60% 40% at 30% 80%,
+    rgba(253, 104, 186, 0.04) 0%,
+    transparent 40%
+  ),
+  radial-gradient(
+    ellipse 60% 40% at 70% 80%,
+    rgba(253, 104, 186, 0.04) 0%,
+    transparent 40%
+  );
+}
+
+:global([data-theme="light"]) .crewTheme .toggleBtn.active {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 104, 186, 0.15) 0%,
+    rgba(253, 104, 186, 0.08) 100%
+  );
+  border-color: rgba(253, 104, 186, 0.4);
+  color: #d63384;
+  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.12);
+}
+
+:global([data-theme="light"]) .crewTheme .memberCard {
+  background: #ffffff;
+  border-color: rgba(253, 104, 186, 0.1);
+}
+
+:global([data-theme="light"]) .crewTheme .memberCard:hover {
+  background: #fff9fc;
+  border-color: rgba(253, 104, 186, 0.3);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.06),
+    0 0 30px rgba(253, 104, 186, 0.06);
+}
+
+:global([data-theme="light"]) .crewTheme .memberCard.large {
+  background: linear-gradient(
+    145deg,
+    rgba(253, 104, 186, 0.06) 0%,
+    #ffffff 100%
+  );
+  border-color: rgba(253, 104, 186, 0.2);
+}
+
+:global([data-theme="light"]) .crewTheme .memberCard.large .memberRole {
+  color: #d63384;
+}
+
+:global([data-theme="light"]) .crewTheme .connector::before {
+  background: #d63384;
+  box-shadow: 0 0 8px rgba(253, 104, 186, 0.3);
+}
+
+:global([data-theme="light"]) .crewTheme .verticalLine {
+  background: linear-gradient(
+    180deg,
+    #d63384 0%,
+    rgba(253, 104, 186, 0.3) 100%
+  );
+  box-shadow: 0 0 6px rgba(253, 104, 186, 0.15);
+}
+
+:global([data-theme="light"]) .crewTheme .horizontalLine {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(253, 104, 186, 0.3) 10%,
+    #d63384 50%,
+    rgba(253, 104, 186, 0.3) 90%,
+    transparent 100%
+  );
+  box-shadow: 0 0 6px rgba(253, 104, 186, 0.1);
+}
+
+:global([data-theme="light"]) .crewTheme .branchLine {
+  background: linear-gradient(
+    180deg,
+    #d63384 0%,
+    rgba(253, 104, 186, 0.2) 80%,
+    transparent 100%
+  );
+}
+
+:global([data-theme="light"]) .crewTheme .branchLine::before {
+  background: #d63384;
+  box-shadow: 0 0 5px rgba(253, 104, 186, 0.4);
+}
+
+:global([data-theme="light"]) .crewTheme .unitLabel {
+  background: rgba(253, 104, 186, 0.08);
+  border-color: rgba(253, 104, 186, 0.2);
+  color: #d63384;
+}
+
+:global([data-theme="light"]) .crewTheme .spinner {
+  border-color: rgba(0, 0, 0, 0.1);
+  border-top-color: #d63384;
+}
+
+:global([data-theme="light"]) .crewTheme .navTab.active {
+  background: rgba(253, 104, 186, 0.12);
+  border-color: rgba(253, 104, 186, 0.3);
+  color: #d63384;
+}
+
+:global([data-theme="light"]) .crewTheme .logoCircle {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 104, 186, 0.1) 0%,
+    rgba(253, 104, 186, 0.05) 100%
+  );
+  border-color: rgba(253, 104, 186, 0.3);
+  box-shadow:
+    0 0 30px rgba(253, 104, 186, 0.1),
+    inset 0 0 20px rgba(253, 104, 186, 0.05);
+}
+
+:global([data-theme="light"]) .crewTheme .logoCircle::before {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 104, 186, 0.2) 0%,
+    transparent 50%,
+    rgba(253, 104, 186, 0.2) 100%
+  );
+}
+
+:global([data-theme="light"]) .crewTheme .header::before {
+  background: radial-gradient(
+    ellipse 60% 60% at 50% 30%,
+    rgba(253, 104, 186, 0.1) 0%,
+    transparent 60%
+  );
+}
+
+:global([data-theme="light"]) .crewTheme .orgChart::before {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(253, 104, 186, 0.05) 0%,
+    transparent 70%
+  );
 }
 
 /* =======================================

@@ -19,7 +19,7 @@ import {
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import { useAuthContext } from "@/lib/context";
-import { useVipStatus, useRanking } from "@/lib/hooks";
+import { useVipStatus, useRanking, useContentProtection } from "@/lib/hooks";
 import { mockVipContent, type VipContent } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
 import styles from "./page.module.css";
@@ -31,6 +31,16 @@ export default function VipLoungePage() {
   const [vipContent, setVipContent] = useState<VipContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showGate, setShowGate] = useState(true);
+
+  // VIP 콘텐츠 보호 (우클릭, 드래그, 선택, 키보드 단축키 방지)
+  useContentProtection({
+    preventContextMenu: true,
+    preventDrag: true,
+    preventSelect: true,
+    preventKeyboardShortcuts: true,
+    preventPrint: true,
+    showConsoleWarning: true,
+  });
 
   useEffect(() => {
     // 2.5초 후 자동으로 게이트 열림

@@ -177,6 +177,7 @@ export default function DonationsPage() {
             columns={csvColumns}
             onUpload={uploadCsv}
             sampleFile="/samples/donations_sample.csv"
+            showDuplicateOptions
           />
         </div>
       )}

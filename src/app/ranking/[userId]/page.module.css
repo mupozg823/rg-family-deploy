@@ -3,6 +3,21 @@
   background: var(--background);
 }
 
+/* VIP 콘텐츠 보호 - 인쇄 방지 */
+@media print {
+  .main {
+    display: none !important;
+  }
+
+  body::before {
+    content: "이 콘텐츠는 인쇄할 수 없습니다.";
+    display: block;
+    font-size: 24px;
+    text-align: center;
+    padding: 100px;
+  }
+}
+
 /* Page Navigation - Reference Style with Centered Title */
 .pageNav {
   position: sticky;

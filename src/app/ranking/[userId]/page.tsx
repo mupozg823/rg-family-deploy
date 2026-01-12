@@ -11,7 +11,7 @@ import {
   TributePageHero,
   TributeSections,
 } from '@/components/tribute'
-import { useTributeData } from '@/lib/hooks'
+import { useTributeData, useContentProtection } from '@/lib/hooks'
 import styles from './page.module.css'
 
 export default function TributePage({ params }: { params: Promise<{ userId: string }> }) {
@@ -25,6 +25,16 @@ export default function TributePage({ params }: { params: Promise<{ userId: stri
     authLoading,
     accessDenied,
   } = useTributeData({ userId })
+
+  // VIP 콘텐츠 보호 (접근이 허용된 경우에만)
+  useContentProtection({
+    preventContextMenu: !accessDenied,
+    preventDrag: !accessDenied,
+    preventSelect: !accessDenied,
+    preventKeyboardShortcuts: !accessDenied,
+    preventPrint: !accessDenied,
+    showConsoleWarning: !accessDenied,
+  })
 
   // 2.5초 후 자동으로 게이트 열림
   useEffect(() => {

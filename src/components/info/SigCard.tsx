@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Play } from 'lucide-react'
 import Image from 'next/image'
+import { useLazyLoad } from '@/lib/hooks'
 import type { SignatureData } from '@/lib/mock/signatures'
 import styles from './SigCard.module.css'
 
@@ -15,9 +16,18 @@ interface SigCardProps {
 export default function SigCard({ signature, onClick }: SigCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
+
+  // Lazy loading with IntersectionObserver
+  // rootMargin: 200px = 뷰포트 200px 전에 미리 로드 시작
+  const { ref, hasLoaded: isInView } = useLazyLoad<HTMLDivElement>({
+    rootMargin: '200px',
+    triggerOnce: true,
+  })
 
   return (
     <motion.div
+      ref={ref}
       className={styles.card}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -27,17 +37,31 @@ export default function SigCard({ signature, onClick }: SigCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
     >
-      {/* Thumbnail - Square aspect ratio */}
+      {/* Thumbnail - Square aspect ratio with Lazy Loading */}
       <div className={styles.thumbnail}>
-        {!imageError ? (
+        {/* Facade Placeholder - 이미지 로드 전까지 표시 */}
+        {(!isInView || !imageLoaded) && !imageError && (
+          <div className={styles.facadePlaceholder}>
+            <span className={styles.facadeNumber}>{signature.number}</span>
+          </div>
+        )}
+
+        {/* 실제 이미지 - IntersectionObserver가 감지한 후에만 로드 */}
+        {isInView && !imageError && (
           <Image
             src={signature.thumbnailUrl}
             alt={signature.title}
             fill
-            className={styles.image}
+            className={`${styles.image} ${imageLoaded ? styles.imageLoaded : styles.imageLoading}`}
             onError={() => setImageError(true)}
+            onLoad={() => setImageLoaded(true)}
+            loading="lazy"
+            sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, 16vw"
           />
-        ) : (
+        )}
+
+        {/* Error Placeholder */}
+        {imageError && (
           <div className={styles.placeholder}>
             <span className={styles.placeholderNumber}>{signature.number}</span>
           </div>
