@@ -5,7 +5,7 @@ import { Heart, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RankingItem } from "@/types/common";
-import { formatAmountShort, getInitials } from "@/lib/utils";
+import { formatAmountShort, getInitials, getTributePageUrl } from "@/lib/utils";
 import styles from "./RankingFullList.module.css";
 
 interface RankingFullListProps {
@@ -121,7 +121,7 @@ export default function RankingFullList({
           return (
             <Link
               key={item.donorId}
-              href={`/ranking/${item.donorId}`}
+              href={getTributePageUrl(item.donorId)}
               className={styles.link}
             >
               {Content}

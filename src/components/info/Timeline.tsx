@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Calendar, Sparkles, ChevronRight } from 'lucide-react'
+import { Calendar, Sparkles, ChevronRight, Loader2 } from 'lucide-react'
 import { useTimelineData, getSeasonColor } from '@/lib/hooks/useTimelineData'
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll'
 import { formatDate } from '@/lib/utils/format'
 import TimelineFilter from './TimelineFilter'
 import TimelineEventCard from './TimelineEventCard'
@@ -22,9 +23,24 @@ export default function Timeline() {
     selectedCategory,
     groupedBySeason,
     isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
     setSelectedSeasonId,
     setSelectedCategory,
-  } = useTimelineData()
+  } = useTimelineData({ infiniteScroll: true, pageSize: 8 })
+
+  // 무한 스크롤
+  const { sentinelRef, setCanLoadMore } = useInfiniteScroll(loadMore, {
+    enabled: hasMore && !isLoadingMore,
+  })
+
+  // hasMore 변경 시 canLoadMore 동기화
+  useEffect(() => {
+    if (!hasMore) {
+      setCanLoadMore(false)
+    }
+  }, [hasMore, setCanLoadMore])
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -118,6 +134,35 @@ export default function Timeline() {
               </div>
             )
           })}
+
+          {/* Infinite Scroll Sentinel & Loading */}
+          {hasMore && (
+            <div ref={sentinelRef} className={styles.loadMoreSentinel}>
+              {isLoadingMore && (
+                <motion.div
+                  className={styles.loadingMore}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <Loader2 size={24} className={styles.spinnerIcon} />
+                  <span>더 불러오는 중...</span>
+                </motion.div>
+              )}
+            </div>
+          )}
+
+          {/* End of Timeline */}
+          {!hasMore && totalEvents > 0 && (
+            <motion.div
+              className={styles.timelineEnd}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              <span className={styles.endDot} />
+              <span className={styles.endText}>모든 타임라인을 확인했습니다</span>
+            </motion.div>
+          )}
         </div>
       )}
 

@@ -46,6 +46,10 @@ export const getSeasonColor = (seasonIndex: number): string => {
 export interface UseTimelineDataOptions {
   initialSeasonId?: number | null
   initialCategory?: string | null
+  /** 페이지당 이벤트 수 (무한 스크롤용) */
+  pageSize?: number
+  /** 무한 스크롤 모드 활성화 */
+  infiniteScroll?: boolean
 }
 
 export interface UseTimelineDataReturn {
@@ -56,19 +60,27 @@ export interface UseTimelineDataReturn {
   selectedCategory: string | null
   groupedBySeason: GroupedEvents[]
   isLoading: boolean
+  /** 추가 로딩 중 여부 (무한 스크롤) */
+  isLoadingMore: boolean
+  /** 더 로드할 데이터 있는지 */
+  hasMore: boolean
+  /** 다음 페이지 로드 (무한 스크롤) */
+  loadMore: () => Promise<void>
   setSelectedSeasonId: (id: number | null) => void
   setSelectedCategory: (category: string | null) => void
   refetch: () => Promise<void>
 }
 
 export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDataReturn {
+  const { pageSize = 10, infiniteScroll = false } = options || {}
+
   // Repository hooks
   const timelineRepo = useTimeline()
   const seasonsRepo = useSeasons()
 
   // State
   const [events, setEvents] = useState<TimelineItem[]>([])
-  const [allEvents, setAllEvents] = useState<TimelineItem[]>([])
+  const [allFilteredEvents, setAllFilteredEvents] = useState<TimelineItem[]>([])
   const [seasons, setSeasons] = useState<Season[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const [selectedSeasonId, setSelectedSeasonId] = useState<number | null>(
@@ -78,6 +90,8 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     options?.initialCategory ?? null
   )
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
 
   // 시즌별로 이벤트 그룹화
   const groupedBySeason = useMemo((): GroupedEvents[] => {
@@ -104,21 +118,45 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     return groups
   }, [events, seasons])
 
+  // 더 로드할 데이터가 있는지
+  const hasMore = useMemo(() => {
+    if (!infiniteScroll) return false
+    return events.length < allFilteredEvents.length
+  }, [infiniteScroll, events.length, allFilteredEvents.length])
+
+  // 다음 페이지 로드 (무한 스크롤)
+  const loadMore = useCallback(async () => {
+    if (!infiniteScroll || isLoadingMore || !hasMore) return
+
+    setIsLoadingMore(true)
+
+    // 클라이언트 사이드 페이지네이션 (이미 로드된 데이터에서 slice)
+    const nextPage = currentPage + 1
+    const endIndex = nextPage * pageSize
+    const nextEvents = allFilteredEvents.slice(0, endIndex)
+
+    // 약간의 딜레이로 UX 개선
+    await new Promise((resolve) => setTimeout(resolve, 300))
+
+    setEvents(nextEvents)
+    setCurrentPage(nextPage)
+    setIsLoadingMore(false)
+  }, [infiniteScroll, isLoadingMore, hasMore, currentPage, pageSize, allFilteredEvents])
+
   // 데이터 로드
   const fetchData = useCallback(async () => {
     setIsLoading(true)
+    setCurrentPage(1)
 
     try {
       // 시즌 및 카테고리 목록 로드
-      const [allSeasons, allCategories, allEventsData] = await Promise.all([
+      const [allSeasons, allCategories] = await Promise.all([
         seasonsRepo.findAll(),
         timelineRepo.getCategories(),
-        timelineRepo.findAll(),
       ])
 
       setSeasons(allSeasons)
       setCategories(allCategories)
-      setAllEvents(allEventsData)
 
       // 필터링된 이벤트 로드
       const filteredEvents = await timelineRepo.findByFilter({
@@ -126,13 +164,20 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
         category: selectedCategory,
       })
 
-      setEvents(filteredEvents)
+      setAllFilteredEvents(filteredEvents)
+
+      // 무한 스크롤 모드면 첫 페이지만, 아니면 전체
+      if (infiniteScroll) {
+        setEvents(filteredEvents.slice(0, pageSize))
+      } else {
+        setEvents(filteredEvents)
+      }
     } catch (err) {
       console.error('타임라인 로드 실패:', err)
     } finally {
       setIsLoading(false)
     }
-  }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory])
+  }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory, infiniteScroll, pageSize])
 
   // 초기 로드 및 필터 변경 시 refetch
   useEffect(() => {
@@ -147,6 +192,9 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     selectedCategory,
     groupedBySeason,
     isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
     setSelectedSeasonId,
     setSelectedCategory,
     refetch: fetchData,

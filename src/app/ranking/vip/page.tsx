@@ -22,6 +22,7 @@ import { useAuthContext } from "@/lib/context";
 import { useVipStatus, useRanking, useContentProtection } from "@/lib/hooks";
 import { mockVipContent, type VipContent } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
+import { getTributePageUrl } from "@/lib/utils";
 import styles from "./page.module.css";
 
 export default function VipLoungePage() {
@@ -369,13 +370,15 @@ export default function VipLoungePage() {
                 <h3>Top {userRank} 특별 페이지</h3>
                 <p>당신만을 위한 특별한 헌정 페이지가 준비되어 있습니다</p>
               </div>
-              <Link
-                href={`/ranking/${user?.id}`}
-                className={styles.secretLink}
-              >
-                입장하기
-                <ArrowRight size={18} />
-              </Link>
+              {user?.id && (
+                <Link
+                  href={getTributePageUrl(user.id)}
+                  className={styles.secretLink}
+                >
+                  입장하기
+                  <ArrowRight size={18} />
+                </Link>
+              )}
             </div>
           </motion.section>
         )}

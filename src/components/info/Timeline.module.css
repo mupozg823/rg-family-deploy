@@ -429,6 +429,65 @@
   }
 }
 
+/* =======================================
+   Infinite Scroll Loading
+   ======================================= */
+.loadMoreSentinel {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-8) 0;
+  min-height: 80px;
+}
+
+.loadingMore {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.spinnerIcon {
+  animation: spin 1s linear infinite;
+  color: var(--color-primary);
+}
+
+.timelineEnd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) 0;
+  position: relative;
+  z-index: 2;
+}
+
+.endDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 20px var(--color-primary-glow);
+}
+
+.endText {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+:global([data-theme="light"]) .loadingMore {
+  color: #666666;
+}
+
+:global([data-theme="light"]) .spinnerIcon {
+  color: var(--color-primary);
+}
+
+:global([data-theme="light"]) .endText {
+  color: #888888;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {

@@ -14,3 +14,4 @@ export * from './utils/cn';
 export * from './utils/format';
 export * from './utils/ranking';
 export * from './utils/youtube';
+export * from './utils/hash';
