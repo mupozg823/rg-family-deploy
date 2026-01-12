@@ -184,33 +184,19 @@ rg-family/
 
 ### 3.1 전체 시스템 아키텍처
 
-### 3.1 전체 시스템 아키텍처 (Two-Tier System)
-
-본 프로젝트는 **방송용 게임 엔진**과 **웹 대시보드**가 분리된 이원화 아키텍처를 따릅니다.
-
 ```mermaid
 graph TD
-    subgraph "Stream Environment (Local)"
-        Game[Stream Pinball Lottery] -->|SQLite| LocalDB[(Local DB)]
-        Controller[Tuanbo Controller] -->|Bridge| Game
-        OBS[OBS Studio] <-->|WS 4456| Controller
-    end
-
     subgraph "Web Environment (Cloud)"
         Dashboard[RG Family Web] -->|Next.js| Vercel[Vercel Deployment]
         Vercel -->|Supabase SDK| CloudDB[(Supabase DB)]
     end
-
-    %% 연결 고리 (논리적 연동)
-    Game -.->|Manual/Bridge Sync?| CloudDB
 ```
 
 | 시스템                     | 역할                                     | 기술 스택        | 데이터 저장소         |
 | -------------------------- | ---------------------------------------- | ---------------- | --------------------- |
-| **Stream Pinball Lottery** | 방송 송출용 게임 엔진 (물리 연산, 추첨)  | Node.js, Express | Local SQLite          |
 | **RG Family Web**          | 시청자용 대시보드 (랭킹, 통계, 커뮤니티) | Next.js, React   | Supabase (PostgreSQL) |
 
-> **Note**: 두 시스템은 코드 레벨에서 직접적인 의존성이 없으며, `rg-family`는 오직 Supabase(또는 Mock Data)와만 통신합니다.
+> **Note**: `rg-family`는 오직 Supabase(또는 Mock Data)와만 통신합니다.
 
 ### 3.2 데이터 프로바이더 아키텍처 (Repository Pattern)
 

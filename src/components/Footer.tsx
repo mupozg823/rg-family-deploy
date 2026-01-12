@@ -47,10 +47,10 @@ export default function Footer() {
           </div>
           <div className={styles.linkGroup}>
             <h4 className={styles.linkTitle}>정보</h4>
-            <Link href="/organization" className={styles.link}>
+            <Link href="/rg/org" className={styles.link}>
               조직도
             </Link>
-            <Link href="/signature" className={styles.link}>
+            <Link href="/rg/sig" className={styles.link}>
               시그리스트
             </Link>
             <Link href="/ranking" className={styles.link}>

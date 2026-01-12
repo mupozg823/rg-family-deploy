@@ -1,10 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Crown, Star } from "lucide-react";
+import { Crown, Medal, Award } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RankingItem } from "@/types/common";
+import { formatAmountShort, getInitials } from "@/lib/utils";
 import styles from "./RankingPodium.module.css";
 
 interface RankingPodiumProps {
@@ -23,30 +24,16 @@ export default function RankingPodium({ items }: RankingPodiumProps) {
   const podiumOrder = [top3[1], top3[0], top3[2]];
 
   const getRankClass = (rank: number) => {
-    // 1위만 특별, 2위와 3위는 동일한 엘리트 스타일
     if (rank === 1) return styles.rank1;
-    return styles.elite; // 2위, 3위 동일
+    if (rank === 2) return styles.rank2;
+    return styles.rank3;
   };
 
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Crown size={24} />;
-    return <Star size={20} />; // 2위, 3위는 동일한 Star 아이콘
-  };
-
-  const formatAmount = (amount: number) => {
-    if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}억`;
-    if (amount >= 10000) return `${(amount / 10000).toFixed(1)}만`;
-    return amount.toLocaleString();
-  };
-
-  // 닉네임에서 이니셜 생성 (아바타 없을 때 사용)
-  const getInitials = (name: string) => {
-    // 한글은 첫 글자, 영어는 첫 2글자
-    const cleaned = name.replace(/[^가-힣a-zA-Z]/g, '');
-    if (/[가-힣]/.test(cleaned)) {
-      return cleaned.slice(0, 2);
-    }
-    return cleaned.slice(0, 2).toUpperCase();
+    if (rank === 2) return <Medal size={20} />;
+    if (rank === 3) return <Award size={20} />;
+    return null;
   };
 
   return (
@@ -114,7 +101,7 @@ export default function RankingPodium({ items }: RankingPodiumProps) {
                     {item.donorName}
                   </p>
                   <p className={styles.amount}>
-                    {formatAmount(item.totalAmount)}
+                    {formatAmountShort(item.totalAmount)}
                   </p>
                 </div>
               </div>

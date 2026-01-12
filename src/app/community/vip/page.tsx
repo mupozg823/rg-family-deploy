@@ -7,6 +7,7 @@ import { PageLayout } from '@/components/layout'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { useSupabaseContext, useAuthContext } from '@/lib/context'
+import { useVipStatus } from '@/lib/hooks'
 import { mockPosts, mockProfiles } from '@/lib/mock'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { formatRelativeTime } from '@/lib/utils/format'
@@ -25,7 +26,8 @@ interface Post {
 
 export default function VipBoardPage() {
   const supabase = useSupabaseContext()
-  const { user, profile } = useAuthContext()
+  const { user } = useAuthContext()
+  const { isVip, isLoading: vipStatusLoading } = useVipStatus()
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -34,10 +36,11 @@ export default function VipBoardPage() {
     { label: 'VIP 라운지 (VIP)', value: 'vip', path: '/community/vip' },
   ]
 
-  // VIP 권한 체크 (후원 금액 기준 또는 역할) - Mock 모드에서는 항상 true
-  const isVip = USE_MOCK_DATA ? true : (profile && (profile.total_donation >= 100000 || ['admin', 'superadmin'].includes(profile.role)))
-
   const fetchPosts = useCallback(async () => {
+    if (vipStatusLoading) {
+      return
+    }
+
     if (!isVip) {
       setIsLoading(false)
       return
@@ -94,7 +97,7 @@ export default function VipBoardPage() {
     }
 
     setIsLoading(false)
-  }, [supabase, isVip])
+  }, [supabase, isVip, vipStatusLoading])
 
   useEffect(() => {
     fetchPosts()
@@ -125,6 +128,11 @@ export default function VipBoardPage() {
             <h3>로그인이 필요합니다</h3>
             <p>VIP 라운지에 접근하려면 로그인해주세요.</p>
             <Link href="/login" className={styles.loginBtn}>로그인</Link>
+          </div>
+        ) : vipStatusLoading ? (
+          <div className={styles.loading}>
+            <div className={styles.spinner} />
+            <span>VIP 권한 확인 중...</span>
           </div>
         ) : !isVip ? (
           <div className={styles.locked}>

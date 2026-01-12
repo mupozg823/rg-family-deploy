@@ -120,6 +120,24 @@
   background: var(--interactive-hover);
 }
 
+.dropdownItemHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dropdownIcon {
+  color: var(--primary);
+  flex-shrink: 0;
+  opacity: 0.8;
+  transition: all 0.15s;
+}
+
+.dropdownItem:hover .dropdownIcon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
 .dropdownLabel {
   font-size: 0.875rem;
   font-weight: 600;
@@ -129,10 +147,11 @@
 .dropdownDesc {
   font-size: 0.75rem;
   color: var(--text-muted);
+  padding-left: 1.5rem;
 }
 
 .dropdownItem:hover .dropdownLabel {
-  color: var(--text-primary);
+  color: var(--primary);
 }
 
 /* Actions */
@@ -215,6 +234,42 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+/* Admin Button */
+.adminBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.15) 0%,
+    rgba(139, 92, 246, 0.25) 100%
+  );
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 20px;
+  color: #a78bfa;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.adminBtn:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.2) 0%,
+    rgba(139, 92, 246, 0.35) 100%
+  );
+  border-color: #a78bfa;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.adminBtn svg {
+  filter: drop-shadow(0 0 3px rgba(139, 92, 246, 0.5));
 }
 
 /* VIP Button */

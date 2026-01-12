@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Megaphone, Plus, X, Save, Pin } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabaseContext } from '@/lib/context'
+import { useAdminCRUD } from '@/lib/hooks'
 import styles from '../shared.module.css'
 
 interface Notice {
@@ -17,114 +16,46 @@ interface Notice {
 }
 
 export default function NoticesPage() {
-  const supabase = useSupabaseContext()
-  const [notices, setNotices] = useState<Notice[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingNotice, setEditingNotice] = useState<Partial<Notice> | null>(null)
-  const [isNew, setIsNew] = useState(false)
-
-  const fetchNotices = useCallback(async () => {
-    setIsLoading(true)
-
-    const { data, error } = await supabase
-      .from('notices')
-      .select('*')
-      .order('is_pinned', { ascending: false })
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('공지사항 데이터 로드 실패:', error)
-    } else {
-      setNotices(
-        (data || []).map((n) => ({
-          id: n.id,
-          title: n.title,
-          content: n.content || '',
-          category: n.category,
-          isPinned: n.is_pinned,
-          createdAt: n.created_at,
-        }))
-      )
-    }
-
-    setIsLoading(false)
-  }, [supabase])
-
-  useEffect(() => {
-    fetchNotices()
-  }, [fetchNotices])
-
-  const handleAdd = () => {
-    setEditingNotice({
+  const {
+    items: notices,
+    isLoading,
+    isModalOpen,
+    isNew,
+    editingItem: editingNotice,
+    setEditingItem: setEditingNotice,
+    openAddModal,
+    openEditModal,
+    closeModal,
+    handleSave,
+    handleDelete,
+  } = useAdminCRUD<Notice>({
+    tableName: 'notices',
+    defaultItem: {
       title: '',
       content: '',
       category: 'official',
       isPinned: false,
-    })
-    setIsNew(true)
-    setIsModalOpen(true)
-  }
-
-  const handleEdit = (notice: Notice) => {
-    setEditingNotice(notice)
-    setIsNew(false)
-    setIsModalOpen(true)
-  }
-
-  const handleDelete = async (notice: Notice) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
-
-    const { error } = await supabase.from('notices').delete().eq('id', notice.id)
-
-    if (error) {
-      console.error('공지사항 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
-    } else {
-      fetchNotices()
-    }
-  }
-
-  const handleSave = async () => {
-    if (!editingNotice || !editingNotice.title) {
-      alert('제목을 입력해주세요.')
-      return
-    }
-
-    if (isNew) {
-      const { error } = await supabase.from('notices').insert({
-        title: editingNotice.title!,
-        content: editingNotice.content!,
-        category: editingNotice.category!,
-        is_pinned: editingNotice.isPinned,
-      })
-
-      if (error) {
-        console.error('공지사항 등록 실패:', error)
-        alert('등록에 실패했습니다.')
-        return
-      }
-    } else {
-      const { error } = await supabase
-        .from('notices')
-        .update({
-          title: editingNotice.title,
-          content: editingNotice.content,
-          category: editingNotice.category,
-          is_pinned: editingNotice.isPinned,
-        })
-        .eq('id', editingNotice.id!)
-
-      if (error) {
-        console.error('공지사항 수정 실패:', error)
-        alert('수정에 실패했습니다.')
-        return
-      }
-    }
-
-    setIsModalOpen(false)
-    fetchNotices()
-  }
+    },
+    orderBy: { column: 'created_at', ascending: false },
+    fromDbFormat: (row) => ({
+      id: row.id as number,
+      title: row.title as string,
+      content: (row.content as string) || '',
+      category: row.category as 'official' | 'excel' | 'crew',
+      isPinned: row.is_pinned as boolean,
+      createdAt: row.created_at as string,
+    }),
+    toDbFormat: (item) => ({
+      title: item.title,
+      content: item.content,
+      category: item.category,
+      is_pinned: item.isPinned,
+    }),
+    validate: (item) => {
+      if (!item.title) return '제목을 입력해주세요.'
+      return null
+    },
+  })
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('ko-KR', {
@@ -161,7 +92,7 @@ export default function NoticesPage() {
             <p className={styles.subtitle}>공지사항 작성 및 관리</p>
           </div>
         </div>
-        <button onClick={handleAdd} className={styles.addButton}>
+        <button onClick={openAddModal} className={styles.addButton}>
           <Plus size={18} />
           공지 작성
         </button>
@@ -170,7 +101,7 @@ export default function NoticesPage() {
       <DataTable
         data={notices}
         columns={columns}
-        onEdit={handleEdit}
+        onEdit={openEditModal}
         onDelete={handleDelete}
         searchPlaceholder="제목으로 검색..."
         isLoading={isLoading}
@@ -184,7 +115,7 @@ export default function NoticesPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeModal}
           >
             <motion.div
               className={styles.modal}
@@ -196,7 +127,7 @@ export default function NoticesPage() {
             >
               <div className={styles.modalHeader}>
                 <h2>{isNew ? '공지 작성' : '공지 수정'}</h2>
-                <button onClick={() => setIsModalOpen(false)} className={styles.closeButton}>
+                <button onClick={closeModal} className={styles.closeButton}>
                   <X size={20} />
                 </button>
               </div>
@@ -206,7 +137,7 @@ export default function NoticesPage() {
                   <label>제목</label>
                   <input
                     type="text"
-                    value={editingNotice.title}
+                    value={editingNotice.title || ''}
                     onChange={(e) =>
                       setEditingNotice({ ...editingNotice, title: e.target.value })
                     }
@@ -218,7 +149,7 @@ export default function NoticesPage() {
                 <div className={styles.formGroup}>
                   <label>내용</label>
                   <textarea
-                    value={editingNotice.content}
+                    value={editingNotice.content || ''}
                     onChange={(e) =>
                       setEditingNotice({ ...editingNotice, content: e.target.value })
                     }
@@ -232,7 +163,7 @@ export default function NoticesPage() {
                   <label className={styles.checkboxLabel}>
                     <input
                       type="checkbox"
-                      checked={editingNotice.isPinned}
+                      checked={editingNotice.isPinned || false}
                       onChange={(e) =>
                         setEditingNotice({ ...editingNotice, isPinned: e.target.checked })
                       }
@@ -244,7 +175,7 @@ export default function NoticesPage() {
               </div>
 
               <div className={styles.modalFooter}>
-                <button onClick={() => setIsModalOpen(false)} className={styles.cancelButton}>
+                <button onClick={closeModal} className={styles.cancelButton}>
                   취소
                 </button>
                 <button onClick={handleSave} className={styles.saveButton}>

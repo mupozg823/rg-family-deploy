@@ -103,6 +103,11 @@
   transform: translateY(-2px);
 }
 
+.member:hover .avatar {
+  border-color: var(--color-pink);
+  box-shadow: 0 0 15px rgba(253, 104, 186, 0.3);
+}
+
 /* Avatar Wrapper */
 .avatarWrapper {
   position: relative;
@@ -129,7 +134,7 @@
   z-index: 0;
 }
 
-/* LIVE Badge - Red indicator (standard live color) */
+/* LIVE Badge - Cyan with pulse animation */
 .liveBadge {
   position: absolute;
   bottom: -2px;
@@ -138,16 +143,26 @@
   display: flex;
   align-items: center;
   gap: 0.15rem;
-  padding: 0.15rem 0.4rem;
+  padding: 0.25rem 0.6rem;
   background: var(--live-color);
   border-radius: var(--radius-full);
-  font-size: 0.5rem;
+  font-size: 0.6875rem;
   font-weight: 800;
   color: white;
   z-index: 3;
   letter-spacing: 0.5px;
   box-shadow: 0 2px 4px var(--live-glow);
   border: 1.5px solid var(--background);
+  animation: cyanPulse 2s ease-in-out infinite;
+}
+
+@keyframes cyanPulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px var(--live-glow);
+  }
+  50% {
+    box-shadow: 0 2px 16px var(--live-glow), 0 0 24px rgba(0, 212, 255, 0.4);
+  }
 }
 
 /* Avatar */
@@ -206,7 +221,7 @@
 /* Name */
 .name {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   text-align: center;
   width: 100%;
@@ -247,7 +262,7 @@
   }
 
   .name {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 }
 
@@ -288,10 +303,10 @@
   }
 
   .name {
-    font-size: 0.7rem;
+    font-size: 0.8125rem;
   }
 
   .viewAll {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
   }
 }

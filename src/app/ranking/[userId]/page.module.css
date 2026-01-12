@@ -270,7 +270,7 @@
     var(--metallic-gold-bg),
     rgba(180, 140, 45, 0.25)
   );
-  border: 1px solid var(--metallic-gold-border);
+  border: 2px solid var(--metallic-gold-border);
   border-radius: var(--radius-full);
   color: var(--metallic-gold-light);
   font-size: var(--text-xs);
@@ -279,12 +279,37 @@
   margin-bottom: var(--space-6);
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 24px var(--metallic-gold-glow),
+    0 0 60px rgba(255, 215, 0, 0.15),
     inset 0 1px 0 var(--overlay-strong);
+  animation: badgeShine 4s ease-in-out infinite;
+}
+
+@keyframes badgeShine {
+  0%, 100% {
+    box-shadow: 0 4px 24px var(--metallic-gold-glow),
+      0 0 60px rgba(255, 215, 0, 0.15),
+      inset 0 1px 0 var(--overlay-strong);
+  }
+  50% {
+    box-shadow: 0 4px 30px var(--metallic-gold-glow),
+      0 0 80px rgba(255, 215, 0, 0.25),
+      inset 0 1px 0 var(--overlay-strong);
+  }
 }
 
 .vipBadge svg {
   color: var(--metallic-gold);
-  filter: drop-shadow(0 0 6px var(--metallic-gold-glow));
+  filter: drop-shadow(0 0 8px var(--metallic-gold-glow));
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .heroTitle {
@@ -1032,35 +1057,76 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: black;
+  background: linear-gradient(180deg, #000000 0%, #0a0a0a 50%, #050505 100%);
   color: var(--metallic-gold);
+  overflow: hidden;
+}
+
+.gateOverlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 40% at 50% 50%,
+    var(--metallic-gold-glow) 0%,
+    transparent 50%
+  );
+  animation: gateGlowPulse 3s ease-in-out infinite;
+}
+
+@keyframes gateGlowPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
 }
 
 .gateIcon {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   margin-bottom: 2rem;
-  filter: drop-shadow(0 0 20px var(--metallic-gold-glow));
+  filter: drop-shadow(0 0 30px var(--metallic-gold-glow));
+  animation: gateIconFloat 4s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes gateIconFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .gateText {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 900;
-  letter-spacing: 4px;
+  letter-spacing: 6px;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #fff 0%, var(--metallic-gold) 100%);
+  background: linear-gradient(135deg, #fff 0%, var(--metallic-gold-light) 30%, var(--metallic-gold) 60%, #c9a962 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 0 40px var(--metallic-gold-glow);
 }
 
 .gateSubtext {
-  font-size: 0.875rem;
-  color: var(--text-overlay-60);
-  letter-spacing: 2px;
+  font-size: 1rem;
+  color: var(--text-overlay-70);
+  letter-spacing: 3px;
   text-transform: uppercase;
+  position: relative;
+  z-index: 1;
 }
 
 /* Responsive */

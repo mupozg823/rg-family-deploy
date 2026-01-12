@@ -1,13 +1,24 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { User, ChevronRight, Medal } from "lucide-react";
+import { User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RankingItem } from "@/types/common";
 import { hasHonorPageQualification } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
 import styles from "./RankingList.module.css";
+
+// Local helper function
+const formatCompactNumber = (amount: number): string => {
+  if (amount >= 100000000) {
+    return `${(amount / 100000000).toFixed(1)}억`;
+  }
+  if (amount >= 10000) {
+    return `${Math.floor(amount / 10000).toLocaleString()}만`;
+  }
+  return amount.toLocaleString();
+};
 
 interface RankingListProps {
   rankings: RankingItem[];
@@ -43,10 +54,6 @@ export default function RankingList({
     if (rank === 2) return styles.rank2;
     if (rank === 3) return styles.rank3;
     return "";
-  };
-
-  const formatAmount = (amount: number) => {
-    return amount.toLocaleString();
   };
 
   return (
@@ -96,7 +103,7 @@ export default function RankingList({
 
               {/* Score Column */}
               <div className={styles.score}>
-                {formatAmount(item.totalAmount)}
+                {formatCompactNumber(item.totalAmount)}
               </div>
 
               {/* Badge Column */}

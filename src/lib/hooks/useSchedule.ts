@@ -1,7 +1,16 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
-import { useSupabaseContext } from '@/lib/context'
+/**
+ * useSchedule Hook - Repository 패턴 적용
+ *
+ * 일정 캘린더 데이터 조회 훅
+ * - Mock/Supabase 자동 전환 (Repository 계층에서 처리)
+ * - 월별/유닛별 필터링
+ * - 캘린더 UI 로직 포함
+ */
+
+import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useSchedules } from '@/lib/context'
 import type { Schedule } from '@/types/database'
 import type { CalendarDay, ScheduleEvent, UnitFilter } from '@/types/common'
 
@@ -23,7 +32,10 @@ interface UseScheduleReturn {
 }
 
 export function useSchedule(): UseScheduleReturn {
-  const supabase = useSupabaseContext()
+  // Repository hook
+  const schedulesRepo = useSchedules()
+
+  // State
   const [events, setEvents] = useState<Schedule[]>([])
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -31,41 +43,31 @@ export function useSchedule(): UseScheduleReturn {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // 데이터 로드
   const fetchEvents = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
-      const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0)
-
-      let query = supabase
-        .from('schedules')
-        .select('*')
-        .gte('start_datetime', startOfMonth.toISOString())
-        .lte('start_datetime', endOfMonth.toISOString())
-        .order('start_datetime', { ascending: true })
-
-      if (unitFilter !== 'all') {
-        query = query.or(`unit.eq.${unitFilter},unit.is.null`)
-      }
-
-      const { data, error: fetchError } = await query
-
-      if (fetchError) throw fetchError
-      setEvents(data || [])
+      const data = await schedulesRepo.findByMonthAndUnit(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        unitFilter === 'all' ? null : unitFilter
+      )
+      setEvents(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : '일정을 불러오는데 실패했습니다.')
     } finally {
       setIsLoading(false)
     }
-  }, [supabase, currentMonth, unitFilter])
+  }, [schedulesRepo, currentMonth, unitFilter])
 
   useEffect(() => {
     fetchEvents()
   }, [fetchEvents])
 
-  const getCalendarDays = useCallback((): CalendarDay[] => {
+  // 캘린더 날짜 계산
+  const calendarDays = useMemo((): CalendarDay[] => {
     const year = currentMonth.getFullYear()
     const month = currentMonth.getMonth()
     const today = new Date()
@@ -91,22 +93,26 @@ export function useSchedule(): UseScheduleReturn {
     // 현재 달의 날짜들
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const date = new Date(year, month, day)
-      const dayEvents = events.filter(event => {
-        const eventDate = new Date(event.start_datetime)
-        return eventDate.getDate() === day &&
-               eventDate.getMonth() === month &&
-               eventDate.getFullYear() === year
-      }).map(event => ({
-        id: event.id,
-        title: event.title,
-        description: event.description,
-        unit: event.unit,
-        eventType: event.event_type,
-        startDatetime: event.start_datetime,
-        endDatetime: event.end_datetime,
-        color: event.color,
-        isAllDay: event.is_all_day,
-      }))
+      const dayEvents = events
+        .filter((event) => {
+          const eventDate = new Date(event.start_datetime)
+          return (
+            eventDate.getDate() === day &&
+            eventDate.getMonth() === month &&
+            eventDate.getFullYear() === year
+          )
+        })
+        .map((event) => ({
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          unit: event.unit,
+          eventType: event.event_type,
+          startDatetime: event.start_datetime,
+          endDatetime: event.end_datetime,
+          color: event.color,
+          isAllDay: event.is_all_day,
+        }))
 
       days.push({
         date,
@@ -131,17 +137,20 @@ export function useSchedule(): UseScheduleReturn {
     return days
   }, [currentMonth, events])
 
-  const getSelectedDateEvents = useCallback((): ScheduleEvent[] => {
+  // 선택된 날짜의 이벤트
+  const selectedDateEvents = useMemo((): ScheduleEvent[] => {
     if (!selectedDate) return []
 
     return events
-      .filter(event => {
+      .filter((event) => {
         const eventDate = new Date(event.start_datetime)
-        return eventDate.getDate() === selectedDate.getDate() &&
-               eventDate.getMonth() === selectedDate.getMonth() &&
-               eventDate.getFullYear() === selectedDate.getFullYear()
+        return (
+          eventDate.getDate() === selectedDate.getDate() &&
+          eventDate.getMonth() === selectedDate.getMonth() &&
+          eventDate.getFullYear() === selectedDate.getFullYear()
+        )
       })
-      .map(event => ({
+      .map((event) => ({
         id: event.id,
         title: event.title,
         description: event.description,
@@ -155,11 +164,11 @@ export function useSchedule(): UseScheduleReturn {
   }, [selectedDate, events])
 
   const nextMonth = useCallback(() => {
-    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
   }, [])
 
   const prevMonth = useCallback(() => {
-    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+    setCurrentMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
   }, [])
 
   return {
@@ -169,8 +178,8 @@ export function useSchedule(): UseScheduleReturn {
     unitFilter,
     isLoading,
     error,
-    calendarDays: getCalendarDays(),
-    selectedDateEvents: getSelectedDateEvents(),
+    calendarDays,
+    selectedDateEvents,
     setMonth: setCurrentMonth,
     setSelectedDate,
     setUnitFilter,

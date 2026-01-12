@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CalendarDays, Plus, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabaseContext } from '@/lib/context'
+import { useAdminCRUD } from '@/lib/hooks'
 import styles from '../shared.module.css'
 
 type EventType = 'broadcast' | 'collab' | 'event' | 'notice' | '休'
@@ -38,127 +37,61 @@ const eventTypeColors: Record<EventType, string> = {
 }
 
 export default function SchedulesPage() {
-  const supabase = useSupabaseContext()
-  const [schedules, setSchedules] = useState<Schedule[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingSchedule, setEditingSchedule] = useState<Partial<Schedule> | null>(null)
-  const [isNew, setIsNew] = useState(false)
-
-  const fetchSchedules = useCallback(async () => {
-    setIsLoading(true)
-
-    const { data, error } = await supabase
-      .from('schedules')
-      .select('*')
-      .order('start_datetime', { ascending: false })
-
-    if (error) {
-      console.error('일정 데이터 로드 실패:', error)
-    } else {
-      setSchedules(
-        (data || []).map((s) => ({
-          id: s.id,
-          title: s.title,
-          description: s.description || '',
-          startDatetime: s.start_datetime,
-          endDatetime: s.end_datetime,
-          eventType: s.event_type,
-          unit: s.unit,
-          isAllDay: s.is_all_day,
-          createdAt: s.created_at,
-        }))
-      )
-    }
-
-    setIsLoading(false)
-  }, [supabase])
-
-  useEffect(() => {
-    fetchSchedules()
-  }, [fetchSchedules])
-
-  const handleAdd = () => {
+  const getDefaultStartDatetime = () => {
     const now = new Date()
     now.setHours(20, 0, 0, 0)
-    setEditingSchedule({
+    return now.toISOString()
+  }
+
+  const {
+    items: schedules,
+    isLoading,
+    isModalOpen,
+    isNew,
+    editingItem: editingSchedule,
+    setEditingItem: setEditingSchedule,
+    openAddModal,
+    openEditModal,
+    closeModal,
+    handleSave,
+    handleDelete,
+  } = useAdminCRUD<Schedule>({
+    tableName: 'schedules',
+    defaultItem: {
       title: '',
       description: '',
-      startDatetime: now.toISOString(),
+      startDatetime: getDefaultStartDatetime(),
       endDatetime: null,
       eventType: 'broadcast',
       unit: null,
       isAllDay: false,
-    })
-    setIsNew(true)
-    setIsModalOpen(true)
-  }
-
-  const handleEdit = (schedule: Schedule) => {
-    setEditingSchedule(schedule)
-    setIsNew(false)
-    setIsModalOpen(true)
-  }
-
-  const handleDelete = async (schedule: Schedule) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
-
-    const { error } = await supabase.from('schedules').delete().eq('id', schedule.id)
-
-    if (error) {
-      console.error('일정 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
-    } else {
-      fetchSchedules()
-    }
-  }
-
-  const handleSave = async () => {
-    if (!editingSchedule || !editingSchedule.title) {
-      alert('일정 제목을 입력해주세요.')
-      return
-    }
-
-    if (isNew) {
-      const { error } = await supabase.from('schedules').insert({
-        title: editingSchedule.title,
-        description: editingSchedule.description,
-        start_datetime: editingSchedule.startDatetime!,
-        end_datetime: editingSchedule.endDatetime,
-        event_type: editingSchedule.eventType!,
-        unit: editingSchedule.unit,
-        is_all_day: editingSchedule.isAllDay,
-      })
-
-      if (error) {
-        console.error('일정 등록 실패:', error)
-        alert('등록에 실패했습니다.')
-        return
-      }
-    } else {
-      const { error } = await supabase
-        .from('schedules')
-        .update({
-          title: editingSchedule.title,
-          description: editingSchedule.description,
-          start_datetime: editingSchedule.startDatetime,
-          end_datetime: editingSchedule.endDatetime,
-          event_type: editingSchedule.eventType,
-          unit: editingSchedule.unit,
-          is_all_day: editingSchedule.isAllDay,
-        })
-        .eq('id', editingSchedule.id!)
-
-      if (error) {
-        console.error('일정 수정 실패:', error)
-        alert('수정에 실패했습니다.')
-        return
-      }
-    }
-
-    setIsModalOpen(false)
-    fetchSchedules()
-  }
+    },
+    orderBy: { column: 'start_datetime', ascending: false },
+    fromDbFormat: (row) => ({
+      id: row.id as number,
+      title: row.title as string,
+      description: (row.description as string) || '',
+      startDatetime: row.start_datetime as string,
+      endDatetime: row.end_datetime as string | null,
+      eventType: row.event_type as EventType,
+      unit: row.unit as 'excel' | 'crew' | null,
+      isAllDay: row.is_all_day as boolean,
+      createdAt: row.created_at as string,
+    }),
+    toDbFormat: (item) => ({
+      title: item.title,
+      description: item.description,
+      start_datetime: item.startDatetime,
+      end_datetime: item.endDatetime,
+      event_type: item.eventType,
+      unit: item.unit,
+      is_all_day: item.isAllDay,
+    }),
+    validate: (item) => {
+      if (!item.title) return '일정 제목을 입력해주세요.'
+      return null
+    },
+  })
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('ko-KR', {
@@ -210,7 +143,7 @@ export default function SchedulesPage() {
       key: 'startDatetime',
       header: '시간',
       width: '100px',
-      render: (item) => item.isAllDay ? '종일' : formatTime(item.startDatetime),
+      render: (item) => (item.isAllDay ? '종일' : formatTime(item.startDatetime)),
     },
   ]
 
@@ -224,7 +157,7 @@ export default function SchedulesPage() {
             <p className={styles.subtitle}>방송/이벤트/공지 일정 관리</p>
           </div>
         </div>
-        <button onClick={handleAdd} className={styles.addButton}>
+        <button onClick={openAddModal} className={styles.addButton}>
           <Plus size={18} />
           일정 추가
         </button>
@@ -233,7 +166,7 @@ export default function SchedulesPage() {
       <DataTable
         data={schedules}
         columns={columns}
-        onEdit={handleEdit}
+        onEdit={openEditModal}
         onDelete={handleDelete}
         searchPlaceholder="일정 제목으로 검색..."
         isLoading={isLoading}
@@ -247,7 +180,7 @@ export default function SchedulesPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeModal}
           >
             <motion.div
               className={styles.modal}
@@ -258,7 +191,7 @@ export default function SchedulesPage() {
             >
               <div className={styles.modalHeader}>
                 <h2>{isNew ? '일정 추가' : '일정 수정'}</h2>
-                <button onClick={() => setIsModalOpen(false)} className={styles.closeButton}>
+                <button onClick={closeModal} className={styles.closeButton}>
                   <X size={20} />
                 </button>
               </div>
@@ -268,7 +201,7 @@ export default function SchedulesPage() {
                   <label>제목</label>
                   <input
                     type="text"
-                    value={editingSchedule.title}
+                    value={editingSchedule.title || ''}
                     onChange={(e) =>
                       setEditingSchedule({ ...editingSchedule, title: e.target.value })
                     }
@@ -318,7 +251,10 @@ export default function SchedulesPage() {
                       type="datetime-local"
                       value={editingSchedule.startDatetime?.slice(0, 16) || ''}
                       onChange={(e) =>
-                        setEditingSchedule({ ...editingSchedule, startDatetime: new Date(e.target.value).toISOString() })
+                        setEditingSchedule({
+                          ...editingSchedule,
+                          startDatetime: new Date(e.target.value).toISOString(),
+                        })
                       }
                       className={styles.input}
                     />
@@ -342,7 +278,7 @@ export default function SchedulesPage() {
                 <div className={styles.formGroup}>
                   <label>설명 (선택)</label>
                   <textarea
-                    value={editingSchedule.description}
+                    value={editingSchedule.description || ''}
                     onChange={(e) =>
                       setEditingSchedule({ ...editingSchedule, description: e.target.value })
                     }
@@ -354,7 +290,7 @@ export default function SchedulesPage() {
               </div>
 
               <div className={styles.modalFooter}>
-                <button onClick={() => setIsModalOpen(false)} className={styles.cancelButton}>
+                <button onClick={closeModal} className={styles.cancelButton}>
                   취소
                 </button>
                 <button onClick={handleSave} className={styles.saveButton}>

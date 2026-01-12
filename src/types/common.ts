@@ -85,25 +85,8 @@ export interface ScheduleEvent {
   isAllDay: boolean
 }
 
-// Organization tree types
-export interface OrgMember {
-  id: number
-  name: string
-  role: string
-  imageUrl: string | null
-  socialLinks: {
-    pandatv?: string
-    youtube?: string
-    instagram?: string
-  } | null
-  isLive?: boolean
-  children?: OrgMember[]
-}
-
-export interface OrgTreeData {
-  excel: OrgMember[]
-  crew: OrgMember[]
-}
+// Organization tree types - 이동됨: @/types/organization
+// OrgMember, OrgTreeData → organization.ts 참조
 
 // VIP page types
 export interface VipPageData {
@@ -190,7 +173,7 @@ export interface PostItem {
 }
 
 // Filter types
-export type UnitFilter = 'all' | 'excel' | 'crew' | 'vip'
+export type { UnitFilter } from './organization'
 export type NoticeCategory = 'all' | 'official' | 'excel' | 'crew'
 export type SortOrder = 'latest' | 'popular' | 'oldest'
 

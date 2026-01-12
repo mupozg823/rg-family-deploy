@@ -12,6 +12,8 @@ import {
   IDataProvider,
   IDonationRepository,
   IPostRepository,
+  ITimelineRepository,
+  IScheduleRepository,
 } from '../types'
 import {
   mockProfiles,
@@ -20,9 +22,11 @@ import {
   mockNotices,
   mockPosts,
   mockDonations,
+  mockTimelineEvents,
+  mockSchedules,
 } from '@/lib/mock'
-import type { RankingItem, UnitFilter } from '@/types/common'
-import type { Season, Profile, Organization, Notice, Donation, Post } from '@/types/database'
+import type { RankingItem, UnitFilter, TimelineItem } from '@/types/common'
+import type { Season, Profile, Organization, Notice, Donation, Post, Schedule } from '@/types/database'
 
 // ============================================
 // Mock Ranking Repository
@@ -32,15 +36,68 @@ class MockRankingRepository implements IRankingRepository {
     seasonId?: number | null
     unitFilter?: UnitFilter
   }): Promise<RankingItem[]> {
+    const { seasonId, unitFilter } = options
+
+    // 시즌이 선택된 경우: donations에서 계산
+    if (seasonId) {
+      let seasonDonations = mockDonations.filter(d => d.season_id === seasonId)
+
+      // VIP는 전체에서 Top 50이므로 유닛 필터 스킵
+      if (unitFilter && unitFilter !== 'all' && unitFilter !== 'vip') {
+        seasonDonations = seasonDonations.filter(d => d.unit === unitFilter)
+      }
+
+      // 후원자별 합계 계산
+      const donorMap = new Map<string, {
+        donorId: string | null
+        donorName: string
+        avatarUrl: string | null
+        totalAmount: number
+      }>()
+
+      seasonDonations.forEach(donation => {
+        const key = donation.donor_id || donation.donor_name
+        const existing = donorMap.get(key)
+        if (existing) {
+          existing.totalAmount += donation.amount
+        } else {
+          const profile = mockProfiles.find(p => p.id === donation.donor_id)
+          donorMap.set(key, {
+            donorId: donation.donor_id,
+            donorName: profile?.nickname || donation.donor_name,
+            avatarUrl: profile?.avatar_url || null,
+            totalAmount: donation.amount,
+          })
+        }
+      })
+
+      // 정렬 및 순위 부여
+      let sorted = Array.from(donorMap.values())
+        .sort((a, b) => b.totalAmount - a.totalAmount)
+        .map((item, index) => ({
+          ...item,
+          seasonId,
+          rank: index + 1,
+        }))
+
+      // VIP 필터: Top 50만 표시
+      if (unitFilter === 'vip') {
+        sorted = sorted.slice(0, 50)
+      }
+
+      return sorted
+    }
+
+    // 시즌 미선택: profiles 기반 전체 랭킹
     let profiles = [...mockProfiles]
 
-    // Unit filter
-    if (options.unitFilter && options.unitFilter !== 'all') {
-      profiles = profiles.filter(p => p.unit === options.unitFilter)
+    // VIP는 전체에서 Top 50이므로 유닛 필터 스킵
+    if (unitFilter && unitFilter !== 'all' && unitFilter !== 'vip') {
+      profiles = profiles.filter(p => p.unit === unitFilter)
     }
 
     // Sort by donation and assign rank
-    return profiles
+    let sorted = profiles
       .filter(p => (p.total_donation || 0) > 0)
       .sort((a, b) => (b.total_donation || 0) - (a.total_donation || 0))
       .map((profile, index) => ({
@@ -48,9 +105,16 @@ class MockRankingRepository implements IRankingRepository {
         donorName: profile.nickname,
         avatarUrl: profile.avatar_url,
         totalAmount: profile.total_donation || 0,
-        seasonId: options.seasonId ?? undefined,
+        seasonId: undefined,
         rank: index + 1,
       }))
+
+    // VIP 필터: Top 50만 표시
+    if (unitFilter === 'vip') {
+      sorted = sorted.slice(0, 50)
+    }
+
+    return sorted
   }
 
   async getTopRankers(limit: number): Promise<RankingItem[]> {
@@ -176,6 +240,83 @@ class MockPostRepository implements IPostRepository {
 }
 
 // ============================================
+// Mock Timeline Repository
+// ============================================
+class MockTimelineRepository implements ITimelineRepository {
+  private formatEvent(event: typeof mockTimelineEvents[0]): TimelineItem {
+    const season = mockSeasons.find(s => s.id === event.season_id)
+    return {
+      id: event.id,
+      eventDate: event.event_date,
+      title: event.title,
+      description: event.description,
+      imageUrl: event.image_url,
+      category: event.category,
+      seasonId: event.season_id,
+      seasonName: season?.name,
+    }
+  }
+
+  async findAll(): Promise<TimelineItem[]> {
+    return mockTimelineEvents
+      .map(e => this.formatEvent(e))
+      .sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime())
+  }
+
+  async findByFilter(options: {
+    seasonId?: number | null
+    category?: string | null
+  }): Promise<TimelineItem[]> {
+    const { seasonId, category } = options
+    let events = [...mockTimelineEvents]
+
+    if (seasonId) {
+      events = events.filter(e => e.season_id === seasonId)
+    }
+
+    if (category) {
+      events = events.filter(e => e.category === category)
+    }
+
+    return events
+      .map(e => this.formatEvent(e))
+      .sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime())
+  }
+
+  async getCategories(): Promise<string[]> {
+    const cats = new Set<string>()
+    mockTimelineEvents.forEach(e => {
+      if (e.category) cats.add(e.category)
+    })
+    return Array.from(cats)
+  }
+}
+
+// ============================================
+// Mock Schedule Repository
+// ============================================
+class MockScheduleRepository implements IScheduleRepository {
+  async findByMonth(year: number, month: number): Promise<Schedule[]> {
+    return mockSchedules.filter(s => {
+      const date = new Date(s.start_datetime)
+      return date.getFullYear() === year && date.getMonth() === month
+    })
+  }
+
+  async findByMonthAndUnit(year: number, month: number, unit: string | null): Promise<Schedule[]> {
+    let schedules = await this.findByMonth(year, month)
+
+    if (unit && unit !== 'all') {
+      schedules = schedules.filter(s => s.unit === unit || s.unit === null)
+    }
+
+    return schedules.sort((a, b) =>
+      new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime()
+    )
+  }
+}
+
+// ============================================
 // Mock Data Provider (Facade Pattern)
 // ============================================
 export class MockDataProvider implements IDataProvider {
@@ -186,6 +327,8 @@ export class MockDataProvider implements IDataProvider {
   readonly organization = new MockOrganizationRepository()
   readonly notices = new MockNoticeRepository()
   readonly posts = new MockPostRepository()
+  readonly timeline = new MockTimelineRepository()
+  readonly schedules = new MockScheduleRepository()
 }
 
 // Singleton instance

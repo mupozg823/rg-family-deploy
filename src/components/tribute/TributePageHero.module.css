@@ -1,0 +1,236 @@
+.hero {
+  position: relative;
+  padding: 4rem 1.5rem;
+  text-align: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(253, 104, 186, 0.1) 0%, transparent 100%);
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+}
+
+.vipBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.2), rgba(253, 104, 186, 0.1));
+  border: 1px solid rgba(253, 104, 186, 0.3);
+  border-radius: 50px;
+  color: var(--color-primary, #fd68ba);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.heroTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 0 30px rgba(253, 104, 186, 0.3);
+}
+
+.heroSubtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.heroSubtitle strong {
+  color: var(--color-primary-light, #ff8ed4);
+  font-weight: 600;
+}
+
+.heroDecoration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(253, 104, 186, 0.2) 0%, transparent 70%);
+  filter: blur(40px);
+}
+
+.star1,
+.star2,
+.star3 {
+  position: absolute;
+  color: rgba(253, 104, 186, 0.3);
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+.star1 {
+  top: 20%;
+  right: 15%;
+  animation-delay: 0s;
+}
+
+.star2 {
+  bottom: 30%;
+  left: 10%;
+  animation-delay: 1s;
+}
+
+.star3 {
+  top: 40%;
+  left: 20%;
+  animation-delay: 2s;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.2); }
+}
+
+/* Gold Theme (Rank 1) */
+.gold {
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.15) 0%, transparent 100%);
+}
+
+.gold .vipBadge {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.1));
+  border-color: rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+}
+
+.gold .heroTitle {
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+}
+
+.gold .heroSubtitle strong {
+  color: #ffd700;
+}
+
+.gold .glow {
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.25) 0%, transparent 70%);
+}
+
+.gold .star1,
+.gold .star2,
+.gold .star3 {
+  color: rgba(255, 215, 0, 0.4);
+}
+
+/* Silver Theme (Rank 2) */
+.silver {
+  background: linear-gradient(180deg, rgba(192, 192, 192, 0.12) 0%, transparent 100%);
+}
+
+.silver .vipBadge {
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.25), rgba(192, 192, 192, 0.1));
+  border-color: rgba(192, 192, 192, 0.4);
+  color: #c0c0c0;
+}
+
+.silver .heroTitle {
+  text-shadow: 0 0 30px rgba(192, 192, 192, 0.4);
+}
+
+.silver .heroSubtitle strong {
+  color: #d4d4d4;
+}
+
+.silver .glow {
+  background: radial-gradient(circle, rgba(192, 192, 192, 0.2) 0%, transparent 70%);
+}
+
+.silver .star1,
+.silver .star2,
+.silver .star3 {
+  color: rgba(192, 192, 192, 0.4);
+}
+
+/* Bronze Theme (Rank 3) */
+.bronze {
+  background: linear-gradient(180deg, rgba(205, 127, 50, 0.12) 0%, transparent 100%);
+}
+
+.bronze .vipBadge {
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.25), rgba(205, 127, 50, 0.1));
+  border-color: rgba(205, 127, 50, 0.4);
+  color: #cd7f32;
+}
+
+.bronze .heroTitle {
+  text-shadow: 0 0 30px rgba(205, 127, 50, 0.4);
+}
+
+.bronze .heroSubtitle strong {
+  color: #d4944a;
+}
+
+.bronze .glow {
+  background: radial-gradient(circle, rgba(205, 127, 50, 0.2) 0%, transparent 70%);
+}
+
+.bronze .star1,
+.bronze .star2,
+.bronze .star3 {
+  color: rgba(205, 127, 50, 0.4);
+}
+
+/* Default Theme */
+.default {
+  /* Uses original pink theme */
+}
+
+/* Light mode support */
+:global([data-theme='light']) .hero {
+  background: linear-gradient(180deg, rgba(253, 104, 186, 0.15) 0%, rgba(253, 104, 186, 0.05) 100%);
+}
+
+:global([data-theme='light']) .heroTitle {
+  color: #1a1a1a;
+  text-shadow: none;
+}
+
+:global([data-theme='light']) .heroSubtitle {
+  color: rgba(0, 0, 0, 0.75);
+}
+
+:global([data-theme='light']) .heroSubtitle strong {
+  color: var(--primary-deep, #fb37a3);
+}
+
+:global([data-theme='light']) .vipBadge {
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.25), rgba(253, 104, 186, 0.15));
+  border-color: rgba(253, 104, 186, 0.4);
+}
+
+:global([data-theme='light']) .glow {
+  background: radial-gradient(circle, rgba(253, 104, 186, 0.15) 0%, transparent 70%);
+}
+
+:global([data-theme='light']) .star1,
+:global([data-theme='light']) .star2,
+:global([data-theme='light']) .star3 {
+  color: rgba(253, 104, 186, 0.4);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 3rem 1rem;
+  }
+
+  .heroTitle {
+    font-size: 1.75rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+
+  .vipBadge {
+    font-size: 0.75rem;
+  }
+}

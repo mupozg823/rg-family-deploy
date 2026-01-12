@@ -7,6 +7,54 @@ const nextConfig: NextConfig = {
   experimental: {
     // Use webpack for build instead of Turbopack
   },
+  // Route redirects for RG Info consolidation
+  async redirects() {
+    return [
+      // Legacy route redirects
+      {
+        source: '/organization',
+        destination: '/rg/org',
+        permanent: true,
+      },
+      {
+        source: '/signature',
+        destination: '/rg/sig',
+        permanent: true,
+      },
+      {
+        source: '/timeline',
+        destination: '/rg/history',
+        permanent: true,
+      },
+      // /info/* -> /rg/* redirects (문서 참조 호환)
+      {
+        source: '/info/org',
+        destination: '/rg/org',
+        permanent: true,
+      },
+      {
+        source: '/info/sig',
+        destination: '/rg/sig',
+        permanent: true,
+      },
+      {
+        source: '/info/timeline',
+        destination: '/rg/history',
+        permanent: true,
+      },
+      {
+        source: '/info/live',
+        destination: '/rg/live',
+        permanent: true,
+      },
+      // Ranking redirects
+      {
+        source: '/ranking/total',
+        destination: '/ranking',
+        permanent: true,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {

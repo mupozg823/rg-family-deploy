@@ -72,25 +72,32 @@ NEXT_PUBLIC_USE_MOCK_DATA=true  # Set to 'false' for production
 src/
 ├── app/                    # Next.js App Router
 │   ├── (auth)/            # Authentication (login, signup)
-│   ├── admin/             # Admin CMS (11 pages)
+│   ├── admin/             # Admin CMS (14 pages)
 │   ├── community/         # Community boards
 │   ├── notice/            # Notices
-│   ├── organization/      # Organization chart
-│   ├── ranking/           # Donation rankings
-│   ├── schedule/          # Calendar
-│   ├── signature/         # Signature gallery
-│   └── timeline/          # History timeline
+│   ├── ranking/           # Donation rankings & VIP pages
+│   ├── rg/                # RG Info section
+│   │   ├── org/          # Organization chart
+│   │   ├── sig/          # Signature gallery
+│   │   ├── history/      # Timeline
+│   │   └── live/         # Live status
+│   └── schedule/          # Calendar
 ├── components/            # Reusable components
 │   ├── admin/            # Admin components
 │   ├── community/        # Community components
-│   ├── info/             # Info page components
+│   ├── home/             # Homepage components (Hero, Live, etc.)
+│   ├── info/             # Info page components (Org, Sig, Timeline)
 │   ├── ranking/          # Ranking components
-│   └── schedule/         # Schedule components
+│   ├── schedule/         # Schedule components
+│   ├── tribute/          # VIP Tribute page components
+│   └── ui/               # UI primitives (shadcn + custom)
 ├── lib/
+│   ├── auth/             # Access control utilities
 │   ├── config.ts         # Configuration
 │   ├── context/          # React Context providers
 │   ├── hooks/            # Custom hooks
 │   ├── mock/             # Mock data for development
+│   ├── repositories/     # Data access layer (Repository pattern)
 │   └── utils/            # Utility functions
 └── types/                # TypeScript type definitions
 ```

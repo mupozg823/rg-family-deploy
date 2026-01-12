@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Crown,
@@ -19,14 +19,15 @@ import {
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import { useAuthContext } from "@/lib/context";
-import { useRanking } from "@/lib/hooks/useRanking";
+import { useVipStatus, useRanking } from "@/lib/hooks";
 import { mockVipContent, type VipContent } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
 import styles from "./page.module.css";
 
 export default function VipLoungePage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
-  const { rankings } = useRanking();
+  const { isVip, rank: userRank, isLoading: vipStatusLoading } = useVipStatus();
+  const { rankings, isLoading: rankingLoading } = useRanking();
   const [vipContent, setVipContent] = useState<VipContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showGate, setShowGate] = useState(true);
@@ -38,19 +39,6 @@ export default function VipLoungePage() {
     }, 2500);
     return () => clearTimeout(timer);
   }, []);
-
-  // Mock 모드에서는 항상 VIP로 표시 (개발용)
-  const userRank = useMemo(() => {
-    if (USE_MOCK_DATA) return 5; // Mock: 5위로 설정
-    if (!user) return null;
-    const userRanking = rankings.find((r) => r.donorId === user.id);
-    return userRanking ? rankings.indexOf(userRanking) + 1 : null;
-  }, [user, rankings]);
-
-  const isVip = useMemo(() => {
-    if (USE_MOCK_DATA) return true; // Mock: 항상 VIP
-    return userRank !== null && userRank <= 50;
-  }, [userRank]);
 
   const fetchVipContent = useCallback(async () => {
     setIsLoading(true);
@@ -87,7 +75,7 @@ export default function VipLoungePage() {
   }, [isVip, fetchVipContent]);
 
   // 로딩 중
-  if (authLoading || isLoading) {
+  if (authLoading || vipStatusLoading || isLoading || rankingLoading) {
     return (
       <div className={styles.main}>
         <div className={styles.loading}>
@@ -372,7 +360,7 @@ export default function VipLoungePage() {
                 <p>당신만을 위한 특별한 헌정 페이지가 준비되어 있습니다</p>
               </div>
               <Link
-                href={`/ranking/vip/${user?.id}`}
+                href={`/ranking/${user?.id}`}
                 className={styles.secretLink}
               >
                 입장하기

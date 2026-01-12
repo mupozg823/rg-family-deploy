@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Plus, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
+import { useAdminCRUD } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
@@ -18,118 +18,57 @@ interface Season {
 
 export default function SeasonsPage() {
   const supabase = useSupabaseContext()
-  const [seasons, setSeasons] = useState<Season[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingSeason, setEditingSeason] = useState<Partial<Season> | null>(null)
-  const [isNew, setIsNew] = useState(false)
 
-  const fetchSeasons = useCallback(async () => {
-    setIsLoading(true)
-
-    const { data, error } = await supabase
-      .from('seasons')
-      .select('*')
-      .order('start_date', { ascending: false })
-
-    if (error) {
-      console.error('시즌 데이터 로드 실패:', error)
-    } else {
-      setSeasons(
-        (data || []).map((s) => ({
-          id: s.id,
-          name: s.name,
-          startDate: s.start_date,
-          endDate: s.end_date,
-          isActive: s.is_active,
-          createdAt: s.created_at,
-        }))
-      )
-    }
-
-    setIsLoading(false)
-  }, [supabase])
-
-  useEffect(() => {
-    fetchSeasons()
-  }, [fetchSeasons])
-
-  const handleAdd = () => {
-    const today = new Date().toISOString().split('T')[0]
-    setEditingSeason({
+  const {
+    items: seasons,
+    isLoading,
+    isModalOpen,
+    isNew,
+    editingItem: editingSeason,
+    setEditingItem: setEditingSeason,
+    openAddModal,
+    openEditModal,
+    closeModal,
+    handleSave,
+    handleDelete,
+  } = useAdminCRUD<Season>({
+    tableName: 'seasons',
+    defaultItem: {
       name: '',
-      startDate: today,
-      endDate: today,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date().toISOString().split('T')[0],
       isActive: false,
-    })
-    setIsNew(true)
-    setIsModalOpen(true)
-  }
-
-  const handleEdit = (season: Season) => {
-    setEditingSeason(season)
-    setIsNew(false)
-    setIsModalOpen(true)
-  }
-
-  const handleDelete = async (season: Season) => {
-    if (!confirm('정말 삭제하시겠습니까? 관련된 모든 데이터가 삭제됩니다.')) return
-
-    const { error } = await supabase.from('seasons').delete().eq('id', season.id)
-
-    if (error) {
-      console.error('시즌 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
-    } else {
-      fetchSeasons()
-    }
-  }
-
-  const handleSave = async () => {
-    if (!editingSeason || !editingSeason.name) {
-      alert('시즌 이름을 입력해주세요.')
-      return
-    }
-
-    // 활성화 시 다른 시즌 비활성화
-    if (editingSeason.isActive) {
-      await supabase.from('seasons').update({ is_active: false }).neq('id', editingSeason.id || 0)
-    }
-
-    if (isNew) {
-      const { error } = await supabase.from('seasons').insert({
-        name: editingSeason.name!,
-        start_date: editingSeason.startDate!,
-        end_date: editingSeason.endDate,
-        is_active: editingSeason.isActive,
-      })
-
-      if (error) {
-        console.error('시즌 등록 실패:', error)
-        alert('등록에 실패했습니다.')
-        return
+    },
+    orderBy: { column: 'start_date', ascending: false },
+    fromDbFormat: (row) => ({
+      id: row.id as number,
+      name: row.name as string,
+      startDate: row.start_date as string,
+      endDate: row.end_date as string | null,
+      isActive: row.is_active as boolean,
+      createdAt: row.created_at as string,
+    }),
+    toDbFormat: (item) => ({
+      name: item.name,
+      start_date: item.startDate,
+      end_date: item.endDate,
+      is_active: item.isActive,
+    }),
+    validate: (item) => {
+      if (!item.name) return '시즌 이름을 입력해주세요.'
+      return null
+    },
+    beforeSave: async (item, _isNew) => {
+      // 활성화 시 다른 시즌 비활성화
+      if (item.isActive) {
+        await supabase
+          .from('seasons')
+          .update({ is_active: false })
+          .neq('id', item.id || 0)
       }
-    } else {
-      const { error } = await supabase
-        .from('seasons')
-        .update({
-          name: editingSeason.name,
-          start_date: editingSeason.startDate,
-          end_date: editingSeason.endDate,
-          is_active: editingSeason.isActive,
-        })
-        .eq('id', editingSeason.id!)
-
-      if (error) {
-        console.error('시즌 수정 실패:', error)
-        alert('수정에 실패했습니다.')
-        return
-      }
-    }
-
-    setIsModalOpen(false)
-    fetchSeasons()
-  }
+    },
+    deleteConfirmMessage: '정말 삭제하시겠습니까? 관련된 모든 데이터가 삭제됩니다.',
+  })
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('ko-KR', {
@@ -151,7 +90,7 @@ export default function SeasonsPage() {
       key: 'endDate',
       header: '종료일',
       width: '150px',
-      render: (item) => item.endDate ? formatDate(item.endDate) : '-',
+      render: (item) => (item.endDate ? formatDate(item.endDate) : '-'),
     },
     {
       key: 'isActive',
@@ -181,7 +120,7 @@ export default function SeasonsPage() {
             <p className={styles.subtitle}>후원 시즌 관리</p>
           </div>
         </div>
-        <button onClick={handleAdd} className={styles.addButton}>
+        <button onClick={openAddModal} className={styles.addButton}>
           <Plus size={18} />
           시즌 추가
         </button>
@@ -190,7 +129,7 @@ export default function SeasonsPage() {
       <DataTable
         data={seasons}
         columns={columns}
-        onEdit={handleEdit}
+        onEdit={openEditModal}
         onDelete={handleDelete}
         searchPlaceholder="시즌명으로 검색..."
         isLoading={isLoading}
@@ -204,7 +143,7 @@ export default function SeasonsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeModal}
           >
             <motion.div
               className={styles.modal}
@@ -215,7 +154,7 @@ export default function SeasonsPage() {
             >
               <div className={styles.modalHeader}>
                 <h2>{isNew ? '시즌 추가' : '시즌 수정'}</h2>
-                <button onClick={() => setIsModalOpen(false)} className={styles.closeButton}>
+                <button onClick={closeModal} className={styles.closeButton}>
                   <X size={20} />
                 </button>
               </div>
@@ -225,7 +164,7 @@ export default function SeasonsPage() {
                   <label>시즌명</label>
                   <input
                     type="text"
-                    value={editingSeason.name}
+                    value={editingSeason.name || ''}
                     onChange={(e) =>
                       setEditingSeason({ ...editingSeason, name: e.target.value })
                     }
@@ -239,7 +178,7 @@ export default function SeasonsPage() {
                     <label>시작일</label>
                     <input
                       type="date"
-                      value={editingSeason.startDate}
+                      value={editingSeason.startDate || ''}
                       onChange={(e) =>
                         setEditingSeason({ ...editingSeason, startDate: e.target.value })
                       }
@@ -264,7 +203,7 @@ export default function SeasonsPage() {
                   <label className={styles.checkboxLabel}>
                     <input
                       type="checkbox"
-                      checked={editingSeason.isActive}
+                      checked={editingSeason.isActive || false}
                       onChange={(e) =>
                         setEditingSeason({ ...editingSeason, isActive: e.target.checked })
                       }
@@ -277,7 +216,7 @@ export default function SeasonsPage() {
               </div>
 
               <div className={styles.modalFooter}>
-                <button onClick={() => setIsModalOpen(false)} className={styles.cancelButton}>
+                <button onClick={closeModal} className={styles.cancelButton}>
                   취소
                 </button>
                 <button onClick={handleSave} className={styles.saveButton}>

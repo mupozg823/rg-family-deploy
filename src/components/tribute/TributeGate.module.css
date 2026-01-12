@@ -1,0 +1,107 @@
+.gateOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background: radial-gradient(circle at center, rgba(253, 104, 186, 0.15), transparent 50%),
+              linear-gradient(180deg, #050505 0%, #0a0a0a 100%);
+  cursor: pointer;
+}
+
+.gateIcon {
+  color: var(--color-primary, #fd68ba);
+  filter: drop-shadow(0 0 30px rgba(253, 104, 186, 0.5));
+  animation: float 3s ease-in-out infinite;
+}
+
+.gateText {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(253, 104, 186, 0.5);
+}
+
+.gateSubtext {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.2em;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Gold Theme (Rank 1) */
+.gold {
+  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.2), transparent 50%),
+              linear-gradient(180deg, #0d0a00 0%, #1a1500 100%);
+}
+
+.gold .gateIcon {
+  color: #ffd700;
+  filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
+}
+
+.gold .gateText {
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+/* Silver Theme (Rank 2) */
+.silver {
+  background: radial-gradient(circle at center, rgba(192, 192, 192, 0.2), transparent 50%),
+              linear-gradient(180deg, #080808 0%, #121212 100%);
+}
+
+.silver .gateIcon {
+  color: #c0c0c0;
+  filter: drop-shadow(0 0 30px rgba(192, 192, 192, 0.6));
+}
+
+.silver .gateText {
+  text-shadow: 0 0 20px rgba(192, 192, 192, 0.6);
+}
+
+/* Bronze Theme (Rank 3) */
+.bronze {
+  background: radial-gradient(circle at center, rgba(205, 127, 50, 0.2), transparent 50%),
+              linear-gradient(180deg, #0a0600 0%, #150e05 100%);
+}
+
+.bronze .gateIcon {
+  color: #cd7f32;
+  filter: drop-shadow(0 0 30px rgba(205, 127, 50, 0.6));
+}
+
+.bronze .gateText {
+  text-shadow: 0 0 20px rgba(205, 127, 50, 0.6);
+}
+
+/* Default Theme */
+.default {
+  /* Uses original pink theme */
+}
+
+@media (max-width: 768px) {
+  .gateText {
+    font-size: 1.5rem;
+    letter-spacing: 0.3em;
+  }
+
+  .gateSubtext {
+    font-size: 1rem;
+  }
+
+  .gateIcon :global(svg) {
+    width: 60px;
+    height: 60px;
+  }
+}

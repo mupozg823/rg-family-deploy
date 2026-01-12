@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Building, Plus, X, Save, GripVertical } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
+import { useAdminCRUD } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
@@ -24,124 +25,74 @@ interface Profile {
 
 export default function OrganizationPage() {
   const supabase = useSupabaseContext()
-  const [members, setMembers] = useState<OrgMember[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingMember, setEditingMember] = useState<Partial<OrgMember> | null>(null)
-  const [isNew, setIsNew] = useState(false)
   const [activeUnit, setActiveUnit] = useState<'excel' | 'crew'>('excel')
 
-  const fetchData = useCallback(async () => {
-    setIsLoading(true)
-
-    const { data: orgData } = await supabase
-      .from('organization')
-      .select('*, profiles(nickname)')
-      .order('position_order')
-
-    const { data: profilesData } = await supabase
+  // Fetch profiles for linking
+  const fetchProfiles = useCallback(async () => {
+    const { data } = await supabase
       .from('profiles')
       .select('id, nickname')
       .order('nickname')
-
-    setMembers(
-      (orgData || []).map((m) => ({
-        id: m.id,
-        profileId: m.profile_id,
-        name: m.name,
-        unit: m.unit,
-        role: m.role,
-        positionOrder: m.position_order,
-        parentId: m.parent_id,
-      }))
-    )
-
-    setProfiles(profilesData || [])
-    setIsLoading(false)
+    setProfiles(data || [])
   }, [supabase])
 
   useEffect(() => {
-    fetchData()
-  }, [fetchData])
+    fetchProfiles()
+  }, [fetchProfiles])
 
-  const filteredMembers = members.filter((m) => m.unit === activeUnit)
-
-  const handleAdd = () => {
-    setEditingMember({
+  const {
+    items: members,
+    isLoading,
+    isModalOpen,
+    isNew,
+    editingItem: editingMember,
+    setEditingItem: setEditingMember,
+    openAddModal: baseOpenAddModal,
+    openEditModal,
+    closeModal,
+    handleSave,
+    handleDelete,
+  } = useAdminCRUD<OrgMember>({
+    tableName: 'organization',
+    defaultItem: {
       profileId: null,
       name: '',
       unit: activeUnit,
       role: '',
-      positionOrder: filteredMembers.length,
+      positionOrder: 0,
       parentId: null,
-    })
-    setIsNew(true)
-    setIsModalOpen(true)
-  }
+    },
+    orderBy: { column: 'position_order', ascending: true },
+    fromDbFormat: (row) => ({
+      id: row.id as number,
+      profileId: row.profile_id as string | null,
+      name: row.name as string,
+      unit: row.unit as 'excel' | 'crew',
+      role: row.role as string,
+      positionOrder: row.position_order as number,
+      parentId: row.parent_id as number | null,
+    }),
+    toDbFormat: (item) => ({
+      name: item.name,
+      role: item.role,
+      unit: item.unit,
+      profile_id: item.profileId,
+      parent_id: item.parentId,
+      position_order: item.positionOrder,
+    }),
+    validate: (item) => {
+      if (!item.name || !item.role) return '이름과 직책을 입력해주세요.'
+      return null
+    },
+  })
 
-  const handleEdit = (member: OrgMember) => {
-    setEditingMember(member)
-    setIsNew(false)
-    setIsModalOpen(true)
-  }
+  const filteredMembers = members.filter((m) => m.unit === activeUnit)
 
-  const handleDelete = async (member: OrgMember) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
-
-    const { error } = await supabase.from('organization').delete().eq('id', member.id)
-
-    if (error) {
-      console.error('조직도 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
-    } else {
-      fetchData()
-    }
-  }
-
-  const handleSave = async () => {
-    if (!editingMember || !editingMember.name || !editingMember.role) {
-      alert('이름과 직책을 입력해주세요.')
-      return
-    }
-
-    if (isNew) {
-      const { error } = await supabase.from('organization').insert({
-        name: editingMember.name,
-        role: editingMember.role,
-        unit: editingMember.unit!,
-        profile_id: editingMember.profileId,
-        parent_id: editingMember.parentId,
-        position_order: editingMember.positionOrder,
-      })
-
-      if (error) {
-        console.error('조직도 등록 실패:', error)
-        alert('등록에 실패했습니다.')
-        return
-      }
-    } else {
-      const { error } = await supabase
-        .from('organization')
-        .update({
-          name: editingMember.name,
-          role: editingMember.role,
-          unit: editingMember.unit,
-          profile_id: editingMember.profileId,
-          parent_id: editingMember.parentId,
-          position_order: editingMember.positionOrder,
-        })
-        .eq('id', editingMember.id!)
-
-      if (error) {
-        console.error('조직도 수정 실패:', error)
-        alert('수정에 실패했습니다.')
-        return
-      }
-    }
-
-    setIsModalOpen(false)
-    fetchData()
+  const openAddModal = () => {
+    baseOpenAddModal()
+    // Override unit with current activeUnit
+    setEditingMember((prev) => prev ? { ...prev, unit: activeUnit, positionOrder: filteredMembers.length } : null)
   }
 
   const columns: Column<OrgMember>[] = [
@@ -170,7 +121,7 @@ export default function OrganizationPage() {
             <p className={styles.subtitle}>RG 패밀리 조직도</p>
           </div>
         </div>
-        <button onClick={handleAdd} className={styles.addButton}>
+        <button onClick={openAddModal} className={styles.addButton}>
           <Plus size={18} />
           멤버 추가
         </button>
@@ -195,7 +146,7 @@ export default function OrganizationPage() {
       <DataTable
         data={filteredMembers}
         columns={columns}
-        onEdit={handleEdit}
+        onEdit={openEditModal}
         onDelete={handleDelete}
         searchPlaceholder="이름으로 검색..."
         isLoading={isLoading}
@@ -209,7 +160,7 @@ export default function OrganizationPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeModal}
           >
             <motion.div
               className={styles.modal}
@@ -220,7 +171,7 @@ export default function OrganizationPage() {
             >
               <div className={styles.modalHeader}>
                 <h2>{isNew ? '멤버 추가' : '멤버 수정'}</h2>
-                <button onClick={() => setIsModalOpen(false)} className={styles.closeButton}>
+                <button onClick={closeModal} className={styles.closeButton}>
                   <X size={20} />
                 </button>
               </div>
@@ -294,7 +245,7 @@ export default function OrganizationPage() {
                   <label>순서</label>
                   <input
                     type="number"
-                    value={editingMember.positionOrder}
+                    value={editingMember.positionOrder ?? 0}
                     onChange={(e) =>
                       setEditingMember({
                         ...editingMember,
@@ -308,7 +259,7 @@ export default function OrganizationPage() {
               </div>
 
               <div className={styles.modalFooter}>
-                <button onClick={() => setIsModalOpen(false)} className={styles.cancelButton}>
+                <button onClick={closeModal} className={styles.cancelButton}>
                   취소
                 </button>
                 <button onClick={handleSave} className={styles.saveButton}>

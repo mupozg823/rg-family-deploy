@@ -8,6 +8,30 @@ import { useSupabaseContext } from '@/lib/context'
 import type { JoinedProfile } from '@/types/common'
 import styles from './page.module.css'
 
+// Local helper functions
+const formatCurrency = (amount: number): string => {
+  if (amount >= 100000000) {
+    return `${(amount / 100000000).toFixed(1)}억 하트`;
+  }
+  if (amount >= 10000) {
+    return `${(amount / 10000).toFixed(1)}만 하트`;
+  }
+  return `${amount.toLocaleString()} 하트`;
+};
+
+interface FormatDateOptions {
+  year?: 'numeric' | '2-digit';
+  month?: 'numeric' | '2-digit' | 'long' | 'short' | 'narrow';
+  day?: 'numeric' | '2-digit';
+  hour?: 'numeric' | '2-digit';
+  minute?: 'numeric' | '2-digit';
+}
+
+const formatDate = (dateStr: string, options?: FormatDateOptions): string => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('ko-KR', options);
+};
+
 interface DashboardStats {
   totalMembers: number
   totalDonations: number
@@ -105,24 +129,13 @@ export default function AdminDashboardPage() {
     fetchStats()
   }, [fetchStats])
 
-  const formatAmount = (amount: number) => {
-    if (amount >= 100000000) {
-      return `${(amount / 100000000).toFixed(1)}억원`
-    }
-    if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(0)}만원`
-    }
-    return `${amount.toLocaleString()}원`
-  }
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('ko-KR', {
+  const formatDateTime = (dateStr: string) =>
+    formatDate(dateStr, {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     })
-  }
 
   const donationColumns: Column<RecentDonation>[] = [
     { key: 'donorName', header: '후원자' },
@@ -130,13 +143,13 @@ export default function AdminDashboardPage() {
       key: 'amount',
       header: '금액',
       render: (item) => (
-        <span className={styles.amountCell}>{formatAmount(item.amount)}</span>
+        <span className={styles.amountCell}>{formatCurrency(item.amount)}</span>
       ),
     },
     {
       key: 'createdAt',
       header: '일시',
-      render: (item) => formatDate(item.createdAt),
+      render: (item) => formatDateTime(item.createdAt),
     },
   ]
 
@@ -146,7 +159,7 @@ export default function AdminDashboardPage() {
     {
       key: 'createdAt',
       header: '가입일',
-      render: (item) => formatDate(item.createdAt),
+      render: (item) => formatDateTime(item.createdAt),
     },
   ]
 
@@ -184,7 +197,7 @@ export default function AdminDashboardPage() {
         />
         <StatsCard
           title="총 후원금"
-          value={formatAmount(stats?.totalDonationAmount || 0)}
+          value={formatCurrency(stats?.totalDonationAmount || 0)}
           icon={TrendingUp}
           color="warning"
           delay={0.2}

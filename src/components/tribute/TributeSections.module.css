@@ -1,0 +1,678 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* Section Styles */
+.section {
+  margin-bottom: 3rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  color: var(--color-primary, #fd68ba);
+}
+
+.sectionHeader h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Message Card */
+.messageCard {
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.1), rgba(253, 104, 186, 0.05));
+  border: 1px solid rgba(253, 104, 186, 0.2);
+  border-radius: 12px;
+}
+
+.messageCard p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Video Wrapper */
+.videoWrapper {
+  background: #0a0a0a;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.videoInner {
+  padding: 1rem;
+}
+
+.video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.1), transparent);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.videoBadge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(253, 104, 186, 0.9);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  border-radius: 4px;
+}
+
+.playBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: rgba(253, 104, 186, 0.9);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.playBtn:hover {
+  transform: scale(1.1);
+  background: var(--color-primary, #fd68ba);
+}
+
+.videoLabel {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Videos Grid */
+.videosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.videoCard {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.videoCard:hover {
+  transform: translateY(-2px);
+}
+
+.videoThumbnail {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.1), transparent);
+}
+
+.videoPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.unitBadge {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.unitBadge[data-unit="excel"] {
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+}
+
+.unitBadge[data-unit="crew"] {
+  background: rgba(253, 104, 186, 0.2);
+  color: #fd68ba;
+}
+
+.videoInfo {
+  padding: 0.75rem;
+}
+
+.videoInfo h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.videoInfo p {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.75);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Gallery Grid */
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.galleryCard {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.galleryImage {
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.galleryCard:hover .galleryImage {
+  transform: scale(1.05);
+}
+
+.galleryOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.galleryCard:hover .galleryOverlay {
+  opacity: 1;
+}
+
+/* Secret Section */
+.secretSection {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.08), transparent);
+  border: 1px solid rgba(253, 104, 186, 0.15);
+  border-radius: 16px;
+}
+
+.secretHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.secretBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(253, 104, 186, 0.2);
+  border-radius: 50px;
+  color: var(--color-primary, #fd68ba);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.secretHeader h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.secretHeader p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.signaturesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.signatureCard {
+  aspect-ratio: 1;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.signatureCard:hover {
+  transform: scale(1.05);
+}
+
+.signaturePlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.signatureName {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.playIcon {
+  opacity: 0.6;
+}
+
+/* History List */
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.historyDate {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.historyAmount {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-primary, #fd68ba);
+}
+
+/* Guestbook Section */
+.guestbookSection {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.05) 0%, transparent 100%);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 16px;
+}
+
+.guestbookList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.guestbookEntry {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.guestbookEntry:hover {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 215, 0, 0.2);
+}
+
+.guestbookAvatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 50%;
+  color: #ffd700;
+}
+
+.guestbookContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.guestbookMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.375rem;
+}
+
+.guestbookAuthor {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffd700;
+}
+
+.guestbookDate {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.guestbookMessage {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
+
+.guestbookInputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.guestbookInput {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 12px;
+}
+
+.guestbookInput input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.guestbookInput input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.guestbookSendBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  color: rgba(255, 215, 0, 0.5);
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+}
+
+.guestbookSendBtn:not(:disabled):hover {
+  background: rgba(255, 215, 0, 0.25);
+  color: #ffd700;
+  cursor: pointer;
+}
+
+.guestbookHint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+}
+
+/* Empty Section */
+.emptySection {
+  margin-bottom: 3rem;
+  padding: 3rem 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.emptySectionContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.emptySectionContent h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.emptySectionContent p {
+  font-size: 0.9rem;
+}
+
+.adminHint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .container {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .messageCard {
+    padding: 1.5rem;
+  }
+
+  .messageCard p {
+    font-size: 1rem;
+  }
+
+  .videosGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .galleryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .signaturesGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .secretSection {
+    padding: 1.5rem;
+  }
+
+  .guestbookSection {
+    padding: 1.5rem;
+  }
+
+  .guestbookEntry {
+    padding: 0.875rem;
+  }
+
+  .guestbookAvatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .guestbookInput {
+    padding: 0.625rem;
+  }
+
+  .guestbookSendBtn {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Light mode support */
+:global([data-theme='light']) .messageCard {
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.15), rgba(253, 104, 186, 0.08));
+  border-color: rgba(253, 104, 186, 0.25);
+}
+
+:global([data-theme='light']) .messageCard p {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+:global([data-theme='light']) .videoWrapper {
+  background: #f5f5f5;
+}
+
+:global([data-theme='light']) .video {
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.15), rgba(253, 104, 186, 0.05));
+}
+
+:global([data-theme='light']) .videoLabel {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+:global([data-theme='light']) .videoCard {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+:global([data-theme='light']) .videoThumbnail {
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.15), rgba(253, 104, 186, 0.05));
+}
+
+:global([data-theme='light']) .videoPlaceholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+:global([data-theme='light']) .videoInfo h3 {
+  color: #1a1a1a;
+}
+
+:global([data-theme='light']) .videoInfo p {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+:global([data-theme='light']) .secretSection {
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.12), rgba(253, 104, 186, 0.05));
+  border-color: rgba(253, 104, 186, 0.2);
+}
+
+:global([data-theme='light']) .secretHeader h2 {
+  color: #1a1a1a;
+}
+
+:global([data-theme='light']) .secretHeader p {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+:global([data-theme='light']) .signatureCard {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+:global([data-theme='light']) .signaturePlaceholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+:global([data-theme='light']) .historyItem {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+:global([data-theme='light']) .historyDate {
+  color: rgba(0, 0, 0, 0.75);
+}
+
+:global([data-theme='light']) .emptySection {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+:global([data-theme='light']) .emptySectionContent {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+:global([data-theme='light']) .emptySectionContent h3 {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+:global([data-theme='light']) .adminHint {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* Guestbook Light Mode */
+:global([data-theme='light']) .guestbookSection {
+  background: linear-gradient(180deg, rgba(184, 134, 11, 0.08) 0%, transparent 100%);
+  border-color: rgba(184, 134, 11, 0.2);
+}
+
+:global([data-theme='light']) .guestbookEntry {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+:global([data-theme='light']) .guestbookEntry:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+:global([data-theme='light']) .guestbookAvatar {
+  background: linear-gradient(135deg, rgba(184, 134, 11, 0.15), rgba(184, 134, 11, 0.08));
+  border-color: rgba(184, 134, 11, 0.3);
+  color: #8b6914;
+}
+
+:global([data-theme='light']) .guestbookAuthor {
+  color: #8b6914;
+}
+
+:global([data-theme='light']) .guestbookDate {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+:global([data-theme='light']) .guestbookMessage {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+:global([data-theme='light']) .guestbookInput {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(184, 134, 11, 0.2);
+}
+
+:global([data-theme='light']) .guestbookInput input {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='light']) .guestbookInput input::placeholder {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+:global([data-theme='light']) .guestbookSendBtn {
+  background: rgba(184, 134, 11, 0.1);
+  border-color: rgba(184, 134, 11, 0.25);
+  color: rgba(184, 134, 11, 0.5);
+}
+
+:global([data-theme='light']) .guestbookHint {
+  color: rgba(0, 0, 0, 0.4);
+}

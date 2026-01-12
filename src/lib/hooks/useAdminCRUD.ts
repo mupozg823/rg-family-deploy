@@ -1,0 +1,254 @@
+'use client'
+
+import { useState, useCallback, useEffect } from 'react'
+import { useSupabaseContext } from '@/lib/context'
+
+/**
+ * useAdminCRUD - Admin 페이지 CRUD 보일러플레이트 제거를 위한 제네릭 훅
+ *
+ * 기능:
+ * - Supabase CRUD 작업 (fetch, add, update, delete)
+ * - 모달 상태 관리 (isModalOpen, isNew, editingItem)
+ * - 로딩 상태 관리
+ * - camelCase ↔ snake_case 필드 매핑
+ *
+ * 사용 예:
+ * ```tsx
+ * const {
+ *   items,
+ *   isLoading,
+ *   isModalOpen,
+ *   isNew,
+ *   editingItem,
+ *   openAddModal,
+ *   openEditModal,
+ *   closeModal,
+ *   handleSave,
+ *   handleDelete,
+ *   setEditingItem,
+ * } = useAdminCRUD<Season>({
+ *   tableName: 'seasons',
+ *   defaultItem: { name: '', startDate: '', isActive: false },
+ *   orderBy: { column: 'start_date', ascending: false },
+ *   toDbFormat: (item) => ({ name: item.name, start_date: item.startDate }),
+ *   fromDbFormat: (row) => ({ id: row.id, name: row.name, startDate: row.start_date }),
+ * })
+ * ```
+ */
+
+export interface AdminCRUDConfig<T extends { id?: number | string }> {
+  /** Supabase 테이블 이름 */
+  tableName: string
+
+  /** 새 항목 추가 시 기본값 */
+  defaultItem: Partial<T>
+
+  /** 정렬 설정 (선택) */
+  orderBy?: {
+    column: string
+    ascending?: boolean
+  }
+
+  /** DB 행 → 프론트엔드 객체 변환 */
+  fromDbFormat: (row: Record<string, unknown>) => T
+
+  /** 프론트엔드 객체 → DB 행 변환 (id 제외) */
+  toDbFormat: (item: Partial<T>) => Record<string, unknown>
+
+  /** 저장 전 유효성 검사 (선택) */
+  validate?: (item: Partial<T>) => string | null
+
+  /** 저장 전 추가 작업 (선택, 예: 다른 행 업데이트) */
+  beforeSave?: (item: Partial<T>, isNew: boolean) => Promise<void>
+
+  /** 삭제 확인 메시지 (선택) */
+  deleteConfirmMessage?: string
+}
+
+export interface AdminCRUDReturn<T extends { id?: number | string }> {
+  /** 아이템 목록 */
+  items: T[]
+
+  /** 로딩 상태 */
+  isLoading: boolean
+
+  /** 모달 열림 상태 */
+  isModalOpen: boolean
+
+  /** 새 항목 추가 모드 */
+  isNew: boolean
+
+  /** 현재 편집 중인 아이템 */
+  editingItem: Partial<T> | null
+
+  /** 편집 아이템 업데이트 */
+  setEditingItem: React.Dispatch<React.SetStateAction<Partial<T> | null>>
+
+  /** 추가 모달 열기 */
+  openAddModal: () => void
+
+  /** 수정 모달 열기 */
+  openEditModal: (item: T) => void
+
+  /** 모달 닫기 */
+  closeModal: () => void
+
+  /** 저장 (추가/수정) */
+  handleSave: () => Promise<boolean>
+
+  /** 삭제 */
+  handleDelete: (item: T) => Promise<boolean>
+
+  /** 데이터 새로고침 */
+  refetch: () => Promise<void>
+}
+
+export function useAdminCRUD<T extends { id?: number | string }>(
+  config: AdminCRUDConfig<T>
+): AdminCRUDReturn<T> {
+  const {
+    tableName,
+    defaultItem,
+    orderBy,
+    fromDbFormat,
+    toDbFormat,
+    validate,
+    beforeSave,
+    deleteConfirmMessage = '정말 삭제하시겠습니까?',
+  } = config
+
+  const supabase = useSupabaseContext()
+
+  // State
+  const [items, setItems] = useState<T[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<Partial<T> | null>(null)
+  const [isNew, setIsNew] = useState(false)
+
+  // Fetch items
+  const refetch = useCallback(async () => {
+    setIsLoading(true)
+
+    let query = supabase.from(tableName).select('*')
+
+    if (orderBy) {
+      query = query.order(orderBy.column, { ascending: orderBy.ascending ?? true })
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error(`${tableName} 데이터 로드 실패:`, error)
+    } else {
+      setItems((data || []).map(fromDbFormat))
+    }
+
+    setIsLoading(false)
+  }, [supabase, tableName, orderBy, fromDbFormat])
+
+  // Initial fetch
+  useEffect(() => {
+    refetch()
+  }, [refetch])
+
+  // Modal handlers
+  const openAddModal = useCallback(() => {
+    setEditingItem({ ...defaultItem })
+    setIsNew(true)
+    setIsModalOpen(true)
+  }, [defaultItem])
+
+  const openEditModal = useCallback((item: T) => {
+    setEditingItem({ ...item })
+    setIsNew(false)
+    setIsModalOpen(true)
+  }, [])
+
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false)
+    setEditingItem(null)
+  }, [])
+
+  // Save handler
+  const handleSave = useCallback(async (): Promise<boolean> => {
+    if (!editingItem) return false
+
+    // Validation
+    if (validate) {
+      const error = validate(editingItem)
+      if (error) {
+        alert(error)
+        return false
+      }
+    }
+
+    // Before save hook
+    if (beforeSave) {
+      try {
+        await beforeSave(editingItem, isNew)
+      } catch (err) {
+        console.error('beforeSave 실패:', err)
+        return false
+      }
+    }
+
+    const dbData = toDbFormat(editingItem)
+
+    if (isNew) {
+      const { error } = await supabase.from(tableName).insert(dbData)
+      if (error) {
+        console.error(`${tableName} 등록 실패:`, error)
+        alert('등록에 실패했습니다.')
+        return false
+      }
+    } else {
+      const { error } = await supabase
+        .from(tableName)
+        .update(dbData)
+        .eq('id', editingItem.id)
+      if (error) {
+        console.error(`${tableName} 수정 실패:`, error)
+        alert('수정에 실패했습니다.')
+        return false
+      }
+    }
+
+    closeModal()
+    await refetch()
+    return true
+  }, [supabase, tableName, editingItem, isNew, toDbFormat, validate, beforeSave, closeModal, refetch])
+
+  // Delete handler
+  const handleDelete = useCallback(async (item: T): Promise<boolean> => {
+    if (!confirm(deleteConfirmMessage)) return false
+
+    const { error } = await supabase.from(tableName).delete().eq('id', item.id)
+
+    if (error) {
+      console.error(`${tableName} 삭제 실패:`, error)
+      alert('삭제에 실패했습니다.')
+      return false
+    }
+
+    await refetch()
+    return true
+  }, [supabase, tableName, deleteConfirmMessage, refetch])
+
+  return {
+    items,
+    isLoading,
+    isModalOpen,
+    isNew,
+    editingItem,
+    setEditingItem,
+    openAddModal,
+    openEditModal,
+    closeModal,
+    handleSave,
+    handleDelete,
+    refetch,
+  }
+}
+
+export default useAdminCRUD

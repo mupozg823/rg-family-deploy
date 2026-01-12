@@ -1,10 +1,16 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-
 /**
- * Utility function to merge Tailwind classes with clsx
- * Used by shadcn/ui components
+ * 유틸리티 함수 진입점
+ *
+ * 모든 유틸리티는 utils/ 폴더에서 관리
+ * 이 파일은 하위 호환성 및 shadcn/ui 호환을 위한 re-export
+ *
+ * @example
+ * import { cn } from '@/lib/utils'
+ * import { formatDate } from '@/lib/utils/format'
  */
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+
+// Re-export all utilities from utils/ folder (단일 소스)
+export * from './utils/cn';
+export * from './utils/format';
+export * from './utils/ranking';
+export * from './utils/youtube';

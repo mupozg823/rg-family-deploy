@@ -2,12 +2,38 @@
  * Hooks Module
  *
  * 권장: @/lib/context 에서 직접 import
+ *
+ * Note: useOrganization은 useOrganizationData의 alias입니다.
+ * Context의 useOrganization(Repository 접근)과 구분됩니다.
  */
+
+// Admin hooks
+export {
+  useAdminCRUD,
+  type AdminCRUDConfig,
+  type AdminCRUDReturn,
+} from './useAdminCRUD'
 
 // Domain hooks
 export { useSchedule } from './useSchedule'
 export { useRanking } from './useRanking'
-export * from './useMockData'
+export { useOrganizationData, useOrganizationData as useOrganization } from './useOrganizationData'
+export { useVipStatus } from './useVipStatus'
+export { useHonorQualification } from './useHonorQualification'
+export { useLiveRoster } from './useLiveRoster'
+export { useTributeData } from './useTributeData'
+export { useDonationsData, type DonationItem, type SeasonItem, type ProfileItem } from './useDonationsData'
+export {
+  useTimelineData,
+  type GroupedEvents,
+  type UseTimelineDataOptions,
+  type UseTimelineDataReturn,
+  CATEGORY_LABELS,
+  CATEGORY_COLORS,
+  SEASON_COLORS,
+  getCategoryColor,
+  getSeasonColor,
+} from './useTimelineData'
 
 // Re-export from Context (recommended)
 export {
@@ -19,7 +45,6 @@ export {
   useSeasons,
   useProfiles,
   useDonations,
-  useOrganization,
   useNotices,
   usePosts,
 } from '@/lib/context'

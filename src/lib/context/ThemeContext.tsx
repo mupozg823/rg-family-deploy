@@ -23,21 +23,25 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    // Get saved theme from localStorage or system preference
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    if (savedTheme) {
-      setThemeState(savedTheme);
-      document.documentElement.setAttribute("data-theme", savedTheme);
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      const initialTheme = prefersDark ? "dark" : "light";
-      setThemeState(initialTheme);
-      document.documentElement.setAttribute("data-theme", initialTheme);
-    }
+    const timer = setTimeout(() => {
+      setMounted(true);
+      // Get saved theme from localStorage or system preference
+      const savedTheme = localStorage.getItem("theme") as Theme | null;
+      if (savedTheme) {
+        setThemeState(savedTheme);
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      } else {
+        // Check system preference
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        const initialTheme = prefersDark ? "dark" : "light";
+        setThemeState(initialTheme);
+        document.documentElement.setAttribute("data-theme", initialTheme);
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const setTheme = (newTheme: Theme) => {

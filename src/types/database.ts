@@ -664,6 +664,30 @@ export type Database = {
         Args: { p_donor_id: string; p_amount: number }
         Returns: void
       }
+      is_admin: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      is_staff: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      is_vip_user: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      get_active_season_id: {
+        Args: Record<string, never>
+        Returns: number
+      }
+      get_user_rank: {
+        Args: { p_user_id: string; p_season_id?: number | null }
+        Returns: { rank: number; total_amount: number }[]
+      }
+      get_user_rank_active_season: {
+        Args: { p_user_id: string }
+        Returns: { rank: number; total_amount: number; season_id: number }[]
+      }
     }
     Enums: {
       [_ in never]: never

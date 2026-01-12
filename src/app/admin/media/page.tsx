@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Film, Plus, X, Save, ExternalLink } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
+import { useAdminCRUD } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
@@ -22,125 +23,71 @@ interface Media {
 
 export default function MediaPage() {
   const supabase = useSupabaseContext()
-  const [mediaList, setMediaList] = useState<Media[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingMedia, setEditingMedia] = useState<Partial<Media> | null>(null)
-  const [isNew, setIsNew] = useState(false)
-  const [activeType, setActiveType] = useState<'shorts' | 'vod'>('shorts')
+  const [activeType, setActiveType] = useState<ContentType>('shorts')
 
-  const fetchMedia = useCallback(async () => {
-    setIsLoading(true)
-
-    const { data, error } = await supabase
-      .from('media_content')
-      .select('*')
-      .eq('content_type', activeType)
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('미디어 데이터 로드 실패:', error)
-    } else {
-      setMediaList(
-        (data || []).map((m) => ({
-          id: m.id,
-          title: m.title,
-          description: m.description || '',
-          contentType: m.content_type,
-          videoUrl: m.video_url,
-          thumbnailUrl: m.thumbnail_url || '',
-          unit: m.unit,
-          createdAt: m.created_at,
-        }))
-      )
-    }
-
-    setIsLoading(false)
-  }, [supabase, activeType])
-
-  useEffect(() => {
-    fetchMedia()
-  }, [fetchMedia])
-
-  const handleAdd = () => {
-    setEditingMedia({
+  const {
+    items: allMediaList,
+    isLoading,
+    isModalOpen,
+    isNew,
+    editingItem: editingMedia,
+    setEditingItem: setEditingMedia,
+    openAddModal: baseOpenAddModal,
+    openEditModal,
+    closeModal,
+    handleSave,
+    handleDelete,
+    refetch,
+  } = useAdminCRUD<Media>({
+    tableName: 'media_content',
+    defaultItem: {
       title: '',
       description: '',
       contentType: activeType,
       videoUrl: '',
       thumbnailUrl: '',
       unit: null,
-    })
-    setIsNew(true)
-    setIsModalOpen(true)
-  }
+    },
+    orderBy: { column: 'created_at', ascending: false },
+    fromDbFormat: (row) => ({
+      id: row.id as number,
+      title: row.title as string,
+      description: (row.description as string) || '',
+      contentType: row.content_type as ContentType,
+      videoUrl: row.video_url as string,
+      thumbnailUrl: (row.thumbnail_url as string) || '',
+      unit: row.unit as 'excel' | 'crew' | null,
+      createdAt: row.created_at as string,
+    }),
+    toDbFormat: (item) => ({
+      title: item.title,
+      description: item.description,
+      content_type: item.contentType,
+      video_url: item.videoUrl,
+      thumbnail_url: item.thumbnailUrl,
+      unit: item.unit,
+    }),
+    validate: (item) => {
+      if (!item.title || !item.videoUrl) return '제목과 영상 URL을 입력해주세요.'
+      return null
+    },
+  })
 
-  const handleEdit = (media: Media) => {
-    setEditingMedia(media)
-    setIsNew(false)
-    setIsModalOpen(true)
-  }
+  // Filter by activeType
+  const mediaList = allMediaList.filter((m) => m.contentType === activeType)
 
-  const handleDelete = async (media: Media) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
+  // Refetch when activeType changes
+  useEffect(() => {
+    refetch()
+  }, [activeType, refetch])
 
-    const { error } = await supabase.from('media_content').delete().eq('id', media.id)
-
-    if (error) {
-      console.error('미디어 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
-    } else {
-      fetchMedia()
-    }
+  const openAddModal = () => {
+    baseOpenAddModal()
+    setEditingMedia((prev) => prev ? { ...prev, contentType: activeType } : null)
   }
 
   const handleView = (media: Media) => {
     window.open(media.videoUrl, '_blank')
-  }
-
-  const handleSave = async () => {
-    if (!editingMedia || !editingMedia.title || !editingMedia.videoUrl) {
-      alert('제목과 영상 URL을 입력해주세요.')
-      return
-    }
-
-    if (isNew) {
-      const { error } = await supabase.from('media_content').insert({
-        title: editingMedia.title!,
-        description: editingMedia.description,
-        content_type: editingMedia.contentType!,
-        video_url: editingMedia.videoUrl!,
-        thumbnail_url: editingMedia.thumbnailUrl,
-        unit: editingMedia.unit,
-      })
-
-      if (error) {
-        console.error('미디어 등록 실패:', error)
-        alert('등록에 실패했습니다.')
-        return
-      }
-    } else {
-      const { error } = await supabase
-        .from('media_content')
-        .update({
-          title: editingMedia.title,
-          description: editingMedia.description,
-          content_type: editingMedia.contentType,
-          video_url: editingMedia.videoUrl,
-          thumbnail_url: editingMedia.thumbnailUrl,
-          unit: editingMedia.unit,
-        })
-        .eq('id', editingMedia.id!)
-
-      if (error) {
-        console.error('미디어 수정 실패:', error)
-        alert('수정에 실패했습니다.')
-        return
-      }
-    }
-
-    setIsModalOpen(false)
-    fetchMedia()
   }
 
   const formatDate = (dateStr: string) => {
@@ -196,7 +143,7 @@ export default function MediaPage() {
             <p className={styles.subtitle}>숏폼/VOD 콘텐츠 관리</p>
           </div>
         </div>
-        <button onClick={handleAdd} className={styles.addButton}>
+        <button onClick={openAddModal} className={styles.addButton}>
           <Plus size={18} />
           미디어 추가
         </button>
@@ -222,7 +169,7 @@ export default function MediaPage() {
         data={mediaList}
         columns={columns}
         onView={handleView}
-        onEdit={handleEdit}
+        onEdit={openEditModal}
         onDelete={handleDelete}
         searchPlaceholder="제목으로 검색..."
         isLoading={isLoading}
@@ -236,7 +183,7 @@ export default function MediaPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeModal}
           >
             <motion.div
               className={styles.modal}
@@ -247,7 +194,7 @@ export default function MediaPage() {
             >
               <div className={styles.modalHeader}>
                 <h2>{isNew ? '미디어 추가' : '미디어 수정'}</h2>
-                <button onClick={() => setIsModalOpen(false)} className={styles.closeButton}>
+                <button onClick={closeModal} className={styles.closeButton}>
                   <X size={20} />
                 </button>
               </div>
@@ -257,7 +204,7 @@ export default function MediaPage() {
                   <label>제목</label>
                   <input
                     type="text"
-                    value={editingMedia.title}
+                    value={editingMedia.title || ''}
                     onChange={(e) =>
                       setEditingMedia({ ...editingMedia, title: e.target.value })
                     }
@@ -310,7 +257,7 @@ export default function MediaPage() {
                   <label>영상 URL</label>
                   <input
                     type="text"
-                    value={editingMedia.videoUrl}
+                    value={editingMedia.videoUrl || ''}
                     onChange={(e) =>
                       setEditingMedia({ ...editingMedia, videoUrl: e.target.value })
                     }
@@ -323,7 +270,7 @@ export default function MediaPage() {
                   <label>썸네일 URL (선택)</label>
                   <input
                     type="text"
-                    value={editingMedia.thumbnailUrl}
+                    value={editingMedia.thumbnailUrl || ''}
                     onChange={(e) =>
                       setEditingMedia({ ...editingMedia, thumbnailUrl: e.target.value })
                     }
@@ -335,7 +282,7 @@ export default function MediaPage() {
                 <div className={styles.formGroup}>
                   <label>설명 (선택)</label>
                   <textarea
-                    value={editingMedia.description}
+                    value={editingMedia.description || ''}
                     onChange={(e) =>
                       setEditingMedia({ ...editingMedia, description: e.target.value })
                     }
@@ -347,7 +294,7 @@ export default function MediaPage() {
               </div>
 
               <div className={styles.modalFooter}>
-                <button onClick={() => setIsModalOpen(false)} className={styles.cancelButton}>
+                <button onClick={closeModal} className={styles.cancelButton}>
                   취소
                 </button>
                 <button onClick={handleSave} className={styles.saveButton}>

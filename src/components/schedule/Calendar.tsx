@@ -103,9 +103,9 @@ export default function Calendar() {
       </Stack>
 
       {/* Calendar Container (Weekdays + Grid) */}
-      <div className="rounded-xl overflow-hidden bg-[var(--glass-bg)]">
+      <div className="rounded-xl overflow-hidden border border-[var(--color-pink)] shadow-[0_0_20px_rgba(253,104,186,0.15)]">
         {/* Weekday Labels */}
-        <div className="grid grid-cols-7 gap-[2px]">
+        <div className="grid grid-cols-7 gap-[1px] bg-[var(--color-pink)]">
           {WEEKDAYS.map((day, index) => (
             <div
               key={day}

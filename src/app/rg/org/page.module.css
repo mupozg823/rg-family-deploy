@@ -246,6 +246,28 @@
   text-transform: uppercase;
 }
 
+/* RG FAMILY Title - Bold & Prominent */
+.logoTitle {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  margin: 0;
+  background: linear-gradient(
+    135deg,
+    var(--color-pink) 0%,
+    var(--color-pink-light) 50%,
+    var(--color-pink) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 20px rgba(253, 104, 186, 0.3));
+}
+
 /* =======================================
    Premium Unit Toggle
    ======================================= */
@@ -1290,6 +1312,18 @@
 
 :global([data-theme="light"]) .logoSubtext {
   color: #666666;
+}
+
+:global([data-theme="light"]) .logoTitle {
+  background: linear-gradient(
+    135deg,
+    var(--color-pink) 0%,
+    var(--color-pink-deep) 50%,
+    var(--color-pink) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 :global([data-theme="light"]) .toggleBtn {

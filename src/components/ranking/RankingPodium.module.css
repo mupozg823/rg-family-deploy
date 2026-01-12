@@ -36,12 +36,13 @@
   z-index: 5;
 }
 
-/* Elite (2위, 3위 동일) */
-.podiumWrapper.elite {
+/* Rank 2 (Silver) - Left */
+.podiumWrapper.rank2 {
   order: 1;
 }
 
-.podiumWrapper.elite:last-child {
+/* Rank 3 (Bronze) - Right */
+.podiumWrapper.rank3 {
   order: 3;
 }
 
@@ -80,16 +81,28 @@
   background: linear-gradient(135deg, #1a1510 0%, #2d2418 50%, #1a1510 100%);
 }
 
-/* 2,3위 Elite Avatar (동일) - Theme Compatible */
-.elite .avatar {
+/* 2위 Silver Avatar */
+.rank2 .avatar {
   width: 105px;
   height: 105px;
-  border: 4px solid var(--elite-border);
+  border: 4px solid var(--metallic-silver);
   box-shadow:
-    0 0 0 3px var(--elite-border-subtle),
-    0 0 35px var(--elite-glow),
+    0 0 0 3px var(--metallic-silver-bg),
+    0 0 35px var(--metallic-silver-glow),
     0 6px 24px rgba(0, 0, 0, 0.3);
-  background: var(--elite-bg);
+  background: linear-gradient(135deg, #1a1a1a 0%, #252525 50%, #1a1a1a 100%);
+}
+
+/* 3위 Bronze Avatar */
+.rank3 .avatar {
+  width: 105px;
+  height: 105px;
+  border: 4px solid var(--metallic-bronze);
+  box-shadow:
+    0 0 0 3px var(--metallic-bronze-bg),
+    0 0 35px var(--metallic-bronze-glow),
+    0 6px 24px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #1a1510 0%, #251f18 50%, #1a1510 100%);
 }
 
 .avatarImage {
@@ -178,40 +191,81 @@
   50% { transform: scale(1.15); opacity: 0.8; }
 }
 
-/* 2,3위 이니셜 - Elegant Platinum/Diamond (Theme Compatible) */
-.elite .initials {
+/* 2위 이니셜 - Silver Shimmer */
+.rank2 .initials {
   font-size: 2.2rem;
   background: linear-gradient(
     135deg,
-    var(--elite-gradient-from) 0%,
-    var(--elite-gradient-mid) 25%,
-    var(--elite-gradient-to) 50%,
-    var(--elite-gradient-mid) 75%,
-    var(--elite-gradient-from) 100%
+    #606060 0%,
+    #a0a0a0 15%,
+    #e8e8e8 30%,
+    #c0c0c0 50%,
+    #e8e8e8 70%,
+    #a0a0a0 85%,
+    #606060 100%
   );
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 12px var(--elite-glow-strong))
-          drop-shadow(0 0 25px var(--elite-glow));
-  animation: platinumShimmer 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(192, 192, 192, 0.6))
+          drop-shadow(0 0 25px rgba(192, 192, 192, 0.3));
+  animation: silverShimmer 4s ease-in-out infinite;
 }
 
-.elite .initialsWrapper::before {
-  background: radial-gradient(circle, transparent 30%, var(--elite-border-subtle) 100%);
+.rank2 .initialsWrapper::before {
+  background: radial-gradient(circle, transparent 30%, rgba(192, 192, 192, 0.1) 100%);
 }
 
-@keyframes platinumShimmer {
+@keyframes silverShimmer {
   0%, 100% {
     background-position: 0% 50%;
-    filter: drop-shadow(0 0 12px var(--elite-glow-strong))
-            drop-shadow(0 0 25px var(--elite-glow));
+    filter: drop-shadow(0 0 12px rgba(192, 192, 192, 0.6))
+            drop-shadow(0 0 25px rgba(192, 192, 192, 0.3));
   }
   50% {
     background-position: 100% 50%;
-    filter: drop-shadow(0 0 18px var(--elite-glow-strong))
-            drop-shadow(0 0 35px var(--elite-glow));
+    filter: drop-shadow(0 0 18px rgba(192, 192, 192, 0.8))
+            drop-shadow(0 0 35px rgba(192, 192, 192, 0.5));
+  }
+}
+
+/* 3위 이니셜 - Bronze Shimmer */
+.rank3 .initials {
+  font-size: 2.2rem;
+  background: linear-gradient(
+    135deg,
+    #804020 0%,
+    #cd7f32 15%,
+    #e09050 30%,
+    #cd7f32 50%,
+    #e09050 70%,
+    #cd7f32 85%,
+    #804020 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 12px rgba(205, 127, 50, 0.6))
+          drop-shadow(0 0 25px rgba(205, 127, 50, 0.3));
+  animation: bronzeShimmer 4s ease-in-out infinite;
+}
+
+.rank3 .initialsWrapper::before {
+  background: radial-gradient(circle, transparent 30%, rgba(205, 127, 50, 0.1) 100%);
+}
+
+@keyframes bronzeShimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 12px rgba(205, 127, 50, 0.6))
+            drop-shadow(0 0 25px rgba(205, 127, 50, 0.3));
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: drop-shadow(0 0 18px rgba(205, 127, 50, 0.8))
+            drop-shadow(0 0 35px rgba(205, 127, 50, 0.5));
   }
 }
 
@@ -254,13 +308,24 @@
   font-size: var(--text-base);
 }
 
-/* 2,3위 Badge - Elegant (동일) - Theme Compatible */
-.elite .rankBadge {
-  background: var(--elite-badge-bg);
-  border: 1px solid var(--elite-border);
-  color: var(--elite-text);
+/* 2위 Badge - Silver */
+.rank2 .rankBadge {
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 50%, #a0a0a0 100%);
+  border: none;
+  color: #1a1a1a;
   backdrop-filter: blur(8px);
-  box-shadow: 0 0 20px var(--elite-glow);
+  box-shadow: 0 0 20px rgba(192, 192, 192, 0.5);
+}
+
+/* 3위 Badge - Bronze */
+.rank3 .rankBadge {
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #cd7f32 0%, #e09050 50%, #a06020 100%);
+  border: none;
+  color: #1a1a1a;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 20px rgba(205, 127, 50, 0.5);
 }
 
 /* =======================================
@@ -277,7 +342,8 @@
   width: 210px;
 }
 
-.elite .cube {
+.rank2 .cube,
+.rank3 .cube {
   width: 175px;
 }
 
@@ -305,18 +371,32 @@
     0 2px 12px rgba(255, 215, 0, 0.6);
 }
 
-/* 2,3위 - Elegant Bar (동일) - Theme Compatible */
-.elite .top {
+/* 2위 - Silver Bar */
+.rank2 .top {
   background: linear-gradient(90deg,
-    var(--elite-border) 0%,
-    var(--elite-glow-strong) 25%,
-    var(--elite-text) 50%,
-    var(--elite-glow-strong) 75%,
-    var(--elite-border) 100%
+    #606060 0%,
+    #a0a0a0 25%,
+    #e8e8e8 50%,
+    #a0a0a0 75%,
+    #606060 100%
   );
   box-shadow:
-    0 0 20px var(--elite-glow),
-    0 2px 10px var(--elite-glow);
+    0 0 20px rgba(192, 192, 192, 0.6),
+    0 2px 10px rgba(192, 192, 192, 0.4);
+}
+
+/* 3위 - Bronze Bar */
+.rank3 .top {
+  background: linear-gradient(90deg,
+    #804020 0%,
+    #cd7f32 25%,
+    #e09050 50%,
+    #cd7f32 75%,
+    #804020 100%
+  );
+  box-shadow:
+    0 0 20px rgba(205, 127, 50, 0.6),
+    0 2px 10px rgba(205, 127, 50, 0.4);
 }
 
 /* Front Face - Glass Card */
@@ -352,15 +432,26 @@
   border-color: rgba(255, 215, 0, 0.35);
 }
 
-/* 2,3위 - Elegant Glass (동일) - Theme Compatible */
-.elite .front {
+/* 2위 - Silver Glass */
+.rank2 .front {
   min-height: 115px;
   background: linear-gradient(
     180deg,
-    var(--elite-border-subtle) 0%,
+    rgba(192, 192, 192, 0.1) 0%,
     var(--glass-bg) 30%
   );
-  border-color: var(--elite-border-subtle);
+  border-color: rgba(192, 192, 192, 0.25);
+}
+
+/* 3위 - Bronze Glass */
+.rank3 .front {
+  min-height: 115px;
+  background: linear-gradient(
+    180deg,
+    rgba(205, 127, 50, 0.1) 0%,
+    var(--glass-bg) 30%
+  );
+  border-color: rgba(205, 127, 50, 0.25);
 }
 
 /* User Info */
@@ -395,11 +486,24 @@
   filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5));
 }
 
-/* 2,3위 이름 - Elegant (동일) - Theme Compatible */
-.elite .name {
+/* 2위 이름 - Silver Gradient */
+.rank2 .name {
   font-size: var(--text-lg);
-  color: var(--elite-text);
-  text-shadow: 0 0 20px var(--elite-glow);
+  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 50%, #c0c0c0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 10px rgba(192, 192, 192, 0.4));
+}
+
+/* 3위 이름 - Bronze Gradient */
+.rank3 .name {
+  font-size: var(--text-lg);
+  background: linear-gradient(135deg, #cd7f32 0%, #e09050 50%, #cd7f32 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 10px rgba(205, 127, 50, 0.4));
 }
 
 .amount {
@@ -414,8 +518,12 @@
   color: rgba(255, 215, 0, 0.9);
 }
 
-.elite .amount {
-  color: var(--elite-text-secondary);
+.rank2 .amount {
+  color: rgba(192, 192, 192, 0.85);
+}
+
+.rank3 .amount {
+  color: rgba(205, 127, 50, 0.85);
 }
 
 /* Shimmer Animation */
@@ -450,10 +558,16 @@
     inset 0 0 35px rgba(255, 215, 0, 0.06);
 }
 
-.elite:hover .front {
+.rank2:hover .front {
   box-shadow:
-    0 0 30px var(--elite-glow),
-    inset 0 0 30px var(--elite-border-subtle);
+    0 0 30px rgba(192, 192, 192, 0.35),
+    inset 0 0 30px rgba(192, 192, 192, 0.05);
+}
+
+.rank3:hover .front {
+  box-shadow:
+    0 0 30px rgba(205, 127, 50, 0.35),
+    inset 0 0 30px rgba(205, 127, 50, 0.05);
 }
 
 /* Responsive */
@@ -475,7 +589,8 @@
   }
 
   .rank1,
-  .elite {
+  .rank2,
+  .rank3 {
     order: unset !important;
   }
 
@@ -488,7 +603,8 @@
     height: 100px;
   }
 
-  .elite .avatar {
+  .rank2 .avatar,
+  .rank3 .avatar {
     width: 85px;
     height: 85px;
   }
@@ -497,7 +613,8 @@
     font-size: 2rem;
   }
 
-  .elite .initials {
+  .rank2 .initials,
+  .rank3 .initials {
     font-size: 1.75rem;
   }
 

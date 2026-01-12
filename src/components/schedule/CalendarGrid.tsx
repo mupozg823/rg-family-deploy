@@ -15,6 +15,8 @@ const EVENT_COLORS: Record<string, string> = {
   event: '#f472b6', // pink
   notice: '#fbbf24', // yellow
   '休': '#94a3b8', // gray
+  excel: '#fd68ba', // pink (Excel Unit)
+  crew: '#00d4ff', // cyan (Crew Unit)
 }
 
 export default function CalendarGrid({ days, selectedDate, onSelectDate }: CalendarGridProps) {
@@ -32,7 +34,7 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
   }
 
   return (
-    <div className="grid grid-cols-7 gap-[2px]">
+    <div className="grid grid-cols-7 gap-[1px] bg-[var(--color-pink)]">
         {days.map((day, index) => {
           const isSelected = isSameDay(day.date, selectedDate)
           const dayOfWeek = day.date.getDay()
@@ -50,7 +52,7 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
                 hover:bg-[var(--interactive-hover)]
                 ${!day.isCurrentMonth ? 'opacity-30' : ''}
                 ${day.isToday ? 'bg-[var(--interactive-active)]' : ''}
-                ${isSelected ? 'bg-[var(--interactive-focus)] shadow-[inset_0_0_0_2px_var(--text-secondary)]' : ''}
+                ${isSelected ? 'bg-[var(--interactive-focus)] shadow-[inset_0_0_0_2px_var(--color-pink)]' : ''}
               `}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

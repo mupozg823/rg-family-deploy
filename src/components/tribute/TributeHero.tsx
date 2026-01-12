@@ -7,6 +7,28 @@ import type { TributeProfile, TributeTheme, TributeRank } from '@/types/common'
 import TributeBadge from './TributeBadge'
 import styles from './TributeHero.module.css'
 
+// Local helper functions
+const formatAmount = (amount: number, unit: string = '하트'): string => {
+  if (amount >= 100000000) {
+    return `${(amount / 100000000).toFixed(1)}억 ${unit}`;
+  }
+  if (amount >= 10000) {
+    return `${(amount / 10000).toFixed(1)}만 ${unit}`;
+  }
+  return `${amount.toLocaleString()} ${unit}`;
+};
+
+interface FormatDateOptions {
+  year?: 'numeric' | '2-digit';
+  month?: 'numeric' | '2-digit' | 'long' | 'short' | 'narrow';
+  day?: 'numeric' | '2-digit';
+}
+
+const formatDate = (dateStr: string, options?: FormatDateOptions): string => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('ko-KR', options);
+};
+
 interface TributeHeroProps {
   profile: TributeProfile
   theme: TributeTheme
@@ -27,21 +49,6 @@ export default function TributeHero({ profile, theme, rank, seasonName }: Tribut
     if (rank === 2) return 'Elite'
     if (rank === 3) return 'Premium'
     return ''
-  }
-
-  const formatAmount = (amount: number) => {
-    if (amount >= 100000000) {
-      return `${(amount / 100000000).toFixed(1)}억 하트`
-    }
-    if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(0)}만 하트`
-    }
-    return `${amount.toLocaleString()} 하트`
-  }
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })
   }
 
   return (
@@ -121,12 +128,12 @@ export default function TributeHero({ profile, theme, rank, seasonName }: Tribut
           <div className={styles.statsRow}>
             <div className={styles.stat}>
               <Heart className={styles.statIcon} size={18} />
-              <span className={styles.statValue}>{formatAmount(profile.totalDonation)}</span>
+              <span className={styles.statValue}>{formatAmount(profile.totalDonation, '하트')}</span>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.stat}>
               <Calendar className={styles.statIcon} size={18} />
-              <span className={styles.statValue}>{formatDate(profile.joinedAt)} 가입</span>
+              <span className={styles.statValue}>{formatDate(profile.joinedAt, { year: 'numeric', month: 'long' })} 가입</span>
             </div>
           </div>
 

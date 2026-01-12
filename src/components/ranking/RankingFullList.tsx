@@ -5,6 +5,7 @@ import { Heart, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RankingItem } from "@/types/common";
+import { formatAmountShort, getInitials } from "@/lib/utils";
 import styles from "./RankingFullList.module.css";
 
 interface RankingFullListProps {
@@ -20,12 +21,6 @@ export default function RankingFullList({
 }: RankingFullListProps) {
   const displayRankings = rankings.slice(0, limit);
 
-  const formatAmount = (amount: number) => {
-    if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}억`;
-    if (amount >= 10000) return `${(amount / 10000).toFixed(1)}만`;
-    return amount.toLocaleString();
-  };
-
   const getPercentage = (amount: number) => {
     return maxAmount > 0 ? (amount / maxAmount) * 100 : 0;
   };
@@ -36,15 +31,6 @@ export default function RankingFullList({
     if (rank === 2 || rank === 3) return styles.elite;
     if (rank <= 10) return styles.top10;
     return "";
-  };
-
-  // 닉네임에서 이니셜 생성
-  const getInitials = (name: string) => {
-    const cleaned = name.replace(/[^가-힣a-zA-Z]/g, '');
-    if (/[가-힣]/.test(cleaned)) {
-      return cleaned.slice(0, 1);
-    }
-    return cleaned.slice(0, 2).toUpperCase();
   };
 
   return (
@@ -76,7 +62,7 @@ export default function RankingFullList({
                 />
               ) : (
                 <span className={styles.initials}>
-                  {getInitials(item.donorName)}
+                  {getInitials(item.donorName, { koreanMax: 1 })}
                 </span>
               )}
             </div>
@@ -122,7 +108,7 @@ export default function RankingFullList({
 
             {/* Amount */}
             <div className={styles.amountSection}>
-              <span className={styles.amount}>{formatAmount(item.totalAmount)}</span>
+              <span className={styles.amount}>{formatAmountShort(item.totalAmount)}</span>
               <span className={styles.unit}>하트</span>
             </div>
           </motion.div>

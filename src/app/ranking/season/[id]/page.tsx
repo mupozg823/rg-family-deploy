@@ -9,6 +9,28 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import styles from './page.module.css'
 
+// Local helper functions
+interface FormatDateOptions {
+  year?: 'numeric' | '2-digit';
+  month?: 'numeric' | '2-digit' | 'long' | 'short' | 'narrow';
+  day?: 'numeric' | '2-digit';
+}
+
+const formatDate = (dateStr: string, options?: FormatDateOptions): string => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('ko-KR', options);
+};
+
+const formatAmountShort = (amount: number): string => {
+  if (amount >= 100000000) {
+    return `${(amount / 100000000).toFixed(1)}억`;
+  }
+  if (amount >= 10000) {
+    return `${Math.floor(amount / 10000).toLocaleString()}만`;
+  }
+  return amount.toLocaleString();
+};
+
 export default function SeasonRankingPage() {
   const params = useParams()
   const router = useRouter()
@@ -50,15 +72,9 @@ export default function SeasonRankingPage() {
     return seasons.find(s => s.id === seasonId) || null
   }, [seasons, seasonId])
 
-  // 날짜 포맷
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+  // 날짜 포맷 (년월일)
+  const formatSeasonDate = (dateStr: string) =>
+    formatDate(dateStr, { year: 'numeric', month: 'long', day: 'numeric' })
 
   // 시즌 남은 일수 계산
   const daysRemaining = useMemo(() => {
@@ -90,13 +106,6 @@ export default function SeasonRankingPage() {
     }
   }, [rankings])
 
-  // 금액 포맷
-  const formatAmount = (amount: number) => {
-    if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(1)}만`
-    }
-    return amount.toLocaleString()
-  }
 
   // 시즌을 찾을 수 없는 경우
   if (!isLoading && seasons.length > 0 && !selectedSeason) {
@@ -147,7 +156,7 @@ export default function SeasonRankingPage() {
             <div className={styles.seasonMeta}>
               <span className={styles.dateRange}>
                 <Calendar size={14} />
-                {formatDate(selectedSeason.start_date)} ~ {selectedSeason.end_date ? formatDate(selectedSeason.end_date) : '진행 중'}
+                {formatSeasonDate(selectedSeason.start_date)} ~ {selectedSeason.end_date ? formatSeasonDate(selectedSeason.end_date) : '진행 중'}
               </span>
               {selectedSeason.is_active && daysRemaining !== null && daysRemaining > 0 && (
                 <span className={styles.daysLeft}>D-{daysRemaining}</span>
@@ -186,7 +195,7 @@ export default function SeasonRankingPage() {
                   <Heart size={18} />
                 </div>
                 <div className={styles.statInfo}>
-                  <span className={styles.statValue}>{formatAmount(seasonStats.totalAmount)}</span>
+                  <span className={styles.statValue}>{formatAmountShort(seasonStats.totalAmount)}</span>
                   <span className={styles.statLabel}>총 후원</span>
                 </div>
               </div>
@@ -204,7 +213,7 @@ export default function SeasonRankingPage() {
                   <TrendingUp size={18} />
                 </div>
                 <div className={styles.statInfo}>
-                  <span className={styles.statValue}>{formatAmount(seasonStats.avgAmount)}</span>
+                  <span className={styles.statValue}>{formatAmountShort(seasonStats.avgAmount)}</span>
                   <span className={styles.statLabel}>평균</span>
                 </div>
               </div>
@@ -213,7 +222,7 @@ export default function SeasonRankingPage() {
                   <Award size={18} />
                 </div>
                 <div className={styles.statInfo}>
-                  <span className={styles.statValue}>{formatAmount(seasonStats.topAmount)}</span>
+                  <span className={styles.statValue}>{formatAmountShort(seasonStats.topAmount)}</span>
                   <span className={styles.statLabel}>1위 기록</span>
                 </div>
               </div>

@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Crown, Plus, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
+import { useAdminCRUD } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import type { JoinedProfile, JoinedSeason } from '@/types/common'
 import styles from '../shared.module.css'
@@ -32,132 +33,76 @@ interface Profile {
 
 export default function VipRewardsPage() {
   const supabase = useSupabaseContext()
-  const [rewards, setRewards] = useState<VipReward[]>([])
   const [seasons, setSeasons] = useState<Season[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingReward, setEditingReward] = useState<Partial<VipReward> | null>(null)
-  const [isNew, setIsNew] = useState(false)
 
-  const fetchData = useCallback(async () => {
-    setIsLoading(true)
-
-    const { data: rewardsData } = await supabase
-      .from('vip_rewards')
-      .select('*, profiles(nickname), seasons(name)')
-      .order('created_at', { ascending: false })
-
-    const { data: seasonsData } = await supabase
-      .from('seasons')
-      .select('id, name')
-      .order('start_date', { ascending: false })
-
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('id, nickname')
-      .order('total_donation', { ascending: false })
-      .limit(50)
-
-    setRewards(
-      (rewardsData || []).map((r) => {
-        const profile = r.profiles as JoinedProfile | null
-        const season = r.seasons as JoinedSeason | null
-        return {
-          id: r.id,
-          profileId: r.profile_id,
-          nickname: profile?.nickname || '',
-          seasonId: r.season_id,
-          seasonName: season?.name || '',
-          rank: r.rank,
-          personalMessage: r.personal_message || '',
-          dedicationVideoUrl: r.dedication_video_url || '',
-          createdAt: r.created_at,
-        }
-      })
-    )
-
-    setSeasons(seasonsData || [])
-    setProfiles(profilesData || [])
-    setIsLoading(false)
+  // Fetch related data
+  const fetchRelatedData = useCallback(async () => {
+    const [seasonsRes, profilesRes] = await Promise.all([
+      supabase.from('seasons').select('id, name').order('start_date', { ascending: false }),
+      supabase.from('profiles').select('id, nickname').order('total_donation', { ascending: false }).limit(50),
+    ])
+    setSeasons(seasonsRes.data || [])
+    setProfiles(profilesRes.data || [])
   }, [supabase])
 
   useEffect(() => {
-    fetchData()
-  }, [fetchData])
+    fetchRelatedData()
+  }, [fetchRelatedData])
 
-  const handleAdd = () => {
-    setEditingReward({
+  const {
+    items: rewards,
+    isLoading,
+    isModalOpen,
+    isNew,
+    editingItem: editingReward,
+    setEditingItem: setEditingReward,
+    openAddModal: baseOpenAddModal,
+    openEditModal,
+    closeModal,
+    handleSave,
+    handleDelete,
+  } = useAdminCRUD<VipReward>({
+    tableName: 'vip_rewards',
+    defaultItem: {
       profileId: '',
-      seasonId: seasons[0]?.id,
+      seasonId: seasons[0]?.id || 0,
       rank: 1,
       personalMessage: '',
       dedicationVideoUrl: '',
-    })
-    setIsNew(true)
-    setIsModalOpen(true)
-  }
-
-  const handleEdit = (reward: VipReward) => {
-    setEditingReward(reward)
-    setIsNew(false)
-    setIsModalOpen(true)
-  }
-
-  const handleDelete = async (reward: VipReward) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
-
-    const { error } = await supabase.from('vip_rewards').delete().eq('id', reward.id)
-
-    if (error) {
-      console.error('VIP 보상 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
-    } else {
-      fetchData()
-    }
-  }
-
-  const handleSave = async () => {
-    if (!editingReward || !editingReward.profileId) {
-      alert('VIP 회원을 선택해주세요.')
-      return
-    }
-
-    if (isNew) {
-      const { error } = await supabase.from('vip_rewards').insert({
-        profile_id: editingReward.profileId!,
-        season_id: editingReward.seasonId!,
-        rank: editingReward.rank!,
-        personal_message: editingReward.personalMessage,
-        dedication_video_url: editingReward.dedicationVideoUrl,
-      })
-
-      if (error) {
-        console.error('VIP 보상 등록 실패:', error)
-        alert('등록에 실패했습니다.')
-        return
+    },
+    orderBy: { column: 'created_at', ascending: false },
+    fromDbFormat: (row) => {
+      const profile = row.profiles as JoinedProfile | null
+      const season = row.seasons as JoinedSeason | null
+      return {
+        id: row.id as number,
+        profileId: row.profile_id as string,
+        nickname: profile?.nickname || '',
+        seasonId: row.season_id as number,
+        seasonName: season?.name || '',
+        rank: row.rank as number,
+        personalMessage: (row.personal_message as string) || '',
+        dedicationVideoUrl: (row.dedication_video_url as string) || '',
+        createdAt: row.created_at as string,
       }
-    } else {
-      const { error } = await supabase
-        .from('vip_rewards')
-        .update({
-          profile_id: editingReward.profileId,
-          season_id: editingReward.seasonId,
-          rank: editingReward.rank,
-          personal_message: editingReward.personalMessage,
-          dedication_video_url: editingReward.dedicationVideoUrl,
-        })
-        .eq('id', editingReward.id!)
+    },
+    toDbFormat: (item) => ({
+      profile_id: item.profileId,
+      season_id: item.seasonId,
+      rank: item.rank,
+      personal_message: item.personalMessage,
+      dedication_video_url: item.dedicationVideoUrl,
+    }),
+    validate: (item) => {
+      if (!item.profileId) return 'VIP 회원을 선택해주세요.'
+      return null
+    },
+  })
 
-      if (error) {
-        console.error('VIP 보상 수정 실패:', error)
-        alert('수정에 실패했습니다.')
-        return
-      }
-    }
-
-    setIsModalOpen(false)
-    fetchData()
+  const openAddModal = () => {
+    baseOpenAddModal()
+    setEditingReward((prev) => prev ? { ...prev, seasonId: seasons[0]?.id || 0 } : null)
   }
 
   const handleView = (reward: VipReward) => {
@@ -222,7 +167,7 @@ export default function VipRewardsPage() {
             <p className={styles.subtitle}>VIP 개인 페이지 보상 관리</p>
           </div>
         </div>
-        <button onClick={handleAdd} className={styles.addButton}>
+        <button onClick={openAddModal} className={styles.addButton}>
           <Plus size={18} />
           VIP 보상 추가
         </button>
@@ -232,7 +177,7 @@ export default function VipRewardsPage() {
         data={rewards}
         columns={columns}
         onView={handleView}
-        onEdit={handleEdit}
+        onEdit={openEditModal}
         onDelete={handleDelete}
         searchPlaceholder="VIP 이름으로 검색..."
         isLoading={isLoading}
@@ -246,7 +191,7 @@ export default function VipRewardsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeModal}
           >
             <motion.div
               className={styles.modal}
@@ -257,7 +202,7 @@ export default function VipRewardsPage() {
             >
               <div className={styles.modalHeader}>
                 <h2>{isNew ? 'VIP 보상 추가' : 'VIP 보상 수정'}</h2>
-                <button onClick={() => setIsModalOpen(false)} className={styles.closeButton}>
+                <button onClick={closeModal} className={styles.closeButton}>
                   <X size={20} />
                 </button>
               </div>
@@ -266,7 +211,7 @@ export default function VipRewardsPage() {
                 <div className={styles.formGroup}>
                   <label>VIP 회원</label>
                   <select
-                    value={editingReward.profileId}
+                    value={editingReward.profileId || ''}
                     onChange={(e) =>
                       setEditingReward({ ...editingReward, profileId: e.target.value })
                     }
@@ -285,7 +230,7 @@ export default function VipRewardsPage() {
                   <div className={styles.formGroup}>
                     <label>시즌</label>
                     <select
-                      value={editingReward.seasonId}
+                      value={editingReward.seasonId || ''}
                       onChange={(e) =>
                         setEditingReward({
                           ...editingReward,
@@ -306,7 +251,7 @@ export default function VipRewardsPage() {
                     <label>순위</label>
                     <input
                       type="number"
-                      value={editingReward.rank}
+                      value={editingReward.rank || 1}
                       onChange={(e) =>
                         setEditingReward({
                           ...editingReward,
@@ -323,7 +268,7 @@ export default function VipRewardsPage() {
                   <label>헌정 영상 URL (선택)</label>
                   <input
                     type="text"
-                    value={editingReward.dedicationVideoUrl}
+                    value={editingReward.dedicationVideoUrl || ''}
                     onChange={(e) =>
                       setEditingReward({ ...editingReward, dedicationVideoUrl: e.target.value })
                     }
@@ -335,7 +280,7 @@ export default function VipRewardsPage() {
                 <div className={styles.formGroup}>
                   <label>개인 메시지 (선택)</label>
                   <textarea
-                    value={editingReward.personalMessage}
+                    value={editingReward.personalMessage || ''}
                     onChange={(e) =>
                       setEditingReward({ ...editingReward, personalMessage: e.target.value })
                     }
@@ -347,7 +292,7 @@ export default function VipRewardsPage() {
               </div>
 
               <div className={styles.modalFooter}>
-                <button onClick={() => setIsModalOpen(false)} className={styles.cancelButton}>
+                <button onClick={closeModal} className={styles.cancelButton}>
                   취소
                 </button>
                 <button onClick={handleSave} className={styles.saveButton}>

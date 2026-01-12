@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabaseContext } from '@/lib/context'
+import { useAdminCRUD } from '@/lib/hooks'
+import { formatAmount } from '@/lib/utils/format'
 import styles from '../shared.module.css'
 
 interface Member {
@@ -17,80 +17,40 @@ interface Member {
   createdAt: string
 }
 
+const formatShortDate = (dateStr: string): string => {
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
 export default function MembersPage() {
-  const supabase = useSupabaseContext()
-  const [members, setMembers] = useState<Member[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [editingMember, setEditingMember] = useState<Member | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-
-  const fetchMembers = useCallback(async () => {
-    setIsLoading(true)
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('회원 데이터 로드 실패:', error)
-    } else {
-      setMembers(
-        (data || []).map((m) => ({
-          id: m.id,
-          nickname: m.nickname,
-          email: m.email || '',
-          role: m.role,
-          unit: m.unit,
-          totalDonation: m.total_donation,
-          createdAt: m.created_at,
-        }))
-      )
-    }
-
-    setIsLoading(false)
-  }, [supabase])
-
-  useEffect(() => {
-    fetchMembers()
-  }, [fetchMembers])
-
-  const handleEdit = (member: Member) => {
-    setEditingMember(member)
-    setIsModalOpen(true)
-  }
-
-  const handleSave = async () => {
-    if (!editingMember) return
-
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        nickname: editingMember.nickname,
-        role: editingMember.role as 'member' | 'vip' | 'moderator' | 'admin' | 'superadmin',
-        unit: editingMember.unit as 'excel' | 'crew' | null,
-      })
-      .eq('id', editingMember.id)
-
-    if (error) {
-      console.error('회원 수정 실패:', error)
-      alert('수정에 실패했습니다.')
-    } else {
-      setIsModalOpen(false)
-      fetchMembers()
-    }
-  }
-
-  const formatAmount = (amount: number) => {
-    if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(0)}만원`
-    }
-    return `${amount.toLocaleString()}원`
-  }
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('ko-KR')
-  }
+  const {
+    items: members,
+    isLoading,
+    isModalOpen,
+    editingItem: editingMember,
+    setEditingItem: setEditingMember,
+    openEditModal,
+    closeModal,
+    handleSave,
+  } = useAdminCRUD<Member>({
+    tableName: 'profiles',
+    defaultItem: {},
+    orderBy: { column: 'created_at', ascending: false },
+    fromDbFormat: (row) => ({
+      id: row.id as string,
+      nickname: row.nickname as string,
+      email: (row.email as string) || '',
+      role: row.role as Member['role'],
+      unit: row.unit as Member['unit'],
+      totalDonation: row.total_donation as number,
+      createdAt: row.created_at as string,
+    }),
+    toDbFormat: (item) => ({
+      nickname: item.nickname,
+      role: item.role,
+      unit: item.unit,
+    }),
+  })
 
   const getRoleBadge = (role: string) => {
     const roleStyles: Record<string, string> = {
@@ -140,14 +100,14 @@ export default function MembersPage() {
       header: '총 후원',
       width: '120px',
       render: (item) => (
-        <span className={styles.amountCell}>{formatAmount(item.totalDonation)}</span>
+        <span className={styles.amountCell}>{formatAmount(item.totalDonation, '하트')}</span>
       ),
     },
     {
       key: 'createdAt',
       header: '가입일',
       width: '120px',
-      render: (item) => formatDate(item.createdAt),
+      render: (item) => formatShortDate(item.createdAt),
     },
   ]
 
@@ -166,7 +126,7 @@ export default function MembersPage() {
       <DataTable
         data={members}
         columns={columns}
-        onEdit={handleEdit}
+        onEdit={openEditModal}
         searchPlaceholder="닉네임 또는 이메일로 검색..."
         isLoading={isLoading}
       />
@@ -179,7 +139,7 @@ export default function MembersPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeModal}
           >
             <motion.div
               className={styles.modal}
@@ -190,7 +150,7 @@ export default function MembersPage() {
             >
               <div className={styles.modalHeader}>
                 <h2>회원 수정</h2>
-                <button onClick={() => setIsModalOpen(false)} className={styles.closeButton}>
+                <button onClick={closeModal} className={styles.closeButton}>
                   <X size={20} />
                 </button>
               </div>
@@ -200,7 +160,7 @@ export default function MembersPage() {
                   <label>닉네임</label>
                   <input
                     type="text"
-                    value={editingMember.nickname}
+                    value={editingMember.nickname || ''}
                     onChange={(e) =>
                       setEditingMember({ ...editingMember, nickname: e.target.value })
                     }
@@ -211,9 +171,9 @@ export default function MembersPage() {
                 <div className={styles.formGroup}>
                   <label>역할</label>
                   <select
-                    value={editingMember.role}
+                    value={editingMember.role || 'member'}
                     onChange={(e) =>
-                      setEditingMember({ ...editingMember, role: e.target.value as 'member' | 'vip' | 'moderator' | 'admin' | 'superadmin' })
+                      setEditingMember({ ...editingMember, role: e.target.value as Member['role'] })
                     }
                     className={styles.select}
                   >
@@ -230,7 +190,10 @@ export default function MembersPage() {
                   <select
                     value={editingMember.unit || ''}
                     onChange={(e) =>
-                      setEditingMember({ ...editingMember, unit: e.target.value === '' ? null : (e.target.value as 'excel' | 'crew') })
+                      setEditingMember({
+                        ...editingMember,
+                        unit: e.target.value === '' ? null : (e.target.value as 'excel' | 'crew'),
+                      })
                     }
                     className={styles.select}
                   >
@@ -242,7 +205,7 @@ export default function MembersPage() {
               </div>
 
               <div className={styles.modalFooter}>
-                <button onClick={() => setIsModalOpen(false)} className={styles.cancelButton}>
+                <button onClick={closeModal} className={styles.cancelButton}>
                   취소
                 </button>
                 <button onClick={handleSave} className={styles.saveButton}>

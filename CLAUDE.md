@@ -43,7 +43,11 @@ src/
 │   ├── (auth)/            # 로그인/회원가입
 │   ├── admin/             # Admin CMS (11개 페이지)
 │   ├── community/         # 커뮤니티 (자유/VIP)
-│   ├── info/              # 정보 (조직도/시그/타임라인)
+│   ├── rg/                # RG 정보 (조직도/시그/타임라인/라이브)
+│   │   ├── org/           # 조직도
+│   │   ├── sig/           # 시그리스트
+│   │   ├── history/       # 타임라인
+│   │   └── live/          # 라이브 상태
 │   ├── notice/            # 공지사항
 │   ├── ranking/           # 후원 랭킹
 │   └── schedule/          # 일정 캘린더
@@ -69,10 +73,11 @@ src/
 | **메인** | LIVE MEMBERS (시안색 펄스) | `src/components/LiveMembers.tsx` |
 | **메인** | 공지사항 섹션 | `src/components/Notice.tsx` |
 | **메인** | Shorts/VOD 섹션 | `src/components/Shorts.tsx`, `VOD.tsx` |
-| **정보** | 조직도 (계층 구조 + 연결선) | `src/app/info/org/page.tsx` |
-| **정보** | 시그리스트 (6-col 그리드 + 필터) | `src/app/info/sig/page.tsx` |
-| **정보** | 타임라인 (시즌별 카드형) | `src/app/info/timeline/page.tsx` |
-| **랭킹** | 전체 랭킹 + 게이지 바 | `src/app/ranking/total/page.tsx` |
+| **RG Info** | 조직도 (계층 구조 + 연결선) | `src/app/rg/org/page.tsx` |
+| **RG Info** | 시그리스트 (6-col 그리드 + 필터) | `src/app/rg/sig/page.tsx` |
+| **RG Info** | 타임라인 (시즌별 카드형) | `src/app/rg/history/page.tsx` |
+| **RG Info** | 라이브 상태 | `src/app/rg/live/page.tsx` |
+| **랭킹** | 전체 랭킹 + 게이지 바 | `src/app/ranking/page.tsx` |
 | **랭킹** | 시즌별 랭킹 | `src/app/ranking/season/[id]/page.tsx` |
 | **랭킹** | VIP 페이지 | `src/app/ranking/vip/page.tsx` |
 | **커뮤니티** | 자유게시판/VIP게시판 | `src/app/community/` |

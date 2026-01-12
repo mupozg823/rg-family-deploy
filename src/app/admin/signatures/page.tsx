@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Image as ImageIcon, Plus, X, Save, Video, FileImage } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
+import { useAdminCRUD } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
@@ -24,52 +25,24 @@ interface Signature {
 
 export default function SignaturesPage() {
   const supabase = useSupabaseContext()
-  const [signatures, setSignatures] = useState<Signature[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingSignature, setEditingSignature] = useState<Partial<Signature> | null>(null)
-  const [isNew, setIsNew] = useState(false)
   const [activeUnit, setActiveUnit] = useState<'excel' | 'crew'>('excel')
   const [tagInput, setTagInput] = useState('')
 
-  const fetchSignatures = useCallback(async () => {
-    setIsLoading(true)
-
-    const { data, error } = await supabase
-      .from('signatures')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('시그니처 데이터 로드 실패:', error)
-    } else {
-      setSignatures(
-        (data || []).map((s) => ({
-          id: s.id,
-          title: s.title,
-          description: s.description || '',
-          memberName: s.member_name,
-          mediaType: s.media_type,
-          mediaUrl: s.media_url,
-          thumbnailUrl: s.thumbnail_url || '',
-          unit: s.unit,
-          tags: s.tags || [],
-          createdAt: s.created_at,
-        }))
-      )
-    }
-
-    setIsLoading(false)
-  }, [supabase])
-
-  useEffect(() => {
-    fetchSignatures()
-  }, [fetchSignatures])
-
-  const filteredSignatures = signatures.filter((s) => s.unit === activeUnit)
-
-  const handleAdd = () => {
-    setEditingSignature({
+  const {
+    items: allSignatures,
+    isLoading,
+    isModalOpen,
+    isNew,
+    editingItem: editingSignature,
+    setEditingItem: setEditingSignature,
+    openAddModal: baseOpenAddModal,
+    openEditModal: baseOpenEditModal,
+    closeModal: baseCloseModal,
+    handleDelete,
+    refetch,
+  } = useAdminCRUD<Signature>({
+    tableName: 'signatures',
+    defaultItem: {
       title: '',
       description: '',
       memberName: '',
@@ -78,33 +51,55 @@ export default function SignaturesPage() {
       thumbnailUrl: '',
       unit: activeUnit,
       tags: [],
-    })
+    },
+    orderBy: { column: 'created_at', ascending: false },
+    fromDbFormat: (row) => ({
+      id: row.id as number,
+      title: row.title as string,
+      description: (row.description as string) || '',
+      memberName: row.member_name as string,
+      mediaType: row.media_type as MediaType,
+      mediaUrl: row.media_url as string,
+      thumbnailUrl: (row.thumbnail_url as string) || '',
+      unit: row.unit as 'excel' | 'crew',
+      tags: (row.tags as string[]) || [],
+      createdAt: row.created_at as string,
+    }),
+    toDbFormat: (item) => ({
+      title: item.title,
+      description: item.description,
+      member_name: item.memberName || '',
+      media_type: item.mediaType,
+      media_url: item.mediaUrl,
+      thumbnail_url: item.thumbnailUrl,
+      unit: item.unit,
+      tags: item.tags,
+    }),
+    validate: (item) => {
+      if (!item.title || !item.mediaUrl) return '제목과 미디어 URL을 입력해주세요.'
+      return null
+    },
+  })
+
+  const filteredSignatures = allSignatures.filter((s) => s.unit === activeUnit)
+
+  const openAddModal = () => {
+    baseOpenAddModal()
     setTagInput('')
-    setIsNew(true)
-    setIsModalOpen(true)
+    setEditingSignature((prev) => prev ? { ...prev, unit: activeUnit } : null)
   }
 
-  const handleEdit = (sig: Signature) => {
-    setEditingSignature(sig)
+  const openEditModal = (sig: Signature) => {
+    baseOpenEditModal(sig)
     setTagInput(sig.tags.join(', '))
-    setIsNew(false)
-    setIsModalOpen(true)
   }
 
-  const handleDelete = async (sig: Signature) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
-
-    const { error } = await supabase.from('signatures').delete().eq('id', sig.id)
-
-    if (error) {
-      console.error('시그니처 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
-    } else {
-      fetchSignatures()
-    }
+  const closeModal = () => {
+    baseCloseModal()
+    setTagInput('')
   }
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!editingSignature || !editingSignature.title || !editingSignature.mediaUrl) {
       alert('제목과 미디어 URL을 입력해주세요.')
       return
@@ -115,18 +110,19 @@ export default function SignaturesPage() {
       .map((t) => t.trim())
       .filter((t) => t)
 
-    if (isNew) {
-      const { error } = await supabase.from('signatures').insert({
-        title: editingSignature.title!,
-        description: editingSignature.description,
-        member_name: editingSignature.memberName || '',
-        media_type: editingSignature.mediaType!,
-        media_url: editingSignature.mediaUrl!,
-        thumbnail_url: editingSignature.thumbnailUrl,
-        unit: editingSignature.unit!,
-        tags,
-      })
+    const dbData = {
+      title: editingSignature.title,
+      description: editingSignature.description,
+      member_name: editingSignature.memberName || '',
+      media_type: editingSignature.mediaType,
+      media_url: editingSignature.mediaUrl,
+      thumbnail_url: editingSignature.thumbnailUrl,
+      unit: editingSignature.unit,
+      tags,
+    }
 
+    if (isNew) {
+      const { error } = await supabase.from('signatures').insert(dbData)
       if (error) {
         console.error('시그니처 등록 실패:', error)
         alert('등록에 실패했습니다.')
@@ -135,18 +131,8 @@ export default function SignaturesPage() {
     } else {
       const { error } = await supabase
         .from('signatures')
-        .update({
-          title: editingSignature.title,
-          description: editingSignature.description,
-          member_name: editingSignature.memberName,
-          media_type: editingSignature.mediaType,
-          media_url: editingSignature.mediaUrl,
-          thumbnail_url: editingSignature.thumbnailUrl,
-          unit: editingSignature.unit,
-          tags,
-        })
+        .update(dbData)
         .eq('id', editingSignature.id!)
-
       if (error) {
         console.error('시그니처 수정 실패:', error)
         alert('수정에 실패했습니다.')
@@ -154,9 +140,9 @@ export default function SignaturesPage() {
       }
     }
 
-    setIsModalOpen(false)
-    fetchSignatures()
-  }
+    closeModal()
+    refetch()
+  }, [supabase, editingSignature, isNew, tagInput, closeModal, refetch])
 
   const columns: Column<Signature>[] = [
     { key: 'title', header: '제목' },
@@ -206,7 +192,7 @@ export default function SignaturesPage() {
             <p className={styles.subtitle}>시그 영상/이미지 관리</p>
           </div>
         </div>
-        <button onClick={handleAdd} className={styles.addButton}>
+        <button onClick={openAddModal} className={styles.addButton}>
           <Plus size={18} />
           시그 추가
         </button>
@@ -231,7 +217,7 @@ export default function SignaturesPage() {
       <DataTable
         data={filteredSignatures}
         columns={columns}
-        onEdit={handleEdit}
+        onEdit={openEditModal}
         onDelete={handleDelete}
         searchPlaceholder="시그 제목으로 검색..."
         isLoading={isLoading}
@@ -245,7 +231,7 @@ export default function SignaturesPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeModal}
           >
             <motion.div
               className={styles.modal}
@@ -256,7 +242,7 @@ export default function SignaturesPage() {
             >
               <div className={styles.modalHeader}>
                 <h2>{isNew ? '시그 추가' : '시그 수정'}</h2>
-                <button onClick={() => setIsModalOpen(false)} className={styles.closeButton}>
+                <button onClick={closeModal} className={styles.closeButton}>
                   <X size={20} />
                 </button>
               </div>
@@ -266,7 +252,7 @@ export default function SignaturesPage() {
                   <label>제목</label>
                   <input
                     type="text"
-                    value={editingSignature.title}
+                    value={editingSignature.title || ''}
                     onChange={(e) =>
                       setEditingSignature({ ...editingSignature, title: e.target.value })
                     }
@@ -319,7 +305,7 @@ export default function SignaturesPage() {
                   <label>미디어 URL</label>
                   <input
                     type="text"
-                    value={editingSignature.mediaUrl}
+                    value={editingSignature.mediaUrl || ''}
                     onChange={(e) =>
                       setEditingSignature({ ...editingSignature, mediaUrl: e.target.value })
                     }
@@ -332,7 +318,7 @@ export default function SignaturesPage() {
                   <label>썸네일 URL (선택)</label>
                   <input
                     type="text"
-                    value={editingSignature.thumbnailUrl}
+                    value={editingSignature.thumbnailUrl || ''}
                     onChange={(e) =>
                       setEditingSignature({ ...editingSignature, thumbnailUrl: e.target.value })
                     }
@@ -355,7 +341,7 @@ export default function SignaturesPage() {
                 <div className={styles.formGroup}>
                   <label>설명 (선택)</label>
                   <textarea
-                    value={editingSignature.description}
+                    value={editingSignature.description || ''}
                     onChange={(e) =>
                       setEditingSignature({ ...editingSignature, description: e.target.value })
                     }
@@ -367,7 +353,7 @@ export default function SignaturesPage() {
               </div>
 
               <div className={styles.modalFooter}>
-                <button onClick={() => setIsModalOpen(false)} className={styles.cancelButton}>
+                <button onClick={closeModal} className={styles.cancelButton}>
                   취소
                 </button>
                 <button onClick={handleSave} className={styles.saveButton}>

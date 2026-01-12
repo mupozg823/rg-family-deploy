@@ -5,6 +5,28 @@ import { History, Heart, MessageCircle } from 'lucide-react'
 import type { TributeDonation, TributeTheme } from '@/types/common'
 import styles from './TributeDonationTimeline.module.css'
 
+// Local helper functions
+const formatAmountShort = (amount: number): string => {
+  if (amount >= 100000000) {
+    return `${(amount / 100000000).toFixed(1)}억`;
+  }
+  if (amount >= 10000) {
+    return `${Math.floor(amount / 10000).toLocaleString()}만`;
+  }
+  return amount.toLocaleString();
+};
+
+interface FormatDateOptions {
+  year?: 'numeric' | '2-digit';
+  month?: 'numeric' | '2-digit' | 'long' | 'short' | 'narrow';
+  day?: 'numeric' | '2-digit';
+}
+
+const formatDate = (dateStr: string, options?: FormatDateOptions): string => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('ko-KR', options);
+};
+
 interface TributeDonationTimelineProps {
   donations: TributeDonation[]
   theme: TributeTheme
@@ -14,16 +36,8 @@ export default function TributeDonationTimeline({
   donations,
   theme,
 }: TributeDonationTimelineProps) {
-  const formatAmount = (amount: number) => {
-    if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(0)}만`
-    }
-    return amount.toLocaleString()
-  }
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('ko-KR', {
+  const formatDonationDate = (dateStr: string) => {
+    return formatDate(dateStr, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -48,7 +62,7 @@ export default function TributeDonationTimeline({
           </div>
           <h2 className={styles.title}>Donation History</h2>
           <p className={styles.subtitle}>
-            Total: <span className={styles.totalAmount}>{formatAmount(totalAmount)} 하트</span>
+            Total: <span className={styles.totalAmount}>{formatAmountShort(totalAmount)} 하트</span>
           </p>
         </motion.div>
 
@@ -71,9 +85,9 @@ export default function TributeDonationTimeline({
                 <div className={styles.timelineHeader}>
                   <div className={styles.amount}>
                     <Heart size={16} className={styles.heartIcon} />
-                    <span>{formatAmount(donation.amount)} 하트</span>
+                    <span>{formatAmountShort(donation.amount)} 하트</span>
                   </div>
-                  <span className={styles.date}>{formatDate(donation.createdAt)}</span>
+                  <span className={styles.date}>{formatDonationDate(donation.createdAt)}</span>
                 </div>
 
                 {donation.message && (

@@ -26,4 +26,6 @@ export {
   useOrganization,
   useNotices,
   usePosts,
+  useTimeline,
+  useSchedules,
 } from './DataProviderContext'

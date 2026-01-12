@@ -13,9 +13,11 @@ import {
   IDataProvider,
   IDonationRepository,
   IPostRepository,
+  ITimelineRepository,
+  IScheduleRepository,
 } from '../types'
-import type { RankingItem, UnitFilter } from '@/types/common'
-import type { Season, Profile, Organization, Notice, Donation, Post } from '@/types/database'
+import type { RankingItem, UnitFilter, TimelineItem, JoinedSeason } from '@/types/common'
+import type { Season, Profile, Organization, Notice, Donation, Post, Schedule } from '@/types/database'
 
 // ============================================
 // Supabase Ranking Repository
@@ -27,6 +29,8 @@ class SupabaseRankingRepository implements IRankingRepository {
     seasonId?: number | null
     unitFilter?: UnitFilter
   }): Promise<RankingItem[]> {
+    const { seasonId, unitFilter } = options
+
     let query = this.supabase
       .from('donations')
       .select(`
@@ -38,12 +42,13 @@ class SupabaseRankingRepository implements IRankingRepository {
         profiles:donor_id (nickname, avatar_url)
       `)
 
-    if (options.seasonId) {
-      query = query.eq('season_id', options.seasonId)
+    if (seasonId) {
+      query = query.eq('season_id', seasonId)
     }
 
-    if (options.unitFilter && options.unitFilter !== 'all') {
-      query = query.eq('unit', options.unitFilter)
+    // VIP는 전체에서 Top 50이므로 유닛 필터 스킵
+    if (unitFilter && unitFilter !== 'all' && unitFilter !== 'vip') {
+      query = query.eq('unit', unitFilter)
     }
 
     const { data, error } = await query
@@ -70,9 +75,16 @@ class SupabaseRankingRepository implements IRankingRepository {
       return acc
     }, {} as Record<string, Omit<RankingItem, 'rank'>>)
 
-    return Object.values(aggregated)
+    let sorted = Object.values(aggregated)
       .sort((a, b) => b.totalAmount - a.totalAmount)
       .map((item, index) => ({ ...item, rank: index + 1 }))
+
+    // VIP 필터: Top 50만 표시
+    if (unitFilter === 'vip') {
+      sorted = sorted.slice(0, 50)
+    }
+
+    return sorted
   }
 
   async getTopRankers(limit: number): Promise<RankingItem[]> {
@@ -303,6 +315,119 @@ class SupabasePostRepository implements IPostRepository {
 }
 
 // ============================================
+// Supabase Timeline Repository
+// ============================================
+class SupabaseTimelineRepository implements ITimelineRepository {
+  constructor(private supabase: SupabaseClient) {}
+
+  private formatEvent(event: Record<string, unknown>): TimelineItem {
+    const season = event.seasons as JoinedSeason | null
+    return {
+      id: event.id as number,
+      eventDate: event.event_date as string,
+      title: event.title as string,
+      description: event.description as string | null,
+      imageUrl: event.image_url as string | null,
+      category: event.category as string | null,
+      seasonId: event.season_id as number | null,
+      seasonName: season?.name,
+    }
+  }
+
+  async findAll(): Promise<TimelineItem[]> {
+    const { data, error } = await this.supabase
+      .from('timeline_events')
+      .select('*, seasons(name)')
+      .order('event_date', { ascending: false })
+
+    if (error) throw error
+    return (data || []).map(e => this.formatEvent(e))
+  }
+
+  async findByFilter(options: {
+    seasonId?: number | null
+    category?: string | null
+  }): Promise<TimelineItem[]> {
+    const { seasonId, category } = options
+
+    let query = this.supabase
+      .from('timeline_events')
+      .select('*, seasons(name)')
+      .order('event_date', { ascending: false })
+
+    if (seasonId) {
+      query = query.eq('season_id', seasonId)
+    }
+
+    if (category) {
+      query = query.eq('category', category)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+    return (data || []).map(e => this.formatEvent(e))
+  }
+
+  async getCategories(): Promise<string[]> {
+    const { data, error } = await this.supabase
+      .from('timeline_events')
+      .select('category')
+
+    if (error) throw error
+
+    const cats = new Set<string>()
+    ;(data || []).forEach(e => {
+      if (e.category) cats.add(e.category)
+    })
+    return Array.from(cats)
+  }
+}
+
+// ============================================
+// Supabase Schedule Repository
+// ============================================
+class SupabaseScheduleRepository implements IScheduleRepository {
+  constructor(private supabase: SupabaseClient) {}
+
+  async findByMonth(year: number, month: number): Promise<Schedule[]> {
+    const startOfMonth = new Date(year, month, 1)
+    const endOfMonth = new Date(year, month + 1, 0)
+
+    const { data, error } = await this.supabase
+      .from('schedules')
+      .select('*')
+      .gte('start_datetime', startOfMonth.toISOString())
+      .lte('start_datetime', endOfMonth.toISOString())
+      .order('start_datetime', { ascending: true })
+
+    if (error) throw error
+    return data || []
+  }
+
+  async findByMonthAndUnit(year: number, month: number, unit: string | null): Promise<Schedule[]> {
+    const startOfMonth = new Date(year, month, 1)
+    const endOfMonth = new Date(year, month + 1, 0)
+
+    let query = this.supabase
+      .from('schedules')
+      .select('*')
+      .gte('start_datetime', startOfMonth.toISOString())
+      .lte('start_datetime', endOfMonth.toISOString())
+      .order('start_datetime', { ascending: true })
+
+    if (unit && unit !== 'all') {
+      query = query.or(`unit.eq.${unit},unit.is.null`)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+    return data || []
+  }
+}
+
+// ============================================
 // Supabase Data Provider (Factory Pattern)
 // ============================================
 export class SupabaseDataProvider implements IDataProvider {
@@ -313,6 +438,8 @@ export class SupabaseDataProvider implements IDataProvider {
   readonly organization: IOrganizationRepository
   readonly notices: INoticeRepository
   readonly posts: IPostRepository
+  readonly timeline: ITimelineRepository
+  readonly schedules: IScheduleRepository
 
   constructor(supabase: SupabaseClient) {
     this.rankings = new SupabaseRankingRepository(supabase)
@@ -322,5 +449,7 @@ export class SupabaseDataProvider implements IDataProvider {
     this.organization = new SupabaseOrganizationRepository(supabase)
     this.notices = new SupabaseNoticeRepository(supabase)
     this.posts = new SupabasePostRepository(supabase)
+    this.timeline = new SupabaseTimelineRepository(supabase)
+    this.schedules = new SupabaseScheduleRepository(supabase)
   }
 }

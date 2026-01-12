@@ -3,8 +3,8 @@
  * 데이터 접근 추상화 레이어
  */
 
-import type { Profile, Season, Donation, Organization, Notice, Post } from '@/types/database'
-import type { RankingItem, UnitFilter } from '@/types/common'
+import type { Profile, Season, Donation, Organization, Notice, Post, Schedule } from '@/types/database'
+import type { RankingItem, UnitFilter, TimelineItem } from '@/types/common'
 
 // ============================================
 // Base Repository Interface
@@ -59,6 +59,20 @@ export interface IPostRepository extends IRepository<Post> {
   findRecent(limit: number): Promise<Post[]>
 }
 
+export interface ITimelineRepository {
+  findAll(): Promise<TimelineItem[]>
+  findByFilter(options: {
+    seasonId?: number | null
+    category?: string | null
+  }): Promise<TimelineItem[]>
+  getCategories(): Promise<string[]>
+}
+
+export interface IScheduleRepository {
+  findByMonth(year: number, month: number): Promise<Schedule[]>
+  findByMonthAndUnit(year: number, month: number, unit: string | null): Promise<Schedule[]>
+}
+
 // ============================================
 // Data Provider Interface (Strategy Pattern)
 // ============================================
@@ -70,6 +84,8 @@ export interface IDataProvider {
   organization: IOrganizationRepository
   notices: INoticeRepository
   posts: IPostRepository
+  timeline: ITimelineRepository
+  schedules: IScheduleRepository
 }
 
 // ============================================

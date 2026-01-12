@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Users, Radio, Calendar, FileText, Zap } from "lucide-react";
 import Footer from "@/components/Footer";
-import { useSupabaseContext } from "@/lib/context";
-import { mockOrganization } from "@/lib/mock";
-import { USE_MOCK_DATA } from "@/lib/config";
+import { useOrganization } from "@/lib/hooks";
 import {
   MemberCard,
   MemberDetailModal,
@@ -19,69 +17,15 @@ import styles from "./page.module.css";
 type UnitType = "excel" | "crew";
 
 export default function OrganizationPage() {
-  const supabase = useSupabaseContext();
-  const [members, setMembers] = useState<OrgMember[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { members, isLoading, getByUnit, getGroupedByRole } = useOrganization();
   const [selectedMember, setSelectedMember] = useState<OrgMember | null>(null);
   const [activeUnit, setActiveUnit] = useState<UnitType>("excel");
 
-  const fetchOrganization = useCallback(async () => {
-    setIsLoading(true);
-
-    if (USE_MOCK_DATA) {
-      const mockData = mockOrganization.map((m) => ({
-        id: m.id,
-        name: m.name,
-        role: m.role,
-        position_order: m.position_order,
-        parent_id: m.parent_id,
-        image_url: m.image_url,
-        unit: m.unit,
-        social_links: m.social_links,
-        is_live: m.is_live,
-      })) as OrgMember[];
-      setMembers(mockData);
-      setIsLoading(false);
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("organization")
-      .select("*")
-      .eq("is_active", true)
-      .order("position_order", { ascending: true });
-
-    if (error) {
-      console.error("조직도 로드 실패:", error);
-      setIsLoading(false);
-      return;
-    }
-
-    setMembers((data as OrgMember[]) || []);
-    setIsLoading(false);
-  }, [supabase]);
-
-  useEffect(() => {
-    fetchOrganization();
-  }, [fetchOrganization]);
-
   // 유닛별 멤버 분류
-  const unitMembers = members.filter((m) => m.unit === activeUnit);
+  const unitMembers = getByUnit(activeUnit) as OrgMember[];
 
   // 역할별 그룹화
-  const getGroupedMembers = (unitMembers: OrgMember[]) => {
-    const leaders = unitMembers.filter((m) =>
-      m.role === "대표" || m.role === "R대표" || m.role === "G대표"
-    );
-    const directors = unitMembers.filter((m) => m.role === "부장");
-    const managers = unitMembers.filter((m) => m.role === "팀장");
-    const membersList = unitMembers.filter(
-      (m) => m.role === "멤버" || m.role === "크루"
-    );
-    return { leaders, directors, managers, members: membersList };
-  };
-
-  const grouped = getGroupedMembers(unitMembers);
+  const grouped = getGroupedByRole(unitMembers);
 
   // 최상위 리더: 대표 → 부장 → 팀장 순으로 폴백
   const topLeaders =
@@ -112,7 +56,7 @@ export default function OrganizationPage() {
         </div>
         <div className={styles.navTabs}>
           <Link
-            href="/organization"
+            href="/rg/org"
             className={`${styles.navTab} ${styles.active}`}
           >
             <Users size={16} />
@@ -122,18 +66,18 @@ export default function OrganizationPage() {
             <Radio size={16} />
             <span>LIVE</span>
           </Link>
-          <Link href="/signature" className={styles.navTab}>
+          <Link href="/rg/sig" className={styles.navTab}>
             <FileText size={16} />
             <span>시그</span>
           </Link>
-          <Link href="/timeline" className={styles.navTab}>
+          <Link href="/rg/history" className={styles.navTab}>
             <Calendar size={16} />
             <span>연혁</span>
           </Link>
         </div>
       </nav>
 
-      {/* Logo & Header - Reference Style */}
+      {/* Logo & Header - Simplified (RG FAMILY 강조) */}
       <header className={styles.header}>
         <div className={styles.logoSection}>
           <div className={styles.logoCircle}>
@@ -146,11 +90,7 @@ export default function OrganizationPage() {
               priority
             />
           </div>
-          <span className={styles.logoSubtext}>RG FAMILY</span>
-        </div>
-        <div className={styles.headerBadge}>
-          <Users size={16} />
-          <span>ORGANIZATION</span>
+          <h1 className={styles.logoTitle}>RG FAMILY</h1>
         </div>
       </header>
 

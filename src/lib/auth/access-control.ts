@@ -76,7 +76,7 @@ export function checkTributePageAccess(
       }
     }
   }
-  // TODO: Supabase에서 자격 확인 로직
+  // Supabase 자격 확인은 useTributeData에서 처리
 
   // 5. 헌정 데이터가 존재하는지 확인
   if (USE_MOCK_DATA) {
@@ -115,8 +115,19 @@ export function checkVipLoungeAccess(
 
 /**
  * Admin 페이지 접근 권한 확인
+ * - superadmin: 최고 관리자
+ * - admin: 일반 관리자
+ * - moderator: 운영진 (제한적 Admin 접근)
  */
 export function checkAdminAccess(profile: Profile | null): boolean {
+  if (!profile) return false
+  return ['admin', 'superadmin', 'moderator'].includes(profile.role)
+}
+
+/**
+ * 완전한 Admin 권한 확인 (admin/superadmin만)
+ */
+export function checkFullAdminAccess(profile: Profile | null): boolean {
   return profile?.role === 'admin' || profile?.role === 'superadmin'
 }
 

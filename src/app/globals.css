@@ -206,26 +206,32 @@
      Rank System Colors (Default: Dark Mode / Glowing)
      ============================================ */
 
-  /* Gold (Rank 1) */
+  /* Gold (Rank 1) - Premium Metallic */
   --metallic-gold: #ffd700;
-  --metallic-gold-bg: rgba(255, 215, 0, 0.1);
-  --metallic-gold-border: rgba(255, 215, 0, 0.3);
-  --metallic-gold-glow: rgba(255, 215, 0, 0.4);
-  --metallic-gold-gradient: linear-gradient(135deg, #ffd700 0%, #fdb931 100%);
+  --metallic-gold-light: #ffe066;
+  --metallic-gold-dark: #e6b800;
+  --metallic-gold-bg: rgba(255, 215, 0, 0.15);
+  --metallic-gold-border: rgba(255, 215, 0, 0.5);
+  --metallic-gold-glow: rgba(255, 215, 0, 0.6);
+  --metallic-gold-gradient: linear-gradient(135deg, #ffe066 0%, #ffd700 30%, #e6b800 70%, #ffd700 100%);
 
-  /* Silver (Rank 2) */
-  --metallic-silver: #e0e0e0;
-  --metallic-silver-bg: rgba(224, 224, 224, 0.1);
-  --metallic-silver-border: rgba(224, 224, 224, 0.3);
-  --metallic-silver-glow: rgba(224, 224, 224, 0.4);
-  --metallic-silver-gradient: linear-gradient(135deg, #e0e0e0 0%, #b0b0b0 100%);
+  /* Silver (Rank 2) - Premium Platinum */
+  --metallic-silver: #c0c0c0;
+  --metallic-silver-light: #e8e8e8;
+  --metallic-silver-dark: #a0a0a0;
+  --metallic-silver-bg: rgba(192, 192, 192, 0.15);
+  --metallic-silver-border: rgba(192, 192, 192, 0.5);
+  --metallic-silver-glow: rgba(192, 192, 192, 0.5);
+  --metallic-silver-gradient: linear-gradient(135deg, #e8e8e8 0%, #c0c0c0 30%, #a0a0a0 70%, #c0c0c0 100%);
 
-  /* Bronze (Rank 3) */
+  /* Bronze (Rank 3) - Premium Copper */
   --metallic-bronze: #cd7f32;
-  --metallic-bronze-bg: rgba(205, 127, 50, 0.1);
-  --metallic-bronze-border: rgba(205, 127, 50, 0.3);
-  --metallic-bronze-glow: rgba(205, 127, 50, 0.4);
-  --metallic-bronze-gradient: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%);
+  --metallic-bronze-light: #e09050;
+  --metallic-bronze-dark: #a06020;
+  --metallic-bronze-bg: rgba(205, 127, 50, 0.15);
+  --metallic-bronze-border: rgba(205, 127, 50, 0.5);
+  --metallic-bronze-glow: rgba(205, 127, 50, 0.5);
+  --metallic-bronze-gradient: linear-gradient(135deg, #e09050 0%, #cd7f32 30%, #a06020 70%, #cd7f32 100%);
 
   /* Progress Bar Defaults */
   --progress-gradient: linear-gradient(
@@ -544,26 +550,32 @@
      Rank System Colors (Light Mode Overrides - Darker/Richer for Contrast)
      ============================================ */
 
-  /* Gold (Rank 1) - Darker Goldenrod */
-  --metallic-gold: #b8860b;
-  --metallic-gold-bg: rgba(184, 134, 11, 0.1);
-  --metallic-gold-border: rgba(184, 134, 11, 0.3);
-  --metallic-gold-glow: rgba(184, 134, 11, 0.2);
-  --metallic-gold-gradient: linear-gradient(135deg, #b8860b 0%, #daa520 100%);
+  /* Gold (Rank 1) - Premium Metallic (Light Mode) */
+  --metallic-gold: #d4a000;
+  --metallic-gold-light: #e6b800;
+  --metallic-gold-dark: #b8860b;
+  --metallic-gold-bg: rgba(212, 160, 0, 0.12);
+  --metallic-gold-border: rgba(212, 160, 0, 0.4);
+  --metallic-gold-glow: rgba(212, 160, 0, 0.3);
+  --metallic-gold-gradient: linear-gradient(135deg, #e6b800 0%, #d4a000 30%, #b8860b 70%, #d4a000 100%);
 
-  /* Silver (Rank 2) - Cool Slate Grey */
-  --metallic-silver: #718096;
-  --metallic-silver-bg: rgba(113, 128, 150, 0.1);
-  --metallic-silver-border: rgba(113, 128, 150, 0.3);
-  --metallic-silver-glow: rgba(113, 128, 150, 0.2);
-  --metallic-silver-gradient: linear-gradient(135deg, #718096 0%, #a0aec0 100%);
+  /* Silver (Rank 2) - Premium Platinum (Light Mode) */
+  --metallic-silver: #808080;
+  --metallic-silver-light: #a0a0a0;
+  --metallic-silver-dark: #606060;
+  --metallic-silver-bg: rgba(128, 128, 128, 0.12);
+  --metallic-silver-border: rgba(128, 128, 128, 0.4);
+  --metallic-silver-glow: rgba(128, 128, 128, 0.25);
+  --metallic-silver-gradient: linear-gradient(135deg, #a0a0a0 0%, #808080 30%, #606060 70%, #808080 100%);
 
-  /* Bronze (Rank 3) - Saddle Brown */
-  --metallic-bronze: #8b4513;
-  --metallic-bronze-bg: rgba(139, 69, 19, 0.1);
-  --metallic-bronze-border: rgba(139, 69, 19, 0.3);
-  --metallic-bronze-glow: rgba(139, 69, 19, 0.2);
-  --metallic-bronze-gradient: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+  /* Bronze (Rank 3) - Premium Copper (Light Mode) */
+  --metallic-bronze: #a05030;
+  --metallic-bronze-light: #c06040;
+  --metallic-bronze-dark: #804020;
+  --metallic-bronze-bg: rgba(160, 80, 48, 0.12);
+  --metallic-bronze-border: rgba(160, 80, 48, 0.4);
+  --metallic-bronze-glow: rgba(160, 80, 48, 0.25);
+  --metallic-bronze-gradient: linear-gradient(135deg, #c06040 0%, #a05030 30%, #804020 70%, #a05030 100%);
 
   /* Scrollbar */
   --scrollbar-thumb: rgba(0, 0, 0, 0.2);
@@ -939,6 +951,25 @@ li {
 }
 .hover-lift:hover {
   transform: translateY(-2px);
+}
+
+/* Signature Pink Hover Effect */
+.hover-pink {
+  transition: all 0.2s ease;
+}
+.hover-pink:hover {
+  border-color: var(--color-pink) !important;
+  box-shadow: 0 0 20px rgba(253, 104, 186, 0.3);
+}
+
+/* Combined hover effect for cards */
+.hover-card {
+  transition: all 0.2s ease;
+}
+.hover-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-pink) !important;
+  box-shadow: 0 0 20px rgba(253, 104, 186, 0.3);
 }
 
 /* ============================================

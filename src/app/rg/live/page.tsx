@@ -1,102 +1,30 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useSupabaseContext } from "@/lib/context";
-import { mockOrganization } from "@/lib/mock";
-import { USE_MOCK_DATA } from "@/lib/config";
+import { useLiveRoster } from "@/lib/hooks";
+import type { LiveMember, UnitFilter } from "@/types/organization";
 import { Radio, Youtube, Instagram, ExternalLink, X, ArrowLeft, Users, Filter } from "lucide-react";
 import styles from "./page.module.css";
 
-interface LiveMember {
-  id: number;
-  name: string;
-  role: string;
-  unit: 'excel' | 'crew';
-  image_url: string | null;
-  is_live: boolean;
-  social_links?: {
-    chzzk?: string;
-    youtube?: string;
-    instagram?: string;
-    pandatv?: string;
-  };
-}
-
-type UnitFilter = 'all' | 'excel' | 'crew';
-
 export default function LivePage() {
-  const supabase = useSupabaseContext();
-  const [members, setMembers] = useState<LiveMember[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { members, isLoading } = useLiveRoster({ realtime: true });
   const [selectedMember, setSelectedMember] = useState<LiveMember | null>(null);
   const [unitFilter, setUnitFilter] = useState<UnitFilter>('all');
 
-  const fetchMembers = useCallback(async () => {
-    setIsLoading(true);
-
-    if (USE_MOCK_DATA) {
-      const mockData = mockOrganization.map((m) => ({
-        id: m.id,
-        name: m.name,
-        role: m.role,
-        unit: m.unit,
-        image_url: m.image_url,
-        is_live: m.is_live,
-        social_links: m.social_links,
-      })) as LiveMember[];
-      setMembers(mockData);
-      setIsLoading(false);
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from('organization')
-      .select('*')
-      .eq('is_active', true)
-      .order('position_order', { ascending: true });
-
-    if (error) {
-      console.error('멤버 로드 실패:', error);
-      setIsLoading(false);
-      return;
-    }
-
-    setMembers(data as LiveMember[] || []);
-    setIsLoading(false);
-  }, [supabase]);
-
-  useEffect(() => {
-    fetchMembers();
-
-    if (USE_MOCK_DATA) return;
-
-    const channel = supabase
-      .channel('live_status_changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'organization' },
-        () => {
-          fetchMembers();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, fetchMembers]);
-
   // Filter by unit
-  const unitFilteredMembers = unitFilter === 'all'
-    ? members
-    : members.filter(m => m.unit === unitFilter);
+  const unitFilteredMembers = useMemo(() => {
+    const filtered = unitFilter === 'all'
+      ? members
+      : members.filter((member) => member.unit === unitFilter);
+    return filtered as LiveMember[];
+  }, [members, unitFilter]);
 
   // Separate live and offline members
-  const liveMembers = unitFilteredMembers.filter(m => m.is_live);
-  const offlineMembers = unitFilteredMembers.filter(m => !m.is_live);
+  const liveMembers = useMemo(() => unitFilteredMembers.filter(m => m.is_live), [unitFilteredMembers]);
+  const offlineMembers = useMemo(() => unitFilteredMembers.filter(m => !m.is_live), [unitFilteredMembers]);
 
   const liveCount = liveMembers.length;
   const totalCount = unitFilteredMembers.length;

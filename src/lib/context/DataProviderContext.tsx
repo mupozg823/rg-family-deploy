@@ -84,3 +84,13 @@ export function usePosts() {
   const { provider } = useDataProviderContext()
   return provider.posts
 }
+
+export function useTimeline() {
+  const { provider } = useDataProviderContext()
+  return provider.timeline
+}
+
+export function useSchedules() {
+  const { provider } = useDataProviderContext()
+  return provider.schedules
+}

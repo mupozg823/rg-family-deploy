@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { formatAmount } from "@/lib/utils";
 import styles from "./GaugeBar.module.css";
 
 interface GaugeBarProps {
@@ -34,16 +35,6 @@ export default function GaugeBar({
     if (rank === 2) return styles.silver;
     if (rank === 3) return styles.bronze;
     return "";
-  };
-
-  const formatAmount = (amount: number) => {
-    if (amount >= 100000000) {
-      return `${(amount / 100000000).toFixed(1)}억 하트`;
-    }
-    if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(1)}만 하트`;
-    }
-    return `${amount.toLocaleString()} 하트`;
   };
 
   return (

@@ -177,3 +177,33 @@ export const formatTime = (dateStr: string | Date): string => {
     return ''
   }
 }
+
+/**
+ * 금액을 원화 단위로 포맷 (Admin 전용)
+ * @param amount - 금액 숫자
+ * @returns 포맷된 금액 문자열 (예: "1.5억원", "15만원")
+ */
+export const formatCurrency = (amount: number): string => {
+  if (amount >= 100000000) {
+    return `${(amount / 100000000).toFixed(1)}억원`
+  }
+  if (amount >= 10000) {
+    return `${Math.floor(amount / 10000).toLocaleString()}만원`
+  }
+  return `${amount.toLocaleString()}원`
+}
+
+/**
+ * 금액을 단위 없이 축약 형식으로 포맷
+ * @param amount - 금액 숫자
+ * @returns 포맷된 금액 문자열 (예: "1.5억", "15만")
+ */
+export const formatAmountShort = (amount: number): string => {
+  if (amount >= 100000000) {
+    return `${(amount / 100000000).toFixed(1)}억`
+  }
+  if (amount >= 10000) {
+    return `${Math.floor(amount / 10000).toLocaleString()}만`
+  }
+  return amount.toLocaleString('ko-KR')
+}

@@ -54,25 +54,28 @@
   background: linear-gradient(
     165deg,
     var(--metallic-gold-bg) 0%,
-    var(--card-bg-dark) 40%,
-    var(--gold-overlay-05) 100%
+    var(--card-bg-dark) 30%,
+    var(--metallic-gold-bg) 100%
   );
   border-color: var(--metallic-gold-border);
+  border-width: 2px;
 }
 
 .gold::before {
   background: linear-gradient(
     90deg,
-    transparent 10%,
+    transparent 5%,
     var(--metallic-gold) 50%,
-    transparent 90%
+    transparent 95%
   );
-  opacity: 0.6;
+  opacity: 0.8;
+  height: 2px;
 }
 
 .gold:hover {
   border-color: var(--metallic-gold);
-  box-shadow: var(--shadow-lg), 0 0 40px var(--metallic-gold-glow),
+  box-shadow: var(--shadow-lg), 0 0 50px var(--metallic-gold-glow),
+    0 0 80px rgba(255, 215, 0, 0.2),
     inset 0 1px 0 var(--metallic-gold-bg);
 }
 
@@ -80,25 +83,28 @@
   background: linear-gradient(
     165deg,
     var(--metallic-silver-bg) 0%,
-    var(--card-bg-dark) 40%,
+    var(--card-bg-dark) 30%,
     var(--metallic-silver-bg) 100%
   );
   border-color: var(--metallic-silver-border);
+  border-width: 2px;
 }
 
 .silver::before {
   background: linear-gradient(
     90deg,
-    transparent 10%,
+    transparent 5%,
     var(--metallic-silver) 50%,
-    transparent 90%
+    transparent 95%
   );
-  opacity: 0.5;
+  opacity: 0.7;
+  height: 2px;
 }
 
 .silver:hover {
   border-color: var(--metallic-silver);
-  box-shadow: var(--shadow-lg), 0 0 40px var(--metallic-silver-glow),
+  box-shadow: var(--shadow-lg), 0 0 50px var(--metallic-silver-glow),
+    0 0 80px rgba(192, 192, 192, 0.2),
     inset 0 1px 0 var(--metallic-silver-bg);
 }
 
@@ -106,25 +112,28 @@
   background: linear-gradient(
     165deg,
     var(--metallic-bronze-bg) 0%,
-    var(--card-bg-dark) 40%,
+    var(--card-bg-dark) 30%,
     var(--metallic-bronze-bg) 100%
   );
   border-color: var(--metallic-bronze-border);
+  border-width: 2px;
 }
 
 .bronze::before {
   background: linear-gradient(
     90deg,
-    transparent 10%,
+    transparent 5%,
     var(--metallic-bronze) 50%,
-    transparent 90%
+    transparent 95%
   );
-  opacity: 0.5;
+  opacity: 0.7;
+  height: 2px;
 }
 
 .bronze:hover {
   border-color: var(--metallic-bronze);
-  box-shadow: var(--shadow-lg), 0 0 40px var(--metallic-bronze-glow),
+  box-shadow: var(--shadow-lg), 0 0 50px var(--metallic-bronze-glow),
+    0 0 80px rgba(205, 127, 50, 0.2),
     inset 0 1px 0 var(--metallic-bronze-bg);
 }
 

@@ -5,6 +5,7 @@ import { Crown, Medal, Award, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { RankingItem } from '@/types/common'
+import { formatAmount } from '@/lib/utils'
 import GaugeBar from './GaugeBar'
 import styles from './RankingCard.module.css'
 
@@ -34,17 +35,6 @@ export default function RankingCard({ item, maxAmount, index }: RankingCardProps
     if (item.rank === 2) return styles.rank2
     if (item.rank === 3) return styles.rank3
     return ''
-  }
-
-  // 하트 단위로 표시 (팬더티비 후원 형식)
-  const formatAmount = (amount: number) => {
-    if (amount >= 100000) {
-      return `${(amount / 10000).toFixed(1)}만 하트`
-    }
-    if (amount >= 10000) {
-      return `${(amount / 10000).toFixed(1)}만 하트`
-    }
-    return `${amount.toLocaleString()} 하트`
   }
 
   const CardContent = (
