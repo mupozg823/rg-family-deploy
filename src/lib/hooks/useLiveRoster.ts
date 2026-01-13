@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { useSupabaseContext } from '@/lib/context'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { mockOrganization, mockLiveStatus } from '@/lib/mock'
@@ -139,22 +139,35 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
     setIsLoading(false)
   }, [supabase])
 
+  // fetchRoster를 ref로 유지하여 구독 effect에서 안정적으로 참조
+  const fetchRosterRef = useRef(fetchRoster)
   useEffect(() => {
-    fetchRoster()
+    fetchRosterRef.current = fetchRoster
+  }, [fetchRoster])
 
+  // 초기 데이터 로드
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      void fetchRoster()
+    }, 0)
+    return () => clearTimeout(timeoutId)
+  }, [fetchRoster])
+
+  // 실시간 구독 (별도 effect로 분리하여 재구독 최소화)
+  useEffect(() => {
     if (USE_MOCK_DATA || !realtime) return
 
     const channel = supabase
       .channel('live_status_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'live_status' }, () => {
-        fetchRoster()
+        fetchRosterRef.current()
       })
       .subscribe()
 
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [supabase, fetchRoster, realtime])
+  }, [supabase, realtime])
 
   return { members, liveStatusByMemberId, isLoading, refetch: fetchRoster }
 }

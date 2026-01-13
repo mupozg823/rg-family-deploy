@@ -1,8 +1,7 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { Megaphone, Plus, X, Save, Pin } from 'lucide-react'
-import { DataTable, Column } from '@/components/admin'
+import { Megaphone, Plus, Pin } from 'lucide-react'
+import { DataTable, Column, AdminModal } from '@/components/admin'
 import { useAdminCRUD } from '@/lib/hooks'
 import styles from '../shared.module.css'
 
@@ -108,85 +107,56 @@ export default function NoticesPage() {
       />
 
       {/* Modal */}
-      <AnimatePresence>
-        {isModalOpen && editingNotice && (
-          <motion.div
-            className={styles.modalOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeModal}
-          >
-            <motion.div
-              className={styles.modal}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              onClick={(e) => e.stopPropagation()}
-              style={{ maxWidth: '640px' }}
-            >
-              <div className={styles.modalHeader}>
-                <h2>{isNew ? '공지 작성' : '공지 수정'}</h2>
-                <button onClick={closeModal} className={styles.closeButton}>
-                  <X size={20} />
-                </button>
-              </div>
+      {editingNotice && (
+        <AdminModal
+          isOpen={isModalOpen}
+          title={isNew ? '공지 작성' : '공지 수정'}
+          onClose={closeModal}
+          onSave={handleSave}
+          saveLabel={isNew ? '작성' : '저장'}
+          maxWidth="640px"
+        >
+          <div className={styles.formGroup}>
+            <label>제목</label>
+            <input
+              type="text"
+              value={editingNotice.title || ''}
+              onChange={(e) =>
+                setEditingNotice({ ...editingNotice, title: e.target.value })
+              }
+              className={styles.input}
+              placeholder="공지사항 제목을 입력하세요"
+            />
+          </div>
 
-              <div className={styles.modalBody}>
-                <div className={styles.formGroup}>
-                  <label>제목</label>
-                  <input
-                    type="text"
-                    value={editingNotice.title || ''}
-                    onChange={(e) =>
-                      setEditingNotice({ ...editingNotice, title: e.target.value })
-                    }
-                    className={styles.input}
-                    placeholder="공지사항 제목을 입력하세요"
-                  />
-                </div>
+          <div className={styles.formGroup}>
+            <label>내용</label>
+            <textarea
+              value={editingNotice.content || ''}
+              onChange={(e) =>
+                setEditingNotice({ ...editingNotice, content: e.target.value })
+              }
+              className={styles.textarea}
+              placeholder="공지사항 내용을 입력하세요..."
+              rows={10}
+            />
+          </div>
 
-                <div className={styles.formGroup}>
-                  <label>내용</label>
-                  <textarea
-                    value={editingNotice.content || ''}
-                    onChange={(e) =>
-                      setEditingNotice({ ...editingNotice, content: e.target.value })
-                    }
-                    className={styles.textarea}
-                    placeholder="공지사항 내용을 입력하세요..."
-                    rows={10}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      checked={editingNotice.isPinned || false}
-                      onChange={(e) =>
-                        setEditingNotice({ ...editingNotice, isPinned: e.target.checked })
-                      }
-                      className={styles.checkbox}
-                    />
-                    <span>상단 고정</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className={styles.modalFooter}>
-                <button onClick={closeModal} className={styles.cancelButton}>
-                  취소
-                </button>
-                <button onClick={handleSave} className={styles.saveButton}>
-                  <Save size={16} />
-                  {isNew ? '작성' : '저장'}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className={styles.formGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={editingNotice.isPinned || false}
+                onChange={(e) =>
+                  setEditingNotice({ ...editingNotice, isPinned: e.target.checked })
+                }
+                className={styles.checkbox}
+              />
+              <span>상단 고정</span>
+            </label>
+          </div>
+        </AdminModal>
+      )}
     </div>
   )
 }

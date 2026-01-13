@@ -1,13 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Pin, Search, Eye, ChevronDown, Bell } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { useSupabaseContext } from '@/lib/context'
-import { mockNotices } from '@/lib/mock'
-import { USE_MOCK_DATA } from '@/lib/config'
+import { useNotices } from '@/lib/context'
 import { formatShortDate } from '@/lib/utils/format'
 import styles from './page.module.css'
 
@@ -22,6 +20,12 @@ interface NoticeItem {
   category: string
 }
 
+const CATEGORY_LABELS: Record<string, string> = {
+  official: '공식',
+  excel: '엑셀부',
+  crew: '크루부',
+}
+
 function isNew(dateStr: string): boolean {
   const postDate = new Date(dateStr)
   const now = new Date()
@@ -30,69 +34,44 @@ function isNew(dateStr: string): boolean {
 }
 
 export default function NoticePage() {
-  const supabase = useSupabaseContext()
+  const noticesRepo = useNotices()
   const [notices, setNotices] = useState<NoticeItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchType, setSearchType] = useState<'all' | 'title'>('all')
   const [filterCategory, setFilterCategory] = useState<string>('all')
 
-  const categories = ['전체', '공지', '이벤트', '업데이트', '안내']
+  const categories = ['전체', '공식', '엑셀부', '크루부']
 
-  const fetchNotices = useCallback(async () => {
-    setIsLoading(true)
+  useEffect(() => {
+    const fetchNotices = async () => {
+      setIsLoading(true)
 
-    if (USE_MOCK_DATA) {
-      const sortedNotices = [...mockNotices]
+      const data = await noticesRepo.findAll()
+      const sortedNotices = [...data]
         .sort((a, b) => {
           if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         })
+
       setNotices(
-        sortedNotices.map((n, index) => ({
+        sortedNotices.map((n) => ({
           id: n.id,
           title: n.title,
           isPinned: n.is_pinned,
-          isImportant: index < 2,
-          createdAt: n.created_at,
-          author: '운영자',
-          viewCount: Math.floor(Math.random() * 500) + 100,
-          category: ['공지', '이벤트', '업데이트', '안내'][Math.floor(Math.random() * 4)],
-        }))
-      )
-      setIsLoading(false)
-      return
-    }
-
-    const { data, error } = await supabase
-      .from('notices')
-      .select('id, title, is_pinned, is_important, view_count, category, created_at')
-      .order('is_pinned', { ascending: false })
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('공지사항 로드 실패:', error)
-    } else {
-      setNotices(
-        (data || []).map((n) => ({
-          id: n.id,
-          title: n.title,
-          isPinned: n.is_pinned,
-          isImportant: n.is_important || false,
+          isImportant: n.is_pinned,
           createdAt: n.created_at,
           author: '운영자',
           viewCount: n.view_count || 0,
-          category: n.category || '공지',
+          category: CATEGORY_LABELS[n.category] || n.category,
         }))
       )
+
+      setIsLoading(false)
     }
 
-    setIsLoading(false)
-  }, [supabase])
-
-  useEffect(() => {
-    fetchNotices()
-  }, [fetchNotices])
+    void fetchNotices()
+  }, [noticesRepo])
 
   // 검색 및 필터링
   const filteredNotices = notices.filter(notice => {
@@ -171,7 +150,7 @@ export default function NoticePage() {
                 placeholder="검색어 입력"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && fetchNotices()}
+                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
               />
               <button className={styles.searchBtn}>
                 <Search size={16} />

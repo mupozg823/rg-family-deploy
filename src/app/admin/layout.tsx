@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/admin'
 import { useAuthContext } from '@/lib/context'
@@ -13,25 +13,24 @@ export default function AdminLayout({
 }) {
   const { user, profile, isLoading } = useAuthContext()
   const router = useRouter()
-  const [isAuthorized, setIsAuthorized] = useState(false)
 
+  // 관리자 권한 체크 (useMemo로 계산)
+  const isAuthorized = useMemo(() => {
+    if (isLoading || !user) return false
+    const allowedRoles = ['superadmin', 'admin', 'moderator']
+    return profile && allowedRoles.includes(profile.role)
+  }, [user, profile, isLoading])
+
+  // 리다이렉트 처리
   useEffect(() => {
     if (isLoading) return
 
     if (!user) {
       router.push('/login?redirect=/admin')
-      return
-    }
-
-    // 관리자 권한 체크
-    const allowedRoles = ['superadmin', 'admin', 'moderator']
-    if (!profile || !allowedRoles.includes(profile.role)) {
+    } else if (!isAuthorized) {
       router.push('/')
-      return
     }
-
-    setIsAuthorized(true)
-  }, [user, profile, isLoading, router])
+  }, [user, isAuthorized, isLoading, router])
 
   if (isLoading || !isAuthorized) {
     return (

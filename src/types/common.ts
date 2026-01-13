@@ -1,5 +1,19 @@
+/**
+ * 공통 타입
+ *
+ * Supabase Join 헬퍼 및 공통 타입 정의
+ * 도메인별 타입은 개별 파일에서 관리:
+ * - api.ts: API 응답 타입
+ * - ranking.ts: 랭킹 타입
+ * - calendar.ts: 캘린더/일정 타입
+ * - vip.ts: VIP/헌정 타입
+ * - content.ts: 게시글/공지/시그니처 타입
+ * - organization.ts: 조직 타입
+ */
+
+// ============================================
 // Supabase Join Helper Types
-// Use these when accessing joined relations in Supabase queries
+// ============================================
 
 /** Profile data from Supabase join */
 export interface JoinedProfile {
@@ -20,6 +34,10 @@ export interface JoinedComments {
   length?: number
 }
 
+// ============================================
+// Supabase Join Helpers
+// ============================================
+
 /** Helper to safely extract joined profile data */
 export function getJoinedProfile(data: unknown): JoinedProfile | null {
   if (data && typeof data === 'object') {
@@ -36,192 +54,41 @@ export function getJoinedSeason(data: unknown): JoinedSeason | null {
   return null
 }
 
-// API Response types
-export interface ApiResponse<T> {
-  data: T | null
-  error: string | null
-  success: boolean
-}
+// ============================================
+// Re-exports (하위 호환성)
+// ============================================
 
-export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
-  page: number
-  pageSize: number
-  totalPages: number
-}
+// API types
+export type { ApiResponse, PaginatedResponse } from './api'
 
 // Ranking types
-export interface RankingItem {
-  rank: number
-  donorId: string | null
-  donorName: string
-  avatarUrl: string | null
-  totalAmount: number
-  donationCount?: number      // 후원 횟수
-  messageCount?: number       // 메시지 수
-  lastDonationDate?: string   // 마지막 후원 날짜
-  seasonId?: number
-  seasonName?: string
-}
+export type { RankingItem } from './ranking'
 
 // Calendar types
-export interface CalendarDay {
-  date: Date
-  isCurrentMonth: boolean
-  isToday: boolean
-  events: ScheduleEvent[]
-}
+export type { CalendarDay, ScheduleEvent } from './calendar'
 
-export interface ScheduleEvent {
-  id: number
-  title: string
-  description: string | null
-  unit: 'excel' | 'crew' | null
-  eventType: 'broadcast' | 'collab' | 'event' | 'notice' | '休'
-  startDatetime: string
-  endDatetime: string | null
-  color: string | null
-  isAllDay: boolean
-}
+// Content types
+export type {
+  NoticeItem,
+  PostItem,
+  CommentItem,
+  SignatureItem,
+  TimelineItem,
+  NoticeCategory,
+  SortOrder,
+} from './content'
 
-// Organization tree types - 이동됨: @/types/organization
-// OrgMember, OrgTreeData → organization.ts 참조
+// VIP types
+export type {
+  VipPageData,
+  TributeTheme,
+  TributeRank,
+  TributeProfile,
+  TributeVideo,
+  TributeGalleryImage,
+  TributeDonation,
+  VipTributeData,
+} from './vip'
 
-// VIP page types
-export interface VipPageData {
-  profile: {
-    id: string
-    nickname: string
-    avatarUrl: string | null
-    totalDonation: number
-  }
-  reward: {
-    seasonId: number
-    seasonName: string
-    rank: number
-    personalMessage: string | null
-    dedicationVideoUrl: string | null
-  }
-  images: {
-    id: number
-    imageUrl: string
-    title: string | null
-  }[]
-  donationHistory: {
-    id: number
-    amount: number
-    message: string | null
-    createdAt: string
-  }[]
-}
-
-// Signature types
-export interface SignatureItem {
-  id: number
-  title: string
-  description: string | null
-  unit: 'excel' | 'crew'
-  memberName: string
-  mediaType: 'video' | 'image' | 'gif'
-  mediaUrl: string
-  thumbnailUrl: string | null
-  tags: string[]
-  viewCount: number
-  isFeatured: boolean
-}
-
-// Timeline types
-export interface TimelineItem {
-  id: number
-  eventDate: string
-  title: string
-  description: string | null
-  imageUrl: string | null
-  category: string | null
-  seasonId: number | null
-  seasonName?: string
-}
-
-// Notice types
-export interface NoticeItem {
-  id: number
-  title: string
-  content: string
-  category: 'official' | 'excel' | 'crew'
-  thumbnailUrl: string | null
-  isPinned: boolean
-  viewCount: number
-  authorName: string | null
-  createdAt: string
-}
-
-// Post types
-export interface PostItem {
-  id: number
-  boardType: 'free' | 'vip'
-  title: string
-  content: string
-  authorId: string
-  authorName: string
-  authorAvatar: string | null
-  viewCount: number
-  likeCount: number
-  commentCount: number
-  isAnonymous: boolean
-  createdAt: string
-}
-
-// Filter types
+// Organization types
 export type { UnitFilter } from './organization'
-export type NoticeCategory = 'all' | 'official' | 'excel' | 'crew'
-export type SortOrder = 'latest' | 'popular' | 'oldest'
-
-// Top 1-3 Tribute Page types
-export type TributeTheme = 'gold' | 'silver' | 'bronze'
-export type TributeRank = 1 | 2 | 3
-
-export interface TributeProfile {
-  id: string
-  nickname: string
-  avatarUrl: string | null
-  totalDonation: number
-  joinedAt: string
-}
-
-export interface TributeVideo {
-  id: number
-  url: string
-  thumbnailUrl: string | null
-  title: string
-  duration: number | null
-}
-
-export interface TributeGalleryImage {
-  id: number
-  url: string
-  title: string
-  description: string | null
-}
-
-export interface TributeDonation {
-  id: number
-  amount: number
-  message: string | null
-  createdAt: string
-  seasonName: string
-}
-
-export interface VipTributeData {
-  rank: TributeRank
-  theme: TributeTheme
-  seasonId: number
-  seasonName: string
-  profile: TributeProfile
-  personalMessage: string
-  streamerSignature: string | null
-  dedicationVideo: TributeVideo | null
-  exclusiveGallery: TributeGalleryImage[]
-  donationTimeline: TributeDonation[]
-  specialBadges: string[]
-}

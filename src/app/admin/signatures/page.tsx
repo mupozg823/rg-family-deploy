@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Image as ImageIcon, Plus, X, Save, Video, FileImage } from 'lucide-react'
-import { DataTable, Column } from '@/components/admin'
+import { useState, useCallback } from 'react'
+import { Image as ImageIcon, Plus, Video, FileImage } from 'lucide-react'
+import { DataTable, Column, AdminModal } from '@/components/admin'
 import { useAdminCRUD } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
@@ -94,10 +93,10 @@ export default function SignaturesPage() {
     setTagInput(sig.tags.join(', '))
   }
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     baseCloseModal()
     setTagInput('')
-  }
+  }, [baseCloseModal])
 
   const handleSave = useCallback(async () => {
     if (!editingSignature || !editingSignature.title || !editingSignature.mediaUrl) {
@@ -224,147 +223,118 @@ export default function SignaturesPage() {
       />
 
       {/* Modal */}
-      <AnimatePresence>
-        {isModalOpen && editingSignature && (
-          <motion.div
-            className={styles.modalOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeModal}
-          >
-            <motion.div
-              className={styles.modal}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className={styles.modalHeader}>
-                <h2>{isNew ? '시그 추가' : '시그 수정'}</h2>
-                <button onClick={closeModal} className={styles.closeButton}>
-                  <X size={20} />
-                </button>
-              </div>
+      {editingSignature && (
+        <AdminModal
+          isOpen={isModalOpen}
+          title={isNew ? '시그 추가' : '시그 수정'}
+          onClose={closeModal}
+          onSave={handleSave}
+          saveLabel={isNew ? '추가' : '저장'}
+        >
+          <div className={styles.formGroup}>
+            <label>제목</label>
+            <input
+              type="text"
+              value={editingSignature.title || ''}
+              onChange={(e) =>
+                setEditingSignature({ ...editingSignature, title: e.target.value })
+              }
+              className={styles.input}
+              placeholder="시그 제목을 입력하세요"
+            />
+          </div>
 
-              <div className={styles.modalBody}>
-                <div className={styles.formGroup}>
-                  <label>제목</label>
-                  <input
-                    type="text"
-                    value={editingSignature.title || ''}
-                    onChange={(e) =>
-                      setEditingSignature({ ...editingSignature, title: e.target.value })
-                    }
-                    className={styles.input}
-                    placeholder="시그 제목을 입력하세요"
-                  />
-                </div>
+          <div className={styles.formGroup}>
+            <label>미디어 유형</label>
+            <div className={styles.typeSelector}>
+              <button
+                type="button"
+                onClick={() => setEditingSignature({ ...editingSignature, mediaType: 'video' })}
+                className={`${styles.typeButton} ${editingSignature.mediaType === 'video' ? styles.active : ''}`}
+              >
+                <Video size={16} /> 영상
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingSignature({ ...editingSignature, mediaType: 'image' })}
+                className={`${styles.typeButton} ${editingSignature.mediaType === 'image' ? styles.active : ''}`}
+              >
+                <FileImage size={16} /> 이미지
+              </button>
+            </div>
+          </div>
 
-                <div className={styles.formGroup}>
-                  <label>미디어 유형</label>
-                  <div className={styles.typeSelector}>
-                    <button
-                      type="button"
-                      onClick={() => setEditingSignature({ ...editingSignature, mediaType: 'video' })}
-                      className={`${styles.typeButton} ${editingSignature.mediaType === 'video' ? styles.active : ''}`}
-                    >
-                      <Video size={16} /> 영상
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingSignature({ ...editingSignature, mediaType: 'image' })}
-                      className={`${styles.typeButton} ${editingSignature.mediaType === 'image' ? styles.active : ''}`}
-                    >
-                      <FileImage size={16} /> 이미지
-                    </button>
-                  </div>
-                </div>
+          <div className={styles.formGroup}>
+            <label>부서</label>
+            <div className={styles.typeSelector}>
+              <button
+                type="button"
+                onClick={() => setEditingSignature({ ...editingSignature, unit: 'excel' })}
+                className={`${styles.typeButton} ${editingSignature.unit === 'excel' ? styles.active : ''}`}
+              >
+                엑셀부
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingSignature({ ...editingSignature, unit: 'crew' })}
+                className={`${styles.typeButton} ${editingSignature.unit === 'crew' ? styles.active : ''}`}
+              >
+                크루부
+              </button>
+            </div>
+          </div>
 
-                <div className={styles.formGroup}>
-                  <label>부서</label>
-                  <div className={styles.typeSelector}>
-                    <button
-                      type="button"
-                      onClick={() => setEditingSignature({ ...editingSignature, unit: 'excel' })}
-                      className={`${styles.typeButton} ${editingSignature.unit === 'excel' ? styles.active : ''}`}
-                    >
-                      엑셀부
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingSignature({ ...editingSignature, unit: 'crew' })}
-                      className={`${styles.typeButton} ${editingSignature.unit === 'crew' ? styles.active : ''}`}
-                    >
-                      크루부
-                    </button>
-                  </div>
-                </div>
+          <div className={styles.formGroup}>
+            <label>미디어 URL</label>
+            <input
+              type="text"
+              value={editingSignature.mediaUrl || ''}
+              onChange={(e) =>
+                setEditingSignature({ ...editingSignature, mediaUrl: e.target.value })
+              }
+              className={styles.input}
+              placeholder="https://..."
+            />
+          </div>
 
-                <div className={styles.formGroup}>
-                  <label>미디어 URL</label>
-                  <input
-                    type="text"
-                    value={editingSignature.mediaUrl || ''}
-                    onChange={(e) =>
-                      setEditingSignature({ ...editingSignature, mediaUrl: e.target.value })
-                    }
-                    className={styles.input}
-                    placeholder="https://..."
-                  />
-                </div>
+          <div className={styles.formGroup}>
+            <label>썸네일 URL (선택)</label>
+            <input
+              type="text"
+              value={editingSignature.thumbnailUrl || ''}
+              onChange={(e) =>
+                setEditingSignature({ ...editingSignature, thumbnailUrl: e.target.value })
+              }
+              className={styles.input}
+              placeholder="https://..."
+            />
+          </div>
 
-                <div className={styles.formGroup}>
-                  <label>썸네일 URL (선택)</label>
-                  <input
-                    type="text"
-                    value={editingSignature.thumbnailUrl || ''}
-                    onChange={(e) =>
-                      setEditingSignature({ ...editingSignature, thumbnailUrl: e.target.value })
-                    }
-                    className={styles.input}
-                    placeholder="https://..."
-                  />
-                </div>
+          <div className={styles.formGroup}>
+            <label>태그 (쉼표로 구분)</label>
+            <input
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              className={styles.input}
+              placeholder="태그1, 태그2, 태그3..."
+            />
+          </div>
 
-                <div className={styles.formGroup}>
-                  <label>태그 (쉼표로 구분)</label>
-                  <input
-                    type="text"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    className={styles.input}
-                    placeholder="태그1, 태그2, 태그3..."
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>설명 (선택)</label>
-                  <textarea
-                    value={editingSignature.description || ''}
-                    onChange={(e) =>
-                      setEditingSignature({ ...editingSignature, description: e.target.value })
-                    }
-                    className={styles.textarea}
-                    placeholder="시그에 대한 설명..."
-                    rows={3}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.modalFooter}>
-                <button onClick={closeModal} className={styles.cancelButton}>
-                  취소
-                </button>
-                <button onClick={handleSave} className={styles.saveButton}>
-                  <Save size={16} />
-                  {isNew ? '추가' : '저장'}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className={styles.formGroup}>
+            <label>설명 (선택)</label>
+            <textarea
+              value={editingSignature.description || ''}
+              onChange={(e) =>
+                setEditingSignature({ ...editingSignature, description: e.target.value })
+              }
+              className={styles.textarea}
+              placeholder="시그에 대한 설명..."
+              rows={3}
+            />
+          </div>
+        </AdminModal>
+      )}
     </div>
   )
 }

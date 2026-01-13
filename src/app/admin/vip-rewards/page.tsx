@@ -1,11 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Crown, Plus, X, Save } from 'lucide-react'
-import { DataTable, Column } from '@/components/admin'
+import { useState, useEffect } from 'react'
+import { Crown, Plus } from 'lucide-react'
+import { DataTable, Column, AdminModal } from '@/components/admin'
 import { useAdminCRUD } from '@/lib/hooks'
-import { useSupabaseContext } from '@/lib/context'
+import { useProfiles, useSeasons } from '@/lib/context'
 import type { JoinedProfile, JoinedSeason } from '@/types/common'
 import styles from '../shared.module.css'
 
@@ -32,23 +31,31 @@ interface Profile {
 }
 
 export default function VipRewardsPage() {
-  const supabase = useSupabaseContext()
+  const seasonsRepo = useSeasons()
+  const profilesRepo = useProfiles()
   const [seasons, setSeasons] = useState<Season[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])
 
   // Fetch related data
-  const fetchRelatedData = useCallback(async () => {
-    const [seasonsRes, profilesRes] = await Promise.all([
-      supabase.from('seasons').select('id, name').order('start_date', { ascending: false }),
-      supabase.from('profiles').select('id, nickname').order('total_donation', { ascending: false }).limit(50),
-    ])
-    setSeasons(seasonsRes.data || [])
-    setProfiles(profilesRes.data || [])
-  }, [supabase])
-
   useEffect(() => {
-    fetchRelatedData()
-  }, [fetchRelatedData])
+    const fetchRelatedData = async () => {
+      const [seasonsData, profilesData] = await Promise.all([
+        seasonsRepo.findAll(),
+        profilesRepo.findAll(),
+      ])
+      const sortedSeasons = [...seasonsData].sort((a, b) =>
+        new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+      )
+      const sortedProfiles = [...profilesData]
+        .sort((a, b) => (b.total_donation || 0) - (a.total_donation || 0))
+        .slice(0, 50)
+        .map((profile) => ({ id: profile.id, nickname: profile.nickname }))
+
+      setSeasons(sortedSeasons.map((season) => ({ id: season.id, name: season.name })))
+      setProfiles(sortedProfiles)
+    }
+    void fetchRelatedData()
+  }, [profilesRepo, seasonsRepo])
 
   const {
     items: rewards,
@@ -184,126 +191,97 @@ export default function VipRewardsPage() {
       />
 
       {/* Modal */}
-      <AnimatePresence>
-        {isModalOpen && editingReward && (
-          <motion.div
-            className={styles.modalOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeModal}
-          >
-            <motion.div
-              className={styles.modal}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              onClick={(e) => e.stopPropagation()}
+      {editingReward && (
+        <AdminModal
+          isOpen={isModalOpen}
+          title={isNew ? 'VIP 보상 추가' : 'VIP 보상 수정'}
+          onClose={closeModal}
+          onSave={handleSave}
+          saveLabel={isNew ? '추가' : '저장'}
+        >
+          <div className={styles.formGroup}>
+            <label>VIP 회원</label>
+            <select
+              value={editingReward.profileId || ''}
+              onChange={(e) =>
+                setEditingReward({ ...editingReward, profileId: e.target.value })
+              }
+              className={styles.select}
             >
-              <div className={styles.modalHeader}>
-                <h2>{isNew ? 'VIP 보상 추가' : 'VIP 보상 수정'}</h2>
-                <button onClick={closeModal} className={styles.closeButton}>
-                  <X size={20} />
-                </button>
-              </div>
+              <option value="">선택하세요</option>
+              {profiles.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nickname}
+                </option>
+              ))}
+            </select>
+          </div>
 
-              <div className={styles.modalBody}>
-                <div className={styles.formGroup}>
-                  <label>VIP 회원</label>
-                  <select
-                    value={editingReward.profileId || ''}
-                    onChange={(e) =>
-                      setEditingReward({ ...editingReward, profileId: e.target.value })
-                    }
-                    className={styles.select}
-                  >
-                    <option value="">선택하세요</option>
-                    {profiles.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.nickname}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>시즌</label>
+              <select
+                value={editingReward.seasonId || ''}
+                onChange={(e) =>
+                  setEditingReward({
+                    ...editingReward,
+                    seasonId: parseInt(e.target.value),
+                  })
+                }
+                className={styles.select}
+              >
+                {seasons.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label>시즌</label>
-                    <select
-                      value={editingReward.seasonId || ''}
-                      onChange={(e) =>
-                        setEditingReward({
-                          ...editingReward,
-                          seasonId: parseInt(e.target.value),
-                        })
-                      }
-                      className={styles.select}
-                    >
-                      {seasons.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+            <div className={styles.formGroup}>
+              <label>순위</label>
+              <input
+                type="number"
+                value={editingReward.rank || 1}
+                onChange={(e) =>
+                  setEditingReward({
+                    ...editingReward,
+                    rank: parseInt(e.target.value) || 1,
+                  })
+                }
+                className={styles.input}
+                min={1}
+              />
+            </div>
+          </div>
 
-                  <div className={styles.formGroup}>
-                    <label>순위</label>
-                    <input
-                      type="number"
-                      value={editingReward.rank || 1}
-                      onChange={(e) =>
-                        setEditingReward({
-                          ...editingReward,
-                          rank: parseInt(e.target.value) || 1,
-                        })
-                      }
-                      className={styles.input}
-                      min={1}
-                    />
-                  </div>
-                </div>
+          <div className={styles.formGroup}>
+            <label>헌정 영상 URL (선택)</label>
+            <input
+              type="text"
+              value={editingReward.dedicationVideoUrl || ''}
+              onChange={(e) =>
+                setEditingReward({ ...editingReward, dedicationVideoUrl: e.target.value })
+              }
+              className={styles.input}
+              placeholder="https://..."
+            />
+          </div>
 
-                <div className={styles.formGroup}>
-                  <label>헌정 영상 URL (선택)</label>
-                  <input
-                    type="text"
-                    value={editingReward.dedicationVideoUrl || ''}
-                    onChange={(e) =>
-                      setEditingReward({ ...editingReward, dedicationVideoUrl: e.target.value })
-                    }
-                    className={styles.input}
-                    placeholder="https://..."
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>개인 메시지 (선택)</label>
-                  <textarea
-                    value={editingReward.personalMessage || ''}
-                    onChange={(e) =>
-                      setEditingReward({ ...editingReward, personalMessage: e.target.value })
-                    }
-                    className={styles.textarea}
-                    placeholder="VIP에게 전하는 감사 메시지..."
-                    rows={5}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.modalFooter}>
-                <button onClick={closeModal} className={styles.cancelButton}>
-                  취소
-                </button>
-                <button onClick={handleSave} className={styles.saveButton}>
-                  <Save size={16} />
-                  {isNew ? '추가' : '저장'}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className={styles.formGroup}>
+            <label>개인 메시지 (선택)</label>
+            <textarea
+              value={editingReward.personalMessage || ''}
+              onChange={(e) =>
+                setEditingReward({ ...editingReward, personalMessage: e.target.value })
+              }
+              className={styles.textarea}
+              placeholder="VIP에게 전하는 감사 메시지..."
+              rows={5}
+            />
+          </div>
+        </AdminModal>
+      )}
     </div>
   )
 }

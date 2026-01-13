@@ -85,3 +85,28 @@ export function getSupabaseClient(): SupabaseClient<Database> {
   }
   return client
 }
+
+/**
+ * Supabase 클라이언트 리셋
+ * 메모리 해제 또는 인증 상태 초기화 시 사용
+ *
+ * 사용 사례:
+ * - 로그아웃 시 클라이언트 상태 초기화
+ * - 메모리 누수 방지를 위한 명시적 정리
+ * - 테스트 환경에서 클라이언트 재생성
+ */
+export function resetSupabaseClient(): void {
+  if (client) {
+    // 모든 실시간 구독 정리
+    client.removeAllChannels?.()
+    client = null
+  }
+}
+
+/**
+ * Supabase 클라이언트 존재 여부 확인
+ * 디버깅 또는 상태 확인 용도
+ */
+export function hasSupabaseClient(): boolean {
+  return client !== null
+}

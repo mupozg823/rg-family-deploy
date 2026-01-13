@@ -12,6 +12,10 @@ import {
   IDataProvider,
   IDonationRepository,
   IPostRepository,
+  ICommentRepository,
+  ISignatureRepository,
+  IMediaContentRepository,
+  IBannerRepository,
   ITimelineRepository,
   IScheduleRepository,
 } from '../types'
@@ -21,12 +25,46 @@ import {
   mockOrganization,
   mockNotices,
   mockPosts,
+  mockComments,
   mockDonations,
+  mockMediaContent,
+  mockSignatureData,
+  mockBanners,
   mockTimelineEvents,
   mockSchedules,
 } from '@/lib/mock'
 import type { RankingItem, UnitFilter, TimelineItem } from '@/types/common'
-import type { Season, Profile, Organization, Notice, Donation, Post, Schedule } from '@/types/database'
+import type { Season, Profile, Organization, Notice, Donation, Post, Schedule, Signature, MediaContent, Comment, Banner } from '@/types/database'
+import type { CommentItem, PostItem } from '@/types/content'
+
+const mockSignatureRows: Signature[] = mockSignatureData.map((sig) => {
+  const firstVideo = sig.videos[0]
+  return {
+    id: sig.id,
+    title: sig.title,
+    description: null,
+    unit: sig.unit,
+    member_name: firstVideo?.memberName || 'Unknown',
+    media_type: 'video',
+    media_url: firstVideo?.videoUrl || '',
+    thumbnail_url: sig.thumbnailUrl,
+    tags: [],
+    view_count: firstVideo?.viewCount || 0,
+    is_featured: sig.isFeatured,
+    created_at: sig.createdAt,
+  }
+})
+
+const mockBannerRows: Banner[] = mockBanners.map((banner, index) => ({
+  id: banner.id,
+  title: banner.title,
+  image_url: banner.imageUrl || banner.memberImageUrl || '',
+  link_url: banner.linkUrl || null,
+  display_order: banner.displayOrder ?? index,
+  is_active: banner.isActive ?? true,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+}))
 
 // ============================================
 // Mock Ranking Repository
@@ -222,20 +260,212 @@ class MockNoticeRepository implements INoticeRepository {
 // Mock Post Repository
 // ============================================
 class MockPostRepository implements IPostRepository {
-  async findById(id: number): Promise<Post | null> {
-    return mockPosts.find(p => p.id === id) || null
+  private mapPostItem(post: Post): PostItem {
+    const author = mockProfiles.find(profile => profile.id === post.author_id)
+    const categories = ['잡담', '정보', '후기', '질문']
+    const category = categories[(post.id - 1) % categories.length]
+    return {
+      id: post.id,
+      boardType: post.board_type,
+      category,
+      title: post.title,
+      content: post.content || '',
+      authorId: post.author_id,
+      authorName: post.is_anonymous ? '익명' : (author?.nickname || '익명'),
+      authorAvatar: post.is_anonymous ? null : (author?.avatar_url || null),
+      viewCount: post.view_count || 0,
+      likeCount: post.like_count || 0,
+      commentCount: post.comment_count || 0,
+      isAnonymous: post.is_anonymous,
+      createdAt: post.created_at,
+    }
   }
 
-  async findByCategory(category: string): Promise<Post[]> {
-    return mockPosts.filter(p => p.board_type === category)
+  async findById(id: number): Promise<PostItem | null> {
+    const post = mockPosts.find(p => p.id === id) || null
+    return post ? this.mapPostItem(post) : null
   }
 
-  async findRecent(limit: number): Promise<Post[]> {
-    return mockPosts.slice(0, limit)
-  }
-
-  async findAll(): Promise<Post[]> {
+  async findByCategory(category: string): Promise<PostItem[]> {
     return mockPosts
+      .filter(p => p.board_type === category)
+      .map((post) => this.mapPostItem(post))
+  }
+
+  async findRecent(limit: number): Promise<PostItem[]> {
+    return mockPosts.slice(0, limit).map((post) => this.mapPostItem(post))
+  }
+
+  async findAll(): Promise<PostItem[]> {
+    return mockPosts.map((post) => this.mapPostItem(post))
+  }
+
+  async incrementViewCount(id: number, currentCount?: number): Promise<number | null> {
+    void id
+    return (currentCount || 0) + 1
+  }
+
+  async delete(id: number): Promise<boolean> {
+    void id
+    return true
+  }
+}
+
+// ============================================
+// Mock Comment Repository
+// ============================================
+class MockCommentRepository implements ICommentRepository {
+  private mapCommentItem(comment: Comment): CommentItem {
+    const author = mockProfiles.find(profile => profile.id === comment.author_id)
+    return {
+      id: comment.id,
+      postId: comment.post_id,
+      content: comment.content,
+      authorId: comment.author_id,
+      authorName: author?.nickname || '익명',
+      authorAvatar: author?.avatar_url || null,
+      createdAt: comment.created_at,
+    }
+  }
+
+  async findByPostId(postId: number): Promise<CommentItem[]> {
+    return mockComments
+      .filter(comment => comment.post_id === postId && !comment.is_deleted)
+      .map((comment) => this.mapCommentItem(comment))
+  }
+
+  async findById(id: number): Promise<CommentItem | null> {
+    const comment = mockComments.find(item => item.id === id && !item.is_deleted) || null
+    return comment ? this.mapCommentItem(comment) : null
+  }
+
+  async create(data: {
+    post_id: number
+    author_id: string
+    content: string
+    parent_id?: number
+  }): Promise<CommentItem | null> {
+    const now = new Date().toISOString()
+    const nextId = mockComments.length > 0
+      ? Math.max(...mockComments.map(comment => comment.id)) + 1
+      : 1
+    const newComment: Comment = {
+      id: nextId,
+      post_id: data.post_id,
+      author_id: data.author_id,
+      content: data.content,
+      parent_id: data.parent_id || null,
+      is_deleted: false,
+      created_at: now,
+    }
+    return this.mapCommentItem(newComment)
+  }
+
+  async delete(id: number): Promise<boolean> {
+    void id
+    return true
+  }
+}
+
+// ============================================
+// Mock Signature Repository
+// ============================================
+class MockSignatureRepository implements ISignatureRepository {
+  async findAll(): Promise<Signature[]> {
+    return mockSignatureRows
+  }
+
+  async findById(id: number): Promise<Signature | null> {
+    return mockSignatureRows.find(sig => sig.id === id) || null
+  }
+
+  async findByUnit(unit: 'excel' | 'crew'): Promise<Signature[]> {
+    return mockSignatureRows.filter(sig => sig.unit === unit)
+  }
+
+  async findByMemberName(memberName: string): Promise<Signature[]> {
+    return mockSignatureRows.filter(sig => sig.member_name === memberName)
+  }
+
+  async findFeatured(): Promise<Signature[]> {
+    return mockSignatureRows.filter(sig => sig.is_featured)
+  }
+}
+
+// ============================================
+// Mock Media Content Repository
+// ============================================
+class MockMediaContentRepository implements IMediaContentRepository {
+  async findAll(): Promise<MediaContent[]> {
+    return mockMediaContent
+  }
+
+  async findById(id: number): Promise<MediaContent | null> {
+    return mockMediaContent.find(item => item.id === id) || null
+  }
+
+  async findByType(contentType: 'shorts' | 'vod'): Promise<MediaContent[]> {
+    return mockMediaContent.filter(item => item.content_type === contentType)
+  }
+
+  async findByUnit(unit: 'excel' | 'crew' | null): Promise<MediaContent[]> {
+    if (unit === null) {
+      return mockMediaContent.filter(item => item.unit === null)
+    }
+    return mockMediaContent.filter(item => item.unit === unit)
+  }
+
+  async findFeatured(): Promise<MediaContent[]> {
+    return mockMediaContent.filter(item => item.is_featured)
+  }
+}
+
+// ============================================
+// Mock Banner Repository
+// ============================================
+class MockBannerRepository implements IBannerRepository {
+  async findAll(): Promise<Banner[]> {
+    return mockBannerRows
+  }
+
+  async findActive(): Promise<Banner[]> {
+    return mockBannerRows.filter((banner) => banner.is_active)
+  }
+
+  async findById(id: number): Promise<Banner | null> {
+    return mockBannerRows.find((banner) => banner.id === id) || null
+  }
+
+  async create(data: {
+    image_url: string
+    title?: string
+    link_url?: string
+    display_order?: number
+    is_active?: boolean
+  }): Promise<Banner | null> {
+    void data
+    return null
+  }
+
+  async update(id: number, data: Partial<Banner>): Promise<Banner | null> {
+    void id
+    void data
+    return null
+  }
+
+  async delete(id: number): Promise<boolean> {
+    void id
+    return true
+  }
+
+  async toggleActive(id: number): Promise<boolean> {
+    void id
+    return true
+  }
+
+  async reorder(bannerIds: number[]): Promise<boolean> {
+    void bannerIds
+    return true
   }
 }
 
@@ -327,6 +557,10 @@ export class MockDataProvider implements IDataProvider {
   readonly organization = new MockOrganizationRepository()
   readonly notices = new MockNoticeRepository()
   readonly posts = new MockPostRepository()
+  readonly comments = new MockCommentRepository()
+  readonly signatures = new MockSignatureRepository()
+  readonly mediaContent = new MockMediaContentRepository()
+  readonly banners = new MockBannerRepository()
   readonly timeline = new MockTimelineRepository()
   readonly schedules = new MockScheduleRepository()
 }

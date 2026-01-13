@@ -23,10 +23,10 @@ import { USE_MOCK_DATA } from '@/lib/config'
 import { mockAdminProfile } from '@/lib/mock'
 import type { Profile, Role } from '@/types/database'
 
-// Mock Admin 계정 정보
+// Mock Admin 계정 정보 (환경변수에서 로드)
 const MOCK_ADMIN_CREDENTIALS = {
-  username: 'admin',
-  password: 'admin',
+  username: process.env.NEXT_PUBLIC_MOCK_ADMIN_USER || 'dev_admin',
+  password: process.env.MOCK_ADMIN_PASSWORD || '',
 }
 
 interface AuthState {

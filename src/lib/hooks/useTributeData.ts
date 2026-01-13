@@ -39,31 +39,35 @@ export function useTributeData({ userId }: UseTributeDataOptions): UseTributeDat
   useEffect(() => {
     if (authLoading) return
 
-    if (USE_MOCK_DATA) {
-      const accessResult = checkTributePageAccess(userId, user, profile)
-      if (!accessResult.hasAccess && accessResult.reason) {
-        setAccessDenied(accessResult.reason)
-        setIsLoading(false)
-      } else {
-        setAccessDenied(null)
+    const timeoutId = setTimeout(() => {
+      if (USE_MOCK_DATA) {
+        const accessResult = checkTributePageAccess(userId, user, profile)
+        if (!accessResult.hasAccess && accessResult.reason) {
+          setAccessDenied(accessResult.reason)
+          setIsLoading(false)
+        } else {
+          setAccessDenied(null)
+        }
+        return
       }
-      return
-    }
 
-    if (!user) {
-      setAccessDenied('not_authenticated')
-      setIsLoading(false)
-      return
-    }
+      if (!user) {
+        setAccessDenied('not_authenticated')
+        setIsLoading(false)
+        return
+      }
 
-    const isAdmin = profile?.role === 'admin' || profile?.role === 'superadmin'
-    if (!isAdmin && user.id !== userId) {
-      setAccessDenied('not_owner')
-      setIsLoading(false)
-      return
-    }
+      const isAdmin = profile?.role === 'admin' || profile?.role === 'superadmin'
+      if (!isAdmin && user.id !== userId) {
+        setAccessDenied('not_owner')
+        setIsLoading(false)
+        return
+      }
 
-    setAccessDenied(null)
+      setAccessDenied(null)
+    }, 0)
+
+    return () => clearTimeout(timeoutId)
   }, [userId, user, profile, authLoading])
 
   const fetchTributeData = useCallback(async () => {
@@ -206,7 +210,10 @@ export function useTributeData({ userId }: UseTributeDataOptions): UseTributeDat
 
   useEffect(() => {
     if (!authLoading && !accessDenied) {
-      fetchTributeData()
+      const timeoutId = setTimeout(() => {
+        void fetchTributeData()
+      }, 0)
+      return () => clearTimeout(timeoutId)
     }
   }, [fetchTributeData, authLoading, accessDenied])
 

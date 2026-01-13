@@ -9,7 +9,7 @@
  * - 실시간 업데이트 구독 (옵션)
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useOrganization } from '@/lib/context'
 import { useSupabaseContext } from '@/lib/context'
 import { USE_MOCK_DATA } from '@/lib/config'
@@ -85,10 +85,19 @@ export function useOrganizationData(
     }
   }, [organizationRepo, unit, liveOnly])
 
-  // 초기 데이터 로드 및 실시간 구독
+  // fetchData를 ref로 유지하여 구독 effect에서 안정적으로 참조
+  const fetchDataRef = useRef(fetchData)
+  useEffect(() => {
+    fetchDataRef.current = fetchData
+  }, [fetchData])
+
+  // 초기 데이터 로드
   useEffect(() => {
     fetchData()
+  }, [fetchData])
 
+  // 실시간 구독 (별도 effect로 분리하여 재구독 최소화)
+  useEffect(() => {
     // Mock 데이터 사용 시 실시간 구독 불필요
     if (USE_MOCK_DATA || !realtime) return
 
@@ -99,7 +108,7 @@ export function useOrganizationData(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'organization' },
         () => {
-          fetchData()
+          fetchDataRef.current()
         }
       )
       .subscribe()
@@ -107,7 +116,7 @@ export function useOrganizationData(
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [fetchData, supabase, realtime])
+  }, [supabase, realtime])
 
   // 유틸리티 함수들
   const getByUnit = useCallback(

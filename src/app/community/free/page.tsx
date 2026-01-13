@@ -1,29 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Search, Eye, MessageSquare, ThumbsUp, PenLine, ChevronDown } from 'lucide-react'
 import { PageLayout } from '@/components/layout'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { useSupabaseContext } from '@/lib/context'
-import { mockPosts, mockProfiles } from '@/lib/mock'
-import { USE_MOCK_DATA } from '@/lib/config'
+import { usePosts } from '@/lib/context'
 import { formatShortDate } from '@/lib/utils/format'
 import TabFilter from '@/components/community/TabFilter'
-import type { JoinedProfile } from '@/types/common'
+import type { PostItem } from '@/types/content'
 import styles from './page.module.css'
-
-interface Post {
-  id: number
-  title: string
-  authorName: string
-  viewCount: number
-  commentCount: number
-  likeCount: number
-  createdAt: string
-  category?: string
-}
 
 function isNew(dateStr: string): boolean {
   const postDate = new Date(dateStr)
@@ -41,8 +28,8 @@ function isPopular(likeCount: number): boolean {
 }
 
 export default function FreeBoardPage() {
-  const supabase = useSupabaseContext()
-  const [posts, setPosts] = useState<Post[]>([])
+  const postsRepo = usePosts()
+  const [posts, setPosts] = useState<PostItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchType, setSearchType] = useState<'all' | 'title' | 'author'>('all')
@@ -53,67 +40,18 @@ export default function FreeBoardPage() {
     { label: 'VIP 라운지', value: 'vip', path: '/community/vip' },
   ]
 
-  const fetchPosts = useCallback(async () => {
-    setIsLoading(true)
-
-    if (USE_MOCK_DATA) {
-      const freePosts = mockPosts
-        .filter((p) => p.board_type === 'free')
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        .slice(0, 20)
-      setPosts(
-        freePosts.map((p) => {
-          const author = mockProfiles.find((pr) => pr.id === p.author_id)
-          return {
-            id: p.id,
-            title: p.title,
-            authorName: p.is_anonymous ? '익명' : (author?.nickname || '익명'),
-            viewCount: p.view_count || 0,
-            commentCount: p.comment_count || 0,
-            likeCount: p.like_count || Math.floor(Math.random() * 30),
-            createdAt: p.created_at,
-            category: ['잡담', '정보', '후기', '질문'][Math.floor(Math.random() * 4)],
-          }
-        })
-      )
-      setIsLoading(false)
-      return
-    }
-
-    const { data, error } = await supabase
-      .from('posts')
-      .select('id, title, view_count, like_count, category, created_at, profiles!author_id(nickname), comments(id)')
-      .eq('board_type', 'free')
-      .order('created_at', { ascending: false })
-      .limit(20)
-
-    if (error) {
-      console.error('게시글 로드 실패:', error)
-    } else {
-      setPosts(
-        (data || []).map((p) => {
-          const profile = p.profiles as JoinedProfile | null
-          const comments = p.comments as unknown[] | null
-          return {
-            id: p.id,
-            title: p.title,
-            authorName: profile?.nickname || '익명',
-            viewCount: p.view_count || 0,
-            commentCount: comments?.length || 0,
-            likeCount: p.like_count || 0,
-            createdAt: p.created_at,
-            category: p.category || '잡담',
-          }
-        })
-      )
-    }
-
-    setIsLoading(false)
-  }, [supabase])
-
   useEffect(() => {
-    fetchPosts()
-  }, [fetchPosts])
+    const fetchPosts = async () => {
+      setIsLoading(true)
+
+      const data = await postsRepo.findByCategory('free')
+      setPosts(data.slice(0, 20))
+
+      setIsLoading(false)
+    }
+
+    void fetchPosts()
+  }, [postsRepo])
 
   // 검색 필터링
   const filteredPosts = posts.filter(post => {
@@ -200,7 +138,7 @@ export default function FreeBoardPage() {
                 placeholder="검색어를 입력하세요"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && fetchPosts()}
+                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
               />
               <button className={styles.searchBtn}>
                 <Search size={16} />
@@ -297,7 +235,7 @@ export default function FreeBoardPage() {
 
             {/* Mobile Card View */}
             <div className={styles.mobileList}>
-              {sortedPosts.map((post, index) => (
+              {sortedPosts.map((post) => (
                 <Link
                   key={post.id}
                   href={`/community/free/${post.id}`}

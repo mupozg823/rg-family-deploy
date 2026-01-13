@@ -1,45 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback, use } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Eye, Calendar, User, MessageSquare, Send } from 'lucide-react'
-import { useSupabaseContext, useAuthContext } from '@/lib/context'
-import { mockPosts, mockProfiles } from '@/lib/mock'
-import { USE_MOCK_DATA } from '@/lib/config'
+import { useAuthContext, useComments, usePosts } from '@/lib/context'
 import { formatDate } from '@/lib/utils/format'
-import type { JoinedProfile } from '@/types/common'
+import type { CommentItem, PostItem } from '@/types/content'
 import styles from './page.module.css'
-
-interface PostDetail {
-  id: number
-  title: string
-  content: string
-  authorId: string
-  authorName: string
-  authorAvatar: string | null
-  viewCount: number
-  createdAt: string
-}
-
-interface Comment {
-  id: number
-  content: string
-  authorId: string
-  authorName: string
-  authorAvatar: string | null
-  createdAt: string
-}
-
-// Mock 댓글 데이터
-const mockComments = [
-  { id: 1, post_id: 1, author_id: 'user-2', content: '완전 공감이에요! 저도 그 부분에서 빵터졌어요 ㅋㅋ', created_at: '2024-12-20T23:00:00Z' },
-  { id: 2, post_id: 1, author_id: 'user-3', content: '다음 방송도 기대됩니다~', created_at: '2024-12-20T23:30:00Z' },
-  { id: 3, post_id: 2, author_id: 'user-1', content: '와 너무 예쁘게 그리셨네요!', created_at: '2024-12-19T16:00:00Z' },
-  { id: 4, post_id: 2, author_id: 'user-4', content: '다음 작품도 기대할게요!', created_at: '2024-12-19T17:00:00Z' },
-  { id: 5, post_id: 3, author_id: 'user-2', content: 'VIP 굿즈 퀄리티 진짜 대박이죠', created_at: '2024-12-18T11:00:00Z' },
-]
 
 export default function PostDetailPage({
   params,
@@ -48,110 +17,42 @@ export default function PostDetailPage({
 }) {
   const { category, id } = use(params)
   const router = useRouter()
-  const supabase = useSupabaseContext()
-  const { user, profile } = useAuthContext()
-  const [post, setPost] = useState<PostDetail | null>(null)
-  const [comments, setComments] = useState<Comment[]>([])
+  const postsRepo = usePosts()
+  const commentsRepo = useComments()
+  const { user } = useAuthContext()
+  const [post, setPost] = useState<PostItem | null>(null)
+  const [comments, setComments] = useState<CommentItem[]>([])
   const [newComment, setNewComment] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const fetchPost = useCallback(async () => {
+  const fetchPost = async (shouldIncrementView = true) => {
     setIsLoading(true)
 
-    if (USE_MOCK_DATA) {
-      const foundPost = mockPosts.find((p) => p.id === parseInt(id))
-      if (foundPost) {
-        const author = mockProfiles.find((pr) => pr.id === foundPost.author_id)
-        setPost({
-          id: foundPost.id,
-          title: foundPost.title,
-          content: foundPost.content || '',
-          authorId: foundPost.author_id,
-          authorName: foundPost.is_anonymous ? '익명' : (author?.nickname || '익명'),
-          authorAvatar: author?.avatar_url || null,
-          viewCount: (foundPost.view_count || 0) + 1,
-          createdAt: foundPost.created_at,
-        })
-
-        // Mock 댓글 필터링
-        const postComments = mockComments
-          .filter((c) => c.post_id === parseInt(id))
-          .map((c) => {
-            const commentAuthor = mockProfiles.find((pr) => pr.id === c.author_id)
-            return {
-              id: c.id,
-              content: c.content,
-              authorId: c.author_id,
-              authorName: commentAuthor?.nickname || '익명',
-              authorAvatar: commentAuthor?.avatar_url || null,
-              createdAt: c.created_at,
-            }
-          })
-        setComments(postComments)
-      }
+    const postData = await postsRepo.findById(parseInt(id))
+    if (!postData) {
       setIsLoading(false)
       return
     }
 
-    // 게시글 조회
-    const { data: postData, error: postError } = await supabase
-      .from('posts')
-      .select('*, profiles!author_id(id, nickname, avatar_url)')
-      .eq('id', parseInt(id))
-      .single()
-
-    if (postError || !postData) {
-      console.error('게시글 로드 실패:', postError)
-      setIsLoading(false)
-      return
+    let viewCount = postData.viewCount
+    if (shouldIncrementView) {
+      const updatedCount = await postsRepo.incrementViewCount(postData.id, postData.viewCount)
+      viewCount = updatedCount ?? postData.viewCount
     }
 
-    // 조회수 증가
-    await supabase
-      .from('posts')
-      .update({ view_count: (postData.view_count || 0) + 1 })
-      .eq('id', parseInt(id))
+    setPost({ ...postData, viewCount })
 
-    const postProfile = postData.profiles as JoinedProfile | null
-    setPost({
-      id: postData.id,
-      title: postData.title,
-      content: postData.content || '',
-      authorId: postData.author_id,
-      authorName: postProfile?.nickname || '익명',
-      authorAvatar: postProfile?.avatar_url || null,
-      viewCount: (postData.view_count || 0) + 1,
-      createdAt: postData.created_at,
-    })
-
-    // 댓글 조회
-    const { data: commentsData } = await supabase
-      .from('comments')
-      .select('*, profiles!author_id(id, nickname, avatar_url)')
-      .eq('post_id', parseInt(id))
-      .order('created_at', { ascending: true })
-
-    setComments(
-      (commentsData || []).map((c) => {
-        const commentProfile = c.profiles as JoinedProfile | null
-        return {
-          id: c.id,
-          content: c.content,
-          authorId: c.author_id,
-          authorName: commentProfile?.nickname || '익명',
-          authorAvatar: commentProfile?.avatar_url || null,
-          createdAt: c.created_at,
-        }
-      })
-    )
+    const postComments = await commentsRepo.findByPostId(parseInt(id))
+    setComments(postComments)
 
     setIsLoading(false)
-  }, [supabase, id])
+  }
 
   useEffect(() => {
-    fetchPost()
-  }, [fetchPost])
+    void fetchPost(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -159,18 +60,17 @@ export default function PostDetailPage({
 
     setIsSubmitting(true)
 
-    const { error } = await supabase.from('comments').insert({
+    const created = await commentsRepo.create({
       post_id: parseInt(id),
       author_id: user.id,
       content: newComment.trim(),
     })
 
-    if (error) {
-      console.error('댓글 작성 실패:', error)
+    if (!created) {
       alert('댓글 작성에 실패했습니다.')
     } else {
       setNewComment('')
-      fetchPost() // 댓글 새로고침
+      fetchPost(false) // 댓글 새로고침
     }
 
     setIsSubmitting(false)

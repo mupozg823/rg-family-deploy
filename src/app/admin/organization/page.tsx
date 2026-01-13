@@ -1,11 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Building, Plus, X, Save, GripVertical } from 'lucide-react'
-import { DataTable, Column } from '@/components/admin'
+import { useState, useEffect } from 'react'
+import { Building, Plus, GripVertical } from 'lucide-react'
+import { DataTable, Column, AdminModal } from '@/components/admin'
 import { useAdminCRUD } from '@/lib/hooks'
-import { useSupabaseContext } from '@/lib/context'
+import { useProfiles } from '@/lib/context'
 import styles from '../shared.module.css'
 
 interface OrgMember {
@@ -24,22 +23,22 @@ interface Profile {
 }
 
 export default function OrganizationPage() {
-  const supabase = useSupabaseContext()
+  const profilesRepo = useProfiles()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [activeUnit, setActiveUnit] = useState<'excel' | 'crew'>('excel')
 
   // Fetch profiles for linking
-  const fetchProfiles = useCallback(async () => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('id, nickname')
-      .order('nickname')
-    setProfiles(data || [])
-  }, [supabase])
-
   useEffect(() => {
-    fetchProfiles()
-  }, [fetchProfiles])
+    const fetchProfiles = async () => {
+      const data = await profilesRepo.findAll()
+      setProfiles(
+        (data || [])
+          .map((profile) => ({ id: profile.id, nickname: profile.nickname }))
+          .sort((a, b) => a.nickname.localeCompare(b.nickname, 'ko-KR'))
+      )
+    }
+    void fetchProfiles()
+  }, [profilesRepo])
 
   const {
     items: members,
@@ -153,124 +152,95 @@ export default function OrganizationPage() {
       />
 
       {/* Modal */}
-      <AnimatePresence>
-        {isModalOpen && editingMember && (
-          <motion.div
-            className={styles.modalOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeModal}
-          >
-            <motion.div
-              className={styles.modal}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              onClick={(e) => e.stopPropagation()}
+      {editingMember && (
+        <AdminModal
+          isOpen={isModalOpen}
+          title={isNew ? '멤버 추가' : '멤버 수정'}
+          onClose={closeModal}
+          onSave={handleSave}
+          saveLabel={isNew ? '추가' : '저장'}
+        >
+          <div className={styles.formGroup}>
+            <label>이름 *</label>
+            <input
+              type="text"
+              value={editingMember.name || ''}
+              onChange={(e) =>
+                setEditingMember({ ...editingMember, name: e.target.value })
+              }
+              className={styles.input}
+              placeholder="멤버 이름"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>직책 *</label>
+            <input
+              type="text"
+              value={editingMember.role || ''}
+              onChange={(e) =>
+                setEditingMember({ ...editingMember, role: e.target.value })
+              }
+              className={styles.input}
+              placeholder="예: PRESIDENT, DIRECTOR, MEMBER..."
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>부서</label>
+            <div className={styles.typeSelector}>
+              <button
+                type="button"
+                onClick={() => setEditingMember({ ...editingMember, unit: 'excel' })}
+                className={`${styles.typeButton} ${editingMember.unit === 'excel' ? styles.active : ''}`}
+              >
+                엑셀부
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingMember({ ...editingMember, unit: 'crew' })}
+                className={`${styles.typeButton} ${editingMember.unit === 'crew' ? styles.active : ''}`}
+              >
+                크루부
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>연결된 회원 (선택)</label>
+            <select
+              value={editingMember.profileId || ''}
+              onChange={(e) =>
+                setEditingMember({ ...editingMember, profileId: e.target.value || null })
+              }
+              className={styles.select}
             >
-              <div className={styles.modalHeader}>
-                <h2>{isNew ? '멤버 추가' : '멤버 수정'}</h2>
-                <button onClick={closeModal} className={styles.closeButton}>
-                  <X size={20} />
-                </button>
-              </div>
+              <option value="">연결 안함</option>
+              {profiles.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nickname}
+                </option>
+              ))}
+            </select>
+          </div>
 
-              <div className={styles.modalBody}>
-                <div className={styles.formGroup}>
-                  <label>이름 *</label>
-                  <input
-                    type="text"
-                    value={editingMember.name || ''}
-                    onChange={(e) =>
-                      setEditingMember({ ...editingMember, name: e.target.value })
-                    }
-                    className={styles.input}
-                    placeholder="멤버 이름"
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>직책 *</label>
-                  <input
-                    type="text"
-                    value={editingMember.role || ''}
-                    onChange={(e) =>
-                      setEditingMember({ ...editingMember, role: e.target.value })
-                    }
-                    className={styles.input}
-                    placeholder="예: PRESIDENT, DIRECTOR, MEMBER..."
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>부서</label>
-                  <div className={styles.typeSelector}>
-                    <button
-                      type="button"
-                      onClick={() => setEditingMember({ ...editingMember, unit: 'excel' })}
-                      className={`${styles.typeButton} ${editingMember.unit === 'excel' ? styles.active : ''}`}
-                    >
-                      엑셀부
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingMember({ ...editingMember, unit: 'crew' })}
-                      className={`${styles.typeButton} ${editingMember.unit === 'crew' ? styles.active : ''}`}
-                    >
-                      크루부
-                    </button>
-                  </div>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>연결된 회원 (선택)</label>
-                  <select
-                    value={editingMember.profileId || ''}
-                    onChange={(e) =>
-                      setEditingMember({ ...editingMember, profileId: e.target.value || null })
-                    }
-                    className={styles.select}
-                  >
-                    <option value="">연결 안함</option>
-                    {profiles.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.nickname}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>순서</label>
-                  <input
-                    type="number"
-                    value={editingMember.positionOrder ?? 0}
-                    onChange={(e) =>
-                      setEditingMember({
-                        ...editingMember,
-                        positionOrder: parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className={styles.input}
-                    min={0}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.modalFooter}>
-                <button onClick={closeModal} className={styles.cancelButton}>
-                  취소
-                </button>
-                <button onClick={handleSave} className={styles.saveButton}>
-                  <Save size={16} />
-                  {isNew ? '추가' : '저장'}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className={styles.formGroup}>
+            <label>순서</label>
+            <input
+              type="number"
+              value={editingMember.positionOrder ?? 0}
+              onChange={(e) =>
+                setEditingMember({
+                  ...editingMember,
+                  positionOrder: parseInt(e.target.value) || 0,
+                })
+              }
+              className={styles.input}
+              min={0}
+            />
+          </div>
+        </AdminModal>
+      )}
     </div>
   )
 }

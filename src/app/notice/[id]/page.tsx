@@ -1,14 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback, use } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Pin, Calendar, Eye, Tag, ChevronLeft, ChevronRight, Share2 } from 'lucide-react'
-import { useSupabaseContext } from '@/lib/context'
-import { mockNotices } from '@/lib/mock'
-import { USE_MOCK_DATA } from '@/lib/config'
+import { useNotices } from '@/lib/context'
 import { formatDate } from '@/lib/utils/format'
 import styles from './page.module.css'
 
@@ -38,18 +36,23 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function NoticeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
-  const supabase = useSupabaseContext()
+  const noticesRepo = useNotices()
   const [notice, setNotice] = useState<NoticeDetail | null>(null)
   const [prevNotice, setPrevNotice] = useState<NavNotice | null>(null)
   const [nextNotice, setNextNotice] = useState<NavNotice | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const fetchNotice = useCallback(async () => {
-    setIsLoading(true)
-    const currentId = parseInt(id)
+  useEffect(() => {
+    const fetchNotice = async () => {
+      setIsLoading(true)
+      const currentId = parseInt(id)
 
-    if (USE_MOCK_DATA) {
-      const found = mockNotices.find((n) => n.id === currentId)
+      const allNotices = await noticesRepo.findAll()
+      const sortedNotices = [...allNotices].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+      const found = sortedNotices.find((n) => n.id === currentId)
+
       if (found) {
         setNotice({
           id: found.id,
@@ -61,58 +64,28 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
           viewCount: found.view_count || 0,
           createdAt: found.created_at,
         })
-
-        // 이전/다음 공지 찾기
-        const sortedNotices = [...mockNotices].sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
-        const currentIndex = sortedNotices.findIndex((n) => n.id === currentId)
-
-        if (currentIndex > 0) {
-          const prev = sortedNotices[currentIndex - 1]
-          setNextNotice({ id: prev.id, title: prev.title })
-        } else {
-          setNextNotice(null)
-        }
-
-        if (currentIndex < sortedNotices.length - 1) {
-          const next = sortedNotices[currentIndex + 1]
-          setPrevNotice({ id: next.id, title: next.title })
-        } else {
-          setPrevNotice(null)
-        }
       }
+
+      const currentIndex = sortedNotices.findIndex((n) => n.id === currentId)
+      if (currentIndex > 0) {
+        const prev = sortedNotices[currentIndex - 1]
+        setNextNotice({ id: prev.id, title: prev.title })
+      } else {
+        setNextNotice(null)
+      }
+
+      if (currentIndex < sortedNotices.length - 1) {
+        const next = sortedNotices[currentIndex + 1]
+        setPrevNotice({ id: next.id, title: next.title })
+      } else {
+        setPrevNotice(null)
+      }
+
       setIsLoading(false)
-      return
     }
 
-    const { data, error } = await supabase
-      .from('notices')
-      .select('id, title, content, category, thumbnail_url, is_pinned, view_count, created_at')
-      .eq('id', currentId)
-      .single()
-
-    if (error) {
-      console.error('공지사항 로드 실패:', error)
-    } else if (data) {
-      setNotice({
-        id: data.id,
-        title: data.title,
-        content: data.content || '',
-        category: data.category || 'official',
-        thumbnailUrl: data.thumbnail_url,
-        isPinned: data.is_pinned,
-        viewCount: data.view_count || 0,
-        createdAt: data.created_at,
-      })
-    }
-
-    setIsLoading(false)
-  }, [supabase, id])
-
-  useEffect(() => {
-    fetchNotice()
-  }, [fetchNotice])
+    void fetchNotice()
+  }, [noticesRepo, id])
 
   const handleShare = async () => {
     if (navigator.share) {

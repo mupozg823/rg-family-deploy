@@ -12,7 +12,7 @@ import {
   getGuestbookByTributeUserId,
   type GuestbookEntry,
 } from '@/lib/mock'
-import { useAuthContext } from '@/lib/context'
+import { useAuthContext, useSupabaseContext } from '@/lib/context'
 
 interface UseGuestbookOptions {
   tributeUserId: string
@@ -30,6 +30,7 @@ interface UseGuestbookReturn {
 
 export function useGuestbook({ tributeUserId }: UseGuestbookOptions): UseGuestbookReturn {
   const { user, profile, isAuthenticated } = useAuthContext()
+  const supabase = useSupabaseContext()
   const [entries, setEntries] = useState<GuestbookEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -49,18 +50,23 @@ export function useGuestbook({ tributeUserId }: UseGuestbookOptions): UseGuestbo
         const mockEntries = getGuestbookByTributeUserId(tributeUserId)
         setEntries(mockEntries)
       } else {
-        // TODO: Supabase 쿼리
-        // const { data, error } = await supabase
-        //   .from('tribute_guestbook')
-        //   .select('*')
-        //   .eq('tribute_user_id', tributeUserId)
-        //   .eq('is_approved', true)
-        //   .eq('is_deleted', false)
-        //   .order('created_at', { ascending: false })
+        // Supabase 쿼리 (테이블 미생성 시 mock fallback)
+        const { data, error: fetchError } = await supabase
+          .from('tribute_guestbook')
+          .select('*')
+          .eq('tribute_user_id', tributeUserId)
+          .eq('is_approved', true)
+          .eq('is_deleted', false)
+          .order('created_at', { ascending: false })
 
-        // Fallback to mock for now
-        const mockEntries = getGuestbookByTributeUserId(tributeUserId)
-        setEntries(mockEntries)
+        if (fetchError) {
+          // 테이블 없거나 에러 시 mock 데이터 사용
+          console.warn('Guestbook fetch fallback to mock:', fetchError.message)
+          const mockEntries = getGuestbookByTributeUserId(tributeUserId)
+          setEntries(mockEntries)
+        } else {
+          setEntries(data || [])
+        }
       }
     } catch (err) {
       setError('방명록을 불러오는데 실패했습니다.')
@@ -68,7 +74,7 @@ export function useGuestbook({ tributeUserId }: UseGuestbookOptions): UseGuestbo
     } finally {
       setIsLoading(false)
     }
-  }, [tributeUserId])
+  }, [tributeUserId, supabase])
 
   // 방명록 작성
   const submitEntry = useCallback(async (message: string): Promise<boolean> => {
@@ -91,44 +97,43 @@ export function useGuestbook({ tributeUserId }: UseGuestbookOptions): UseGuestbo
     setError(null)
 
     try {
+      // 새 엔트리 객체 생성
+      const newEntry: GuestbookEntry = {
+        id: Date.now(),
+        tribute_user_id: tributeUserId,
+        author_id: user.id,
+        author_name: profile.nickname || '익명',
+        message: message.trim(),
+        is_member: profile.unit !== null, // 엑셀부/크루부 멤버인지
+        created_at: new Date().toISOString(),
+        author_unit: profile.unit,
+      }
+
       if (USE_MOCK_DATA) {
         // Mock 모드: 로컬 상태에만 추가 (새로고침 시 초기화)
-        const newEntry: GuestbookEntry = {
-          id: Date.now(),
-          tribute_user_id: tributeUserId,
-          author_id: user.id,
-          author_name: profile.nickname || '익명',
-          message: message.trim(),
-          is_member: profile.unit !== null, // 엑셀부/크루부 멤버인지
-          created_at: new Date().toISOString(),
-          author_unit: profile.unit,
-        }
         setEntries(prev => [newEntry, ...prev])
         return true
       } else {
-        // TODO: Supabase 쿼리
-        // const { error } = await supabase
-        //   .from('tribute_guestbook')
-        //   .insert({
-        //     tribute_user_id: tributeUserId,
-        //     author_id: user.id,
-        //     author_name: profile.nickname,
-        //     message: message.trim(),
-        //     is_member: profile.unit !== null,
-        //   })
+        // Supabase 쿼리 (테이블 미생성 시 mock fallback)
+        const { error: insertError } = await supabase
+          .from('tribute_guestbook')
+          .insert({
+            tribute_user_id: tributeUserId,
+            author_id: user.id,
+            author_name: profile.nickname || '익명',
+            message: message.trim(),
+            is_member: profile.unit !== null,
+            author_unit: profile.unit,
+          })
 
-        // Fallback: Mock 모드와 동일하게 처리
-        const newEntry: GuestbookEntry = {
-          id: Date.now(),
-          tribute_user_id: tributeUserId,
-          author_id: user.id,
-          author_name: profile.nickname || '익명',
-          message: message.trim(),
-          is_member: profile.unit !== null,
-          created_at: new Date().toISOString(),
-          author_unit: profile.unit,
+        if (insertError) {
+          // 테이블 없으면 로컬 상태만 업데이트
+          console.warn('Guestbook insert fallback to local:', insertError.message)
+          setEntries(prev => [newEntry, ...prev])
+        } else {
+          // 성공 시 새로고침
+          await fetchGuestbook()
         }
-        setEntries(prev => [newEntry, ...prev])
         return true
       }
     } catch (err) {
@@ -138,7 +143,7 @@ export function useGuestbook({ tributeUserId }: UseGuestbookOptions): UseGuestbo
     } finally {
       setIsSubmitting(false)
     }
-  }, [canWrite, user, profile, tributeUserId])
+  }, [canWrite, user, profile, tributeUserId, supabase, fetchGuestbook])
 
   // 초기 로드
   useEffect(() => {

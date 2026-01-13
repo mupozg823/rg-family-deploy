@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Crown,
@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
-import { useAuthContext } from "@/lib/context";
+import { useAuthContext, useSignatures } from "@/lib/context";
 import { useVipStatus, useRanking, useContentProtection } from "@/lib/hooks";
 import { mockVipContent, type VipContent } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
@@ -27,6 +27,7 @@ import styles from "./page.module.css";
 
 export default function VipLoungePage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
+  const signaturesRepo = useSignatures();
   const { isVip, rank: userRank, isLoading: vipStatusLoading } = useVipStatus();
   const { rankings, isLoading: rankingLoading } = useRanking();
   const [vipContent, setVipContent] = useState<VipContent | null>(null);
@@ -51,42 +52,56 @@ export default function VipLoungePage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const fetchVipContent = useCallback(async () => {
-    setIsLoading(true);
-
-    if (USE_MOCK_DATA) {
-      setVipContent(mockVipContent);
-      setIsLoading(false);
+  useEffect(() => {
+    // VIP가 아니면 콘텐츠 fetch 스킵
+    if (!isVip) {
       return;
     }
 
-    // TODO: Replace with real Supabase query
-    setVipContent(mockVipContent);
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
     let mounted = true;
 
-    if (isVip) {
-      // Async fetch
-      fetchVipContent();
-    } else {
-      // Avoid immediate state update loops -> use small timeout or better:
-      // Since default isLoading is true, if not VIP, we turn it off.
-      // But doing it synchronously here triggers the warning.
-      // We can rely on the condition to render 'Access Denied' directly?
-      // No, isLoading is used to show spinner.
-      if (mounted) setIsLoading(false);
-    }
+    const fetchVipContent = async () => {
+      try {
+        const signaturesData = await signaturesRepo.findAll();
+        if (!mounted) return;
+
+        const signatures = signaturesData.map((sig) => ({
+          id: sig.id,
+          memberName: sig.member_name,
+          signatureUrl: sig.thumbnail_url || sig.media_url || "",
+          unit: sig.unit,
+        }));
+
+        // 실제 데이터 + mock 기본값 조합
+        setVipContent({
+          memberVideos: mockVipContent.memberVideos, // 영상은 아직 DB에 없음
+          thankYouMessage: mockVipContent.thankYouMessage,
+          signatures: signatures.length > 0 ? signatures : mockVipContent.signatures,
+        });
+      } catch (err) {
+        console.error('VIP content fetch error:', err);
+        if (mounted) {
+          setVipContent(mockVipContent);
+        }
+      }
+
+      if (mounted) {
+        setIsLoading(false);
+      }
+    };
+
+    void fetchVipContent();
 
     return () => {
       mounted = false;
     };
-  }, [isVip, fetchVipContent]);
+  }, [isVip, signaturesRepo]);
+
+  // VIP가 아닌 경우 로딩 상태 파생 (effect 외부에서 처리)
+  const effectiveLoading = authLoading || vipStatusLoading || rankingLoading || (isVip && isLoading);
 
   // 로딩 중
-  if (authLoading || vipStatusLoading || isLoading || rankingLoading) {
+  if (effectiveLoading) {
     return (
       <div className={styles.main}>
         <div className={styles.loading}>

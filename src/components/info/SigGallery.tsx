@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X } from 'lucide-react'
+import { useSignatures } from '@/lib/context'
 import { mockSignatureData, signatureCategories, type SignatureData } from '@/lib/mock/signatures'
 import { USE_MOCK_DATA } from '@/lib/config'
 import SigCard from './SigCard'
@@ -13,6 +14,7 @@ type CategoryFilter = typeof signatureCategories[number]['id']
 type UnitFilter = 'all' | 'excel' | 'crew'
 
 export default function SigGallery() {
+  const signaturesRepo = useSignatures()
   const [signatures, setSignatures] = useState<SignatureData[]>([])
   const [selectedSig, setSelectedSig] = useState<SignatureData | null>(null)
   const [unitFilter, setUnitFilter] = useState<UnitFilter>('all')
@@ -20,11 +22,35 @@ export default function SigGallery() {
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
-  const fetchSignatures = useCallback(async () => {
-    setIsLoading(true)
+  useEffect(() => {
+    const fetchSignatures = async () => {
+      setIsLoading(true)
 
-    if (USE_MOCK_DATA) {
-      let filtered = [...mockSignatureData]
+      const data = USE_MOCK_DATA ? [] : await signaturesRepo.findAll()
+      const baseSignatures = USE_MOCK_DATA || data.length === 0
+        ? [...mockSignatureData]
+        : data.map((sig, idx) => ({
+          id: sig.id,
+          number: sig.id * 100 + idx,
+          title: sig.title,
+          category: 'all' as const,
+          thumbnailUrl: sig.thumbnail_url || '/assets/thumbnails/default.jpg',
+          unit: sig.unit,
+          videos: [{
+            id: sig.id,
+            memberName: sig.member_name,
+            date: new Date(sig.created_at).toLocaleDateString('ko-KR'),
+            videoUrl: sig.media_url,
+            thumbnailUrl: sig.thumbnail_url || '/assets/thumbnails/default.jpg',
+            duration: '0:00',
+            viewCount: sig.view_count || 0,
+          }],
+          totalVideoCount: 1,
+          isFeatured: sig.is_featured,
+          createdAt: sig.created_at,
+        }))
+
+      let filtered = [...baseSignatures]
 
       // Unit filter
       if (unitFilter !== 'all') {
@@ -38,7 +64,7 @@ export default function SigGallery() {
 
       // New filter - show most recent
       if (categoryFilter === 'new') {
-        filtered = (unitFilter === 'all' ? [...mockSignatureData] : mockSignatureData.filter(s => s.unit === unitFilter))
+        filtered = filtered
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 10)
       }
@@ -58,16 +84,10 @@ export default function SigGallery() {
 
       setSignatures(filtered)
       setIsLoading(false)
-      return
     }
 
-    // Supabase query would go here
-    setIsLoading(false)
-  }, [unitFilter, categoryFilter, searchQuery])
-
-  useEffect(() => {
-    fetchSignatures()
-  }, [fetchSignatures])
+    void fetchSignatures()
+  }, [unitFilter, categoryFilter, searchQuery, signaturesRepo])
 
   return (
     <div className={styles.container}>

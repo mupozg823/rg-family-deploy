@@ -3,8 +3,23 @@
  * 데이터 접근 추상화 레이어
  */
 
-import type { Profile, Season, Donation, Organization, Notice, Post, Schedule } from '@/types/database'
+import type {
+  Profile,
+  Season,
+  Donation,
+  Organization,
+  Notice,
+  Schedule,
+  Signature,
+  VipReward,
+  VipImage,
+  MediaContent,
+  LiveStatus,
+  Banner,
+  TributeGuestbook,
+} from '@/types/database'
 import type { RankingItem, UnitFilter, TimelineItem } from '@/types/common'
+import type { CommentItem, PostItem } from '@/types/content'
 
 // ============================================
 // Base Repository Interface
@@ -54,9 +69,12 @@ export interface INoticeRepository extends IRepository<Notice> {
   findPublished(): Promise<Notice[]>
 }
 
-export interface IPostRepository extends IRepository<Post> {
-  findByCategory(category: string): Promise<Post[]>
-  findRecent(limit: number): Promise<Post[]>
+export interface IPostRepository extends IRepository<PostItem> {
+  findByCategory(category: string): Promise<PostItem[]>
+  findRecent(limit: number): Promise<PostItem[]>
+  findAll(): Promise<PostItem[]>
+  incrementViewCount(id: number, currentCount?: number): Promise<number | null>
+  delete(id: number): Promise<boolean>
 }
 
 export interface ITimelineRepository {
@@ -74,9 +92,78 @@ export interface IScheduleRepository {
 }
 
 // ============================================
+// New Domain Repositories (미구현 → 구현)
+// ============================================
+
+export interface ICommentRepository {
+  findByPostId(postId: number): Promise<CommentItem[]>
+  findById(id: number): Promise<CommentItem | null>
+  create(data: { post_id: number; author_id: string; content: string; parent_id?: number }): Promise<CommentItem | null>
+  delete(id: number): Promise<boolean>
+}
+
+export interface ISignatureRepository {
+  findAll(): Promise<Signature[]>
+  findById(id: number): Promise<Signature | null>
+  findByUnit(unit: 'excel' | 'crew'): Promise<Signature[]>
+  findByMemberName(memberName: string): Promise<Signature[]>
+  findFeatured(): Promise<Signature[]>
+}
+
+export interface IVipRewardRepository {
+  findByProfileId(profileId: string): Promise<VipReward | null>
+  findByRank(rank: number, seasonId?: number): Promise<VipReward | null>
+  findBySeason(seasonId: number): Promise<VipReward[]>
+  findTop3(seasonId?: number): Promise<VipReward[]>
+  findTop50(seasonId?: number): Promise<VipReward[]>
+}
+
+export interface IVipImageRepository {
+  findByRewardId(rewardId: number): Promise<VipImage[]>
+  findByProfileId(profileId: string): Promise<VipImage[]>
+}
+
+export interface IMediaContentRepository {
+  findAll(): Promise<MediaContent[]>
+  findById(id: number): Promise<MediaContent | null>
+  findByType(contentType: 'shorts' | 'vod'): Promise<MediaContent[]>
+  findByUnit(unit: 'excel' | 'crew' | null): Promise<MediaContent[]>
+  findFeatured(): Promise<MediaContent[]>
+}
+
+export interface ILiveStatusRepository {
+  findAll(): Promise<LiveStatus[]>
+  findByMemberId(memberId: number): Promise<LiveStatus[]>
+  findLive(): Promise<LiveStatus[]>
+  updateStatus(memberId: number, isLive: boolean, viewerCount?: number): Promise<boolean>
+}
+
+export interface IBannerRepository {
+  findAll(): Promise<Banner[]>
+  findActive(): Promise<Banner[]>
+  findById(id: number): Promise<Banner | null>
+  toggleActive(id: number): Promise<boolean>
+  reorder(bannerIds: number[]): Promise<boolean>
+}
+
+export interface IGuestbookRepository {
+  findByTributeUserId(tributeUserId: string): Promise<TributeGuestbook[]>
+  findById(id: number): Promise<TributeGuestbook | null>
+  create(data: {
+    tribute_user_id: string
+    author_id: string
+    author_name: string
+    message: string
+    is_member?: boolean
+  }): Promise<TributeGuestbook | null>
+  delete(id: number): Promise<boolean>
+}
+
+// ============================================
 // Data Provider Interface (Strategy Pattern)
 // ============================================
 export interface IDataProvider {
+  // Core Repositories (기존)
   rankings: IRankingRepository
   seasons: ISeasonRepository
   profiles: IProfileRepository
@@ -86,6 +173,15 @@ export interface IDataProvider {
   posts: IPostRepository
   timeline: ITimelineRepository
   schedules: IScheduleRepository
+  // New Repositories (선택적 - 점진적 구현)
+  comments?: ICommentRepository
+  signatures?: ISignatureRepository
+  vipRewards?: IVipRewardRepository
+  vipImages?: IVipImageRepository
+  mediaContent?: IMediaContentRepository
+  liveStatus?: ILiveStatusRepository
+  banners?: IBannerRepository
+  guestbook?: IGuestbookRepository
 }
 
 // ============================================

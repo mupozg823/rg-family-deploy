@@ -1,11 +1,36 @@
 import type { NextConfig } from "next";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const projectRoot = dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   /* config options here */
+  turbopack: {
+    root: projectRoot,
+  },
   reactCompiler: true,
   // Disable Turbopack for production build due to Korean folder name issue
   experimental: {
     // Use webpack for build instead of Turbopack
+  },
+  // 보안 HTTP 헤더 설정
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
+    ]
   },
   // Route redirects for RG Info consolidation
   async redirects() {
