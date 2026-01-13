@@ -46,15 +46,20 @@ Vercel 환경변수에 SUPABASE_URL이랑 ANON_KEY 넣어야 함
 메인 페이지는 모든 BJ가 나와서 파싱 어려움 → 즐겨찾기 페이지가 답
 ```
 
-### 3. 컬러는 무조건 통일
+### 3. 컬러는 무조건 통일 (핑크 과용 주의!)
 ```css
 왜? 디자이너가 "컬러가 다 따로 논다"고 지적함. 일관성 없으면 촌스러워 보임
+그리고 핑크만 도배하면 오히려 촌스러워짐 → 뉴트럴 기반으로!
 
---color-primary: #fd68ba;    /* 메인 핑크 - 이것만 써 */
+--color-primary: #fd68ba;    /* 메인 핑크 - 포인트에만 */
 --live-color: #00d4ff;       /* 라이브는 시안색 */
 --gold: #ffd700;             /* 1등 */
 --silver: #c0c0c0;           /* 2등 */
 --bronze: #cd7f32;           /* 3등 */
+
+핑크 사용 비율:
+- 뉴트럴(흰/검/회) 85-90%: 배경, 텍스트, 카드, 테두리
+- 핑크 포인트 10-15%: CTA 버튼, 활성 상태, 로고, 호버
 
 마우스 호버할 때도 핑크로 바뀌게 해야 함
 ```
@@ -123,6 +128,28 @@ Vercel 환경변수에 SUPABASE_URL이랑 ANON_KEY 넣어야 함
 
 ---
 
+## 스타일링 원칙
+
+```
+왜? Tailwind랑 CSS 모듈 섞여있으면 "스타일 어디서 바꾸지?" 혼란
+- Tailwind 우선: 일반 스타일링
+- CSS 모듈: 복잡한 애니메이션, 테마 분기, :global 필요할 때만
+- globals.css: CSS 변수/테마, *.module.css: 컴포넌트별 복잡한 스타일
+```
+
+---
+
+## Git 브랜치 전략
+
+```
+왜? main 직접 푸시하면 위험함. 여러 명이 작업하면 코드 충돌남
+- main: 배포 전용 (PR 통해서만 병합)
+- feature/*: 새 기능, fix/*: 버그 수정
+흐름: 브랜치 생성 → 작업 → PR → 리뷰 → main 병합 → Vercel 자동 배포
+```
+
+---
+
 ## 절대 하면 안 되는 것들
 
 | 금지 | 이유 |
@@ -136,27 +163,18 @@ Vercel 환경변수에 SUPABASE_URL이랑 ANON_KEY 넣어야 함
 
 ## 주요 파일 위치
 
-| 뭐 찾을 때 | 여기 봐 |
-|-----------|---------|
-| 메인 페이지 | `src/app/page.tsx` |
-| 조직도 | `src/app/rg/org/page.tsx` |
-| 랭킹 | `src/app/ranking/page.tsx` |
-| VIP 페이지 | `src/app/ranking/vip/page.tsx` |
-| 타임라인 | `src/app/rg/history/page.tsx` |
-| 캘린더 | `src/app/schedule/page.tsx` |
-| 목업 데이터 | `src/lib/mock/` |
-| CSS 변수 | `src/app/globals.css` |
-| 타입 정의 | `src/types/` |
+```
+페이지: src/app/(page.tsx, rg/org/page.tsx, ranking/page.tsx, schedule/page.tsx)
+컴포넌트: src/components/
+목업 데이터: src/lib/mock/
+CSS 변수: src/app/globals.css
+타입: src/types/
+```
 
 ---
 
 ## 참고 사이트
-
-| 기능 | URL | 뭘 참고 |
-|-----|-----|--------|
-| 조직도/라이브 | cnine.kr | 시안색 LIVE 테두리, 계층 구조 |
-| 캘린더 | theK 그룹 | 풀 캘린더 뷰 |
-| VIP 특전 | sooplive.co.kr | VIP 전용 페이지 구성 |
+- **cnine.kr** → 조직도, 라이브 (시안색 테두리) / **theK** → 캘린더 / **sooplive** → VIP
 
 ---
 
