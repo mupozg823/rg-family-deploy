@@ -183,9 +183,9 @@
   --modal-overlay-strong: rgba(0, 0, 0, 0.8);
   --modal-overlay-dark: rgba(0, 0, 0, 0.85);
 
-  /* LIVE Status - Universal Red */
-  --live-color: #ef4444;
-  --live-glow: rgba(239, 68, 68, 0.4);
+  /* LIVE Status - Cyan (cnine.kr style) */
+  --live-color: #00d4ff;
+  --live-glow: rgba(0, 212, 255, 0.4);
 
   /* Star/Particle Effects - Theme Aware */
   --star-bright: rgba(255, 255, 255, 0.35);
@@ -763,12 +763,23 @@
 /* ============================================
    Base Styles - Premium Typography
    ============================================ */
-*,
-*::before,
-*::after {
+html,
+html::before,
+html::after,
+body,
+body::before,
+body::after {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+body {
+  box-sizing: inherit;
 }
 
 html {
@@ -906,7 +917,7 @@ li {
 }
 
 /* Firefox Scrollbar */
-* {
+html {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) transparent;
 }
@@ -922,7 +933,8 @@ li {
   width: 100%;
 }
 
-.live-notice-grid > * {
+.live-notice-grid > div,
+.live-notice-grid > section {
   min-width: 0;
   overflow: hidden;
 }
@@ -1209,9 +1221,12 @@ li {
    사용자가 모션 감소를 선호하면 애니메이션 비활성화
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  html,
+  body,
+  html::before,
+  html::after,
+  body::before,
+  body::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

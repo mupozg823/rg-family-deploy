@@ -50,6 +50,8 @@ export interface UseTimelineDataOptions {
   pageSize?: number
   /** 무한 스크롤 모드 활성화 */
   infiniteScroll?: boolean
+  /** 초기 로드 시 최대 이벤트 수 (infiniteScroll=false일 때, 0이면 무제한) */
+  maxInitialLoad?: number
 }
 
 export interface UseTimelineDataReturn {
@@ -72,7 +74,7 @@ export interface UseTimelineDataReturn {
 }
 
 export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDataReturn {
-  const { pageSize = 10, infiniteScroll = false } = options || {}
+  const { pageSize = 10, infiniteScroll = false, maxInitialLoad = 50 } = options || {}
 
   // Repository hooks
   const timelineRepo = useTimeline()
@@ -166,9 +168,12 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
 
       setAllFilteredEvents(filteredEvents)
 
-      // 무한 스크롤 모드면 첫 페이지만, 아니면 전체
+      // 무한 스크롤 모드면 첫 페이지만
+      // 아니면 maxInitialLoad 적용 (0이면 무제한)
       if (infiniteScroll) {
         setEvents(filteredEvents.slice(0, pageSize))
+      } else if (maxInitialLoad > 0) {
+        setEvents(filteredEvents.slice(0, maxInitialLoad))
       } else {
         setEvents(filteredEvents)
       }
@@ -177,7 +182,7 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     } finally {
       setIsLoading(false)
     }
-  }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory, infiniteScroll, pageSize])
+  }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory, infiniteScroll, pageSize, maxInitialLoad])
 
   // 초기 로드 및 필터 변경 시 refetch
   useEffect(() => {

@@ -15,6 +15,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   ReactNode,
 } from 'react'
 import { User, Session, AuthError, AuthResponse } from '@supabase/supabase-js'
@@ -61,21 +62,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
   })
 
-  const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
-    const { data } = await supabase
+  // supabase를 ref로 관리하여 불필요한 재구독 방지
+  const supabaseRef = useRef(supabase)
+  useEffect(() => {
+    supabaseRef.current = supabase
+  }, [supabase])
+
+  // fetchProfile을 ref로 관리하여 의존성 안정화
+  const fetchProfileRef = useRef(async (userId: string): Promise<Profile | null> => {
+    const { data } = await supabaseRef.current
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single()
     return data
-  }, [supabase])
+  })
 
   useEffect(() => {
+    const client = supabaseRef.current
+    let isMounted = true
+
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { session } } = await client.auth.getSession()
+
+      if (!isMounted) return
 
       if (session?.user) {
-        const profile = await fetchProfile(session.user.id)
+        const profile = await fetchProfileRef.current(session.user.id)
+        if (!isMounted) return
         setState({
           user: session.user,
           profile,
@@ -90,10 +104,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     initAuth()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = client.auth.onAuthStateChange(
       async (event, session) => {
+        if (!isMounted) return
+
         if (session?.user) {
-          const profile = await fetchProfile(session.user.id)
+          const profile = await fetchProfileRef.current(session.user.id)
+          if (!isMounted) return
           setState({
             user: session.user,
             profile,
@@ -113,8 +130,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     )
 
-    return () => subscription.unsubscribe()
-  }, [supabase, fetchProfile])
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
+  }, []) // 빈 의존성 - 마운트 시 1회만 구독
 
   const signIn = useCallback(async (email: string, password: string) => {
     // Mock 모드에서 admin/admin 계정 처리
@@ -165,15 +185,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // 실제 Supabase 인증
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseRef.current.auth.signInWithPassword({
       email,
       password,
     })
     return { data, error }
-  }, [supabase])
+  }, [])
 
   const signUp = useCallback(async (email: string, password: string, nickname: string) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseRef.current.auth.signUp({
       email,
       password,
       options: {
@@ -181,7 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     })
     return { data, error }
-  }, [supabase])
+  }, [])
 
   const signOut = useCallback(async () => {
     // Mock 모드에서 로그아웃 처리
@@ -196,9 +216,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: null }
     }
 
-    const { error } = await supabase.auth.signOut()
+    const { error } = await supabaseRef.current.auth.signOut()
     return { error }
-  }, [supabase])
+  }, [])
 
   const hasRole = useCallback((roles: Role | Role[]): boolean => {
     if (!state.profile) return false
