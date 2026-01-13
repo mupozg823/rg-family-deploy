@@ -3,24 +3,10 @@
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { Radio } from 'lucide-react'
+import type { OrgMember } from '@/types/organization'
 import styles from './MemberCard.module.css'
 
-export interface OrgMember {
-  id: number
-  name: string
-  role: string
-  position_order: number
-  parent_id: number | null
-  image_url: string | null
-  unit: 'excel' | 'crew'
-  social_links?: {
-    chzzk?: string
-    youtube?: string
-    instagram?: string
-    pandatv?: string
-  }
-  is_live?: boolean
-}
+export type { OrgMember }
 
 interface MemberCardProps {
   member: OrgMember

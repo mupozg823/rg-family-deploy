@@ -34,7 +34,8 @@ import {
   mockSchedules,
 } from '@/lib/mock'
 import type { RankingItem, UnitFilter, TimelineItem } from '@/types/common'
-import type { Season, Profile, Organization, Notice, Donation, Post, Schedule, Signature, MediaContent, Comment, Banner } from '@/types/database'
+import type { Season, Profile, Notice, Donation, Post, Schedule, Signature, MediaContent, Comment, Banner } from '@/types/database'
+import type { OrganizationRecord } from '@/types/organization'
 import type { CommentItem, PostItem } from '@/types/content'
 
 const mockSignatureRows: Signature[] = mockSignatureData.map((sig) => {
@@ -221,15 +222,15 @@ class MockDonationRepository implements IDonationRepository {
 // Mock Organization Repository
 // ============================================
 class MockOrganizationRepository implements IOrganizationRepository {
-  async findByUnit(unit: 'excel' | 'crew'): Promise<Organization[]> {
+  async findByUnit(unit: 'excel' | 'crew'): Promise<OrganizationRecord[]> {
     return mockOrganization.filter(o => o.unit === unit)
   }
 
-  async findLiveMembers(): Promise<Organization[]> {
+  async findLiveMembers(): Promise<OrganizationRecord[]> {
     return mockOrganization.filter(o => o.is_live)
   }
 
-  async findAll(): Promise<Organization[]> {
+  async findAll(): Promise<OrganizationRecord[]> {
     return mockOrganization
   }
 }
@@ -484,6 +485,7 @@ class MockTimelineRepository implements ITimelineRepository {
       category: event.category,
       seasonId: event.season_id,
       seasonName: season?.name,
+      unit: event.unit,  // 엑셀부/크루부 필터용
     }
   }
 
@@ -496,8 +498,9 @@ class MockTimelineRepository implements ITimelineRepository {
   async findByFilter(options: {
     seasonId?: number | null
     category?: string | null
+    unit?: 'excel' | 'crew' | null  // 엑셀부/크루부 필터
   }): Promise<TimelineItem[]> {
-    const { seasonId, category } = options
+    const { seasonId, category, unit } = options
     let events = [...mockTimelineEvents]
 
     if (seasonId) {
@@ -506,6 +509,11 @@ class MockTimelineRepository implements ITimelineRepository {
 
     if (category) {
       events = events.filter(e => e.category === category)
+    }
+
+    // unit 필터: null은 전체, 'excel'/'crew'는 해당 유닛 + null(전체 이벤트)
+    if (unit) {
+      events = events.filter(e => e.unit === unit || e.unit === null)
     }
 
     return events

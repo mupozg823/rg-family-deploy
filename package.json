@@ -19,6 +19,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:watch": "tsx scripts/dev-server-monitor.ts",
+    "dev:fast": "DEV_PREWARM=false tsx scripts/dev-server-monitor.ts",
     "dev:mem": "NODE_OPTIONS='--max-old-space-size=2048' next dev",
     "build": "next build",
     "start": "next start",

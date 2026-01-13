@@ -10,8 +10,8 @@ import { useOrganization } from "@/lib/hooks";
 import {
   MemberCard,
   MemberDetailModal,
-  type OrgMember,
 } from "@/components/info";
+import type { OrgMember } from "@/types/organization";
 import styles from "./page.module.css";
 
 type UnitType = "excel" | "crew";
@@ -94,7 +94,7 @@ export default function OrganizationPage() {
         </div>
       </header>
 
-      {/* Unit Toggle */}
+      {/* Unit Toggle with Member Count */}
       <div className={styles.toggleWrapper}>
         <button
           className={`${styles.toggleBtn} ${
@@ -112,6 +112,10 @@ export default function OrganizationPage() {
         >
           CREW UNIT
         </button>
+        <div className={styles.memberCount}>
+          <Users size={16} />
+          <span>총 {unitMembers.length}명</span>
+        </div>
       </div>
 
       {isLoading ? (

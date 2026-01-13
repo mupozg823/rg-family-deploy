@@ -13,9 +13,11 @@ import { platform } from 'os'
 const MEMORY_THRESHOLD_MB = parseInt(process.env.DEV_MEMORY_THRESHOLD_MB || '1500', 10)
 const CHECK_INTERVAL_MS = parseInt(process.env.DEV_MEMORY_CHECK_INTERVAL_MS || '30000', 10)
 const NODE_MAX_OLD_SPACE_MB = parseInt(process.env.NODE_MAX_OLD_SPACE_MB || '2048', 10)
+const ENABLE_PREWARM = process.env.DEV_PREWARM !== 'false' // 기본 활성화
 
 let devProcess: ChildProcess | null = null
 let isRestarting = false
+let hasPrewarmed = false
 
 function formatMemory(mb: number): string {
   if (mb >= 1024) {
@@ -76,6 +78,80 @@ async function getProcessMemoryMB(pid: number): Promise<number> {
   })
 }
 
+// 프리워밍 대상 라우트
+const PREWARM_ROUTES = [
+  '/',
+  '/ranking',
+  '/ranking/season',
+  '/ranking/vip',
+  '/community',
+  '/community/free',
+  '/notice',
+  '/login',
+  '/admin',
+  '/rg/org',
+  '/rg/sig',
+]
+
+async function prewarmRoutes(): Promise<void> {
+  if (!ENABLE_PREWARM || hasPrewarmed) return
+  hasPrewarmed = true
+
+  log('라우트 프리워밍 시작...')
+
+  const BASE_URL = 'http://localhost:3000'
+  let success = 0
+  let failed = 0
+
+  for (const route of PREWARM_ROUTES) {
+    try {
+      const start = Date.now()
+      const response = await fetch(`${BASE_URL}${route}`, {
+        headers: { 'User-Agent': 'Prewarm-Script' },
+      })
+      const time = Date.now() - start
+
+      if (response.ok) {
+        success++
+        const timeColor = time < 500 ? '\x1b[32m' : time < 2000 ? '\x1b[33m' : '\x1b[31m'
+        console.log(`  \x1b[32m✓\x1b[0m ${route.padEnd(25)} ${timeColor}${time}ms\x1b[0m`)
+      } else {
+        failed++
+        console.log(`  \x1b[31m✗\x1b[0m ${route.padEnd(25)} (${response.status})`)
+      }
+    } catch {
+      failed++
+      console.log(`  \x1b[31m✗\x1b[0m ${route.padEnd(25)} (연결 실패)`)
+    }
+
+    // 서버 부하 방지
+    await new Promise(r => setTimeout(r, 200))
+  }
+
+  log(`프리워밍 완료: ${success}개 성공, ${failed}개 실패`)
+}
+
+async function waitForServerAndPrewarm(): Promise<void> {
+  // 서버가 준비될 때까지 대기 (최대 60초)
+  const maxAttempts = 60
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const response = await fetch('http://localhost:3000', {
+        method: 'HEAD',
+        headers: { 'User-Agent': 'Prewarm-Script' },
+      })
+      if (response.ok) {
+        await prewarmRoutes()
+        return
+      }
+    } catch {
+      // 아직 준비 안됨
+    }
+    await new Promise(r => setTimeout(r, 1000))
+  }
+  log('서버 연결 실패 - 프리워밍 건너뜀', 'warn')
+}
+
 function startDevServer(): void {
   log(`Starting Next.js dev server (max-old-space: ${NODE_MAX_OLD_SPACE_MB}MB)...`)
 
@@ -104,6 +180,11 @@ function startDevServer(): void {
   devProcess.on('error', (err) => {
     log(`Dev server error: ${err.message}`, 'error')
   })
+
+  // 서버 준비 후 프리워밍 실행
+  if (ENABLE_PREWARM && !hasPrewarmed) {
+    void waitForServerAndPrewarm()
+  }
 }
 
 async function restartDevServer(): Promise<void> {

@@ -244,12 +244,12 @@
   padding: 0.5rem 0.875rem;
   background: linear-gradient(
     135deg,
-    rgba(139, 92, 246, 0.15) 0%,
-    rgba(139, 92, 246, 0.25) 100%
+    rgba(253, 104, 186, 0.15) 0%,
+    rgba(253, 104, 186, 0.25) 100%
   );
-  border: 1px solid rgba(139, 92, 246, 0.4);
+  border: 1px solid rgba(253, 104, 186, 0.4);
   border-radius: 20px;
-  color: #a78bfa;
+  color: #fd68ba;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -260,16 +260,16 @@
 .adminBtn:hover {
   background: linear-gradient(
     135deg,
-    rgba(139, 92, 246, 0.2) 0%,
-    rgba(139, 92, 246, 0.35) 100%
+    rgba(253, 104, 186, 0.2) 0%,
+    rgba(253, 104, 186, 0.35) 100%
   );
-  border-color: #a78bfa;
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+  border-color: #fd68ba;
+  box-shadow: 0 0 12px rgba(253, 104, 186, 0.4);
   transform: translateY(-1px);
 }
 
 .adminBtn svg {
-  filter: drop-shadow(0 0 3px rgba(139, 92, 246, 0.5));
+  filter: drop-shadow(0 0 3px rgba(253, 104, 186, 0.5));
 }
 
 /* VIP Button */

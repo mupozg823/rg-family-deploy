@@ -167,39 +167,72 @@
   color: var(--text-secondary);
 }
 
-/* Modal Status */
-.modalStatus {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--card-border);
+.modalNickname {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+  font-style: italic;
+  margin-top: -0.25rem;
+}
+
+/* Profile Section - 개인정보 표시 */
+.profileSection {
+  padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--card-border);
 }
 
-.statusItem {
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.profileItem {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 0.25rem;
-  padding: 1rem;
-  background: var(--card-bg);
+  padding: 0.75rem;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
 }
 
-.statusLabel {
-  font-size: var(--text-xs);
+.profileLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
-.statusValue {
+.profileValue {
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.statusValue.statusLive {
-  color: var(--live-color);
+.introduction {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--surface), var(--card-bg));
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  border-left: 3px solid var(--color-primary);
+}
+
+.introduction p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.noProfile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
 }
 
 /* Modal Social */

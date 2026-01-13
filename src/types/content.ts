@@ -70,6 +70,7 @@ export interface TimelineItem {
   category: string | null
   seasonId: number | null
   seasonName?: string
+  unit?: 'excel' | 'crew' | null  // 엑셀부/크루부 필터용
 }
 
 // Filter types

@@ -158,6 +158,7 @@ export default function VOD() {
                   alt={item.title}
                   fill
                   className={styles.thumbnailImage}
+                  unoptimized={item.thumbnailUrl.includes('youtube.com') || item.thumbnailUrl.includes('ytimg.com')}
                 />
               ) : (
                 <div className={styles.thumbnailPlaceholder} />

@@ -5,9 +5,9 @@
   overflow: hidden;
   background: linear-gradient(
     135deg,
-    #1a1a2e 0%,
-    #16213e 50%,
-    #0f0f23 100%
+    #1a1018 0%,
+    #251520 50%,
+    #0f0a0d 100%
   );
 }
 
@@ -17,7 +17,9 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 200px;
+  height: 60vh;
+  min-height: 400px;
+  max-height: 700px;
   max-width: 100%;
   margin: 0;
   padding: 0;
@@ -56,8 +58,8 @@
     to right,
     transparent 0%,
     transparent 40%,
-    rgba(22, 33, 62, 0.5) 70%,
-    rgba(22, 33, 62, 0.95) 100%
+    rgba(37, 21, 32, 0.5) 70%,
+    rgba(37, 21, 32, 0.95) 100%
   );
   z-index: 2;
 }
@@ -69,8 +71,8 @@
     to left,
     transparent 0%,
     transparent 40%,
-    rgba(22, 33, 62, 0.5) 70%,
-    rgba(22, 33, 62, 0.95) 100%
+    rgba(37, 21, 32, 0.5) 70%,
+    rgba(37, 21, 32, 0.95) 100%
   );
   z-index: 2;
 }
@@ -181,7 +183,7 @@
   background: linear-gradient(
     180deg,
     transparent 0%,
-    rgba(22, 33, 62, 0.3) 100%
+    rgba(37, 21, 32, 0.3) 100%
   );
   pointer-events: none;
   z-index: 1;
@@ -204,7 +206,9 @@
 /* 반응형 - 태블릿 */
 @media (max-width: 1024px) {
   .container {
-    height: 180px;
+    height: 50vh;
+    min-height: 350px;
+    max-height: 550px;
   }
 
   .leftSection,
@@ -232,7 +236,9 @@
 /* 반응형 - 모바일 */
 @media (max-width: 768px) {
   .container {
-    height: 160px;
+    height: 45vh;
+    min-height: 300px;
+    max-height: 450px;
   }
 
   .leftSection,
@@ -276,7 +282,9 @@
 /* 반응형 - 작은 모바일 */
 @media (max-width: 480px) {
   .container {
-    height: 140px;
+    height: 40vh;
+    min-height: 250px;
+    max-height: 350px;
   }
 
   .leftSection,

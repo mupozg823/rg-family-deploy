@@ -83,6 +83,7 @@ export type Database = {
           parent_id: number | null
           image_url: string | null
           social_links: Json | null
+          member_profile: Json | null
           is_live: boolean
           is_active: boolean
           created_at: string
@@ -97,6 +98,7 @@ export type Database = {
           parent_id?: number | null
           image_url?: string | null
           social_links?: Json | null
+          member_profile?: Json | null
           is_live?: boolean
           is_active?: boolean
           created_at?: string
@@ -111,6 +113,7 @@ export type Database = {
           parent_id?: number | null
           image_url?: string | null
           social_links?: Json | null
+          member_profile?: Json | null
           is_live?: boolean
           is_active?: boolean
           created_at?: string
@@ -359,6 +362,7 @@ export type Database = {
           image_url: string | null
           category: string | null
           season_id: number | null
+          unit: 'excel' | 'crew' | null
           order_index: number
           created_at: string
         }
@@ -370,6 +374,7 @@ export type Database = {
           image_url?: string | null
           category?: string | null
           season_id?: number | null
+          unit?: 'excel' | 'crew' | null
           order_index?: number
           created_at?: string
         }
@@ -381,6 +386,7 @@ export type Database = {
           image_url?: string | null
           category?: string | null
           season_id?: number | null
+          unit?: 'excel' | 'crew' | null
           order_index?: number
           created_at?: string
         }

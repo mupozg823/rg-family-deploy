@@ -37,14 +37,14 @@
   z-index: 0;
 }
 
-/* Crew Unit Theme - Pink Dominant */
+/* Crew Unit Theme - Neutral with subtle pink accent */
 .crewTheme {
   background: linear-gradient(
     180deg,
-    #0a0508 0%,
-    #0d0609 30%,
-    #100810 70%,
-    #0a0508 100%
+    #050505 0%,
+    #0a0a0a 30%,
+    #080808 70%,
+    #050505 100%
   );
 }
 
@@ -54,18 +54,8 @@
   inset: 0;
   background: radial-gradient(
     ellipse 80% 50% at 50% 20%,
-    rgba(253, 104, 186, 0.06) 0%,
+    rgba(255, 255, 255, 0.02) 0%,
     transparent 50%
-  ),
-  radial-gradient(
-    ellipse 60% 40% at 30% 80%,
-    rgba(253, 104, 186, 0.03) 0%,
-    transparent 40%
-  ),
-  radial-gradient(
-    ellipse 60% 40% at 70% 80%,
-    rgba(253, 104, 186, 0.03) 0%,
-    transparent 40%
   );
   pointer-events: none;
   z-index: 0;
@@ -75,64 +65,64 @@
 .crewTheme .toggleBtn.active {
   background: linear-gradient(
     135deg,
-    rgba(253, 104, 186, 0.2) 0%,
-    rgba(253, 104, 186, 0.08) 100%
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.04) 100%
   );
-  border-color: rgba(253, 104, 186, 0.4);
+  border-color: var(--color-primary);
   color: var(--color-primary);
-  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .crewTheme .toggleBtn.active::before {
-  background: linear-gradient(90deg, transparent, rgba(253, 104, 186, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
 }
 
-/* Theme-specific connector lines */
+/* Theme-specific connector lines - neutral gray */
 .crewTheme .connector::before {
-  background: var(--color-primary);
-  box-shadow: 0 0 10px rgba(253, 104, 186, 0.4);
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .crewTheme .verticalLine {
   background: linear-gradient(
     180deg,
-    var(--color-primary) 0%,
-    rgba(253, 104, 186, 0.3) 100%
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.1) 100%
   );
-  box-shadow: 0 0 8px rgba(253, 104, 186, 0.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
 }
 
 .crewTheme .horizontalLine {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(253, 104, 186, 0.4) 10%,
-    var(--color-primary) 50%,
-    rgba(253, 104, 186, 0.4) 90%,
+    rgba(255, 255, 255, 0.2) 10%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.2) 90%,
     transparent 100%
   );
-  box-shadow: 0 0 8px rgba(253, 104, 186, 0.15);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
 }
 
 .crewTheme .branchLine {
   background: linear-gradient(
     180deg,
-    var(--color-primary) 0%,
-    rgba(253, 104, 186, 0.2) 80%,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.1) 80%,
     transparent 100%
   );
 }
 
 .crewTheme .branchLine::before {
-  background: var(--color-primary);
-  box-shadow: 0 0 6px rgba(253, 104, 186, 0.5);
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
 /* Theme-specific org chart glow */
 .crewTheme .orgChart::before {
   background: radial-gradient(
     ellipse at center,
-    rgba(253, 104, 186, 0.04) 0%,
+    rgba(255, 255, 255, 0.02) 0%,
     transparent 70%
   );
 }
@@ -141,52 +131,52 @@
 .crewTheme .header::before {
   background: radial-gradient(
     ellipse 60% 60% at 50% 30%,
-    rgba(253, 104, 186, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 0%,
     transparent 60%
   );
 }
 
 /* Theme-specific member card hover */
 .crewTheme .memberCard:hover {
-  border-color: rgba(253, 104, 186, 0.3);
+  border-color: rgba(255, 255, 255, 0.15);
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.2),
-    0 0 30px rgba(253, 104, 186, 0.08);
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 255, 255, 0.05);
 }
 
 .crewTheme .memberCard.large {
   background: linear-gradient(
     145deg,
-    rgba(253, 104, 186, 0.08) 0%,
+    rgba(255, 255, 255, 0.04) 0%,
     var(--card-bg) 100%
   );
-  border-color: rgba(253, 104, 186, 0.25);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .crewTheme .memberCard.large::before {
-  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
 }
 
 .crewTheme .memberCard.large .memberRole {
-  color: var(--color-primary);
+  color: var(--text-secondary);
 }
 
 /* Theme-specific unit label */
 .crewTheme .unitLabel {
-  background: rgba(253, 104, 186, 0.1);
-  border-color: rgba(253, 104, 186, 0.3);
-  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
 }
 
 /* Theme-specific spinner */
 .crewTheme .spinner {
-  border-top-color: var(--color-primary);
+  border-top-color: var(--text-secondary);
 }
 
 /* Theme-specific nav tab active state */
 .crewTheme .navTab.active {
-  background: rgba(253, 104, 186, 0.15);
-  border-color: rgba(253, 104, 186, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-primary);
   color: var(--color-primary);
 }
 
@@ -194,21 +184,21 @@
 .crewTheme .logoCircle {
   background: linear-gradient(
     135deg,
-    rgba(253, 104, 186, 0.15) 0%,
-    rgba(253, 104, 186, 0.05) 100%
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 100%
   );
-  border-color: rgba(253, 104, 186, 0.3);
+  border-color: rgba(255, 255, 255, 0.15);
   box-shadow:
-    0 0 40px rgba(253, 104, 186, 0.15),
-    inset 0 0 30px rgba(253, 104, 186, 0.05);
+    0 0 30px rgba(255, 255, 255, 0.05),
+    inset 0 0 20px rgba(255, 255, 255, 0.02);
 }
 
 .crewTheme .logoCircle::before {
   background: linear-gradient(
     135deg,
-    rgba(253, 104, 186, 0.3) 0%,
+    rgba(255, 255, 255, 0.15) 0%,
     transparent 50%,
-    rgba(253, 104, 186, 0.3) 100%
+    rgba(255, 255, 255, 0.15) 100%
   );
 }
 
@@ -236,150 +226,140 @@
 :global([data-theme="light"]) .crewTheme {
   background: linear-gradient(
     180deg,
-    #fdf7fa 0%,
-    #fef5f9 30%,
-    #fdf7fa 70%,
-    #fdf5f8 100%
+    #fafafa 0%,
+    #f5f5f5 30%,
+    #f8f8f8 70%,
+    #fafafa 100%
   );
 }
 
 :global([data-theme="light"]) .crewTheme::before {
   background: radial-gradient(
     ellipse 80% 50% at 50% 20%,
-    rgba(253, 104, 186, 0.08) 0%,
+    rgba(0, 0, 0, 0.02) 0%,
     transparent 50%
-  ),
-  radial-gradient(
-    ellipse 60% 40% at 30% 80%,
-    rgba(253, 104, 186, 0.04) 0%,
-    transparent 40%
-  ),
-  radial-gradient(
-    ellipse 60% 40% at 70% 80%,
-    rgba(253, 104, 186, 0.04) 0%,
-    transparent 40%
   );
 }
 
 :global([data-theme="light"]) .crewTheme .toggleBtn.active {
   background: linear-gradient(
     135deg,
-    rgba(253, 104, 186, 0.15) 0%,
-    rgba(253, 104, 186, 0.08) 100%
+    rgba(0, 0, 0, 0.06) 0%,
+    rgba(0, 0, 0, 0.03) 100%
   );
-  border-color: rgba(253, 104, 186, 0.4);
-  color: #d63384;
-  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.12);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 :global([data-theme="light"]) .crewTheme .memberCard {
   background: #ffffff;
-  border-color: rgba(253, 104, 186, 0.1);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 :global([data-theme="light"]) .crewTheme .memberCard:hover {
-  background: #fff9fc;
-  border-color: rgba(253, 104, 186, 0.3);
+  background: #fafafa;
+  border-color: rgba(0, 0, 0, 0.15);
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.06),
-    0 0 30px rgba(253, 104, 186, 0.06);
+    0 0 30px rgba(0, 0, 0, 0.03);
 }
 
 :global([data-theme="light"]) .crewTheme .memberCard.large {
   background: linear-gradient(
     145deg,
-    rgba(253, 104, 186, 0.06) 0%,
+    rgba(0, 0, 0, 0.02) 0%,
     #ffffff 100%
   );
-  border-color: rgba(253, 104, 186, 0.2);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 :global([data-theme="light"]) .crewTheme .memberCard.large .memberRole {
-  color: #d63384;
+  color: var(--text-secondary);
 }
 
 :global([data-theme="light"]) .crewTheme .connector::before {
-  background: #d63384;
-  box-shadow: 0 0 8px rgba(253, 104, 186, 0.3);
+  background: #888888;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
 }
 
 :global([data-theme="light"]) .crewTheme .verticalLine {
   background: linear-gradient(
     180deg,
-    #d63384 0%,
-    rgba(253, 104, 186, 0.3) 100%
+    #888888 0%,
+    rgba(0, 0, 0, 0.2) 100%
   );
-  box-shadow: 0 0 6px rgba(253, 104, 186, 0.15);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.08);
 }
 
 :global([data-theme="light"]) .crewTheme .horizontalLine {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(253, 104, 186, 0.3) 10%,
-    #d63384 50%,
-    rgba(253, 104, 186, 0.3) 90%,
+    rgba(0, 0, 0, 0.15) 10%,
+    #888888 50%,
+    rgba(0, 0, 0, 0.15) 90%,
     transparent 100%
   );
-  box-shadow: 0 0 6px rgba(253, 104, 186, 0.1);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
 }
 
 :global([data-theme="light"]) .crewTheme .branchLine {
   background: linear-gradient(
     180deg,
-    #d63384 0%,
-    rgba(253, 104, 186, 0.2) 80%,
+    #888888 0%,
+    rgba(0, 0, 0, 0.1) 80%,
     transparent 100%
   );
 }
 
 :global([data-theme="light"]) .crewTheme .branchLine::before {
-  background: #d63384;
-  box-shadow: 0 0 5px rgba(253, 104, 186, 0.4);
+  background: #888888;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 :global([data-theme="light"]) .crewTheme .unitLabel {
-  background: rgba(253, 104, 186, 0.08);
-  border-color: rgba(253, 104, 186, 0.2);
-  color: #d63384;
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--text-secondary);
 }
 
 :global([data-theme="light"]) .crewTheme .spinner {
   border-color: rgba(0, 0, 0, 0.1);
-  border-top-color: #d63384;
+  border-top-color: #666666;
 }
 
 :global([data-theme="light"]) .crewTheme .navTab.active {
-  background: rgba(253, 104, 186, 0.12);
-  border-color: rgba(253, 104, 186, 0.3);
-  color: #d63384;
+  background: rgba(0, 0, 0, 0.06);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 :global([data-theme="light"]) .crewTheme .logoCircle {
   background: linear-gradient(
     135deg,
-    rgba(253, 104, 186, 0.1) 0%,
-    rgba(253, 104, 186, 0.05) 100%
+    rgba(0, 0, 0, 0.04) 0%,
+    rgba(0, 0, 0, 0.02) 100%
   );
-  border-color: rgba(253, 104, 186, 0.3);
+  border-color: rgba(0, 0, 0, 0.12);
   box-shadow:
-    0 0 30px rgba(253, 104, 186, 0.1),
-    inset 0 0 20px rgba(253, 104, 186, 0.05);
+    0 0 30px rgba(0, 0, 0, 0.05),
+    inset 0 0 20px rgba(0, 0, 0, 0.02);
 }
 
 :global([data-theme="light"]) .crewTheme .logoCircle::before {
   background: linear-gradient(
     135deg,
-    rgba(253, 104, 186, 0.2) 0%,
+    rgba(0, 0, 0, 0.08) 0%,
     transparent 50%,
-    rgba(253, 104, 186, 0.2) 100%
+    rgba(0, 0, 0, 0.08) 100%
   );
 }
 
 :global([data-theme="light"]) .crewTheme .header::before {
   background: radial-gradient(
     ellipse 60% 60% at 50% 30%,
-    rgba(253, 104, 186, 0.1) 0%,
+    rgba(0, 0, 0, 0.03) 0%,
     transparent 60%
   );
 }
@@ -387,7 +367,7 @@
 :global([data-theme="light"]) .crewTheme .orgChart::before {
   background: radial-gradient(
     ellipse at center,
-    rgba(253, 104, 186, 0.05) 0%,
+    rgba(0, 0, 0, 0.02) 0%,
     transparent 70%
   );
 }
@@ -719,6 +699,31 @@
   opacity: 1;
 }
 
+/* Member Count Badge */
+.memberCount {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--overlay-subtle);
+  border: 1px solid var(--overlay-strong);
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+.memberCount svg {
+  color: var(--color-primary);
+}
+
+:global([data-theme="light"]) .memberCount {
+  background: rgba(253, 104, 186, 0.08);
+  border-color: rgba(253, 104, 186, 0.2);
+  color: #d63384;
+}
+
 /* =======================================
    Premium Org Chart Layout
    ======================================= */
@@ -777,6 +782,31 @@
   align-items: flex-start;
   gap: var(--space-6);
   flex-wrap: wrap;
+}
+
+/* 14명 멤버 레이아웃 최적화 - Level 2 그리드 */
+.level[data-level="2"] .levelMembers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  max-width: 700px;
+  gap: var(--space-4);
+  justify-items: center;
+}
+
+@media (min-width: 768px) {
+  .level[data-level="2"] .levelMembers {
+    grid-template-columns: repeat(6, 1fr);
+    max-width: 800px;
+    gap: var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .level[data-level="2"] .levelMembers {
+    grid-template-columns: repeat(6, 1fr);
+    max-width: 900px;
+    gap: var(--space-6);
+  }
 }
 
 /* Unit Section */
@@ -1148,7 +1178,7 @@
   padding: 2px 6px;
   background: var(--live-color);
   border-radius: 10px;
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   font-weight: 700;
   color: white;
   z-index: 3;

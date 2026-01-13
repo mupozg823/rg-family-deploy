@@ -7,7 +7,6 @@ import type {
   Profile,
   Season,
   Donation,
-  Organization,
   Notice,
   Schedule,
   Signature,
@@ -18,6 +17,7 @@ import type {
   Banner,
   TributeGuestbook,
 } from '@/types/database'
+import type { OrganizationRecord } from '@/types/organization'
 import type { RankingItem, UnitFilter, TimelineItem } from '@/types/common'
 import type { CommentItem, PostItem } from '@/types/content'
 
@@ -59,9 +59,9 @@ export interface IDonationRepository {
 }
 
 export interface IOrganizationRepository {
-  findByUnit(unit: 'excel' | 'crew'): Promise<Organization[]>
-  findLiveMembers(): Promise<Organization[]>
-  findAll(): Promise<Organization[]>
+  findByUnit(unit: 'excel' | 'crew'): Promise<OrganizationRecord[]>
+  findLiveMembers(): Promise<OrganizationRecord[]>
+  findAll(): Promise<OrganizationRecord[]>
 }
 
 export interface INoticeRepository extends IRepository<Notice> {
@@ -82,6 +82,7 @@ export interface ITimelineRepository {
   findByFilter(options: {
     seasonId?: number | null
     category?: string | null
+    unit?: 'excel' | 'crew' | null  // 엑셀부/크루부 필터
   }): Promise<TimelineItem[]>
   getCategories(): Promise<string[]>
 }

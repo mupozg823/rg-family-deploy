@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PageLayout } from "@/components/layout";
+import { PageLayout, SideBanner } from "@/components/layout";
 import Navbar from "@/components/Navbar";
 import { Hero, LiveMembers, Notice, Shorts, VOD } from "@/components/home";
 import Footer from "@/components/Footer";
@@ -8,7 +8,20 @@ import styles from "./page.module.css";
 
 export default function Home() {
   return (
-    <PageLayout>
+    <PageLayout
+      leftBanner={
+        <SideBanner
+          src="/banners/miri-studio.jpg"
+          alt="MIRI STUDIO - Body Profile"
+        />
+      }
+      rightBanner={
+        <SideBanner
+          src="/banners/change-your-body.jpg"
+          alt="Change Your Body - 바디 프로필반"
+        />
+      }
+    >
       <div className={styles.main}>
         <Navbar />
         <Hero />

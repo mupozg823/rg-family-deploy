@@ -26,6 +26,21 @@ export interface SocialLinks {
   instagram?: string
 }
 
+/** 멤버 개인정보 타입 (소개 페이지용) */
+export interface MemberProfile {
+  nickname?: string        // 별명
+  mbti?: string           // MBTI
+  height?: number         // 키 (cm)
+  weight?: number         // 몸무게 (kg)
+  age?: number            // 나이
+  birthday?: string       // 생일 (YYYY.MM.DD 또는 MM-DD)
+  bloodType?: string      // 혈액형
+  hobby?: string          // 취미
+  specialty?: string      // 특기
+  favoriteFood?: string   // 좋아하는 음식
+  introduction?: string   // 자기소개
+}
+
 /**
  * 데이터베이스 Organization 레코드 (snake_case)
  * Supabase organization 테이블과 매핑
@@ -40,6 +55,7 @@ export interface OrganizationRecord {
   parent_id: number | null
   image_url: string | null
   social_links: SocialLinks | null
+  member_profile: MemberProfile | null  // 멤버 개인정보
   is_live: boolean
   is_active: boolean
   created_at: string
@@ -57,7 +73,8 @@ export interface OrgMember {
   position_order: number
   parent_id: number | null
   image_url: string | null
-  social_links?: SocialLinks
+  social_links?: SocialLinks | null
+  member_profile?: MemberProfile | null  // 멤버 개인정보
   is_live?: boolean
 }
 

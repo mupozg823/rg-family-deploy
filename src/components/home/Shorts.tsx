@@ -155,6 +155,7 @@ export default function Shorts() {
                   alt={short.title}
                   fill
                   className={styles.thumbnailImage}
+                  unoptimized={short.thumbnailUrl.includes('youtube.com') || short.thumbnailUrl.includes('ytimg.com')}
                 />
               ) : (
                 <div className={styles.thumbnailPlaceholder} />
