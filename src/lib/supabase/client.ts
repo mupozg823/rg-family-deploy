@@ -73,7 +73,27 @@ export function createClient(): SupabaseClient<Database> {
     return createMockSupabaseProxy()
   }
 
-  return createBrowserClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY)
+  return createBrowserClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+    global: {
+      headers: {
+        'x-client-info': 'rg-family-web',
+      },
+    },
+    db: {
+      schema: 'public',
+    },
+    // 연결 안정성 향상
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+    },
+  })
 }
 
 // Singleton instance for client-side usage

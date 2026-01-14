@@ -1,9 +1,14 @@
 /**
  * Supabase Repository Implementations
  * 실제 데이터베이스 저장소
+ *
+ * 연결 안정성 개선:
+ * - 모든 쿼리에 타임아웃 적용 (10초)
+ * - 네트워크 에러 시 자동 재시도 (3회, 지수 백오프)
  */
 
 import { SupabaseClient } from '@supabase/supabase-js'
+import { withRetry } from '@/lib/utils/fetch-with-retry'
 import {
   IRankingRepository,
   ISeasonRepository,
@@ -31,27 +36,29 @@ class SupabaseRankingRepository implements IRankingRepository {
   }): Promise<RankingItem[]> {
     const { seasonId, unitFilter } = options
 
-    let query = this.supabase
-      .from('donations')
-      .select(`
-        donor_id,
-        donor_name,
-        amount,
-        season_id,
-        unit,
-        profiles:donor_id (nickname, avatar_url)
-      `)
+    const { data, error } = await withRetry(async () => {
+      let query = this.supabase
+        .from('donations')
+        .select(`
+          donor_id,
+          donor_name,
+          amount,
+          season_id,
+          unit,
+          profiles:donor_id (nickname, avatar_url)
+        `)
 
-    if (seasonId) {
-      query = query.eq('season_id', seasonId)
-    }
+      if (seasonId) {
+        query = query.eq('season_id', seasonId)
+      }
 
-    // VIP는 전체에서 Top 50이므로 유닛 필터 스킵
-    if (unitFilter && unitFilter !== 'all' && unitFilter !== 'vip') {
-      query = query.eq('unit', unitFilter)
-    }
+      // VIP는 전체에서 Top 50이므로 유닛 필터 스킵
+      if (unitFilter && unitFilter !== 'all' && unitFilter !== 'vip') {
+        query = query.eq('unit', unitFilter)
+      }
 
-    const { data, error } = await query
+      return await query
+    })
 
     if (error) throw error
 
@@ -100,28 +107,23 @@ class SupabaseSeasonRepository implements ISeasonRepository {
   constructor(private supabase: SupabaseClient) {}
 
   async findById(id: number): Promise<Season | null> {
-    const { data } = await this.supabase
-      .from('seasons')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('seasons').select('*').eq('id', id).single()
+    )
     return data
   }
 
   async findActive(): Promise<Season | null> {
-    const { data } = await this.supabase
-      .from('seasons')
-      .select('*')
-      .eq('is_active', true)
-      .single()
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('seasons').select('*').eq('is_active', true).single()
+    )
     return data
   }
 
   async findAll(): Promise<Season[]> {
-    const { data } = await this.supabase
-      .from('seasons')
-      .select('*')
-      .order('start_date', { ascending: false })
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('seasons').select('*').order('start_date', { ascending: false })
+    )
     return data || []
   }
 }
@@ -133,35 +135,30 @@ class SupabaseProfileRepository implements IProfileRepository {
   constructor(private supabase: SupabaseClient) {}
 
   async findById(id: string): Promise<Profile | null> {
-    const { data } = await this.supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('profiles').select('*').eq('id', id).single()
+    )
     return data
   }
 
   async findByNickname(nickname: string): Promise<Profile | null> {
-    const { data } = await this.supabase
-      .from('profiles')
-      .select('*')
-      .eq('nickname', nickname)
-      .single()
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('profiles').select('*').eq('nickname', nickname).single()
+    )
     return data
   }
 
   async findVipMembers(): Promise<Profile[]> {
-    const { data } = await this.supabase
-      .from('profiles')
-      .select('*')
-      .eq('role', 'vip')
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('profiles').select('*').eq('role', 'vip')
+    )
     return data || []
   }
 
   async findAll(): Promise<Profile[]> {
-    const { data } = await this.supabase
-      .from('profiles')
-      .select('*')
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('profiles').select('*')
+    )
     return data || []
   }
 }
@@ -173,19 +170,16 @@ class SupabaseDonationRepository implements IDonationRepository {
   constructor(private supabase: SupabaseClient) {}
 
   async findByDonor(donorId: string): Promise<Donation[]> {
-    const { data } = await this.supabase
-      .from('donations')
-      .select('*')
-      .eq('donor_id', donorId)
-      .order('created_at', { ascending: false })
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('donations').select('*').eq('donor_id', donorId).order('created_at', { ascending: false })
+    )
     return data || []
   }
 
   async findBySeason(seasonId: number): Promise<Donation[]> {
-    const { data } = await this.supabase
-      .from('donations')
-      .select('*')
-      .eq('season_id', seasonId)
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('donations').select('*').eq('season_id', seasonId)
+    )
     return data || []
   }
 
@@ -202,29 +196,23 @@ class SupabaseOrganizationRepository implements IOrganizationRepository {
   constructor(private supabase: SupabaseClient) {}
 
   async findByUnit(unit: 'excel' | 'crew'): Promise<Organization[]> {
-    const { data } = await this.supabase
-      .from('organization')
-      .select('*')
-      .eq('unit', unit)
-      .eq('is_active', true)
-      .order('position_order')
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('organization').select('*').eq('unit', unit).eq('is_active', true).order('position_order')
+    )
     return data || []
   }
 
   async findLiveMembers(): Promise<Organization[]> {
-    const { data } = await this.supabase
-      .from('organization')
-      .select('*')
-      .eq('is_live', true)
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('organization').select('*').eq('is_live', true)
+    )
     return data || []
   }
 
   async findAll(): Promise<Organization[]> {
-    const { data } = await this.supabase
-      .from('organization')
-      .select('*')
-      .eq('is_active', true)
-      .order('position_order')
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('organization').select('*').eq('is_active', true).order('position_order')
+    )
     return data || []
   }
 }
@@ -236,38 +224,30 @@ class SupabaseNoticeRepository implements INoticeRepository {
   constructor(private supabase: SupabaseClient) {}
 
   async findById(id: number): Promise<Notice | null> {
-    const { data } = await this.supabase
-      .from('notices')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('notices').select('*').eq('id', id).single()
+    )
     return data
   }
 
   async findRecent(limit: number): Promise<Notice[]> {
-    const { data } = await this.supabase
-      .from('notices')
-      .select('*')
-      .eq('is_published', true)
-      .order('created_at', { ascending: false })
-      .limit(limit)
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('notices').select('*').eq('is_published', true).order('created_at', { ascending: false }).limit(limit)
+    )
     return data || []
   }
 
   async findPublished(): Promise<Notice[]> {
-    const { data } = await this.supabase
-      .from('notices')
-      .select('*')
-      .eq('is_published', true)
-      .order('created_at', { ascending: false })
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('notices').select('*').eq('is_published', true).order('created_at', { ascending: false })
+    )
     return data || []
   }
 
   async findAll(): Promise<Notice[]> {
-    const { data } = await this.supabase
-      .from('notices')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('notices').select('*').order('created_at', { ascending: false })
+    )
     return data || []
   }
 }
@@ -279,37 +259,30 @@ class SupabasePostRepository implements IPostRepository {
   constructor(private supabase: SupabaseClient) {}
 
   async findById(id: number): Promise<Post | null> {
-    const { data } = await this.supabase
-      .from('posts')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('posts').select('*').eq('id', id).single()
+    )
     return data
   }
 
   async findByCategory(category: string): Promise<Post[]> {
-    const { data } = await this.supabase
-      .from('posts')
-      .select('*')
-      .eq('board_type', category)
-      .order('created_at', { ascending: false })
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('posts').select('*').eq('board_type', category).order('created_at', { ascending: false })
+    )
     return data || []
   }
 
   async findRecent(limit: number): Promise<Post[]> {
-    const { data } = await this.supabase
-      .from('posts')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(limit)
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(limit)
+    )
     return data || []
   }
 
   async findAll(): Promise<Post[]> {
-    const { data } = await this.supabase
-      .from('posts')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const { data } = await withRetry(async () =>
+      await this.supabase.from('posts').select('*').order('created_at', { ascending: false })
+    )
     return data || []
   }
 }
@@ -335,10 +308,9 @@ class SupabaseTimelineRepository implements ITimelineRepository {
   }
 
   async findAll(): Promise<TimelineItem[]> {
-    const { data, error } = await this.supabase
-      .from('timeline_events')
-      .select('*, seasons(name)')
-      .order('event_date', { ascending: false })
+    const { data, error } = await withRetry(async () =>
+      await this.supabase.from('timeline_events').select('*, seasons(name)').order('event_date', { ascending: false })
+    )
 
     if (error) throw error
     return (data || []).map(e => this.formatEvent(e))
@@ -350,29 +322,31 @@ class SupabaseTimelineRepository implements ITimelineRepository {
   }): Promise<TimelineItem[]> {
     const { seasonId, category } = options
 
-    let query = this.supabase
-      .from('timeline_events')
-      .select('*, seasons(name)')
-      .order('event_date', { ascending: false })
+    const { data, error } = await withRetry(async () => {
+      let query = this.supabase
+        .from('timeline_events')
+        .select('*, seasons(name)')
+        .order('event_date', { ascending: false })
 
-    if (seasonId) {
-      query = query.eq('season_id', seasonId)
-    }
+      if (seasonId) {
+        query = query.eq('season_id', seasonId)
+      }
 
-    if (category) {
-      query = query.eq('category', category)
-    }
+      if (category) {
+        query = query.eq('category', category)
+      }
 
-    const { data, error } = await query
+      return await query
+    })
 
     if (error) throw error
     return (data || []).map(e => this.formatEvent(e))
   }
 
   async getCategories(): Promise<string[]> {
-    const { data, error } = await this.supabase
-      .from('timeline_events')
-      .select('category')
+    const { data, error } = await withRetry(async () =>
+      await this.supabase.from('timeline_events').select('category')
+    )
 
     if (error) throw error
 
@@ -394,12 +368,14 @@ class SupabaseScheduleRepository implements IScheduleRepository {
     const startOfMonth = new Date(year, month, 1)
     const endOfMonth = new Date(year, month + 1, 0)
 
-    const { data, error } = await this.supabase
-      .from('schedules')
-      .select('*')
-      .gte('start_datetime', startOfMonth.toISOString())
-      .lte('start_datetime', endOfMonth.toISOString())
-      .order('start_datetime', { ascending: true })
+    const { data, error } = await withRetry(async () =>
+      await this.supabase
+        .from('schedules')
+        .select('*')
+        .gte('start_datetime', startOfMonth.toISOString())
+        .lte('start_datetime', endOfMonth.toISOString())
+        .order('start_datetime', { ascending: true })
+    )
 
     if (error) throw error
     return data || []
@@ -409,18 +385,20 @@ class SupabaseScheduleRepository implements IScheduleRepository {
     const startOfMonth = new Date(year, month, 1)
     const endOfMonth = new Date(year, month + 1, 0)
 
-    let query = this.supabase
-      .from('schedules')
-      .select('*')
-      .gte('start_datetime', startOfMonth.toISOString())
-      .lte('start_datetime', endOfMonth.toISOString())
-      .order('start_datetime', { ascending: true })
+    const { data, error } = await withRetry(async () => {
+      let query = this.supabase
+        .from('schedules')
+        .select('*')
+        .gte('start_datetime', startOfMonth.toISOString())
+        .lte('start_datetime', endOfMonth.toISOString())
+        .order('start_datetime', { ascending: true })
 
-    if (unit && unit !== 'all') {
-      query = query.or(`unit.eq.${unit},unit.is.null`)
-    }
+      if (unit && unit !== 'all') {
+        query = query.or(`unit.eq.${unit},unit.is.null`)
+      }
 
-    const { data, error } = await query
+      return await query
+    })
 
     if (error) throw error
     return data || []
