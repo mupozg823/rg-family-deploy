@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -20,7 +20,9 @@ import {
   ChevronRight,
   LogOut,
   Settings,
+  Home,
 } from 'lucide-react'
+import { useAuthContext } from '@/lib/context'
 import styles from './Sidebar.module.css'
 
 const menuItems = [
@@ -39,6 +41,8 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { signOut } = useAuthContext()
   const [isCollapsed, setIsCollapsed] = useState(false)
 
   const isActive = (href: string) => {
@@ -46,6 +50,11 @@ export default function Sidebar() {
       return pathname === '/admin'
     }
     return pathname.startsWith(href)
+  }
+
+  const handleLogout = async () => {
+    await signOut()
+    router.push('/login')
   }
 
   return (
@@ -109,22 +118,8 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className={styles.footer}>
-        <Link href="/admin/settings" className={styles.footerItem}>
-          <Settings size={20} />
-          <AnimatePresence mode="wait">
-            {!isCollapsed && (
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                설정
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </Link>
         <Link href="/" className={styles.footerItem}>
-          <LogOut size={20} />
+          <Home size={20} />
           <AnimatePresence mode="wait">
             {!isCollapsed && (
               <motion.span
@@ -137,6 +132,20 @@ export default function Sidebar() {
             )}
           </AnimatePresence>
         </Link>
+        <button onClick={handleLogout} className={styles.footerItem}>
+          <LogOut size={20} />
+          <AnimatePresence mode="wait">
+            {!isCollapsed && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                로그아웃
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
       </div>
     </motion.aside>
   )
