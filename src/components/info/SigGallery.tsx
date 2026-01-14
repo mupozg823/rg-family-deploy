@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X } from 'lucide-react'
 import { mockSignatureData, signatureCategories, type SignatureData } from '@/lib/mock/signatures'
 import { USE_MOCK_DATA } from '@/lib/config'
+import { useSupabaseContext } from '@/lib/context'
+import { withRetry } from '@/lib/utils/fetch-with-retry'
 import SigCard from './SigCard'
 import SigDetailModal from './SigDetailModal'
 import styles from './SigGallery.module.css'
@@ -13,6 +15,7 @@ type CategoryFilter = typeof signatureCategories[number]['id']
 type UnitFilter = 'all' | 'excel' | 'crew'
 
 export default function SigGallery() {
+  const supabase = useSupabaseContext()
   const [signatures, setSignatures] = useState<SignatureData[]>([])
   const [selectedSig, setSelectedSig] = useState<SignatureData | null>(null)
   const [unitFilter, setUnitFilter] = useState<UnitFilter>('all')
@@ -61,9 +64,63 @@ export default function SigGallery() {
       return
     }
 
-    // Supabase query would go here
+    // Supabase에서 시그니처 데이터 조회
+    try {
+      const { data, error } = await withRetry(async () => {
+        let query = supabase.from('signatures').select('*').order('created_at', { ascending: false })
+
+        if (unitFilter !== 'all') {
+          query = query.eq('unit', unitFilter)
+        }
+
+        return await query
+      })
+
+      if (error) {
+        console.error('시그니처 로드 실패:', error)
+        setSignatures([])
+      } else {
+        // DB 데이터를 SignatureData 형식으로 변환
+        const converted: SignatureData[] = (data || []).map((row, index) => ({
+          id: row.id,
+          number: index + 1,
+          title: row.title,
+          category: 'all' as const,
+          thumbnailUrl: row.thumbnail_url || row.media_url,
+          unit: row.unit,
+          videos: [{
+            id: row.id,
+            memberName: row.member_name || '',
+            videoUrl: row.media_url,
+            thumbnailUrl: row.thumbnail_url || row.media_url,
+            date: row.created_at,
+            duration: '0:00',
+            viewCount: row.view_count || 0,
+          }],
+          totalVideoCount: 1,
+          isFeatured: row.is_featured || false,
+          createdAt: row.created_at,
+        }))
+
+        // 검색 필터 적용
+        let filtered = converted
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase()
+          filtered = filtered.filter(sig =>
+            sig.title.toLowerCase().includes(query) ||
+            sig.videos.some(v => v.memberName.toLowerCase().includes(query))
+          )
+        }
+
+        setSignatures(filtered)
+      }
+    } catch (err) {
+      console.error('시그니처 로드 중 오류:', err)
+      setSignatures([])
+    }
+
     setIsLoading(false)
-  }, [unitFilter, categoryFilter, searchQuery])
+  }, [supabase, unitFilter, categoryFilter, searchQuery])
 
   useEffect(() => {
     fetchSignatures()
