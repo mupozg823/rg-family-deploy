@@ -346,7 +346,10 @@ export default function FreeBoardPage() {
                 <button className={styles.pageBtn}>›</button>
                 <button className={styles.pageBtn}>»</button>
               </div>
-              <button className={styles.writeBtn}>
+              <button
+                className={styles.writeBtn}
+                onClick={() => alert('글쓰기 기능은 준비 중입니다.')}
+              >
                 <PenLine size={16} />
                 글쓰기
               </button>

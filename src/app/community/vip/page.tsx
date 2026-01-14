@@ -200,7 +200,10 @@ export default function VipBoardPage() {
               <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
               <button className={styles.pageBtn}>»</button>
             </div>
-            <button className={`${styles.writeBtn} ${styles.vipWriteBtn}`}>
+            <button
+              className={`${styles.writeBtn} ${styles.vipWriteBtn}`}
+              onClick={() => alert('글쓰기 기능은 준비 중입니다.')}
+            >
               <Crown size={14} />
               글쓰기
             </button>
