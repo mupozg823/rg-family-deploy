@@ -18,14 +18,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
-import { useAuthContext } from "@/lib/context";
+import { useAuthContext, useSupabaseContext } from "@/lib/context";
 import { useVipStatus, useRanking, useContentProtection } from "@/lib/hooks";
 import { mockVipContent, type VipContent } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
+import { withRetry } from "@/lib/utils/fetch-with-retry";
 import { getTributePageUrl } from "@/lib/utils";
 import styles from "./page.module.css";
 
 export default function VipLoungePage() {
+  const supabase = useSupabaseContext();
   const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
   const { isVip, rank: userRank, isLoading: vipStatusLoading } = useVipStatus();
   const { rankings, isLoading: rankingLoading } = useRanking();
@@ -60,10 +62,69 @@ export default function VipLoungePage() {
       return;
     }
 
-    // TODO: Replace with real Supabase query
-    setVipContent(mockVipContent);
+    try {
+      // VIP 콘텐츠 조회 - vip_rewards 테이블에서 감사 메시지, 영상 등 조회
+      // signatures 테이블에서 VIP 전용 시그니처 조회
+      const [rewardsResult, signaturesResult] = await Promise.all([
+        withRetry(async () =>
+          await supabase
+            .from('vip_rewards')
+            .select(`
+              id,
+              personal_message,
+              dedication_video_url,
+              vip_images (id, image_url, title, order_index)
+            `)
+            .order('created_at', { ascending: false })
+            .limit(10)
+        ),
+        withRetry(async () =>
+          await supabase
+            .from('signatures')
+            .select('id, title, member_name, thumbnail_url, media_url, unit')
+            .eq('is_vip_only', true)
+            .order('created_at', { ascending: false })
+            .limit(6)
+        ),
+      ]);
+
+      // 감사 메시지 추출 (첫 번째 보상에서)
+      const thankYouMessage = rewardsResult.data?.[0]?.personal_message
+        || 'RG 패밀리의 VIP가 되어주셔서 진심으로 감사드립니다. 여러분의 사랑과 응원이 저희에게 큰 힘이 됩니다.';
+
+      // 멤버 영상 변환 (vip_rewards에서 dedication_video_url이 있는 것들)
+      const memberVideos = (rewardsResult.data || [])
+        .filter((r) => r.dedication_video_url)
+        .map((r, idx) => ({
+          id: r.id || idx,
+          memberName: `멤버 ${idx + 1}`,
+          memberUnit: 'excel' as const,
+          thumbnailUrl: '',
+          videoUrl: r.dedication_video_url || '',
+          message: r.personal_message || '',
+        }));
+
+      // 시그니처 변환
+      const signatures = (signaturesResult.data || []).map((s) => ({
+        id: s.id,
+        memberName: s.member_name || s.title,
+        signatureUrl: s.thumbnail_url || s.media_url,
+        unit: (s.unit || 'excel') as 'excel' | 'crew',
+      }));
+
+      setVipContent({
+        memberVideos: memberVideos.length > 0 ? memberVideos : mockVipContent.memberVideos,
+        thankYouMessage,
+        signatures: signatures.length > 0 ? signatures : mockVipContent.signatures,
+      });
+    } catch (err) {
+      console.error('VIP 콘텐츠 로드 실패:', err);
+      // 실패 시 Mock 데이터로 폴백
+      setVipContent(mockVipContent);
+    }
+
     setIsLoading(false);
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     let mounted = true;
