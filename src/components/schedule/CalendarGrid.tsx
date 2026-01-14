@@ -62,7 +62,7 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
                   text-sm font-semibold mb-2 inline-flex items-center justify-center
                   min-w-[32px] min-h-[32px] rounded-full
                   ${isSunday ? 'text-red-500' : isSaturday ? 'text-blue-500' : 'text-[var(--text-secondary)]'}
-                  ${day.isToday ? 'bg-[var(--text-primary)] text-[var(--background)] font-bold shadow-md' : ''}
+                  ${day.isToday ? 'bg-[var(--color-primary)] text-white font-bold shadow-md' : ''}
                 `}
               >
                 {day.date.getDate()}
