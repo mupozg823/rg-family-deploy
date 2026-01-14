@@ -5,9 +5,7 @@ import Link from 'next/link'
 import { Pin, Search, Eye, ChevronDown, Bell } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { useSupabaseContext } from '@/lib/context'
-import { mockNotices } from '@/lib/mock'
-import { USE_MOCK_DATA } from '@/lib/config'
+import { useNotices } from '@/lib/context'
 import { formatShortDate } from '@/lib/utils/format'
 import styles from './page.module.css'
 
@@ -30,7 +28,7 @@ function isNew(dateStr: string): boolean {
 }
 
 export default function NoticePage() {
-  const supabase = useSupabaseContext()
+  const noticesRepo = useNotices()
   const [notices, setNotices] = useState<NoticeItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -42,53 +40,34 @@ export default function NoticePage() {
   const fetchNotices = useCallback(async () => {
     setIsLoading(true)
 
-    if (USE_MOCK_DATA) {
-      const sortedNotices = [...mockNotices]
-        .sort((a, b) => {
-          if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        })
+    try {
+      // Repository 패턴 사용 (withRetry 적용됨)
+      const data = await noticesRepo.findPublished()
+
+      // 고정글 우선, 최신순 정렬
+      const sortedData = [...data].sort((a, b) => {
+        if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      })
+
       setNotices(
-        sortedNotices.map((n, index) => ({
+        sortedData.map((n, index) => ({
           id: n.id,
           title: n.title,
           isPinned: n.is_pinned,
           isImportant: index < 2,
           createdAt: n.created_at,
           author: '운영자',
-          viewCount: Math.floor(Math.random() * 500) + 100,
-          category: ['공지', '이벤트', '업데이트', '안내'][Math.floor(Math.random() * 4)],
-        }))
-      )
-      setIsLoading(false)
-      return
-    }
-
-    const { data, error } = await supabase
-      .from('notices')
-      .select('id, title, is_pinned, is_important, view_count, category, created_at')
-      .order('is_pinned', { ascending: false })
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('공지사항 로드 실패:', error)
-    } else {
-      setNotices(
-        (data || []).map((n) => ({
-          id: n.id,
-          title: n.title,
-          isPinned: n.is_pinned,
-          isImportant: n.is_important || false,
-          createdAt: n.created_at,
-          author: '운영자',
           viewCount: n.view_count || 0,
           category: n.category || '공지',
         }))
       )
+    } catch (error) {
+      console.error('공지사항 로드 실패:', error)
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
-  }, [supabase])
+  }, [noticesRepo])
 
   useEffect(() => {
     fetchNotices()

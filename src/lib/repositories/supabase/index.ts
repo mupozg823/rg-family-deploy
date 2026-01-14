@@ -232,14 +232,15 @@ class SupabaseNoticeRepository implements INoticeRepository {
 
   async findRecent(limit: number): Promise<Notice[]> {
     const { data } = await withRetry(async () =>
-      await this.supabase.from('notices').select('*').eq('is_published', true).order('created_at', { ascending: false }).limit(limit)
+      await this.supabase.from('notices').select('*').order('created_at', { ascending: false }).limit(limit)
     )
     return data || []
   }
 
   async findPublished(): Promise<Notice[]> {
+    // notices 테이블에는 is_published 컬럼이 없음 - 전체 공지 반환
     const { data } = await withRetry(async () =>
-      await this.supabase.from('notices').select('*').eq('is_published', true).order('created_at', { ascending: false })
+      await this.supabase.from('notices').select('*').order('created_at', { ascending: false })
     )
     return data || []
   }

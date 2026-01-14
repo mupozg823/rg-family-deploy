@@ -9,6 +9,7 @@ import Footer from '@/components/Footer'
 import { useSupabaseContext } from '@/lib/context'
 import { mockPosts, mockProfiles } from '@/lib/mock'
 import { USE_MOCK_DATA } from '@/lib/config'
+import { withRetry } from '@/lib/utils/fetch-with-retry'
 import { formatShortDate } from '@/lib/utils/format'
 import TabFilter from '@/components/community/TabFilter'
 import type { JoinedProfile } from '@/types/common'
@@ -80,12 +81,14 @@ export default function FreeBoardPage() {
       return
     }
 
-    const { data, error } = await supabase
-      .from('posts')
-      .select('id, title, view_count, like_count, category, created_at, profiles!author_id(nickname), comments(id)')
-      .eq('board_type', 'free')
-      .order('created_at', { ascending: false })
-      .limit(20)
+    const { data, error } = await withRetry(async () =>
+      await supabase
+        .from('posts')
+        .select('id, title, view_count, like_count, category, created_at, profiles!author_id(nickname), comments(id)')
+        .eq('board_type', 'free')
+        .order('created_at', { ascending: false })
+        .limit(20)
+    )
 
     if (error) {
       console.error('게시글 로드 실패:', error)

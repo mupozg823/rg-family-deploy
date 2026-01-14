@@ -10,6 +10,7 @@ import { useSupabaseContext, useAuthContext } from '@/lib/context'
 import { useVipStatus } from '@/lib/hooks'
 import { mockPosts, mockProfiles } from '@/lib/mock'
 import { USE_MOCK_DATA } from '@/lib/config'
+import { withRetry } from '@/lib/utils/fetch-with-retry'
 import { formatRelativeTime } from '@/lib/utils/format'
 import TabFilter from '@/components/community/TabFilter'
 import type { JoinedProfile } from '@/types/common'
@@ -70,12 +71,14 @@ export default function VipBoardPage() {
       return
     }
 
-    const { data, error } = await supabase
-      .from('posts')
-      .select('id, title, view_count, created_at, profiles!author_id(nickname), comments(id)')
-      .eq('board_type', 'vip')
-      .order('created_at', { ascending: false })
-      .limit(20)
+    const { data, error } = await withRetry(async () =>
+      await supabase
+        .from('posts')
+        .select('id, title, view_count, created_at, profiles!author_id(nickname), comments(id)')
+        .eq('board_type', 'vip')
+        .order('created_at', { ascending: false })
+        .limit(20)
+    )
 
     if (error) {
       console.error('게시글 로드 실패:', error)
