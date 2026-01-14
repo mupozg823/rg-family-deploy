@@ -90,17 +90,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     initAuth()
 
+    // 주의: onAuthStateChange 콜백은 반드시 동기 함수여야 함
+    // async 콜백 사용 시 Supabase 내부 잠금 메커니즘과 충돌하여 교착 상태 발생
+    // https://github.com/supabase/supabase/issues/35754
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (session?.user) {
-          const profile = await fetchProfile(session.user.id)
-          setState({
-            user: session.user,
-            profile,
-            session,
-            isLoading: false,
-            isAuthenticated: true,
-          })
+          // 프로필 조회는 비동기지만 콜백 외부에서 처리
+          fetchProfile(session.user.id)
+            .then((profile) => {
+              setState({
+                user: session.user,
+                profile,
+                session,
+                isLoading: false,
+                isAuthenticated: true,
+              })
+            })
+            .catch((error) => {
+              console.error('프로필 조회 실패:', error)
+              // 프로필 조회 실패해도 인증은 유지
+              setState({
+                user: session.user,
+                profile: null,
+                session,
+                isLoading: false,
+                isAuthenticated: true,
+              })
+            })
         } else {
           setState({
             user: null,
