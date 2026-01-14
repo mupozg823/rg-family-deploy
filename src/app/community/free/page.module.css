@@ -427,7 +427,8 @@
 
 /* Loading & Empty States */
 .loading,
-.empty {
+.empty,
+.locked {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -438,6 +439,54 @@
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
+  min-height: 400px;
+}
+
+.locked {
+  text-align: center;
+}
+
+.locked svg {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.locked h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.locked p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  max-width: 300px;
+  line-height: 1.6;
+}
+
+.locked strong {
+  color: var(--color-primary);
+}
+
+.loginBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-primary);
+  border-radius: var(--radius-md);
+  color: white;
+  text-decoration: none;
+  font-weight: var(--font-bold);
+  font-size: var(--text-sm);
+  transition: var(--transition-base);
+}
+
+.loginBtn:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-2px);
 }
 
 .spinner {
