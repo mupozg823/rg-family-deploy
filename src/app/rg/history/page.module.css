@@ -158,6 +158,50 @@
   .subtitle {
     font-size: var(--text-xs);
   }
+
+  .startDate {
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-3);
+  }
+}
+
+/* =======================================
+   Responsive - Small Mobile (480px)
+   ======================================= */
+@media (max-width: 480px) {
+  .main::before {
+    left: 1.5rem;
+    width: 1px;
+  }
+
+  .hero {
+    min-height: 30vh;
+    padding: var(--space-12) var(--space-3) var(--space-8);
+  }
+
+  .heroBadge {
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: var(--space-1) var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .title {
+    font-size: clamp(1.75rem, 10vw, 2.5rem);
+    margin-bottom: var(--space-3);
+  }
+
+  .subtitle {
+    font-size: 0.6875rem;
+    letter-spacing: 1.5px;
+  }
+
+  .startDate {
+    font-size: 0.6875rem;
+    padding: var(--space-1) var(--space-2);
+    margin-top: var(--space-3);
+    letter-spacing: 0.5px;
+  }
 }
 
 /* =======================================

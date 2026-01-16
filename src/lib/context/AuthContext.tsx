@@ -24,10 +24,18 @@ import { USE_MOCK_DATA } from '@/lib/config'
 import { mockAdminProfile } from '@/lib/mock'
 import type { Profile, Role } from '@/types/database'
 
-// Mock Admin 계정 정보 (환경변수에서 로드)
-const MOCK_ADMIN_CREDENTIALS = {
-  username: process.env.NEXT_PUBLIC_MOCK_ADMIN_USER || 'dev_admin',
-  password: process.env.MOCK_ADMIN_PASSWORD || '',
+/**
+ * Mock Admin 계정 정보
+ * - 개발 환경(USE_MOCK_DATA=true)에서만 사용
+ * - 프로덕션 환경에서는 Supabase Auth 사용
+ * - 환경변수로 커스터마이징 가능 (NEXT_PUBLIC_ prefix 필요)
+ */
+const ADMIN_CREDENTIALS = {
+  emails: (
+    process.env.NEXT_PUBLIC_MOCK_ADMIN_EMAILS ||
+    'admin,admin@rgfamily.com,admin@rg-family.local'
+  ).split(',').map(e => e.trim()).filter(Boolean),
+  password: process.env.NEXT_PUBLIC_MOCK_ADMIN_PASSWORD || 'admin123',
 }
 
 interface AuthState {
@@ -137,11 +145,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []) // 빈 의존성 - 마운트 시 1회만 구독
 
   const signIn = useCallback(async (email: string, password: string) => {
-    // Mock 모드에서 admin/admin 계정 처리
+    // Mock 모드에서 admin 계정 처리
     if (USE_MOCK_DATA) {
       const isAdminLogin =
-        (email === MOCK_ADMIN_CREDENTIALS.username || email === 'admin@rgfamily.com') &&
-        password === MOCK_ADMIN_CREDENTIALS.password
+        ADMIN_CREDENTIALS.emails.includes(email) &&
+        password === ADMIN_CREDENTIALS.password
 
       if (isAdminLogin) {
         // Mock admin 사용자 생성

@@ -127,6 +127,46 @@
   );
 }
 
+/* Theme-specific tree connector for crew */
+.crewTheme .mainVerticalLine {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.2) 100%
+  );
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.crewTheme .mainVerticalLine::before {
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.crewTheme .distributionLine {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 5%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.2) 95%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+}
+
+.crewTheme .dropLine {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+}
+
+.crewTheme .dropLine::after {
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
 /* Theme-specific header gradient */
 .crewTheme .header::before {
   background: radial-gradient(
@@ -725,17 +765,17 @@
 }
 
 /* =======================================
-   Premium Org Chart Layout
+   Premium Org Chart Layout - Tree Structure
    ======================================= */
 .orgChart {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: var(--space-8);
+  padding: var(--space-8) var(--space-4);
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  min-height: 500px;
+  min-height: 600px;
 }
 
 /* Subtle Radial Glow */
@@ -745,14 +785,164 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80%;
-  height: 80%;
+  width: 90%;
+  height: 90%;
   background: radial-gradient(
     ellipse at center,
-    rgba(212, 175, 55, 0.03) 0%,
+    rgba(212, 175, 55, 0.04) 0%,
     transparent 70%
   );
   pointer-events: none;
+}
+
+/* =======================================
+   Tree Structure - Leaders Row
+   ======================================= */
+.leadersRow {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: var(--space-8);
+  position: relative;
+  z-index: 2;
+  margin-bottom: var(--space-2);
+}
+
+/* Main vertical line from leaders */
+.mainConnector {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1000px;
+  padding: var(--space-4) 0;
+}
+
+.mainVerticalLine {
+  width: 3px;
+  height: 50px;
+  background: linear-gradient(
+    180deg,
+    var(--metallic-gold) 0%,
+    rgba(212, 175, 55, 0.6) 100%
+  );
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+  position: relative;
+}
+
+.mainVerticalLine::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background: var(--metallic-gold);
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--metallic-gold-glow);
+}
+
+/* Horizontal distribution line */
+.distributionLine {
+  width: 90%;
+  max-width: 900px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--metallic-gold-dark) 5%,
+    var(--metallic-gold) 50%,
+    var(--metallic-gold-dark) 95%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+  position: relative;
+}
+
+/* Drop lines to members */
+.dropLinesContainer {
+  display: flex;
+  justify-content: space-around;
+  width: 90%;
+  max-width: 900px;
+  position: relative;
+}
+
+.dropLine {
+  width: 2px;
+  height: 30px;
+  background: linear-gradient(
+    180deg,
+    var(--metallic-gold) 0%,
+    rgba(212, 175, 55, 0.3) 100%
+  );
+  position: relative;
+}
+
+.dropLine::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  background: var(--metallic-gold);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--metallic-gold-glow);
+}
+
+/* =======================================
+   Members Grid - Dense Layout
+   ======================================= */
+.membersGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 1000px;
+  justify-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 1024px) {
+  .membersGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3);
+  }
+}
+
+@media (max-width: 768px) {
+  .membersGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+
+  .leadersRow {
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .membersGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  .mainConnector {
+    padding: var(--space-2) 0;
+  }
+
+  .mainVerticalLine {
+    height: 30px;
+  }
+
+  .dropLinesContainer {
+    display: none;
+  }
 }
 
 /* =======================================
@@ -1846,6 +2036,46 @@
 :global([data-theme="light"]) .branchLine::before {
   background: #b8860b;
   box-shadow: 0 0 5px rgba(184, 134, 11, 0.4);
+}
+
+/* Light mode: New tree connector styles */
+:global([data-theme="light"]) .mainVerticalLine {
+  background: linear-gradient(
+    180deg,
+    #b8860b 0%,
+    rgba(184, 134, 11, 0.4) 100%
+  );
+  box-shadow: 0 0 12px rgba(184, 134, 11, 0.2);
+}
+
+:global([data-theme="light"]) .mainVerticalLine::before {
+  background: #b8860b;
+  box-shadow: 0 0 15px rgba(184, 134, 11, 0.5);
+}
+
+:global([data-theme="light"]) .distributionLine {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(184, 134, 11, 0.3) 5%,
+    #b8860b 50%,
+    rgba(184, 134, 11, 0.3) 95%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px rgba(184, 134, 11, 0.15);
+}
+
+:global([data-theme="light"]) .dropLine {
+  background: linear-gradient(
+    180deg,
+    #b8860b 0%,
+    rgba(184, 134, 11, 0.2) 100%
+  );
+}
+
+:global([data-theme="light"]) .dropLine::after {
+  background: #b8860b;
+  box-shadow: 0 0 8px rgba(184, 134, 11, 0.5);
 }
 
 :global([data-theme="light"]) .unitLabel {

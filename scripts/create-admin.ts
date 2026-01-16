@@ -24,7 +24,7 @@ async function createAdminAccount() {
 
   // Supabase Auth에서는 이메일 형식이 필요함
   const email = 'admin@rg-family.local'
-  const password = 'admin'
+  const password = 'admin123'  // Supabase 비밀번호 정책: 최소 6자
 
   // 기존 계정 확인 및 생성
   const { data: existingUsers } = await supabase.auth.admin.listUsers()
@@ -88,7 +88,7 @@ async function createAdminAccount() {
 
   console.log('\n📝 로그인 정보:')
   console.log('   아이디: admin@rg-family.local (또는 admin)')
-  console.log('   비밀번호: admin')
+  console.log('   비밀번호: admin123')
 }
 
 createAdminAccount()

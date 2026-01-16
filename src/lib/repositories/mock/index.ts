@@ -11,6 +11,7 @@ import {
   INoticeRepository,
   IDataProvider,
   IDonationRepository,
+  IEpisodeRepository,
   IPostRepository,
   ICommentRepository,
   ISignatureRepository,
@@ -18,6 +19,9 @@ import {
   IBannerRepository,
   ITimelineRepository,
   IScheduleRepository,
+  PaginationOptions,
+  PaginatedResult,
+  SearchOptions,
 } from '../types'
 import {
   mockProfiles,
@@ -34,7 +38,7 @@ import {
   mockSchedules,
 } from '@/lib/mock'
 import type { RankingItem, UnitFilter, TimelineItem } from '@/types/common'
-import type { Season, Profile, Notice, Donation, Post, Schedule, Signature, MediaContent, Comment, Banner } from '@/types/database'
+import type { Season, Profile, Notice, Donation, Episode, Post, Schedule, Signature, MediaContent, Comment, Banner } from '@/types/database'
 import type { OrganizationRecord } from '@/types/organization'
 import type { CommentItem, PostItem } from '@/types/content'
 
@@ -212,9 +216,141 @@ class MockDonationRepository implements IDonationRepository {
     return mockDonations.filter(d => d.season_id === seasonId)
   }
 
+  async findByEpisode(episodeId: number): Promise<Donation[]> {
+    return mockDonations
+      .filter(d => d.episode_id === episodeId)
+      .sort((a, b) => b.amount - a.amount)
+  }
+
   async getTotal(donorId: string): Promise<number> {
     const donations = await this.findByDonor(donorId)
     return donations.reduce((sum, d) => sum + d.amount, 0)
+  }
+
+  async getTotalByEpisode(donorId: string, episodeId: number): Promise<number> {
+    const donations = mockDonations.filter(
+      d => d.donor_id === donorId && d.episode_id === episodeId
+    )
+    return donations.reduce((sum, d) => sum + d.amount, 0)
+  }
+}
+
+// ============================================
+// Mock Episode Repository (회차별 VIP 시스템)
+// ============================================
+// Mock episodes data (직급전 회차 포함)
+const mockEpisodes: Episode[] = [
+  // 시즌 1 에피소드
+  { id: 1, season_id: 1, episode_number: 1, title: '시즌1 1회', broadcast_date: '2024-01-01T20:00:00+09:00', is_rank_battle: false, description: null, created_at: '2024-01-01T00:00:00Z' },
+  { id: 2, season_id: 1, episode_number: 2, title: '시즌1 직급전 1차', broadcast_date: '2024-01-15T20:00:00+09:00', is_rank_battle: true, description: '첫 번째 직급전', created_at: '2024-01-01T00:00:00Z' },
+  { id: 3, season_id: 1, episode_number: 3, title: '시즌1 3회', broadcast_date: '2024-02-01T20:00:00+09:00', is_rank_battle: false, description: null, created_at: '2024-01-01T00:00:00Z' },
+  { id: 4, season_id: 1, episode_number: 4, title: '시즌1 직급전 2차', broadcast_date: '2024-02-15T20:00:00+09:00', is_rank_battle: true, description: '두 번째 직급전', created_at: '2024-01-01T00:00:00Z' },
+  { id: 5, season_id: 1, episode_number: 5, title: '시즌1 직급전 3차', broadcast_date: '2024-03-01T20:00:00+09:00', is_rank_battle: true, description: '세 번째 직급전', created_at: '2024-01-01T00:00:00Z' },
+  { id: 6, season_id: 1, episode_number: 6, title: '시즌1 직급전 4차 (파이널)', broadcast_date: '2024-03-15T20:00:00+09:00', is_rank_battle: true, description: '시즌 파이널 직급전', created_at: '2024-01-01T00:00:00Z' },
+  // 시즌 4 에피소드 (현재 시즌)
+  { id: 7, season_id: 4, episode_number: 1, title: '시즌4 1회', broadcast_date: '2024-10-01T20:00:00+09:00', is_rank_battle: false, description: null, created_at: '2024-10-01T00:00:00Z' },
+  { id: 8, season_id: 4, episode_number: 2, title: '시즌4 직급전 1차', broadcast_date: '2024-10-15T20:00:00+09:00', is_rank_battle: true, description: '시즌4 첫 직급전', created_at: '2024-10-01T00:00:00Z' },
+  { id: 9, season_id: 4, episode_number: 3, title: '시즌4 3회', broadcast_date: '2024-11-01T20:00:00+09:00', is_rank_battle: false, description: null, created_at: '2024-10-01T00:00:00Z' },
+  { id: 10, season_id: 4, episode_number: 4, title: '시즌4 직급전 2차', broadcast_date: '2024-11-15T20:00:00+09:00', is_rank_battle: true, description: '시즌4 두 번째 직급전', created_at: '2024-10-01T00:00:00Z' },
+]
+
+class MockEpisodeRepository implements IEpisodeRepository {
+  async findById(id: number): Promise<Episode | null> {
+    return mockEpisodes.find(e => e.id === id) || null
+  }
+
+  async findBySeason(seasonId: number): Promise<Episode[]> {
+    return mockEpisodes
+      .filter(e => e.season_id === seasonId)
+      .sort((a, b) => a.episode_number - b.episode_number)
+  }
+
+  async findRankBattles(seasonId: number): Promise<Episode[]> {
+    return mockEpisodes
+      .filter(e => e.season_id === seasonId && e.is_rank_battle)
+      .sort((a, b) => a.episode_number - b.episode_number)
+  }
+
+  async findLatestRankBattle(seasonId?: number): Promise<Episode | null> {
+    let episodes = mockEpisodes.filter(e => e.is_rank_battle)
+
+    if (seasonId) {
+      episodes = episodes.filter(e => e.season_id === seasonId)
+    }
+
+    if (episodes.length === 0) return null
+
+    return episodes.sort((a, b) =>
+      new Date(b.broadcast_date).getTime() - new Date(a.broadcast_date).getTime()
+    )[0]
+  }
+
+  async getEpisodeRankings(
+    episodeId: number,
+    limit: number = 50
+  ): Promise<{
+    rank: number
+    donorId: string | null
+    donorName: string
+    totalAmount: number
+  }[]> {
+    // Filter donations for this episode
+    const episodeDonations = mockDonations.filter(d => d.episode_id === episodeId)
+
+    // Aggregate by donor
+    const donorMap = new Map<string, { donorId: string | null; donorName: string; totalAmount: number }>()
+
+    episodeDonations.forEach(donation => {
+      const key = donation.donor_id || donation.donor_name
+      const existing = donorMap.get(key)
+      if (existing) {
+        existing.totalAmount += donation.amount
+      } else {
+        donorMap.set(key, {
+          donorId: donation.donor_id,
+          donorName: donation.donor_name,
+          totalAmount: donation.amount,
+        })
+      }
+    })
+
+    // Sort and add rank
+    return Array.from(donorMap.values())
+      .sort((a, b) => b.totalAmount - a.totalAmount)
+      .slice(0, limit)
+      .map((item, index) => ({
+        ...item,
+        rank: index + 1,
+      }))
+  }
+
+  async isVipForEpisode(userId: string, episodeId: number): Promise<boolean> {
+    const rankings = await this.getEpisodeRankings(episodeId, 50)
+    return rankings.some(r => r.donorId === userId)
+  }
+
+  async isVipForRankBattles(userId: string, seasonId?: number): Promise<boolean> {
+    // Get rank battles for the season (or all if no seasonId)
+    let rankBattles = mockEpisodes.filter(e => e.is_rank_battle)
+
+    if (seasonId) {
+      rankBattles = rankBattles.filter(e => e.season_id === seasonId)
+    } else {
+      // Find active season
+      const activeSeason = mockSeasons.find(s => s.is_active)
+      if (activeSeason) {
+        rankBattles = rankBattles.filter(e => e.season_id === activeSeason.id)
+      }
+    }
+
+    // Check if user is VIP in any rank battle
+    for (const episode of rankBattles) {
+      if (await this.isVipForEpisode(userId, episode.id)) {
+        return true
+      }
+    }
+
+    return false
   }
 }
 
@@ -254,6 +390,79 @@ class MockNoticeRepository implements INoticeRepository {
 
   async findAll(): Promise<Notice[]> {
     return mockNotices
+  }
+
+  async findPaginated(
+    options: PaginationOptions & { category?: string }
+  ): Promise<PaginatedResult<Notice>> {
+    const { page, limit, category } = options
+
+    let notices = [...mockNotices]
+
+    // 카테고리 필터
+    if (category && category !== 'all') {
+      notices = notices.filter(n => n.category === category)
+    }
+
+    // 정렬: 고정글 우선, 최신순
+    notices.sort((a, b) => {
+      if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+
+    const totalCount = notices.length
+    const totalPages = Math.ceil(totalCount / limit)
+    const offset = (page - 1) * limit
+    const data = notices.slice(offset, offset + limit)
+
+    return {
+      data,
+      totalCount,
+      page,
+      limit,
+      totalPages,
+    }
+  }
+
+  async search(
+    query: string,
+    options: SearchOptions & { category?: string }
+  ): Promise<PaginatedResult<Notice>> {
+    const { page, limit, category } = options
+
+    let notices = [...mockNotices]
+
+    // 카테고리 필터
+    if (category && category !== 'all') {
+      notices = notices.filter(n => n.category === category)
+    }
+
+    // 검색 필터
+    if (query) {
+      const q = query.toLowerCase()
+      notices = notices.filter(n =>
+        n.title.toLowerCase().includes(q)
+      )
+    }
+
+    // 정렬
+    notices.sort((a, b) => {
+      if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+
+    const totalCount = notices.length
+    const totalPages = Math.ceil(totalCount / limit)
+    const offset = (page - 1) * limit
+    const data = notices.slice(offset, offset + limit)
+
+    return {
+      data,
+      totalCount,
+      page,
+      limit,
+      totalPages,
+    }
   }
 }
 
@@ -309,6 +518,104 @@ class MockPostRepository implements IPostRepository {
   async delete(id: number): Promise<boolean> {
     void id
     return true
+  }
+
+  async findPaginated(
+    category: string,
+    options: PaginationOptions
+  ): Promise<PaginatedResult<PostItem>> {
+    const { page, limit } = options
+
+    const posts = mockPosts
+      .filter(p => p.board_type === category)
+      .map((post) => this.mapPostItem(post))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+    const totalCount = posts.length
+    const totalPages = Math.ceil(totalCount / limit)
+    const offset = (page - 1) * limit
+    const data = posts.slice(offset, offset + limit)
+
+    return {
+      data,
+      totalCount,
+      page,
+      limit,
+      totalPages,
+    }
+  }
+
+  async search(
+    query: string,
+    options: SearchOptions & { category?: string }
+  ): Promise<PaginatedResult<PostItem>> {
+    const { page, limit, searchType = 'all', category } = options
+
+    let posts = mockPosts.map((post) => this.mapPostItem(post))
+
+    // 카테고리 필터
+    if (category) {
+      posts = posts.filter(p => p.boardType === category)
+    }
+
+    // 검색 필터
+    if (query) {
+      const q = query.toLowerCase()
+      if (searchType === 'title') {
+        posts = posts.filter(p => p.title.toLowerCase().includes(q))
+      } else if (searchType === 'author') {
+        posts = posts.filter(p => p.authorName.toLowerCase().includes(q))
+      } else {
+        // 'all' - 제목 + 작성자
+        posts = posts.filter(p =>
+          p.title.toLowerCase().includes(q) ||
+          p.authorName.toLowerCase().includes(q)
+        )
+      }
+    }
+
+    // 정렬
+    posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+    const totalCount = posts.length
+    const totalPages = Math.ceil(totalCount / limit)
+    const offset = (page - 1) * limit
+    const data = posts.slice(offset, offset + limit)
+
+    return {
+      data,
+      totalCount,
+      page,
+      limit,
+      totalPages,
+    }
+  }
+
+  // Mock likes storage (메모리 내 저장)
+  private likes = new Map<string, Set<string>>() // postId -> Set<userId>
+
+  async toggleLike(postId: number, userId: string): Promise<{ liked: boolean; likeCount: number } | null> {
+    const key = String(postId)
+    if (!this.likes.has(key)) {
+      this.likes.set(key, new Set())
+    }
+
+    const postLikes = this.likes.get(key)!
+    const liked = !postLikes.has(userId)
+
+    if (liked) {
+      postLikes.add(userId)
+    } else {
+      postLikes.delete(userId)
+    }
+
+    const likeCount = postLikes.size
+    return { liked, likeCount }
+  }
+
+  async hasUserLiked(postId: number, userId: string): Promise<boolean> {
+    const key = String(postId)
+    return this.likes.get(key)?.has(userId) ?? false
   }
 }
 
@@ -562,6 +869,7 @@ export class MockDataProvider implements IDataProvider {
   readonly seasons = new MockSeasonRepository()
   readonly profiles = new MockProfileRepository()
   readonly donations = new MockDonationRepository()
+  readonly episodes = new MockEpisodeRepository()
   readonly organization = new MockOrganizationRepository()
   readonly notices = new MockNoticeRepository()
   readonly posts = new MockPostRepository()

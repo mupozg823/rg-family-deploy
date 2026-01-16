@@ -4,7 +4,7 @@ import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, Eye, Calendar, User, MessageSquare, Send } from 'lucide-react'
+import { ArrowLeft, Eye, Calendar, User, MessageSquare, Send, Heart } from 'lucide-react'
 import { useAuthContext, useComments, usePosts } from '@/lib/context'
 import { formatDate } from '@/lib/utils/format'
 import type { CommentItem, PostItem } from '@/types/content'
@@ -25,6 +25,9 @@ export default function PostDetailPage({
   const [newComment, setNewComment] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLiked, setIsLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
+  const [isLiking, setIsLiking] = useState(false)
 
   const fetchPost = async (shouldIncrementView = true) => {
     setIsLoading(true)
@@ -42,6 +45,13 @@ export default function PostDetailPage({
     }
 
     setPost({ ...postData, viewCount })
+    setLikeCount(postData.likeCount)
+
+    // 좋아요 상태 확인
+    if (user) {
+      const liked = await postsRepo.hasUserLiked(postData.id, user.id)
+      setIsLiked(liked)
+    }
 
     const postComments = await commentsRepo.findByPostId(parseInt(id))
     setComments(postComments)
@@ -49,10 +59,33 @@ export default function PostDetailPage({
     setIsLoading(false)
   }
 
+  const handleLike = async () => {
+    if (!user || !post || isLiking) return
+
+    setIsLiking(true)
+    const result = await postsRepo.toggleLike(post.id, user.id)
+
+    if (result) {
+      setIsLiked(result.liked)
+      setLikeCount(result.likeCount)
+    }
+
+    setIsLiking(false)
+  }
+
   useEffect(() => {
     void fetchPost(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
+
+  // 로그인 상태 변경 시 좋아요 상태 갱신
+  useEffect(() => {
+    if (post && user) {
+      postsRepo.hasUserLiked(post.id, user.id).then(setIsLiked)
+    } else if (!user) {
+      setIsLiked(false)
+    }
+  }, [user, post?.id, postsRepo])
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -155,6 +188,19 @@ export default function PostDetailPage({
             {post.content.split('\n').map((paragraph, index) => (
               <p key={index}>{paragraph || '\u00A0'}</p>
             ))}
+          </div>
+
+          {/* Article Actions */}
+          <div className={styles.articleActions}>
+            <button
+              onClick={handleLike}
+              disabled={!user || isLiking}
+              className={`${styles.likeButton} ${isLiked ? styles.liked : ''}`}
+              title={!user ? '로그인이 필요합니다' : isLiked ? '좋아요 취소' : '좋아요'}
+            >
+              <Heart size={18} />
+              <span>좋아요 {likeCount > 0 ? likeCount : ''}</span>
+            </button>
           </div>
         </article>
 

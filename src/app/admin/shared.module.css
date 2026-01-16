@@ -425,6 +425,29 @@
   color: var(--color-primary);
 }
 
+/* Filter Row */
+.filterRow {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filterSelect {
+  padding: 0.5rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
 /* Type Selector */
 .typeSelector {
   display: flex;

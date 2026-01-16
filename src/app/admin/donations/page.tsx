@@ -80,10 +80,11 @@ export default function DonationsPage() {
   }
 
   const csvColumns = [
-    { key: 'ID', label: '후원자ID', required: true },
+    { key: '닉네임', label: '닉네임', required: true },
     { key: '하트', label: '하트', required: true },
     { key: '일시', label: '일시', required: false },
-    { key: '내용', label: '내용', required: false },
+    { key: '팬등급', label: '팬등급', required: false },
+    { key: '내용', label: '메시지', required: false },
   ]
 
   const columns: Column<DonationItem>[] = [

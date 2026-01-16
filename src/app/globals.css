@@ -135,12 +135,12 @@
      3. Core Colors - Official Brand Palette
      ============================================ */
 
-  /* Primary Brand Color: RG Deep Pink (The Only Accent) */
-  --color-pink: #c41e7f;
-  --color-pink-light: #d84a9a;
-  --color-pink-deep: #9a1a66;
-  --color-pink-glow: rgba(196, 30, 127, 0.3);
-  --color-pink-bg: rgba(196, 30, 127, 0.08);
+  /* Primary Brand Color: RG Signature Pink (#fd68ba - CLAUDE.md 기준) */
+  --color-pink: #fd68ba;
+  --color-pink-light: #ff8ed4;
+  --color-pink-deep: #fb37a3;
+  --color-pink-glow: rgba(253, 104, 186, 0.3);
+  --color-pink-bg: rgba(253, 104, 186, 0.08);
 
   /* Secondary Brand Color: Rose Gold (Luxury/VIP) */
   --color-gold: #d4af37;
@@ -164,8 +164,8 @@
   --color-warning: #eab308;
   --color-warning-bg: rgba(234, 179, 8, 0.15);
 
-  --color-info: #d84a9a;
-  --color-info-bg: rgba(216, 74, 154, 0.15);
+  --color-info: #fd68ba;
+  --color-info-bg: rgba(253, 104, 186, 0.15);
 
   --color-cyan: #00f0ff;
   --color-cyan-bg: rgba(0, 240, 255, 0.15);
@@ -246,8 +246,8 @@
      ============================================ */
 
   /* Pink Border (for badges/buttons) */
-  --color-pink-border: rgba(196, 30, 127, 0.4);
-  --color-pink-border-strong: rgba(196, 30, 127, 0.4);
+  --color-pink-border: rgba(253, 104, 186, 0.4);
+  --color-pink-border-strong: rgba(253, 104, 186, 0.4);
 
   /* Pink Gradients */
   --pink-gradient-primary: linear-gradient(
@@ -268,10 +268,10 @@
   );
 
   /* Pink Glow Shadows */
-  --pink-glow-sm: 0 4px 15px rgba(196, 30, 127, 0.3);
-  --pink-glow-md: 0 4px 15px rgba(196, 30, 127, 0.4);
-  --pink-glow-lg: 0 6px 20px rgba(196, 30, 127, 0.4);
-  --pink-glow-xl: 0 6px 25px rgba(196, 30, 127, 0.5);
+  --pink-glow-sm: 0 4px 15px rgba(253, 104, 186, 0.3);
+  --pink-glow-md: 0 4px 15px rgba(253, 104, 186, 0.4);
+  --pink-glow-lg: 0 6px 20px rgba(253, 104, 186, 0.4);
+  --pink-glow-xl: 0 6px 25px rgba(253, 104, 186, 0.5);
 
   /* Gold Light variant */
   --metallic-gold-light: #f0d060;
@@ -463,13 +463,13 @@
   --gray-overlay-15: rgba(100, 100, 100, 0.15);
   --gray-overlay-20: rgba(150, 150, 150, 0.15);
 
-  /* Pink Utility - Various Opacities */
-  --color-pink-overlay-01: rgba(196, 30, 127, 0.01);
-  --color-pink-overlay-02: rgba(196, 30, 127, 0.02);
-  --color-pink-overlay-03: rgba(196, 30, 127, 0.03);
-  --color-pink-overlay-05: rgba(196, 30, 127, 0.05);
-  --color-pink-overlay-08: rgba(196, 30, 127, 0.08);
-  --color-pink-overlay-10: rgba(196, 30, 127, 0.1);
+  /* Pink Utility - Various Opacities (CLAUDE.md: #fd68ba) */
+  --color-pink-overlay-01: rgba(253, 104, 186, 0.01);
+  --color-pink-overlay-02: rgba(253, 104, 186, 0.02);
+  --color-pink-overlay-03: rgba(253, 104, 186, 0.03);
+  --color-pink-overlay-05: rgba(253, 104, 186, 0.05);
+  --color-pink-overlay-08: rgba(253, 104, 186, 0.08);
+  --color-pink-overlay-10: rgba(253, 104, 186, 0.1);
 
   /* Live/Error Color Utility */
   --live-overlay-02: rgba(239, 68, 68, 0.02);
@@ -492,7 +492,7 @@
     135deg,
     rgba(212, 175, 55, 0.02) 0%,
     transparent 50%,
-    rgba(196, 30, 127, 0.01) 100%
+    rgba(253, 104, 186, 0.01) 100%
   );
   --vip-card-gradient-hover: linear-gradient(
     135deg,
@@ -504,7 +504,7 @@
   /* Hero Glow */
   --hero-glow: radial-gradient(
     ellipse at center,
-    rgba(196, 30, 127, 0.15) 0%,
+    rgba(253, 104, 186, 0.15) 0%,
     transparent 60%
   );
   --hero-padding: var(--space-16) var(--space-8) var(--space-12);
@@ -547,35 +547,36 @@
   --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
 
   /* ============================================
-     Rank System Colors (Light Mode Overrides - Darker/Richer for Contrast)
+     Rank System Colors (Light Mode - Brighter & Vibrant)
+     K-0004: 라이트 모드에서 금은동 더 밝게 조정
      ============================================ */
 
-  /* Gold (Rank 1) - Premium Metallic (Light Mode - Enhanced Contrast) */
-  --metallic-gold: #996600;
-  --metallic-gold-light: #b8860b;
-  --metallic-gold-dark: #7a5200;
-  --metallic-gold-bg: rgba(153, 102, 0, 0.15);
-  --metallic-gold-border: rgba(153, 102, 0, 0.5);
-  --metallic-gold-glow: rgba(153, 102, 0, 0.35);
-  --metallic-gold-gradient: linear-gradient(135deg, #b8860b 0%, #996600 30%, #7a5200 70%, #996600 100%);
+  /* Gold (Rank 1) - Vibrant Gold (Light Mode) */
+  --metallic-gold: #d4a000;
+  --metallic-gold-light: #f0c000;
+  --metallic-gold-dark: #b8860b;
+  --metallic-gold-bg: rgba(212, 160, 0, 0.12);
+  --metallic-gold-border: rgba(212, 160, 0, 0.5);
+  --metallic-gold-glow: rgba(212, 160, 0, 0.3);
+  --metallic-gold-gradient: linear-gradient(135deg, #f0c000 0%, #d4a000 30%, #b8860b 70%, #d4a000 100%);
 
-  /* Silver (Rank 2) - Premium Platinum (Light Mode) */
-  --metallic-silver: #808080;
-  --metallic-silver-light: #a0a0a0;
-  --metallic-silver-dark: #606060;
-  --metallic-silver-bg: rgba(128, 128, 128, 0.12);
-  --metallic-silver-border: rgba(128, 128, 128, 0.4);
-  --metallic-silver-glow: rgba(128, 128, 128, 0.25);
-  --metallic-silver-gradient: linear-gradient(135deg, #a0a0a0 0%, #808080 30%, #606060 70%, #808080 100%);
+  /* Silver (Rank 2) - Slate Silver (Light Mode) */
+  --metallic-silver: #6b7280;
+  --metallic-silver-light: #9ca3af;
+  --metallic-silver-dark: #4b5563;
+  --metallic-silver-bg: rgba(107, 114, 128, 0.1);
+  --metallic-silver-border: rgba(107, 114, 128, 0.4);
+  --metallic-silver-glow: rgba(107, 114, 128, 0.2);
+  --metallic-silver-gradient: linear-gradient(135deg, #9ca3af 0%, #6b7280 30%, #4b5563 70%, #6b7280 100%);
 
-  /* Bronze (Rank 3) - Premium Copper (Light Mode) */
-  --metallic-bronze: #a05030;
-  --metallic-bronze-light: #c06040;
-  --metallic-bronze-dark: #804020;
-  --metallic-bronze-bg: rgba(160, 80, 48, 0.12);
-  --metallic-bronze-border: rgba(160, 80, 48, 0.4);
-  --metallic-bronze-glow: rgba(160, 80, 48, 0.25);
-  --metallic-bronze-gradient: linear-gradient(135deg, #c06040 0%, #a05030 30%, #804020 70%, #a05030 100%);
+  /* Bronze (Rank 3) - Warm Copper (Light Mode) */
+  --metallic-bronze: #b5651d;
+  --metallic-bronze-light: #cd853f;
+  --metallic-bronze-dark: #8b4513;
+  --metallic-bronze-bg: rgba(181, 101, 29, 0.1);
+  --metallic-bronze-border: rgba(181, 101, 29, 0.4);
+  --metallic-bronze-glow: rgba(181, 101, 29, 0.2);
+  --metallic-bronze-gradient: linear-gradient(135deg, #cd853f 0%, #b5651d 30%, #8b4513 70%, #b5651d 100%);
 
   /* Scrollbar */
   --scrollbar-thumb: rgba(0, 0, 0, 0.2);
@@ -707,13 +708,13 @@
   --gray-overlay-15: rgba(100, 100, 100, 0.12);
   --gray-overlay-20: rgba(100, 100, 100, 0.15);
 
-  /* Pink Utility - Light Mode (slightly adjusted) */
-  --color-pink-overlay-01: rgba(196, 30, 127, 0.02);
-  --color-pink-overlay-02: rgba(196, 30, 127, 0.03);
-  --color-pink-overlay-03: rgba(196, 30, 127, 0.04);
-  --color-pink-overlay-05: rgba(196, 30, 127, 0.06);
-  --color-pink-overlay-08: rgba(196, 30, 127, 0.1);
-  --color-pink-overlay-10: rgba(196, 30, 127, 0.12);
+  /* Pink Utility - Light Mode (CLAUDE.md: #fd68ba) */
+  --color-pink-overlay-01: rgba(253, 104, 186, 0.02);
+  --color-pink-overlay-02: rgba(253, 104, 186, 0.03);
+  --color-pink-overlay-03: rgba(253, 104, 186, 0.04);
+  --color-pink-overlay-05: rgba(253, 104, 186, 0.06);
+  --color-pink-overlay-08: rgba(253, 104, 186, 0.1);
+  --color-pink-overlay-10: rgba(253, 104, 186, 0.12);
 
   /* Live/Error Color Utility - Light */
   --live-overlay-02: rgba(239, 68, 68, 0.03);
@@ -736,7 +737,7 @@
     135deg,
     rgba(184, 134, 11, 0.03) 0%,
     transparent 50%,
-    rgba(196, 30, 127, 0.02) 100%
+    rgba(253, 104, 186, 0.02) 100%
   );
   --vip-card-gradient-hover: linear-gradient(
     135deg,
@@ -748,7 +749,7 @@
   /* Hero Glow - Light */
   --hero-glow: radial-gradient(
     ellipse at center,
-    rgba(196, 30, 127, 0.1) 0%,
+    rgba(253, 104, 186, 0.1) 0%,
     transparent 60%
   );
   --hero-padding: var(--space-16) var(--space-8) var(--space-12);
@@ -956,7 +957,7 @@ html {
 }
 
 /* ============================================
-   Simple Hover Effects (no excessive animation)
+   Hover Effects (CLAUDE.md: 호버 시 핑크로 변경)
    ============================================ */
 .hover-lift {
   transition: var(--transition-base);
@@ -965,13 +966,13 @@ html {
   transform: translateY(-2px);
 }
 
-/* Signature Pink Hover Effect */
+/* Signature Pink Hover Effect (CLAUDE.md 기준) */
 .hover-pink {
   transition: all 0.2s ease;
 }
 .hover-pink:hover {
   border-color: var(--color-pink) !important;
-  box-shadow: 0 0 20px rgba(253, 104, 186, 0.3);
+  box-shadow: var(--pink-glow-sm);
 }
 
 /* Combined hover effect for cards */
@@ -981,7 +982,18 @@ html {
 .hover-card:hover {
   transform: translateY(-2px);
   border-color: var(--color-pink) !important;
-  box-shadow: 0 0 20px rgba(253, 104, 186, 0.3);
+  box-shadow: var(--pink-glow-sm);
+}
+
+/* Standardized Interactive Hover (K-0003) */
+.hover-interactive {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.hover-interactive:hover {
+  border-color: var(--color-pink) !important;
+  box-shadow: var(--pink-glow-sm);
+  transform: translateY(-2px);
 }
 
 /* ============================================

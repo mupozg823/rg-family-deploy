@@ -7,6 +7,7 @@ import type {
   Profile,
   Season,
   Donation,
+  Episode,
   Notice,
   Schedule,
   Signature,
@@ -20,6 +21,26 @@ import type {
 import type { OrganizationRecord } from '@/types/organization'
 import type { RankingItem, UnitFilter, TimelineItem } from '@/types/common'
 import type { CommentItem, PostItem } from '@/types/content'
+
+// ============================================
+// Pagination Types
+// ============================================
+export interface PaginationOptions {
+  page: number
+  limit: number
+}
+
+export interface PaginatedResult<T> {
+  data: T[]
+  totalCount: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface SearchOptions extends PaginationOptions {
+  searchType?: 'all' | 'title' | 'author'
+}
 
 // ============================================
 // Base Repository Interface
@@ -55,7 +76,24 @@ export interface IProfileRepository extends IRepository<Profile> {
 export interface IDonationRepository {
   findByDonor(donorId: string): Promise<Donation[]>
   findBySeason(seasonId: number): Promise<Donation[]>
+  findByEpisode(episodeId: number): Promise<Donation[]>
   getTotal(donorId: string): Promise<number>
+  getTotalByEpisode(donorId: string, episodeId: number): Promise<number>
+}
+
+export interface IEpisodeRepository {
+  findById(id: number): Promise<Episode | null>
+  findBySeason(seasonId: number): Promise<Episode[]>
+  findRankBattles(seasonId: number): Promise<Episode[]>
+  findLatestRankBattle(seasonId?: number): Promise<Episode | null>
+  getEpisodeRankings(episodeId: number, limit?: number): Promise<{
+    rank: number
+    donorId: string | null
+    donorName: string
+    totalAmount: number
+  }[]>
+  isVipForEpisode(userId: string, episodeId: number): Promise<boolean>
+  isVipForRankBattles(userId: string, seasonId?: number): Promise<boolean>
 }
 
 export interface IOrganizationRepository {
@@ -67,6 +105,8 @@ export interface IOrganizationRepository {
 export interface INoticeRepository extends IRepository<Notice> {
   findRecent(limit: number): Promise<Notice[]>
   findPublished(): Promise<Notice[]>
+  findPaginated(options: PaginationOptions & { category?: string }): Promise<PaginatedResult<Notice>>
+  search(query: string, options: SearchOptions & { category?: string }): Promise<PaginatedResult<Notice>>
 }
 
 export interface IPostRepository extends IRepository<PostItem> {
@@ -75,6 +115,11 @@ export interface IPostRepository extends IRepository<PostItem> {
   findAll(): Promise<PostItem[]>
   incrementViewCount(id: number, currentCount?: number): Promise<number | null>
   delete(id: number): Promise<boolean>
+  findPaginated(category: string, options: PaginationOptions): Promise<PaginatedResult<PostItem>>
+  search(query: string, options: SearchOptions & { category?: string }): Promise<PaginatedResult<PostItem>>
+  // 좋아요 기능
+  toggleLike(postId: number, userId: string): Promise<{ liked: boolean; likeCount: number } | null>
+  hasUserLiked(postId: number, userId: string): Promise<boolean>
 }
 
 export interface ITimelineRepository {
@@ -174,6 +219,8 @@ export interface IDataProvider {
   posts: IPostRepository
   timeline: ITimelineRepository
   schedules: IScheduleRepository
+  // Episode-based VIP System
+  episodes?: IEpisodeRepository
   // New Repositories (선택적 - 점진적 구현)
   comments?: ICommentRepository
   signatures?: ISignatureRepository

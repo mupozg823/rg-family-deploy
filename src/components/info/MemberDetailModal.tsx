@@ -42,7 +42,7 @@ export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
             )}
             <div className={`${styles.modalAvatar} ${member.is_live ? styles.modalAvatarLive : ''}`}>
               {member.image_url ? (
-                <Image src={member.image_url} alt={member.name} fill className={styles.avatarImage} />
+                <Image src={member.image_url} alt={member.name} fill sizes="200px" className={styles.avatarImage} />
               ) : (
                 <div className={styles.modalAvatarPlaceholder}>
                   {member.name.charAt(0)}

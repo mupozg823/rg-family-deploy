@@ -32,4 +32,5 @@ export {
   useMediaContent,
   useTimeline,
   useSchedules,
+  useEpisodes,
 } from './DataProviderContext'

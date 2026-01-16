@@ -447,7 +447,7 @@
 }
 
 .unitBadge[data-unit="excel"] {
-  background: rgba(196, 30, 127, 0.15);
+  background: rgba(253, 104, 186, 0.15);
   color: var(--color-pink);
 }
 
@@ -664,7 +664,7 @@
 }
 
 .modalUnit[data-unit="excel"] {
-  background: rgba(196, 30, 127, 0.15);
+  background: rgba(253, 104, 186, 0.15);
   color: var(--color-pink);
 }
 

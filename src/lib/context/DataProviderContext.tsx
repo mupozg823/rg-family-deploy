@@ -126,3 +126,11 @@ export function useSchedules() {
   const { provider } = useDataProviderContext()
   return provider.schedules
 }
+
+export function useEpisodes() {
+  const { provider } = useDataProviderContext()
+  if (!provider.episodes) {
+    throw new Error('useEpisodes is not available in the current data provider')
+  }
+  return provider.episodes
+}

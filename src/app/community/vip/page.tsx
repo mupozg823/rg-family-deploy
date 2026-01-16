@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { MessageSquare, Crown, Lock } from 'lucide-react'
 import { PageLayout } from '@/components/layout'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { Pagination } from '@/components/common'
 import { useAuthContext, usePosts } from '@/lib/context'
 import { useVipStatus } from '@/lib/hooks'
 import { formatRelativeTime } from '@/lib/utils/format'
@@ -13,11 +14,15 @@ import TabFilter from '@/components/community/TabFilter'
 import type { PostItem } from '@/types/content'
 import styles from '../free/page.module.css'
 
+const ITEMS_PER_PAGE = 20
+
 export default function VipBoardPage() {
   const postsRepo = usePosts()
   const { user } = useAuthContext()
   const { isVip, isLoading: vipStatusLoading } = useVipStatus()
   const [posts, setPosts] = useState<PostItem[]>([])
+  const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
 
   const tabs = [
@@ -25,27 +30,29 @@ export default function VipBoardPage() {
     { label: 'VIP 라운지 (VIP)', value: 'vip', path: '/community/vip' },
   ]
 
+  const fetchPosts = useCallback(async (page: number) => {
+    const result = await postsRepo.findPaginated('vip', {
+      page,
+      limit: ITEMS_PER_PAGE,
+    })
+    setPosts(result.data)
+    setTotalPages(result.totalPages)
+    setIsLoading(false)
+  }, [postsRepo])
+
   useEffect(() => {
     // VIP 상태 확인 중이거나 VIP가 아니면 데이터 fetch 스킵
     if (vipStatusLoading || !isVip) {
       return
     }
 
-    let mounted = true
+    void fetchPosts(currentPage)
+  }, [fetchPosts, currentPage, isVip, vipStatusLoading])
 
-    const fetchPosts = async () => {
-      const data = await postsRepo.findByCategory('vip')
-      if (!mounted) return
-      setPosts(data.slice(0, 20))
-      setIsLoading(false)
-    }
-
-    void fetchPosts()
-
-    return () => {
-      mounted = false
-    }
-  }, [postsRepo, isVip, vipStatusLoading])
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   // VIP가 아닌 경우 로딩 상태 동기화 (effect 외부에서 파생 상태로 처리)
   const effectiveLoading = vipStatusLoading || (isVip && isLoading)
@@ -139,15 +146,15 @@ export default function VipBoardPage() {
 
         {isVip && (
           <div className={styles.boardFooter}>
-            <div className={styles.pagination}>
-              <button className={styles.pageBtn} disabled>«</button>
-              <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
-              <button className={styles.pageBtn}>»</button>
-            </div>
-            <button className={`${styles.writeBtn} ${styles.vipWriteBtn}`}>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+            <Link href="/community/write?board=vip" className={`${styles.writeBtn} ${styles.vipWriteBtn}`}>
               <Crown size={14} />
               글쓰기
-            </button>
+            </Link>
           </div>
         )}
         </div>

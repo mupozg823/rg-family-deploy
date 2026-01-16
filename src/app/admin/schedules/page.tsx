@@ -28,7 +28,7 @@ const eventTypeLabels: Record<EventType, string> = {
 }
 
 const eventTypeColors: Record<EventType, string> = {
-  broadcast: 'rgba(196, 30, 127, 0.15)',
+  broadcast: 'rgba(253, 104, 186, 0.15)',
   collab: 'rgba(96, 165, 250, 0.15)',
   event: 'rgba(59, 130, 246, 0.15)',
   notice: 'rgba(234, 179, 8, 0.15)',

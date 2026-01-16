@@ -58,6 +58,9 @@ export function useOrganizationData(
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // K-0005: mounted 체크로 언마운트 후 상태 업데이트 방지
+  const isMountedRef = useRef(true)
+
   // 데이터 페칭 함수
   const fetchData = useCallback(async () => {
     setIsLoading(true)
@@ -74,13 +77,19 @@ export function useOrganizationData(
         data = await organizationRepo.findAll()
       }
 
+      // 언마운트된 경우 상태 업데이트 스킵
+      if (!isMountedRef.current) return
+
       setMembers(data)
     } catch (err) {
+      if (!isMountedRef.current) return
       const message = err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다'
       setError(message)
       console.error('Organization data fetch error:', err)
     } finally {
-      setIsLoading(false)
+      if (isMountedRef.current) {
+        setIsLoading(false)
+      }
     }
   }, [organizationRepo, unit, liveOnly])
 
@@ -94,6 +103,13 @@ export function useOrganizationData(
   useEffect(() => {
     fetchData()
   }, [fetchData])
+
+  // K-0005: 언마운트 시 cleanup
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   // 실시간 구독 (별도 effect로 분리하여 재구독 최소화)
   useEffect(() => {

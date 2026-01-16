@@ -1,0 +1,123 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+}
+
+.button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.button.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+/* 직급전 배지 스타일 - 골드 */
+.button.rankBattle {
+  border-color: rgba(255, 215, 0, 0.5);
+}
+
+.button.rankBattle:hover {
+  border-color: var(--color-primary);
+}
+
+.button.rankBattle.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.rankBattleBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-gold, #ffd700);
+}
+
+.button.active .rankBattleBadge {
+  color: white;
+}
+
+.button:not(.active).rankBattle .rankBattleBadge {
+  background: rgba(255, 215, 0, 0.15);
+  color: var(--color-gold, #ffd700);
+}
+
+/* 스켈레톤 로딩 */
+.skeleton {
+  width: 100px;
+  height: 36px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-border) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .buttons {
+    width: 100%;
+  }
+
+  .button {
+    flex: 1;
+    justify-content: center;
+    min-width: 80px;
+  }
+}

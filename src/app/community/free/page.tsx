@@ -1,16 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Search, Eye, MessageSquare, ThumbsUp, PenLine, ChevronDown } from 'lucide-react'
 import { PageLayout } from '@/components/layout'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { Pagination } from '@/components/common'
 import { usePosts } from '@/lib/context'
 import { formatShortDate } from '@/lib/utils/format'
 import TabFilter from '@/components/community/TabFilter'
 import type { PostItem } from '@/types/content'
 import styles from './page.module.css'
+
+const ITEMS_PER_PAGE = 20
 
 function isNew(dateStr: string): boolean {
   const postDate = new Date(dateStr)
@@ -30,8 +33,12 @@ function isPopular(likeCount: number): boolean {
 export default function FreeBoardPage() {
   const postsRepo = usePosts()
   const [posts, setPosts] = useState<PostItem[]>([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchInput, setSearchInput] = useState('')
   const [searchType, setSearchType] = useState<'all' | 'title' | 'author'>('all')
   const [sortBy, setSortBy] = useState<'latest' | 'views' | 'likes'>('latest')
 
@@ -40,36 +47,48 @@ export default function FreeBoardPage() {
     { label: 'VIP 라운지', value: 'vip', path: '/community/vip' },
   ]
 
+  const fetchPosts = useCallback(async (page: number, query?: string) => {
+    setIsLoading(true)
+
+    if (query) {
+      const result = await postsRepo.search(query, {
+        page,
+        limit: ITEMS_PER_PAGE,
+        searchType,
+        category: 'free',
+      })
+      setPosts(result.data)
+      setTotalCount(result.totalCount)
+      setTotalPages(result.totalPages)
+    } else {
+      const result = await postsRepo.findPaginated('free', {
+        page,
+        limit: ITEMS_PER_PAGE,
+      })
+      setPosts(result.data)
+      setTotalCount(result.totalCount)
+      setTotalPages(result.totalPages)
+    }
+
+    setIsLoading(false)
+  }, [postsRepo, searchType])
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      setIsLoading(true)
+    void fetchPosts(currentPage, searchQuery)
+  }, [fetchPosts, currentPage, searchQuery])
 
-      const data = await postsRepo.findByCategory('free')
-      setPosts(data.slice(0, 20))
+  const handleSearch = () => {
+    setSearchQuery(searchInput)
+    setCurrentPage(1)
+  }
 
-      setIsLoading(false)
-    }
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
-    void fetchPosts()
-  }, [postsRepo])
-
-  // 검색 필터링
-  const filteredPosts = posts.filter(post => {
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
-    switch (searchType) {
-      case 'title':
-        return post.title.toLowerCase().includes(query)
-      case 'author':
-        return post.authorName.toLowerCase().includes(query)
-      default:
-        return post.title.toLowerCase().includes(query) ||
-          post.authorName.toLowerCase().includes(query)
-    }
-  })
-
-  // 정렬
-  const sortedPosts = [...filteredPosts].sort((a, b) => {
+  // 정렬 (클라이언트 사이드)
+  const sortedPosts = [...posts].sort((a, b) => {
     switch (sortBy) {
       case 'views':
         return b.viewCount - a.viewCount
@@ -101,7 +120,7 @@ export default function FreeBoardPage() {
           {/* Left: Stats & Sort */}
           <div className={styles.boardLeft}>
             <span className={styles.totalCount}>
-              전체 <strong>{sortedPosts.length}</strong>건
+              전체 <strong>{totalCount}</strong>건
             </span>
             <div className={styles.sortSelect}>
               <select
@@ -136,11 +155,11 @@ export default function FreeBoardPage() {
                 type="text"
                 className={styles.searchInput}
                 placeholder="검색어를 입력하세요"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
-              <button className={styles.searchBtn}>
+              <button className={styles.searchBtn} onClick={handleSearch}>
                 <Search size={16} />
               </button>
             </div>
@@ -270,21 +289,15 @@ export default function FreeBoardPage() {
 
             {/* Board Footer */}
             <div className={styles.boardFooter}>
-              <div className={styles.pagination}>
-                <button className={styles.pageBtn} disabled>«</button>
-                <button className={styles.pageBtn} disabled>‹</button>
-                <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
-                <button className={styles.pageBtn}>2</button>
-                <button className={styles.pageBtn}>3</button>
-                <button className={styles.pageBtn}>4</button>
-                <button className={styles.pageBtn}>5</button>
-                <button className={styles.pageBtn}>›</button>
-                <button className={styles.pageBtn}>»</button>
-              </div>
-              <button className={styles.writeBtn}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+              <Link href="/community/write?board=free" className={styles.writeBtn}>
                 <PenLine size={16} />
                 글쓰기
-              </button>
+              </Link>
             </div>
           </>
         )}

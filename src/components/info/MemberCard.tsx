@@ -38,6 +38,7 @@ export function MemberCard({ member, size, onClick }: MemberCardProps) {
               src={member.image_url}
               alt={member.name}
               fill
+              sizes="(max-width: 768px) 80px, 120px"
               className={styles.avatarImage}
             />
           ) : (

@@ -9,7 +9,7 @@
  * - 시즌별 그룹화 기능
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTimeline, useSeasons } from '@/lib/context'
 import type { TimelineItem } from '@/types/common'
 import type { Season } from '@/types/database'
@@ -101,6 +101,9 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
 
+  // K-0005: mounted 체크로 언마운트 후 상태 업데이트 방지
+  const isMountedRef = useRef(true)
+
   // 시즌별로 이벤트 그룹화
   const groupedBySeason = useMemo((): GroupedEvents[] => {
     const groups: GroupedEvents[] = []
@@ -163,6 +166,9 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
         timelineRepo.getCategories(),
       ])
 
+      // K-0005: 언마운트된 경우 상태 업데이트 스킵
+      if (!isMountedRef.current) return
+
       setSeasons(allSeasons)
       setCategories(allCategories)
 
@@ -172,6 +178,8 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
         category: selectedCategory,
         unit: selectedUnit,
       })
+
+      if (!isMountedRef.current) return
 
       setAllFilteredEvents(filteredEvents)
 
@@ -187,7 +195,9 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     } catch (err) {
       console.error('타임라인 로드 실패:', err)
     } finally {
-      setIsLoading(false)
+      if (isMountedRef.current) {
+        setIsLoading(false)
+      }
     }
   }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory, selectedUnit, infiniteScroll, pageSize, maxInitialLoad])
 
@@ -195,6 +205,13 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
   useEffect(() => {
     fetchData()
   }, [fetchData])
+
+  // K-0005: 언마운트 시 cleanup
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   return {
     events,

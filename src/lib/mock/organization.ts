@@ -2,9 +2,9 @@
  * Mock Organization Data
  * 조직도 멤버 정보
  *
- * RG Family 구조:
- * - 한백설 (대표)
- * - Excel Unit: 한백설, 해린, 월아, 채은, 가윤, 설윤, 한세아, 청아, 손밍, 키키, 홍서하, 퀸로니
+ * RG Family 구조 (총 14명):
+ * - 대표: 린아, 가애 (투톱)
+ * - Excel Unit 멤버: 한백설, 해린, 월아, 채은, 가윤, 설윤, 한세아, 청아, 손밍, 키키, 홍서하, 퀸로니
  */
 
 import type { OrganizationRecord } from '@/types/organization'
@@ -12,15 +12,59 @@ import { getMemberAvatar } from './utils'
 
 export const mockOrganization: OrganizationRecord[] = [
   // ========== Excel Unit ==========
-  // 대표 - 한백설
+  // 대표 1 - 린아
+  {
+    id: 100,
+    unit: 'excel',
+    profile_id: null,
+    name: '린아',
+    role: '대표',
+    position_order: 1,
+    parent_id: null,
+    image_url: getMemberAvatar('lina'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/lina',
+    },
+    member_profile: {
+      nickname: '린아',
+      introduction: 'RG Family 대표 린아입니다 💖',
+    },
+    is_live: true,
+    is_active: true,
+    created_at: '2024-01-01T00:00:00Z',
+  },
+
+  // 대표 2 - 가애
+  {
+    id: 101,
+    unit: 'excel',
+    profile_id: null,
+    name: '가애',
+    role: '대표',
+    position_order: 2,
+    parent_id: null,
+    image_url: getMemberAvatar('gaae'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/gaae',
+    },
+    member_profile: {
+      nickname: '가애',
+      introduction: 'RG Family 대표 가애입니다 💖',
+    },
+    is_live: false,
+    is_active: true,
+    created_at: '2024-01-01T00:00:00Z',
+  },
+
+  // Excel 멤버 - 한백설
   {
     id: 1,
     unit: 'excel',
     profile_id: null,
     name: '한백설',
-    role: '대표',
-    position_order: 1,
-    parent_id: null,
+    role: '멤버',
+    position_order: 3,
+    parent_id: 100,
     image_url: getMemberAvatar('hanbaekseol'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/hanbaekseol',
@@ -32,7 +76,7 @@ export const mockOrganization: OrganizationRecord[] = [
       weight: 46,
       birthday: '1997.11.26',
       bloodType: 'O',
-      introduction: 'RG Family 대표 한백설입니다 💖',
+      introduction: 'RG Family 멤버 한백설입니다 💖',
     },
     is_live: false,
     is_active: true,
@@ -47,7 +91,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '해린',
     role: '멤버',
     position_order: 2,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('haerin'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/haerin',
@@ -73,7 +117,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '월아',
     role: '멤버',
     position_order: 3,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('wola'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/wola',
@@ -95,7 +139,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '채은',
     role: '멤버',
     position_order: 4,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('chaeeun'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/chaeeun',
@@ -117,7 +161,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '가윤',
     role: '멤버',
     position_order: 5,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('gayoon'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/gayoon',
@@ -139,7 +183,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '설윤',
     role: '멤버',
     position_order: 6,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('seolyoon'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/seolyoon',
@@ -161,7 +205,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '한세아',
     role: '멤버',
     position_order: 7,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('hansea'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/hansea',
@@ -183,7 +227,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '청아',
     role: '멤버',
     position_order: 8,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('cheonga'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/cheonga',
@@ -205,7 +249,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '손밍',
     role: '멤버',
     position_order: 9,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('sonming'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/sonming',
@@ -227,7 +271,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '키키',
     role: '멤버',
     position_order: 10,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('kiki'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/kiki',
@@ -249,7 +293,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '홍서하',
     role: '멤버',
     position_order: 11,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('hongseohaa'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/hongseohaa',
@@ -271,7 +315,7 @@ export const mockOrganization: OrganizationRecord[] = [
     name: '퀸로니',
     role: '멤버',
     position_order: 12,
-    parent_id: 1,
+    parent_id: 100,
     image_url: getMemberAvatar('queenroni'),
     social_links: {
       pandatv: 'https://www.pandalive.co.kr/queenroni',

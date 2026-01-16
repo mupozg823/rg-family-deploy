@@ -6,6 +6,7 @@
  * - seasons.ts: 시즌
  * - profiles.ts: 사용자 프로필
  * - donations.ts: 후원 내역
+ * - episodes.ts: 회차 (직급전 기반 VIP)
  * - organization.ts: 조직 구조
  * - notices.ts: 공지사항
  * - posts.ts: 게시글
@@ -28,6 +29,7 @@ import { SupabaseRankingRepository } from './rankings'
 import { SupabaseSeasonRepository } from './seasons'
 import { SupabaseProfileRepository } from './profiles'
 import { SupabaseDonationRepository } from './donations'
+import { SupabaseEpisodeRepository } from './episodes'
 import { SupabaseOrganizationRepository } from './organization'
 import { SupabaseNoticeRepository } from './notices'
 import { SupabasePostRepository } from './posts'
@@ -48,6 +50,7 @@ export { SupabaseRankingRepository } from './rankings'
 export { SupabaseSeasonRepository } from './seasons'
 export { SupabaseProfileRepository } from './profiles'
 export { SupabaseDonationRepository } from './donations'
+export { SupabaseEpisodeRepository } from './episodes'
 export { SupabaseOrganizationRepository } from './organization'
 export { SupabaseNoticeRepository } from './notices'
 export { SupabasePostRepository } from './posts'
@@ -79,6 +82,9 @@ export class SupabaseDataProvider implements IDataProvider {
   readonly timeline
   readonly schedules
 
+  // Episode-based VIP System
+  readonly episodes
+
   // New Repositories (신규)
   readonly comments
   readonly signatures
@@ -100,6 +106,9 @@ export class SupabaseDataProvider implements IDataProvider {
     this.posts = new SupabasePostRepository(supabase)
     this.timeline = new SupabaseTimelineRepository(supabase)
     this.schedules = new SupabaseScheduleRepository(supabase)
+
+    // Episode-based VIP System
+    this.episodes = new SupabaseEpisodeRepository(supabase)
 
     // New Repositories
     this.comments = new SupabaseCommentRepository(supabase)

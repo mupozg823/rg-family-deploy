@@ -18,8 +18,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
-import { useAuthContext, useSignatures } from "@/lib/context";
-import { useVipStatus, useRanking, useContentProtection } from "@/lib/hooks";
+import { EpisodeSelector, SeasonSelector } from "@/components/ranking";
+import { useAuthContext, useSignatures, useSeasons } from "@/lib/context";
+import { useVipStatus, useRanking, useContentProtection, useEpisodeRankings } from "@/lib/hooks";
 import { mockVipContent, type VipContent } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
 import { getTributePageUrl } from "@/lib/utils";
@@ -28,11 +29,30 @@ import styles from "./page.module.css";
 export default function VipLoungePage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
   const signaturesRepo = useSignatures();
+  const seasonsRepo = useSeasons();
   const { isVip, rank: userRank, isLoading: vipStatusLoading } = useVipStatus();
-  const { rankings, isLoading: rankingLoading } = useRanking();
+  const { rankings: seasonRankings, isLoading: rankingLoading, selectedSeasonId, setSelectedSeasonId, seasons } = useRanking();
+  const {
+    episodes,
+    rankings: episodeRankings,
+    selectedEpisodeId,
+    setSelectedEpisodeId,
+    isLoading: episodeRankingsLoading,
+  } = useEpisodeRankings({
+    seasonId: selectedSeasonId,
+    limit: 50,
+  });
   const [vipContent, setVipContent] = useState<VipContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showGate, setShowGate] = useState(true);
+
+  // 표시할 랭킹 데이터 결정 (회차 선택 시 해당 회차 랭킹, 아니면 시즌 랭킹)
+  const displayRankings = selectedEpisodeId ? episodeRankings : seasonRankings.slice(0, 50).map((item, index) => ({
+    rank: index + 1,
+    donorId: item.donorId,
+    donorName: item.donorName,
+    totalAmount: item.totalAmount,
+  }));
 
   // VIP 콘텐츠 보호 (우클릭, 드래그, 선택, 키보드 단축키 방지)
   useContentProtection({
@@ -409,27 +429,56 @@ export default function VipLoungePage() {
             <Users size={20} />
             <h2>VIP 멤버 (Top 50)</h2>
           </div>
+
+          {/* Season & Episode Selectors */}
+          <div className={styles.filterSection}>
+            <SeasonSelector
+              seasons={seasons}
+              selectedSeasonId={selectedSeasonId}
+              onSelect={setSelectedSeasonId}
+            />
+            {selectedSeasonId && episodes.length > 0 && (
+              <EpisodeSelector
+                episodes={episodes}
+                selectedEpisodeId={selectedEpisodeId}
+                onSelect={setSelectedEpisodeId}
+                isLoading={episodeRankingsLoading}
+              />
+            )}
+          </div>
+
           <div className={styles.membersList}>
-            {rankings.slice(0, 50).map((item, index) => (
-              <div
-                key={item.donorId || index}
-                className={`${styles.memberItem} ${
-                  item.donorId === user?.id ? styles.currentUser : ""
-                }`}
-              >
-                <span className={styles.memberRank} data-rank={index + 1}>
-                  {index < 3 ? <Crown size={14} /> : index + 1}
-                </span>
-                <span className={styles.memberName}>{item.donorName}</span>
-                <span className={styles.memberAmount}>
-                  {item.totalAmount >= 10000
-                    ? `${Math.floor(
-                        item.totalAmount / 10000
-                      ).toLocaleString()}만 하트`
-                    : `${item.totalAmount.toLocaleString()} 하트`}
-                </span>
+            {(episodeRankingsLoading || rankingLoading) ? (
+              <div className={styles.listLoading}>
+                <div className={styles.spinner} />
+                <span>랭킹 로딩 중...</span>
               </div>
-            ))}
+            ) : displayRankings.length === 0 ? (
+              <div className={styles.emptyState}>
+                <span>해당 조건의 랭킹 데이터가 없습니다.</span>
+              </div>
+            ) : (
+              displayRankings.map((item, index) => (
+                <div
+                  key={item.donorId || index}
+                  className={`${styles.memberItem} ${
+                    item.donorId === user?.id ? styles.currentUser : ""
+                  }`}
+                >
+                  <span className={styles.memberRank} data-rank={item.rank}>
+                    {item.rank <= 3 ? <Crown size={14} /> : item.rank}
+                  </span>
+                  <span className={styles.memberName}>{item.donorName}</span>
+                  <span className={styles.memberAmount}>
+                    {item.totalAmount >= 10000
+                      ? `${Math.floor(
+                          item.totalAmount / 10000
+                        ).toLocaleString()}만 하트`
+                      : `${item.totalAmount.toLocaleString()} 하트`}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </motion.section>
         </div>

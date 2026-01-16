@@ -86,6 +86,7 @@ function generateSeasonDonations(
         donor_name: donorName,
         amount: donationAmount,
         season_id: seasonId,
+        episode_id: null, // 회차별 VIP 시스템용 - 목업에서는 null
         unit: unit as 'excel' | 'crew',
         message,
         created_at: donationDate.toISOString()

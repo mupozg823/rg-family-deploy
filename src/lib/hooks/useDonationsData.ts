@@ -213,14 +213,25 @@ export function useDonationsData(): UseDonationsDataReturn {
         const row = data[i]
         const rowNum = i + 2
 
-        const donorId = row['ID'] || row['donor_id'] || row['id'] || ''
-        const donorName = donorId || row['donor_name'] || ''
+        // PandaTV CSV 형식 우선: 닉네임 컬럼 사용
+        const donorName = row['닉네임'] || row['donor_name'] || row['ID'] || row['donor_id'] || ''
         const amountStr = row['하트'] || row['amount'] || row['hearts'] || '0'
         const message = row['내용'] || row['message'] || ''
         const dateStr = row['일시'] || row['date'] || ''
+        // 팬등급 정보 (추후 확장용)
+        const fanGrade = row['팬등급'] || ''
+        void fanGrade // unused for now
 
         if (!donorName) {
-          errors.push(`행 ${rowNum}: 후원자 ID/이름이 필요합니다.`)
+          errors.push(`행 ${rowNum}: 후원자 닉네임이 필요합니다.`)
+          continue
+        }
+
+        // 후원 하트 종류 확인 (선택적)
+        const donationType = row['종류'] || ''
+        if (donationType && donationType !== '후원 하트') {
+          // 다른 종류의 알림은 건너뜀
+          skippedCount++
           continue
         }
 

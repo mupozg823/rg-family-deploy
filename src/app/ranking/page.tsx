@@ -6,15 +6,11 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Crown, Sparkles, ChevronDown, Calendar } from "lucide-react";
 import Footer from "@/components/Footer";
 import { useRanking } from "@/lib/hooks/useRanking";
-import { mockSeasons } from "@/lib/mock";
 import {
   RankingPodium,
   RankingFullList,
 } from "@/components/ranking";
 import styles from "./page.module.css";
-
-// 현재 활성 시즌 가져오기
-const getCurrentSeason = () => mockSeasons.find(s => s.is_active) || mockSeasons[mockSeasons.length - 1];
 
 export default function TotalRankingPage() {
   const listRef = useRef<HTMLDivElement>(null);
@@ -25,6 +21,7 @@ export default function TotalRankingPage() {
 
   const {
     rankings,
+    currentSeason,
     unitFilter,
     maxAmount,
     isLoading,
@@ -34,7 +31,6 @@ export default function TotalRankingPage() {
   // 50위까지만 표시
   const top50 = rankings.slice(0, 50);
   const top3 = top50.slice(0, 3);
-  const currentSeason = getCurrentSeason();
 
   return (
       <div className={styles.main}>
@@ -107,7 +103,7 @@ export default function TotalRankingPage() {
           <div className={styles.seasonNav}>
             <span className={styles.currentSeason}>
               <span className={styles.seasonLive} />
-              {currentSeason.name}
+              {currentSeason?.name || '현재 시즌'}
             </span>
             <Link href="/ranking/season" className={styles.seasonBtn}>
               <Calendar size={12} />

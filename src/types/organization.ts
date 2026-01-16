@@ -92,32 +92,6 @@ export interface LiveMember {
 }
 
 // ==============================================
-// Organization Tree Types
-// ==============================================
-
-/**
- * 조직도 트리 노드 (camelCase - 레거시 호환)
- * @deprecated OrgMember 사용 권장
- */
-export interface OrgTreeMember {
-  id: number
-  name: string
-  role: string
-  imageUrl: string | null
-  socialLinks: SocialLinks | null
-  isLive?: boolean
-  children?: OrgTreeMember[]
-}
-
-/**
- * 유닛별 조직도 데이터
- */
-export interface OrgTreeData {
-  excel: OrgTreeMember[]
-  crew: OrgTreeMember[]
-}
-
-// ==============================================
 // Grouped Members Types
 // ==============================================
 
