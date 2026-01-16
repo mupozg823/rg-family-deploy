@@ -94,3 +94,43 @@ export function useSchedules() {
   const { provider } = useDataProviderContext()
   return provider.schedules
 }
+
+export function useComments() {
+  const { provider } = useDataProviderContext()
+  return provider.comments
+}
+
+export function useSignatures() {
+  const { provider } = useDataProviderContext()
+  return provider.signatures
+}
+
+export function useVipRewards() {
+  const { provider } = useDataProviderContext()
+  return provider.vipRewards
+}
+
+export function useVipImages() {
+  const { provider } = useDataProviderContext()
+  return provider.vipImages
+}
+
+export function useMedia() {
+  const { provider } = useDataProviderContext()
+  return provider.media
+}
+
+export function useBanners() {
+  const { provider } = useDataProviderContext()
+  return provider.banners
+}
+
+export function useLiveStatus() {
+  const { provider } = useDataProviderContext()
+  return provider.liveStatus
+}
+
+export function useGuestbook() {
+  const { provider } = useDataProviderContext()
+  return provider.guestbook
+}
