@@ -1251,6 +1251,172 @@ html {
 }
 
 /* ============================================
+   Design Enhancement Utilities
+   참조: cnine.kr, kuniv.kr 디자인 패턴
+   ============================================ */
+
+/* Pink Hover Effect - 클릭 가능한 모든 요소 */
+.hover-pink {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.hover-pink:hover {
+  background: var(--color-pink-overlay-08);
+  border-color: var(--color-pink);
+  color: var(--color-pink);
+}
+
+/* Card Hover Animation - 카드 호버 시 확대/그림자 */
+.card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(253, 104, 186, 0.12);
+  border-color: var(--color-pink-overlay-10);
+}
+
+/* Scale Hover - 버튼/아이콘 */
+.scale-hover {
+  transition: transform 0.15s ease;
+}
+.scale-hover:hover {
+  transform: scale(1.05);
+}
+.scale-hover:active {
+  transform: scale(0.98);
+}
+
+/* Live Pulse Animation - 라이브 인디케이터 */
+@keyframes live-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(0, 212, 255, 0);
+  }
+}
+.live-pulse {
+  animation: live-pulse 2s infinite ease-out;
+}
+
+/* Live Border Glow */
+@keyframes live-border-glow {
+  0%, 100% {
+    border-color: rgba(0, 212, 255, 0.6);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+  }
+  50% {
+    border-color: rgba(0, 212, 255, 1);
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
+  }
+}
+.live-border {
+  border: 2px solid var(--color-live);
+  animation: live-border-glow 2s infinite ease-in-out;
+}
+
+/* Podium Glow Effects - 랭킹 포디움 */
+.podium-gold {
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.25), 0 0 80px rgba(255, 215, 0, 0.1);
+  border: 2px solid rgba(255, 215, 0, 0.6);
+}
+.podium-gold:hover {
+  box-shadow: 0 0 50px rgba(255, 215, 0, 0.35), 0 0 100px rgba(255, 215, 0, 0.15);
+  border-color: rgba(255, 215, 0, 0.8);
+}
+
+.podium-silver {
+  box-shadow: 0 0 35px rgba(192, 192, 192, 0.2), 0 0 70px rgba(192, 192, 192, 0.08);
+  border: 2px solid rgba(192, 192, 192, 0.5);
+}
+.podium-silver:hover {
+  box-shadow: 0 0 45px rgba(192, 192, 192, 0.3), 0 0 90px rgba(192, 192, 192, 0.12);
+  border-color: rgba(192, 192, 192, 0.7);
+}
+
+.podium-bronze {
+  box-shadow: 0 0 30px rgba(205, 127, 50, 0.2), 0 0 60px rgba(205, 127, 50, 0.08);
+  border: 2px solid rgba(205, 127, 50, 0.5);
+}
+.podium-bronze:hover {
+  box-shadow: 0 0 40px rgba(205, 127, 50, 0.3), 0 0 80px rgba(205, 127, 50, 0.12);
+  border-color: rgba(205, 127, 50, 0.7);
+}
+
+/* Badge Glow - VIP/랭킹 배지 */
+.badge-glow-gold {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.badge-glow-pink {
+  background: linear-gradient(135deg, rgba(253, 104, 186, 0.2), rgba(253, 104, 186, 0.1));
+  border: 1px solid rgba(253, 104, 186, 0.4);
+  color: var(--color-pink);
+  text-shadow: 0 0 10px rgba(253, 104, 186, 0.3);
+}
+
+.badge-glow-cyan {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.1));
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  color: var(--color-live);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+/* Slide Up Animation - 페이지 진입 */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out forwards;
+}
+
+/* Stagger Children Animation */
+.stagger-children > * {
+  opacity: 0;
+  animation: slide-up 0.4s ease-out forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+
+/* Glass Morphism Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+}
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(253, 104, 186, 0.2);
+}
+
+/* Light mode adjustments */
+[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .glass-card:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(253, 104, 186, 0.3);
+}
+
+/* ============================================
    Mantine Dark Theme Overrides
    다크 모드에서 입력 필드 시인성 개선
    ============================================ */
