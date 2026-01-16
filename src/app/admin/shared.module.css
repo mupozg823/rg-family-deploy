@@ -304,6 +304,16 @@
   min-height: 80px;
 }
 
+.select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+:global([data-theme="light"]) .select option {
+  background: #fff;
+  color: #1a1a1a;
+}
+
 .checkboxLabel {
   display: flex;
   align-items: center;

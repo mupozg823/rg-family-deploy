@@ -94,6 +94,11 @@
   cursor: pointer;
 }
 
+.select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+
 .textarea {
   resize: vertical;
   min-height: 80px;
@@ -174,6 +179,11 @@
 :global([data-theme="light"]) .textarea {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.1);
+  color: #1a1a1a;
+}
+
+:global([data-theme="light"]) .select option {
+  background: #fff;
   color: #1a1a1a;
 }
 

@@ -105,6 +105,16 @@
   border-color: var(--color-primary);
 }
 
+.select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+:global([data-theme="light"]) .select option {
+  background: #fff;
+  color: #1a1a1a;
+}
+
 .selectIcon {
   position: absolute;
   right: var(--space-2);
