@@ -153,7 +153,8 @@
   letter-spacing: 6px;
   color: var(--metallic-gold);
   margin-bottom: var(--space-4);
-  opacity: 0.8;
+  opacity: 1;
+  text-shadow: 0 0 20px var(--metallic-gold-glow);
 }
 
 .title {
@@ -165,7 +166,7 @@
   background: linear-gradient(
     180deg,
     var(--text-primary) 0%,
-    var(--text-tertiary) 100%
+    var(--text-secondary) 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -175,9 +176,9 @@
 
 .subtitle {
   font-size: var(--text-sm);
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 2px;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   text-transform: uppercase;
 }
 
@@ -507,4 +508,34 @@
     padding: var(--space-2) var(--space-3);
     font-size: 10px;
   }
+}
+
+/* =======================================
+   Light Theme Overrides - Enhanced Contrast
+   ======================================= */
+:global([data-theme="light"]) .heroBadge {
+  color: #8b6914;
+  text-shadow: none;
+}
+
+:global([data-theme="light"]) .title {
+  background: linear-gradient(
+    180deg,
+    #1a1a1a 0%,
+    #3a3a3a 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+:global([data-theme="light"]) .subtitle {
+  color: #52525b;
+}
+
+:global([data-theme="light"]) .navTitle {
+  color: #52525b;
+}
+
+:global([data-theme="light"]) .vipBtn {
+  color: #8b6914;
 }

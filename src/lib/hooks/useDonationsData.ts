@@ -195,18 +195,43 @@ export function useDonationsData(): UseDonationsDataReturn {
         return { success: 0, errors: ['활성 시즌이 없습니다. 먼저 시즌을 생성해주세요.'], skipped: 0, updated: 0 }
       }
 
+      // Step 1: 전체 데이터 파싱 및 유효성 검사
+      interface ParsedRow {
+        rowNum: number
+        donorName: string
+        amount: number
+        message: string
+        seasonId: number
+        createdAt: string
+        dateOnly: string
+        matchedProfileId: string | null
+      }
+
+      const parsedRows: ParsedRow[] = []
+
       for (let i = 0; i < data.length; i++) {
         const row = data[i]
         const rowNum = i + 2
 
-        const donorId = row['ID'] || row['donor_id'] || row['id'] || ''
-        const donorName = donorId || row['donor_name'] || ''
+        // PandaTV CSV 형식 우선: 닉네임 컬럼 사용
+        const donorName = row['닉네임'] || row['donor_name'] || row['ID'] || row['donor_id'] || ''
         const amountStr = row['하트'] || row['amount'] || row['hearts'] || '0'
         const message = row['내용'] || row['message'] || ''
         const dateStr = row['일시'] || row['date'] || ''
+        // 팬등급 정보 (추후 확장용)
+        const fanGrade = row['팬등급'] || ''
+        void fanGrade // unused for now
 
         if (!donorName) {
-          errors.push(`행 ${rowNum}: 후원자 ID/이름이 필요합니다.`)
+          errors.push(`행 ${rowNum}: 후원자 닉네임이 필요합니다.`)
+          continue
+        }
+
+        // 후원 하트 종류 확인 (선택적)
+        const donationType = row['종류'] || ''
+        if (donationType && donationType !== '후원 하트') {
+          // 다른 종류의 알림은 건너뜀
+          skippedCount++
           continue
         }
 
@@ -240,104 +265,153 @@ export function useDonationsData(): UseDonationsDataReturn {
           }
         }
 
-        try {
-          // 중복 체크: 동일 후원자명 + 동일 시즌 + 동일 날짜(일 기준)
-          const dateOnly = createdAt.split('T')[0]
-          const { data: existingDonations } = await supabase
-            .from('donations')
-            .select('id, amount')
-            .eq('donor_name', donorName)
-            .eq('season_id', seasonId)
-            .gte('created_at', `${dateOnly}T00:00:00Z`)
-            .lt('created_at', `${dateOnly}T23:59:59Z`)
+        parsedRows.push({
+          rowNum,
+          donorName,
+          amount,
+          message,
+          seasonId,
+          createdAt,
+          dateOnly: createdAt.split('T')[0],
+          matchedProfileId: matchedProfile?.id || null,
+        })
+      }
 
-          const existingDonation = existingDonations?.[0]
+      if (parsedRows.length === 0) {
+        return { success: 0, errors, skipped: 0, updated: 0 }
+      }
 
-          if (existingDonation) {
-            // 중복 데이터 발견
-            if (duplicateHandling === 'skip') {
-              skippedCount++
-              continue
-            } else if (duplicateHandling === 'overwrite') {
-              // 기존 데이터 덮어쓰기
-              const { error } = await supabase
-                .from('donations')
-                .update({
-                  amount: amount,
-                  message: message || null,
-                  created_at: createdAt,
-                })
-                .eq('id', existingDonation.id)
+      // Step 2: 배치로 기존 데이터 조회 (단일 쿼리)
+      const uniqueDonorNames = [...new Set(parsedRows.map((r) => r.donorName))]
+      const uniqueSeasonIds = [...new Set(parsedRows.map((r) => r.seasonId))]
 
-              if (error) {
-                errors.push(`행 ${rowNum}: ${error.message}`)
-              } else {
-                updatedCount++
+      const { data: existingDonations } = await supabase
+        .from('donations')
+        .select('id, amount, donor_name, season_id, created_at')
+        .in('donor_name', uniqueDonorNames)
+        .in('season_id', uniqueSeasonIds)
 
-                // 프로필 총 후원금 조정 (기존 금액 차감 후 새 금액 추가)
-                if (matchedProfile) {
-                  const amountDiff = amount - existingDonation.amount
-                  if (amountDiff !== 0) {
-                    await supabase.rpc('update_donation_total', {
-                      p_donor_id: matchedProfile.id,
-                      p_amount: amountDiff,
-                    })
-                  }
-                }
-              }
-              continue
-            } else if (duplicateHandling === 'accumulate') {
-              // 기존 데이터에 금액 누적
-              const newAmount = existingDonation.amount + amount
-              const { error } = await supabase
-                .from('donations')
-                .update({
-                  amount: newAmount,
-                  message: message ? `${existingDonation.amount}+${amount}: ${message}` : null,
-                })
-                .eq('id', existingDonation.id)
+      // 기존 데이터를 키(donor_name|season_id|dateOnly)로 맵핑
+      const existingMap = new Map<string, { id: number; amount: number }>()
+      existingDonations?.forEach((d) => {
+        const dateOnly = d.created_at.split('T')[0]
+        const key = `${d.donor_name}|${d.season_id}|${dateOnly}`
+        existingMap.set(key, { id: d.id, amount: d.amount })
+      })
 
-              if (error) {
-                errors.push(`행 ${rowNum}: ${error.message}`)
-              } else {
-                updatedCount++
+      // Step 3: 배치 분류 (insert/update/skip)
+      interface InsertItem {
+        donor_id: string | null
+        donor_name: string
+        amount: number
+        message: string | null
+        season_id: number
+        created_at: string
+      }
 
-                // 프로필 총 후원금에 추가 금액만 반영
-                if (matchedProfile) {
-                  await supabase.rpc('update_donation_total', {
-                    p_donor_id: matchedProfile.id,
-                    p_amount: amount,
-                  })
-                }
-              }
-              continue
-            }
+      interface UpdateItem {
+        id: number
+        data: { amount: number; message: string | null; created_at?: string }
+        profileId: string | null
+        amountDiff: number
+      }
+
+      const toInsert: InsertItem[] = []
+      const toUpdate: UpdateItem[] = []
+      const profileTotals = new Map<string, number>()
+
+      for (const row of parsedRows) {
+        const key = `${row.donorName}|${row.seasonId}|${row.dateOnly}`
+        const existing = existingMap.get(key)
+
+        if (existing) {
+          if (duplicateHandling === 'skip') {
+            skippedCount++
+            continue
+          } else if (duplicateHandling === 'overwrite') {
+            toUpdate.push({
+              id: existing.id,
+              data: {
+                amount: row.amount,
+                message: row.message || null,
+                created_at: row.createdAt,
+              },
+              profileId: row.matchedProfileId,
+              amountDiff: row.amount - existing.amount,
+            })
+          } else if (duplicateHandling === 'accumulate') {
+            const newAmount = existing.amount + row.amount
+            toUpdate.push({
+              id: existing.id,
+              data: {
+                amount: newAmount,
+                message: row.message ? `${existing.amount}+${row.amount}: ${row.message}` : null,
+              },
+              profileId: row.matchedProfileId,
+              amountDiff: row.amount,
+            })
           }
-
-          // 신규 등록
-          const { error } = await supabase.from('donations').insert({
-            donor_id: matchedProfile?.id || null,
-            donor_name: donorName,
-            amount: amount,
-            message: message || null,
-            season_id: seasonId,
-            created_at: createdAt,
+        } else {
+          toInsert.push({
+            donor_id: row.matchedProfileId,
+            donor_name: row.donorName,
+            amount: row.amount,
+            message: row.message || null,
+            season_id: row.seasonId,
+            created_at: row.createdAt,
           })
 
-          if (error) {
-            errors.push(`행 ${rowNum}: ${error.message}`)
-          } else {
-            successCount++
-
-            if (matchedProfile) {
-              await supabase.rpc('update_donation_total', {
-                p_donor_id: matchedProfile.id,
-                p_amount: amount,
-              })
-            }
+          // 신규 등록 시 프로필 총 후원금 집계
+          if (row.matchedProfileId) {
+            profileTotals.set(
+              row.matchedProfileId,
+              (profileTotals.get(row.matchedProfileId) || 0) + row.amount
+            )
           }
-        } catch {
-          errors.push(`행 ${rowNum}: 데이터베이스 오류`)
+        }
+      }
+
+      // Step 4: 배치 Insert (100개씩 청크)
+      const BATCH_SIZE = 100
+      for (let i = 0; i < toInsert.length; i += BATCH_SIZE) {
+        const batch = toInsert.slice(i, i + BATCH_SIZE)
+        const { error } = await supabase.from('donations').insert(batch)
+        if (error) {
+          errors.push(`배치 ${Math.floor(i / BATCH_SIZE) + 1}: ${error.message}`)
+        } else {
+          successCount += batch.length
+        }
+      }
+
+      // Step 5: 개별 Update (Supabase는 배치 update 미지원)
+      for (const item of toUpdate) {
+        const { error } = await supabase
+          .from('donations')
+          .update(item.data)
+          .eq('id', item.id)
+
+        if (error) {
+          errors.push(`업데이트 실패 (ID: ${item.id}): ${error.message}`)
+        } else {
+          updatedCount++
+
+          // 업데이트 시 프로필 총 후원금 집계
+          if (item.profileId && item.amountDiff !== 0) {
+            profileTotals.set(
+              item.profileId,
+              (profileTotals.get(item.profileId) || 0) + item.amountDiff
+            )
+          }
+        }
+      }
+
+      // Step 6: 프로필별 총 후원금 배치 업데이트
+      for (const [profileId, amount] of profileTotals) {
+        if (amount !== 0) {
+          await supabase.rpc('update_donation_total', {
+            p_donor_id: profileId,
+            p_amount: amount,
+          })
         }
       }
 

@@ -6,24 +6,14 @@ import { Search, Eye, MessageSquare, ThumbsUp, PenLine, ChevronDown } from 'luci
 import { PageLayout } from '@/components/layout'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { useSupabaseContext } from '@/lib/context'
-import { mockPosts, mockProfiles } from '@/lib/mock'
-import { USE_MOCK_DATA } from '@/lib/config'
+import { Pagination } from '@/components/common'
+import { usePosts } from '@/lib/context'
 import { formatShortDate } from '@/lib/utils/format'
 import TabFilter from '@/components/community/TabFilter'
-import type { JoinedProfile } from '@/types/common'
+import type { PostItem } from '@/types/content'
 import styles from './page.module.css'
 
-interface Post {
-  id: number
-  title: string
-  authorName: string
-  viewCount: number
-  commentCount: number
-  likeCount: number
-  createdAt: string
-  category?: string
-}
+const ITEMS_PER_PAGE = 20
 
 function isNew(dateStr: string): boolean {
   const postDate = new Date(dateStr)
@@ -41,10 +31,14 @@ function isPopular(likeCount: number): boolean {
 }
 
 export default function FreeBoardPage() {
-  const supabase = useSupabaseContext()
-  const [posts, setPosts] = useState<Post[]>([])
+  const postsRepo = usePosts()
+  const [posts, setPosts] = useState<PostItem[]>([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchInput, setSearchInput] = useState('')
   const [searchType, setSearchType] = useState<'all' | 'title' | 'author'>('all')
   const [sortBy, setSortBy] = useState<'latest' | 'views' | 'likes'>('latest')
 
@@ -53,85 +47,48 @@ export default function FreeBoardPage() {
     { label: 'VIP 라운지', value: 'vip', path: '/community/vip' },
   ]
 
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = useCallback(async (page: number, query?: string) => {
     setIsLoading(true)
 
-    if (USE_MOCK_DATA) {
-      const freePosts = mockPosts
-        .filter((p) => p.board_type === 'free')
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        .slice(0, 20)
-      setPosts(
-        freePosts.map((p) => {
-          const author = mockProfiles.find((pr) => pr.id === p.author_id)
-          return {
-            id: p.id,
-            title: p.title,
-            authorName: p.is_anonymous ? '익명' : (author?.nickname || '익명'),
-            viewCount: p.view_count || 0,
-            commentCount: p.comment_count || 0,
-            likeCount: p.like_count || Math.floor(Math.random() * 30),
-            createdAt: p.created_at,
-            category: ['잡담', '정보', '후기', '질문'][Math.floor(Math.random() * 4)],
-          }
-        })
-      )
-      setIsLoading(false)
-      return
-    }
-
-    const { data, error } = await supabase
-      .from('posts')
-      .select('id, title, view_count, like_count, category, created_at, profiles!author_id(nickname), comments(id)')
-      .eq('board_type', 'free')
-      .order('created_at', { ascending: false })
-      .limit(20)
-
-    if (error) {
-      console.error('게시글 로드 실패:', error)
+    if (query) {
+      const result = await postsRepo.search(query, {
+        page,
+        limit: ITEMS_PER_PAGE,
+        searchType,
+        category: 'free',
+      })
+      setPosts(result.data)
+      setTotalCount(result.totalCount)
+      setTotalPages(result.totalPages)
     } else {
-      setPosts(
-        (data || []).map((p) => {
-          const profile = p.profiles as JoinedProfile | null
-          const comments = p.comments as unknown[] | null
-          return {
-            id: p.id,
-            title: p.title,
-            authorName: profile?.nickname || '익명',
-            viewCount: p.view_count || 0,
-            commentCount: comments?.length || 0,
-            likeCount: p.like_count || 0,
-            createdAt: p.created_at,
-            category: p.category || '잡담',
-          }
-        })
-      )
+      const result = await postsRepo.findPaginated('free', {
+        page,
+        limit: ITEMS_PER_PAGE,
+      })
+      setPosts(result.data)
+      setTotalCount(result.totalCount)
+      setTotalPages(result.totalPages)
     }
 
     setIsLoading(false)
-  }, [supabase])
+  }, [postsRepo, searchType])
 
   useEffect(() => {
-    fetchPosts()
-  }, [fetchPosts])
+    void fetchPosts(currentPage, searchQuery)
+  }, [fetchPosts, currentPage, searchQuery])
 
-  // 검색 필터링
-  const filteredPosts = posts.filter(post => {
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
-    switch (searchType) {
-      case 'title':
-        return post.title.toLowerCase().includes(query)
-      case 'author':
-        return post.authorName.toLowerCase().includes(query)
-      default:
-        return post.title.toLowerCase().includes(query) ||
-          post.authorName.toLowerCase().includes(query)
-    }
-  })
+  const handleSearch = () => {
+    setSearchQuery(searchInput)
+    setCurrentPage(1)
+  }
 
-  // 정렬
-  const sortedPosts = [...filteredPosts].sort((a, b) => {
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // 정렬 (클라이언트 사이드)
+  const sortedPosts = [...posts].sort((a, b) => {
     switch (sortBy) {
       case 'views':
         return b.viewCount - a.viewCount
@@ -163,7 +120,7 @@ export default function FreeBoardPage() {
           {/* Left: Stats & Sort */}
           <div className={styles.boardLeft}>
             <span className={styles.totalCount}>
-              전체 <strong>{sortedPosts.length}</strong>건
+              전체 <strong>{totalCount}</strong>건
             </span>
             <div className={styles.sortSelect}>
               <select
@@ -198,11 +155,11 @@ export default function FreeBoardPage() {
                 type="text"
                 className={styles.searchInput}
                 placeholder="검색어를 입력하세요"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && fetchPosts()}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
-              <button className={styles.searchBtn}>
+              <button className={styles.searchBtn} onClick={handleSearch}>
                 <Search size={16} />
               </button>
             </div>
@@ -297,7 +254,7 @@ export default function FreeBoardPage() {
 
             {/* Mobile Card View */}
             <div className={styles.mobileList}>
-              {sortedPosts.map((post, index) => (
+              {sortedPosts.map((post) => (
                 <Link
                   key={post.id}
                   href={`/community/free/${post.id}`}
@@ -332,21 +289,15 @@ export default function FreeBoardPage() {
 
             {/* Board Footer */}
             <div className={styles.boardFooter}>
-              <div className={styles.pagination}>
-                <button className={styles.pageBtn} disabled>«</button>
-                <button className={styles.pageBtn} disabled>‹</button>
-                <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
-                <button className={styles.pageBtn}>2</button>
-                <button className={styles.pageBtn}>3</button>
-                <button className={styles.pageBtn}>4</button>
-                <button className={styles.pageBtn}>5</button>
-                <button className={styles.pageBtn}>›</button>
-                <button className={styles.pageBtn}>»</button>
-              </div>
-              <button className={styles.writeBtn}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+              <Link href="/community/write?board=free" className={styles.writeBtn}>
                 <PenLine size={16} />
                 글쓰기
-              </button>
+              </Link>
             </div>
           </>
         )}

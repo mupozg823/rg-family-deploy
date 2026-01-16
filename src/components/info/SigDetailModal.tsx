@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { X, Play, ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
 import Image from 'next/image'
@@ -16,17 +16,23 @@ export default function SigDetailModal({ signature, onClose }: SigDetailModalPro
   const [selectedMemberIdx, setSelectedMemberIdx] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const tabsRef = useRef<HTMLDivElement>(null)
+  const onCloseRef = useRef(onClose)
+
+  // onClose 최신 값 유지 (메모리 누수 방지)
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
 
   const currentVideo = signature.videos[selectedMemberIdx]
 
-  // Handle escape key
+  // Handle escape key - ref 사용으로 리스너 재등록 방지
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') onCloseRef.current()
     }
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [onClose])
+  }, [])
 
   // Scroll tabs
   const scrollTabs = (direction: 'left' | 'right') => {

@@ -2,8 +2,8 @@
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { Radio, Youtube, Instagram, ExternalLink, X } from 'lucide-react'
-import type { OrgMember } from './MemberCard'
+import { Radio, Youtube, Instagram, ExternalLink, X, Heart, Cake, Ruler, Droplets } from 'lucide-react'
+import type { OrgMember } from '@/types/organization'
 import styles from './MemberDetailModal.module.css'
 
 interface MemberDetailModalProps {
@@ -12,6 +12,8 @@ interface MemberDetailModalProps {
 }
 
 export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
+  const profile = member.member_profile
+
   return (
     <motion.div
       className={styles.modalOverlay}
@@ -40,7 +42,7 @@ export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
             )}
             <div className={`${styles.modalAvatar} ${member.is_live ? styles.modalAvatarLive : ''}`}>
               {member.image_url ? (
-                <Image src={member.image_url} alt={member.name} fill className={styles.avatarImage} />
+                <Image src={member.image_url} alt={member.name} fill sizes="200px" className={styles.avatarImage} />
               ) : (
                 <div className={styles.modalAvatarPlaceholder}>
                   {member.name.charAt(0)}
@@ -54,23 +56,84 @@ export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
               {member.unit === 'excel' ? 'EXCEL UNIT' : 'CREW UNIT'}
             </span>
             <h2 className={styles.modalName}>{member.name}</h2>
+            {profile?.nickname && (
+              <span className={styles.modalNickname}>&quot;{profile.nickname}&quot;</span>
+            )}
             <span className={styles.modalRole}>{member.role}</span>
           </div>
         </div>
 
-        <div className={styles.modalStatus}>
-          <div className={styles.statusItem}>
-            <span className={styles.statusLabel}>상태</span>
-            <span className={`${styles.statusValue} ${member.is_live ? styles.statusLive : ''}`}>
-              {member.is_live ? '🔴 방송 중' : '⚫ 오프라인'}
-            </span>
+        {/* 개인정보 섹션 */}
+        <div className={styles.profileSection}>
+          <div className={styles.profileGrid}>
+            {profile?.mbti && (
+              <div className={styles.profileItem}>
+                <span className={styles.profileLabel}>🧠 MBTI</span>
+                <span className={styles.profileValue}>{profile.mbti}</span>
+              </div>
+            )}
+            {profile?.age && (
+              <div className={styles.profileItem}>
+                <span className={styles.profileLabel}>🎂 나이</span>
+                <span className={styles.profileValue}>{profile.age}세</span>
+              </div>
+            )}
+            {profile?.height && (
+              <div className={styles.profileItem}>
+                <span className={styles.profileLabel}>📏 키</span>
+                <span className={styles.profileValue}>{profile.height}cm</span>
+              </div>
+            )}
+            {profile?.weight && (
+              <div className={styles.profileItem}>
+                <span className={styles.profileLabel}>⚖️ 몸무게</span>
+                <span className={styles.profileValue}>{profile.weight}kg</span>
+              </div>
+            )}
+            {profile?.birthday && (
+              <div className={styles.profileItem}>
+                <span className={styles.profileLabel}>🎈 생일</span>
+                <span className={styles.profileValue}>{profile.birthday}</span>
+              </div>
+            )}
+            {profile?.bloodType && (
+              <div className={styles.profileItem}>
+                <span className={styles.profileLabel}>💉 혈액형</span>
+                <span className={styles.profileValue}>{profile.bloodType}형</span>
+              </div>
+            )}
+            {profile?.hobby && (
+              <div className={styles.profileItem}>
+                <span className={styles.profileLabel}>🎮 취미</span>
+                <span className={styles.profileValue}>{profile.hobby}</span>
+              </div>
+            )}
+            {profile?.specialty && (
+              <div className={styles.profileItem}>
+                <span className={styles.profileLabel}>⭐ 특기</span>
+                <span className={styles.profileValue}>{profile.specialty}</span>
+              </div>
+            )}
+            {profile?.favoriteFood && (
+              <div className={styles.profileItem}>
+                <span className={styles.profileLabel}>🍕 좋아하는 음식</span>
+                <span className={styles.profileValue}>{profile.favoriteFood}</span>
+              </div>
+            )}
           </div>
-          <div className={styles.statusItem}>
-            <span className={styles.statusLabel}>소속</span>
-            <span className={styles.statusValue}>
-              {member.unit === 'excel' ? '한국 엑셀방송' : '크루 유닛'}
-            </span>
-          </div>
+
+          {profile?.introduction && (
+            <div className={styles.introduction}>
+              <p>{profile.introduction}</p>
+            </div>
+          )}
+
+          {/* 프로필 정보가 없을 때 */}
+          {(!profile || Object.keys(profile).every(key => !profile[key as keyof typeof profile])) && (
+            <div className={styles.noProfile}>
+              <p>프로필 정보가 준비 중입니다</p>
+            </div>
+          )}
         </div>
 
         {member.social_links && Object.keys(member.social_links).length > 0 && (

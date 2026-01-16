@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { useSupabaseContext } from '@/lib/context'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { mockOrganization, mockLiveStatus } from '@/lib/mock'
@@ -44,6 +44,12 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
   const [liveStatusByMemberId, setLiveStatusByMemberId] = useState<Record<number, LiveStatusEntry[]>>({})
   const [isLoading, setIsLoading] = useState(true)
 
+  // supabase를 ref로 관리하여 fetchRoster 재생성 방지
+  const supabaseRef = useRef(supabase)
+  useEffect(() => {
+    supabaseRef.current = supabase
+  }, [supabase])
+
   const fetchRoster = useCallback(async () => {
     setIsLoading(true)
 
@@ -80,7 +86,8 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
       return
     }
 
-    const { data: orgData, error: orgError } = await supabase
+    const client = supabaseRef.current
+    const { data: orgData, error: orgError } = await client
       .from('organization')
       .select('id, name, role, unit, position_order, parent_id, image_url, social_links, is_live, profiles(nickname, avatar_url)')
       .eq('is_active', true)
@@ -92,7 +99,7 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
       return
     }
 
-    const { data: liveData, error: liveError } = await supabase
+    const { data: liveData, error: liveError } = await client
       .from('live_status')
       .select('member_id, platform, stream_url, thumbnail_url, is_live, viewer_count, last_checked')
 
@@ -137,24 +144,35 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
     setMembers(mappedMembers)
     setLiveStatusByMemberId(liveMap)
     setIsLoading(false)
-  }, [supabase])
+  }, []) // 빈 의존성 - supabaseRef 사용으로 재생성 방지
 
+  // fetchRoster를 ref로 유지하여 구독 effect에서 안정적으로 참조
+  const fetchRosterRef = useRef(fetchRoster)
   useEffect(() => {
-    fetchRoster()
+    fetchRosterRef.current = fetchRoster
+  }, [fetchRoster])
 
+  // 초기 데이터 로드 - 마운트 시 1회만 실행
+  useEffect(() => {
+    void fetchRosterRef.current()
+  }, [])
+
+  // 실시간 구독 (별도 effect로 분리하여 재구독 최소화)
+  useEffect(() => {
     if (USE_MOCK_DATA || !realtime) return
 
-    const channel = supabase
+    const client = supabaseRef.current
+    const channel = client
       .channel('live_status_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'live_status' }, () => {
-        fetchRoster()
+        fetchRosterRef.current()
       })
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      client.removeChannel(channel)
     }
-  }, [supabase, fetchRoster, realtime])
+  }, [realtime]) // realtime만 의존성
 
   return { members, liveStatusByMemberId, isLoading, refetch: fetchRoster }
 }

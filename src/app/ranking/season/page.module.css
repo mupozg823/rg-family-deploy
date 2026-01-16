@@ -152,7 +152,8 @@
   letter-spacing: 6px;
   color: var(--color-success);
   margin-bottom: var(--space-4);
-  opacity: 0.8;
+  opacity: 1;
+  text-shadow: 0 0 20px var(--color-success-bg);
 }
 
 .title {
@@ -164,7 +165,7 @@
   background: linear-gradient(
     180deg,
     var(--text-primary) 0%,
-    var(--text-tertiary) 100%
+    var(--text-secondary) 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -174,9 +175,9 @@
 
 .subtitle {
   font-size: var(--text-sm);
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 2px;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
 }
 
 /* =======================================
@@ -555,4 +556,70 @@
     flex-direction: column;
     gap: var(--space-2);
   }
+}
+
+/* =======================================
+   Light Theme Overrides - Enhanced Contrast
+   ======================================= */
+:global([data-theme="light"]) .heroBadge {
+  color: #0d9488;
+  text-shadow: none;
+}
+
+:global([data-theme="light"]) .title {
+  background: linear-gradient(
+    180deg,
+    #1a1a1a 0%,
+    #3a3a3a 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+:global([data-theme="light"]) .subtitle {
+  color: #52525b;
+}
+
+:global([data-theme="light"]) .navTitle {
+  color: #52525b;
+}
+
+:global([data-theme="light"]) .navTitle svg {
+  color: #0d9488;
+}
+
+:global([data-theme="light"]) .totalBtn {
+  background: rgba(184, 134, 11, 0.1);
+  border-color: rgba(184, 134, 11, 0.3);
+  color: #8b6914;
+}
+
+:global([data-theme="light"]) .activeBadge {
+  background: rgba(13, 148, 136, 0.15);
+  border-color: rgba(13, 148, 136, 0.3);
+  color: #0d7377;
+}
+
+:global([data-theme="light"]) .liveDot {
+  background: #0d9488;
+}
+
+:global([data-theme="light"]) .activeTitle {
+  color: #1a1a1a;
+}
+
+:global([data-theme="light"]) .dateRange {
+  color: #52525b;
+}
+
+:global([data-theme="light"]) .daysLeft {
+  color: #0d7377;
+}
+
+:global([data-theme="light"]) .archiveInfo h3 {
+  color: #27272a;
+}
+
+:global([data-theme="light"]) .archiveDate {
+  color: #71717a;
 }

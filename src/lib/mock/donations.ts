@@ -1,6 +1,9 @@
 /**
  * Mock Donations Data - Expanded for realistic service
  * 후원 내역 (하트 단위) - 실제 서비스 대응용 확장 데이터
+ *
+ * 레이지 로딩 적용: 모듈 로드 시 데이터를 즉시 생성하지 않고,
+ * 최초 접근 시에만 생성하여 메모리 효율성 향상
  */
 
 import type { Donation } from '@/types/database'
@@ -83,6 +86,7 @@ function generateSeasonDonations(
         donor_name: donorName,
         amount: donationAmount,
         season_id: seasonId,
+        episode_id: null, // 회차별 VIP 시스템용 - 목업에서는 null
         unit: unit as 'excel' | 'crew',
         message,
         created_at: donationDate.toISOString()
@@ -93,37 +97,84 @@ function generateSeasonDonations(
   return donations
 }
 
-// 시즌 1 데이터 (2024.01 ~ 2024.03) - 30명
-const season1Donations = generateSeasonDonations(1, 1, 30, {
-  start: '2024-01-01',
-  end: '2024-03-31'
-})
+// ============================================
+// 레이지 로딩 캐시
+// ============================================
+let cachedDonations: Donation[] | null = null
 
-// 시즌 2 데이터 (2024.04 ~ 2024.06) - 35명
-const season2Donations = generateSeasonDonations(2, 200, 35, {
-  start: '2024-04-01',
-  end: '2024-06-30'
-})
+/**
+ * Mock 후원 데이터 생성 (레이지 로딩)
+ * 최초 호출 시에만 데이터를 생성하고 이후에는 캐시된 데이터 반환
+ */
+function generateAllDonations(): Donation[] {
+  // 시즌 1 데이터 (2024.01 ~ 2024.03) - 30명
+  const season1Donations = generateSeasonDonations(1, 1, 30, {
+    start: '2024-01-01',
+    end: '2024-03-31',
+  })
 
-// 시즌 3 데이터 (2024.07 ~ 2024.09) - 40명
-const season3Donations = generateSeasonDonations(3, 400, 40, {
-  start: '2024-07-01',
-  end: '2024-09-30'
-})
+  // 시즌 2 데이터 (2024.04 ~ 2024.06) - 35명
+  const season2Donations = generateSeasonDonations(2, 200, 35, {
+    start: '2024-04-01',
+    end: '2024-06-30',
+  })
 
-// 시즌 4 데이터 (2024.10 ~ 현재) - 50명 (진행중)
-const season4Donations = generateSeasonDonations(4, 600, 50, {
-  start: '2024-10-01',
-  end: '2025-12-31'
-})
+  // 시즌 3 데이터 (2024.07 ~ 2024.09) - 40명
+  const season3Donations = generateSeasonDonations(3, 400, 40, {
+    start: '2024-07-01',
+    end: '2024-09-30',
+  })
 
-// 모든 후원 데이터 합치기
-export const mockDonations: Donation[] = [
-  ...season1Donations,
-  ...season2Donations,
-  ...season3Donations,
-  ...season4Donations
-].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  // 시즌 4 데이터 (2024.10 ~ 현재) - 50명 (진행중)
+  const season4Donations = generateSeasonDonations(4, 600, 50, {
+    start: '2024-10-01',
+    end: '2025-12-31',
+  })
+
+  return [
+    ...season1Donations,
+    ...season2Donations,
+    ...season3Donations,
+    ...season4Donations,
+  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+}
+
+/**
+ * Mock 후원 데이터 getter (레이지 로딩 + 캐싱)
+ * 직접 export하지 않고 함수를 통해 접근하여 메모리 효율성 향상
+ */
+export function getMockDonations(): Donation[] {
+  if (!cachedDonations) {
+    cachedDonations = generateAllDonations()
+  }
+  return cachedDonations
+}
+
+/**
+ * 캐시 초기화 (테스트 또는 메모리 해제 용도)
+ */
+export function clearDonationsCache(): void {
+  cachedDonations = null
+}
+
+// 하위 호환성을 위한 getter 기반 export
+// 실제 접근 시에만 데이터 생성
+export const mockDonations: Donation[] = new Proxy([] as Donation[], {
+  get(_target, prop) {
+    const data = getMockDonations()
+    if (prop === 'length') return data.length
+    if (prop === Symbol.iterator) return data[Symbol.iterator].bind(data)
+    if (typeof prop === 'string' && !isNaN(Number(prop))) {
+      return data[Number(prop)]
+    }
+    // Array 메서드 접근 시 실제 데이터에 위임
+    const value = (data as unknown as Record<string | symbol, unknown>)[prop]
+    if (typeof value === 'function') {
+      return (value as (...args: unknown[]) => unknown).bind(data)
+    }
+    return value
+  },
+})
 
 // 랭킹 계산용 집계 함수
 export function aggregateDonationsByDonor(seasonId?: number) {

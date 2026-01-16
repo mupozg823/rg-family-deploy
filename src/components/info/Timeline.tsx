@@ -21,6 +21,7 @@ export default function Timeline() {
     categories,
     selectedSeasonId,
     selectedCategory,
+    selectedUnit,
     groupedBySeason,
     isLoading,
     isLoadingMore,
@@ -28,6 +29,7 @@ export default function Timeline() {
     loadMore,
     setSelectedSeasonId,
     setSelectedCategory,
+    setSelectedUnit,
   } = useTimelineData({ infiniteScroll: true, pageSize: 8 })
 
   // 무한 스크롤
@@ -59,8 +61,10 @@ export default function Timeline() {
         categories={categories}
         selectedSeasonId={selectedSeasonId}
         selectedCategory={selectedCategory}
+        selectedUnit={selectedUnit}
         onSeasonChange={setSelectedSeasonId}
         onCategoryChange={setSelectedCategory}
+        onUnitChange={setSelectedUnit}
       />
 
       {/* Timeline */}

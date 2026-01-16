@@ -10,8 +10,8 @@ import { useOrganization } from "@/lib/hooks";
 import {
   MemberCard,
   MemberDetailModal,
-  type OrgMember,
 } from "@/components/info";
+import type { OrgMember } from "@/types/organization";
 import styles from "./page.module.css";
 
 type UnitType = "excel" | "crew";
@@ -94,7 +94,7 @@ export default function OrganizationPage() {
         </div>
       </header>
 
-      {/* Unit Toggle */}
+      {/* Unit Toggle with Member Count */}
       <div className={styles.toggleWrapper}>
         <button
           className={`${styles.toggleBtn} ${
@@ -112,6 +112,10 @@ export default function OrganizationPage() {
         >
           CREW UNIT
         </button>
+        <div className={styles.memberCount}>
+          <Users size={16} />
+          <span>총 {unitMembers.length}명</span>
+        </div>
       </div>
 
       {isLoading ? (
@@ -129,109 +133,63 @@ export default function OrganizationPage() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Level 0: Top Leaders (대표/부장) */}
+            {/* Top: Leaders Row (대표 2인 상단 중앙) */}
             {topLeaders.length > 0 && (
-              <>
-                <div className={styles.level} data-level="0">
-                  <div className={styles.levelMembers}>
-                    {topLeaders.map((member) => (
-                      <MemberCard
-                        key={member.id}
-                        member={member}
-                        size="large"
-                        onClick={() => setSelectedMember(member)}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Connector to Level 1 */}
-                {(middleManagers.length > 0 || regularMembers.length > 0) && (
-                  <div className={styles.connector}>
-                    <div className={styles.verticalLine} />
-                    {middleManagers.length > 1 && (
-                      <>
-                        <div className={styles.horizontalLine} />
-                        <div className={styles.branchLines}>
-                          {middleManagers.map((_, i) => (
-                            <div key={i} className={styles.branchLine} />
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </>
+              <div className={styles.leadersRow}>
+                {topLeaders.map((member) => (
+                  <MemberCard
+                    key={member.id}
+                    member={member}
+                    size="large"
+                    onClick={() => setSelectedMember(member)}
+                  />
+                ))}
+              </div>
             )}
 
-            {/* Level 1: Middle Managers (팀장) */}
-            {middleManagers.length > 0 && (
-              <>
-                <div className={styles.level} data-level="1">
-                  <div className={styles.levelMembers}>
-                    {middleManagers.map((member) => (
-                      <MemberCard
-                        key={member.id}
-                        member={member}
-                        size="medium"
-                        onClick={() => setSelectedMember(member)}
-                      />
-                    ))}
-                  </div>
-                </div>
+            {/* Tree Connector: 연결선 구조 */}
+            {(regularMembers.length > 0 || middleManagers.length > 0) && (
+              <div className={styles.mainConnector}>
+                {/* Main vertical line from leaders */}
+                <div className={styles.mainVerticalLine} />
 
-                {/* Connector to Level 2 (Members) */}
-                {regularMembers.length > 0 && (
-                  <div className={styles.connector}>
-                    <div className={styles.verticalLine} />
-                    {/* Only show branching if there are multiple members to justify spread */}
-                    {regularMembers.length > 1 && (
-                      <>
-                        <div
-                          className={styles.horizontalLine}
-                          style={{
-                            width: `${Math.min(
-                              Math.max(regularMembers.length * 80, 200),
-                              600
-                            )}px`,
-                          }}
-                        />
-                        <div
-                          className={styles.branchLines}
-                          style={{
-                            width: `${Math.min(
-                              Math.max(regularMembers.length * 80, 200),
-                              600
-                            )}px`,
-                          }}
-                        >
-                          {/* Aesthetic optimization: Limit number of branch lines to avoid clutter */}
-                          {Array.from({
-                            length: Math.min(regularMembers.length, 8),
-                          }).map((_, i) => (
-                            <div key={i} className={styles.branchLine} />
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
+                {/* Horizontal distribution line */}
+                <div className={styles.distributionLine} />
 
-            {/* Level 2: Regular Members (멤버/크루) */}
-            {regularMembers.length > 0 && (
-              <div className={styles.level} data-level="2">
-                <div className={styles.levelMembers}>
-                  {regularMembers.map((member) => (
-                    <MemberCard
-                      key={member.id}
-                      member={member}
-                      size="small"
-                      onClick={() => setSelectedMember(member)}
-                    />
+                {/* Drop lines to members */}
+                <div className={styles.dropLinesContainer}>
+                  {Array.from({ length: Math.min(regularMembers.length, 6) }).map((_, i) => (
+                    <div key={i} className={styles.dropLine} />
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Middle Managers (팀장) - if exists */}
+            {middleManagers.length > 0 && (
+              <div className={styles.membersGrid} style={{ marginBottom: 'var(--space-6)' }}>
+                {middleManagers.map((member) => (
+                  <MemberCard
+                    key={member.id}
+                    member={member}
+                    size="medium"
+                    onClick={() => setSelectedMember(member)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Members Grid (멤버/크루) - Dense Layout */}
+            {regularMembers.length > 0 && (
+              <div className={styles.membersGrid}>
+                {regularMembers.map((member) => (
+                  <MemberCard
+                    key={member.id}
+                    member={member}
+                    size="small"
+                    onClick={() => setSelectedMember(member)}
+                  />
+                ))}
               </div>
             )}
 

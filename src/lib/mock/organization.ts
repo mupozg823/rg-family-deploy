@@ -2,217 +2,330 @@
  * Mock Organization Data
  * 조직도 멤버 정보
  *
- * RG Family 구조:
- * - 린아 (R대표) + 가애 (G대표) - 공동 대표 (Excel Unit)
- * - Excel Unit: 나노(팀장) → 멤버들
- * - Crew Unit: 하린(팀장) → 멤버들
+ * RG Family 구조 (총 14명):
+ * - 대표: 린아, 가애 (투톱)
+ * - Excel Unit 멤버: 한백설, 해린, 월아, 채은, 가윤, 설윤, 한세아, 청아, 손밍, 키키, 홍서하, 퀸로니
  */
 
-import type { Organization } from '@/types/database'
+import type { OrganizationRecord } from '@/types/organization'
 import { getMemberAvatar } from './utils'
 
-export const mockOrganization: Organization[] = [
-  // ========== R대표 - 린아 (Excel Unit 총괄) ==========
+export const mockOrganization: OrganizationRecord[] = [
+  // ========== Excel Unit ==========
+  // 대표 1 - 린아
+  {
+    id: 100,
+    unit: 'excel',
+    profile_id: null,
+    name: '린아',
+    role: '대표',
+    position_order: 1,
+    parent_id: null,
+    image_url: getMemberAvatar('lina'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/lina',
+    },
+    member_profile: {
+      nickname: '린아',
+      introduction: 'RG Family 대표 린아입니다 💖',
+    },
+    is_live: true,
+    is_active: true,
+    created_at: '2024-01-01T00:00:00Z',
+  },
+
+  // 대표 2 - 가애
+  {
+    id: 101,
+    unit: 'excel',
+    profile_id: null,
+    name: '가애',
+    role: '대표',
+    position_order: 2,
+    parent_id: null,
+    image_url: getMemberAvatar('gaae'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/gaae',
+    },
+    member_profile: {
+      nickname: '가애',
+      introduction: 'RG Family 대표 가애입니다 💖',
+    },
+    is_live: false,
+    is_active: true,
+    created_at: '2024-01-01T00:00:00Z',
+  },
+
+  // Excel 멤버 - 한백설
   {
     id: 1,
     unit: 'excel',
     profile_id: null,
-    name: '린아',
-    role: 'R대표',
-    position_order: 1,
-    parent_id: null,
-    image_url: getMemberAvatar('rina-r-leader'),
-    social_links: { pandatv: 'https://www.pandalive.co.kr/rina', chzzk: 'https://chzzk.naver.com/rina' },
-    is_live: true,
+    name: '한백설',
+    role: '멤버',
+    position_order: 3,
+    parent_id: 100,
+    image_url: getMemberAvatar('hanbaekseol'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/hanbaekseol',
+    },
+    member_profile: {
+      nickname: '백설',
+      mbti: 'ISTP',
+      height: 168,
+      weight: 46,
+      birthday: '1997.11.26',
+      bloodType: 'O',
+      introduction: 'RG Family 멤버 한백설입니다 💖',
+    },
+    is_live: false,
     is_active: true,
     created_at: '2024-01-01T00:00:00Z',
   },
 
-  // ========== G대표 - 가애 (공동 대표, Excel Unit) ==========
+  // Excel 멤버 - 해린
   {
     id: 2,
     unit: 'excel',
     profile_id: null,
-    name: '가애',
-    role: 'G대표',
+    name: '해린',
+    role: '멤버',
     position_order: 2,
-    parent_id: null,
-    image_url: getMemberAvatar('gaea-g-leader'),
-    social_links: { pandatv: 'https://www.pandalive.co.kr/gaea', instagram: 'https://instagram.com/gaea' },
+    parent_id: 100,
+    image_url: getMemberAvatar('haerin'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/haerin',
+    },
+    member_profile: {
+      nickname: '해린',
+      mbti: 'ESFP',
+      height: 157,
+      weight: 50,
+      birthday: '2005.07.05',
+      bloodType: 'B',
+    },
     is_live: true,
     is_active: true,
-    created_at: '2024-01-01T00:00:00Z',
+    created_at: '2024-01-15T00:00:00Z',
   },
 
-  // ========== Excel Unit (R대표 - 린아 산하) ==========
+  // Excel 멤버 - 월아
   {
     id: 3,
     unit: 'excel',
     profile_id: null,
-    name: '나노',
-    role: '팀장',
-    position_order: 2,
-    parent_id: 1,
-    image_url: getMemberAvatar('nano-excel'),
-    social_links: { pandatv: 'https://www.pandalive.co.kr/nano', youtube: 'https://youtube.com/@nano' },
-    is_live: true,
+    name: '월아',
+    role: '멤버',
+    position_order: 3,
+    parent_id: 100,
+    image_url: getMemberAvatar('wola'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/wola',
+    },
+    member_profile: {
+      nickname: '월아',
+      birthday: '04.02', // 연도 미상
+    },
+    is_live: false,
     is_active: true,
-    created_at: '2024-01-01T00:00:00Z',
+    created_at: '2024-02-01T00:00:00Z',
   },
+
+  // Excel 멤버 - 채은
   {
     id: 4,
     unit: 'excel',
     profile_id: null,
-    name: '아이린',
-    role: '멤버',
-    position_order: 3,
-    parent_id: 3,
-    image_url: getMemberAvatar('irene-excel'),
-    social_links: { pandatv: 'https://www.pandalive.co.kr/irene' },
-    is_live: false,
-    is_active: true,
-    created_at: '2024-01-15T00:00:00Z',
-  },
-  {
-    id: 5,
-    unit: 'excel',
-    profile_id: null,
-    name: '유나',
+    name: '채은',
     role: '멤버',
     position_order: 4,
-    parent_id: 3,
-    image_url: getMemberAvatar('yuna-excel'),
-    social_links: { pandatv: 'https://www.pandalive.co.kr/yuna' },
-    is_live: true,
-    is_active: true,
-    created_at: '2024-02-01T00:00:00Z',
-  },
-  {
-    id: 6,
-    unit: 'excel',
-    profile_id: null,
-    name: '소아',
-    role: '멤버',
-    position_order: 5,
-    parent_id: 3,
-    image_url: getMemberAvatar('soa-excel'),
-    social_links: { pandatv: 'https://www.pandalive.co.kr/soa' },
-    is_live: false,
-    is_active: true,
-    created_at: '2024-03-01T00:00:00Z',
-  },
-  {
-    id: 7,
-    unit: 'excel',
-    profile_id: null,
-    name: '나나',
-    role: '멤버',
-    position_order: 6,
-    parent_id: 3,
-    image_url: getMemberAvatar('nana-excel'),
-    social_links: { pandatv: 'https://www.pandalive.co.kr/nana' },
-    is_live: true,
-    is_active: true,
-    created_at: '2024-03-10T00:00:00Z',
-  },
-  {
-    id: 8,
-    unit: 'excel',
-    profile_id: null,
-    name: '조이',
-    role: '멤버',
-    position_order: 7,
-    parent_id: 3,
-    image_url: getMemberAvatar('joy-excel'),
-    social_links: { pandatv: 'https://www.pandalive.co.kr/joy' },
-    is_live: false,
-    is_active: true,
-    created_at: '2024-03-22T00:00:00Z',
-  },
-
-  // ========== Crew Unit (하린 팀장 총괄) ==========
-  {
-    id: 9,
-    unit: 'crew',
-    profile_id: null,
-    name: '하린',
-    role: '팀장',
-    position_order: 1,
-    parent_id: null,
-    image_url: getMemberAvatar('harin-crew'),
-    social_links: { pandatv: 'https://www.pandalive.co.kr/harin', youtube: 'https://youtube.com/@harin' },
-    is_live: false,
-    is_active: true,
-    created_at: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: 10,
-    unit: 'crew',
-    profile_id: null,
-    name: '이태린',
-    role: '멤버',
-    position_order: 3,
-    parent_id: 9,
-    image_url: getMemberAvatar('taerin-crew'),
-    social_links: { pandatv: 'https://www.pandalive.co.kr/taerin' },
-    is_live: true,
-    is_active: true,
-    created_at: '2024-01-20T00:00:00Z',
-  },
-  {
-    id: 11,
-    unit: 'crew',
-    profile_id: null,
-    name: '지유',
-    role: '멤버',
-    position_order: 4,
-    parent_id: 9,
-    image_url: getMemberAvatar('jiyu-crew'),
-    social_links: { youtube: 'https://youtube.com/@jiyu' },
+    parent_id: 100,
+    image_url: getMemberAvatar('chaeeun'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/chaeeun',
+    },
+    member_profile: {
+      nickname: '채은',
+      birthday: '2004.03.24',
+    },
     is_live: true,
     is_active: true,
     created_at: '2024-02-15T00:00:00Z',
   },
+
+  // Excel 멤버 - 가윤
   {
-    id: 12,
-    unit: 'crew',
+    id: 5,
+    unit: 'excel',
     profile_id: null,
-    name: '예린',
+    name: '가윤',
     role: '멤버',
     position_order: 5,
-    parent_id: 9,
-    image_url: getMemberAvatar('yerin-crew'),
-    social_links: { instagram: 'https://instagram.com/yerin' },
+    parent_id: 100,
+    image_url: getMemberAvatar('gayoon'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/gayoon',
+    },
+    member_profile: {
+      nickname: '가윤',
+      birthday: '1996.01.03',
+    },
     is_live: false,
     is_active: true,
-    created_at: '2024-03-05T00:00:00Z',
+    created_at: '2024-03-01T00:00:00Z',
   },
+
+  // Excel 멤버 - 설윤
   {
-    id: 13,
-    unit: 'crew',
+    id: 6,
+    unit: 'excel',
     profile_id: null,
-    name: '시아',
+    name: '설윤',
     role: '멤버',
     position_order: 6,
-    parent_id: 9,
-    image_url: getMemberAvatar('sia-crew'),
-    social_links: { youtube: 'https://youtube.com/@sia' },
+    parent_id: 100,
+    image_url: getMemberAvatar('seolyoon'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/seolyoon',
+    },
+    member_profile: {
+      nickname: '설윤',
+      birthday: '2000.01.10',
+    },
     is_live: true,
     is_active: true,
     created_at: '2024-03-15T00:00:00Z',
   },
+
+  // Excel 멤버 - 한세아
   {
-    id: 14,
-    unit: 'crew',
+    id: 7,
+    unit: 'excel',
     profile_id: null,
-    name: '사라',
+    name: '한세아',
     role: '멤버',
     position_order: 7,
-    parent_id: 9,
-    image_url: getMemberAvatar('sara-crew'),
-    social_links: { youtube: 'https://youtube.com/@sara' },
+    parent_id: 100,
+    image_url: getMemberAvatar('hansea'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/hansea',
+    },
+    member_profile: {
+      nickname: '세아',
+      birthday: '1992.12.14',
+    },
     is_live: false,
     is_active: true,
-    created_at: '2024-03-22T00:00:00Z',
+    created_at: '2024-04-01T00:00:00Z',
+  },
+
+  // Excel 멤버 - 청아
+  {
+    id: 8,
+    unit: 'excel',
+    profile_id: null,
+    name: '청아',
+    role: '멤버',
+    position_order: 8,
+    parent_id: 100,
+    image_url: getMemberAvatar('cheonga'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/cheonga',
+    },
+    member_profile: {
+      nickname: '청아',
+      birthday: '2004.01.03',
+    },
+    is_live: true,
+    is_active: true,
+    created_at: '2024-04-15T00:00:00Z',
+  },
+
+  // Excel 멤버 - 손밍
+  {
+    id: 9,
+    unit: 'excel',
+    profile_id: null,
+    name: '손밍',
+    role: '멤버',
+    position_order: 9,
+    parent_id: 100,
+    image_url: getMemberAvatar('sonming'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/sonming',
+    },
+    member_profile: {
+      nickname: '손밍',
+      birthday: '1996.07.25',
+    },
+    is_live: false,
+    is_active: true,
+    created_at: '2024-05-01T00:00:00Z',
+  },
+
+  // Excel 멤버 - 키키
+  {
+    id: 10,
+    unit: 'excel',
+    profile_id: null,
+    name: '키키',
+    role: '멤버',
+    position_order: 10,
+    parent_id: 100,
+    image_url: getMemberAvatar('kiki'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/kiki',
+    },
+    member_profile: {
+      nickname: '키키',
+      birthday: '1999.02.10',
+    },
+    is_live: true,
+    is_active: true,
+    created_at: '2024-05-15T00:00:00Z',
+  },
+
+  // Excel 멤버 - 홍서하
+  {
+    id: 11,
+    unit: 'excel',
+    profile_id: null,
+    name: '홍서하',
+    role: '멤버',
+    position_order: 11,
+    parent_id: 100,
+    image_url: getMemberAvatar('hongseohaa'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/hongseohaa',
+    },
+    member_profile: {
+      nickname: '서하',
+      birthday: '2001.08.30',
+    },
+    is_live: false,
+    is_active: true,
+    created_at: '2024-06-01T00:00:00Z',
+  },
+
+  // Excel 멤버 - 퀸로니
+  {
+    id: 12,
+    unit: 'excel',
+    profile_id: null,
+    name: '퀸로니',
+    role: '멤버',
+    position_order: 12,
+    parent_id: 100,
+    image_url: getMemberAvatar('queenroni'),
+    social_links: {
+      pandatv: 'https://www.pandalive.co.kr/queenroni',
+    },
+    member_profile: {
+      nickname: '로니',
+      birthday: '1991.09.30',
+    },
+    is_live: true,
+    is_active: true,
+    created_at: '2024-06-15T00:00:00Z',
   },
 ]

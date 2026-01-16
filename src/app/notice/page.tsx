@@ -5,9 +5,8 @@ import Link from 'next/link'
 import { Pin, Search, Eye, ChevronDown, Bell } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { useSupabaseContext } from '@/lib/context'
-import { mockNotices } from '@/lib/mock'
-import { USE_MOCK_DATA } from '@/lib/config'
+import { Pagination } from '@/components/common'
+import { useNotices } from '@/lib/context'
 import { formatShortDate } from '@/lib/utils/format'
 import styles from './page.module.css'
 
@@ -22,6 +21,21 @@ interface NoticeItem {
   category: string
 }
 
+const ITEMS_PER_PAGE = 20
+
+const CATEGORY_LABELS: Record<string, string> = {
+  official: '공식',
+  excel: '엑셀부',
+  crew: '크루부',
+}
+
+const CATEGORY_KEYS: Record<string, string> = {
+  '전체': 'all',
+  '공식': 'official',
+  '엑셀부': 'excel',
+  '크루부': 'crew',
+}
+
 function isNew(dateStr: string): boolean {
   const postDate = new Date(dateStr)
   const now = new Date()
@@ -29,92 +43,85 @@ function isNew(dateStr: string): boolean {
   return diffDays <= 3
 }
 
+function mapNotice(n: { id: number; title: string; is_pinned: boolean; created_at: string; view_count?: number; category: string }): NoticeItem {
+  return {
+    id: n.id,
+    title: n.title,
+    isPinned: n.is_pinned,
+    isImportant: n.is_pinned,
+    createdAt: n.created_at,
+    author: '운영자',
+    viewCount: n.view_count || 0,
+    category: CATEGORY_LABELS[n.category] || n.category,
+  }
+}
+
 export default function NoticePage() {
-  const supabase = useSupabaseContext()
+  const noticesRepo = useNotices()
   const [notices, setNotices] = useState<NoticeItem[]>([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchInput, setSearchInput] = useState('')
   const [searchType, setSearchType] = useState<'all' | 'title'>('all')
   const [filterCategory, setFilterCategory] = useState<string>('all')
 
-  const categories = ['전체', '공지', '이벤트', '업데이트', '안내']
+  const categories = ['전체', '공식', '엑셀부', '크루부']
 
-  const fetchNotices = useCallback(async () => {
+  const fetchNotices = useCallback(async (page: number, query?: string) => {
     setIsLoading(true)
 
-    if (USE_MOCK_DATA) {
-      const sortedNotices = [...mockNotices]
-        .sort((a, b) => {
-          if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        })
-      setNotices(
-        sortedNotices.map((n, index) => ({
-          id: n.id,
-          title: n.title,
-          isPinned: n.is_pinned,
-          isImportant: index < 2,
-          createdAt: n.created_at,
-          author: '운영자',
-          viewCount: Math.floor(Math.random() * 500) + 100,
-          category: ['공지', '이벤트', '업데이트', '안내'][Math.floor(Math.random() * 4)],
-        }))
-      )
-      setIsLoading(false)
-      return
-    }
+    const categoryKey = filterCategory === 'all' ? undefined : filterCategory
 
-    const { data, error } = await supabase
-      .from('notices')
-      .select('id, title, is_pinned, is_important, view_count, category, created_at')
-      .order('is_pinned', { ascending: false })
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('공지사항 로드 실패:', error)
+    if (query) {
+      const result = await noticesRepo.search(query, {
+        page,
+        limit: ITEMS_PER_PAGE,
+        searchType,
+        category: categoryKey,
+      })
+      setNotices(result.data.map(mapNotice))
+      setTotalCount(result.totalCount)
+      setTotalPages(result.totalPages)
     } else {
-      setNotices(
-        (data || []).map((n) => ({
-          id: n.id,
-          title: n.title,
-          isPinned: n.is_pinned,
-          isImportant: n.is_important || false,
-          createdAt: n.created_at,
-          author: '운영자',
-          viewCount: n.view_count || 0,
-          category: n.category || '공지',
-        }))
-      )
+      const result = await noticesRepo.findPaginated({
+        page,
+        limit: ITEMS_PER_PAGE,
+        category: categoryKey,
+      })
+      setNotices(result.data.map(mapNotice))
+      setTotalCount(result.totalCount)
+      setTotalPages(result.totalPages)
     }
 
     setIsLoading(false)
-  }, [supabase])
+  }, [noticesRepo, filterCategory, searchType])
 
   useEffect(() => {
-    fetchNotices()
-  }, [fetchNotices])
+    void fetchNotices(currentPage, searchQuery)
+  }, [fetchNotices, currentPage, searchQuery])
 
-  // 검색 및 필터링
-  const filteredNotices = notices.filter(notice => {
-    // 검색 필터
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      if (searchType === 'title') {
-        if (!notice.title.toLowerCase().includes(query)) return false
-      } else {
-        if (!notice.title.toLowerCase().includes(query)) return false
-      }
-    }
-    // 카테고리 필터
-    if (filterCategory !== 'all' && filterCategory !== '전체') {
-      if (notice.category !== filterCategory) return false
-    }
-    return true
-  })
+  const handleSearch = () => {
+    setSearchQuery(searchInput)
+    setCurrentPage(1)
+  }
+
+  const handleCategoryChange = (cat: string) => {
+    const key = CATEGORY_KEYS[cat] || 'all'
+    setFilterCategory(key)
+    setCurrentPage(1)
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   // 고정글과 일반글 분리
-  const pinnedNotices = filteredNotices.filter(n => n.isPinned)
-  const normalNotices = filteredNotices.filter(n => !n.isPinned)
+  const pinnedNotices = notices.filter(n => n.isPinned)
+  const normalNotices = notices.filter(n => !n.isPinned)
 
   return (
       <div className={styles.main}>
@@ -136,14 +143,14 @@ export default function NoticePage() {
           {/* Left: Stats & Category Filter */}
           <div className={styles.boardLeft}>
             <span className={styles.totalCount}>
-              전체 <strong>{filteredNotices.length}</strong>건
+              전체 <strong>{totalCount}</strong>건
             </span>
             <div className={styles.categoryTabs}>
               {categories.map(cat => (
                 <button
                   key={cat}
-                  className={`${styles.categoryTab} ${(filterCategory === cat || (filterCategory === 'all' && cat === '전체')) ? styles.active : ''}`}
-                  onClick={() => setFilterCategory(cat === '전체' ? 'all' : cat)}
+                  className={`${styles.categoryTab} ${((filterCategory === 'all' && cat === '전체') || filterCategory === CATEGORY_KEYS[cat]) ? styles.active : ''}`}
+                  onClick={() => handleCategoryChange(cat)}
                 >
                   {cat}
                 </button>
@@ -169,11 +176,11 @@ export default function NoticePage() {
                 type="text"
                 className={styles.searchInput}
                 placeholder="검색어 입력"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && fetchNotices()}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
-              <button className={styles.searchBtn}>
+              <button className={styles.searchBtn} onClick={handleSearch}>
                 <Search size={16} />
               </button>
             </div>
@@ -185,7 +192,7 @@ export default function NoticePage() {
             <div className={styles.spinner} />
             <span>공지사항을 불러오는 중...</span>
           </div>
-        ) : filteredNotices.length === 0 ? (
+        ) : notices.length === 0 ? (
           <div className={styles.empty}>
             <p>등록된 공지사항이 없습니다</p>
           </div>
@@ -353,15 +360,11 @@ export default function NoticePage() {
             </div>
 
             {/* Pagination */}
-            <div className={styles.pagination}>
-              <button className={styles.pageBtn} disabled>«</button>
-              <button className={styles.pageBtn} disabled>‹</button>
-              <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
-              <button className={styles.pageBtn}>2</button>
-              <button className={styles.pageBtn}>3</button>
-              <button className={styles.pageBtn}>›</button>
-              <button className={styles.pageBtn}>»</button>
-            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </>
         )}
         </div>

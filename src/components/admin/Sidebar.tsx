@@ -16,6 +16,7 @@ import {
   MessageSquare,
   Film,
   Crown,
+  Shield,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -35,6 +36,7 @@ const menuItems = [
   { href: '/admin/posts', icon: MessageSquare, label: '게시글 관리' },
   { href: '/admin/media', icon: Film, label: '미디어 관리' },
   { href: '/admin/vip-rewards', icon: Crown, label: 'VIP 보상 관리' },
+  { href: '/admin/permissions', icon: Shield, label: '권한 관리' },
 ]
 
 export default function Sidebar() {

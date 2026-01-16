@@ -4,9 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Pin, ChevronRight } from "lucide-react";
-import { useSupabaseContext } from "@/lib/context";
-import { mockNotices } from "@/lib/mock";
-import { USE_MOCK_DATA } from "@/lib/config";
+import { useNotices } from "@/lib/context";
 import styles from "./Notice.module.css";
 
 interface NoticeItem {
@@ -19,68 +17,44 @@ interface NoticeItem {
 }
 
 export default function Notice() {
-  const supabase = useSupabaseContext();
+  const noticesRepo = useNotices();
   const [notices, setNotices] = useState<NoticeItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchNotices = useCallback(async () => {
-    // setIsLoading(true); // Removed to prevent synchronous state update in useEffect
+    const data = await noticesRepo.findAll();
+    const sorted = [...data]
+      .sort((a, b) => {
+        if (a.is_pinned !== b.is_pinned) return b.is_pinned ? 1 : -1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      })
+      .slice(0, 2);
 
-    if (USE_MOCK_DATA) {
-      await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate network delay
-
-      const sorted = [...mockNotices]
-        .sort((a, b) => {
-          if (a.is_pinned !== b.is_pinned) return b.is_pinned ? 1 : -1;
-          return (
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          );
-        })
-        .slice(0, 2);
-      setNotices(
-        sorted.map((n) => ({
-          id: n.id,
-          title: n.title,
-          content: n.content || "",
-          isPinned: n.is_pinned,
-          createdAt: n.created_at,
-          thumbnailUrl: n.thumbnail_url,
-        }))
-      );
-      setIsLoading(false);
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("notices")
-      .select("id, title, content, is_pinned, created_at, thumbnail_url")
-      .order("is_pinned", { ascending: false })
-      .order("created_at", { ascending: false })
-      .limit(2);
-
-    if (error) {
-      console.error("공지사항 로드 실패:", error);
-    } else {
-      setNotices(
-        (data || []).map((n) => ({
-          id: n.id,
-          title: n.title,
-          content: n.content || "",
-          isPinned: n.is_pinned,
-          createdAt: n.created_at,
-          thumbnailUrl: n.thumbnail_url,
-        }))
-      );
-    }
-
+    setNotices(
+      sorted.map((n) => ({
+        id: n.id,
+        title: n.title,
+        content: n.content || "",
+        isPinned: n.is_pinned,
+        createdAt: n.created_at,
+        thumbnailUrl: n.thumbnail_url,
+      }))
+    );
     setIsLoading(false);
-  }, [supabase]);
+  }, [noticesRepo]);
 
   useEffect(() => {
+    let mounted = true;
+
     const init = async () => {
       await fetchNotices();
+      // mounted check는 fetchNotices 내부에서 처리됨
     };
     init();
+
+    return () => {
+      mounted = false;
+    };
   }, [fetchNotices]);
 
   const getPreviewLines = (content: string, maxLines: number = 2) => {

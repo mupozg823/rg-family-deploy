@@ -9,7 +9,7 @@
  * - 시즌별 그룹화 기능
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTimeline, useSeasons } from '@/lib/context'
 import type { TimelineItem } from '@/types/common'
 import type { Season } from '@/types/database'
@@ -46,10 +46,13 @@ export const getSeasonColor = (seasonIndex: number): string => {
 export interface UseTimelineDataOptions {
   initialSeasonId?: number | null
   initialCategory?: string | null
+  initialUnit?: 'excel' | 'crew' | null  // 엑셀부/크루부 초기값
   /** 페이지당 이벤트 수 (무한 스크롤용) */
   pageSize?: number
   /** 무한 스크롤 모드 활성화 */
   infiniteScroll?: boolean
+  /** 초기 로드 시 최대 이벤트 수 (infiniteScroll=false일 때, 0이면 무제한) */
+  maxInitialLoad?: number
 }
 
 export interface UseTimelineDataReturn {
@@ -58,6 +61,7 @@ export interface UseTimelineDataReturn {
   categories: string[]
   selectedSeasonId: number | null
   selectedCategory: string | null
+  selectedUnit: 'excel' | 'crew' | null  // 엑셀부/크루부 필터
   groupedBySeason: GroupedEvents[]
   isLoading: boolean
   /** 추가 로딩 중 여부 (무한 스크롤) */
@@ -68,11 +72,12 @@ export interface UseTimelineDataReturn {
   loadMore: () => Promise<void>
   setSelectedSeasonId: (id: number | null) => void
   setSelectedCategory: (category: string | null) => void
+  setSelectedUnit: (unit: 'excel' | 'crew' | null) => void  // 엑셀부/크루부 setter
   refetch: () => Promise<void>
 }
 
 export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDataReturn {
-  const { pageSize = 10, infiniteScroll = false } = options || {}
+  const { pageSize = 10, infiniteScroll = false, maxInitialLoad = 50 } = options || {}
 
   // Repository hooks
   const timelineRepo = useTimeline()
@@ -89,9 +94,15 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     options?.initialCategory ?? null
   )
+  const [selectedUnit, setSelectedUnit] = useState<'excel' | 'crew' | null>(
+    options?.initialUnit ?? null
+  )
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+
+  // K-0005: mounted 체크로 언마운트 후 상태 업데이트 방지
+  const isMountedRef = useRef(true)
 
   // 시즌별로 이벤트 그룹화
   const groupedBySeason = useMemo((): GroupedEvents[] => {
@@ -155,34 +166,52 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
         timelineRepo.getCategories(),
       ])
 
+      // K-0005: 언마운트된 경우 상태 업데이트 스킵
+      if (!isMountedRef.current) return
+
       setSeasons(allSeasons)
       setCategories(allCategories)
 
-      // 필터링된 이벤트 로드
+      // 필터링된 이벤트 로드 (unit 필터 포함)
       const filteredEvents = await timelineRepo.findByFilter({
         seasonId: selectedSeasonId,
         category: selectedCategory,
+        unit: selectedUnit,
       })
+
+      if (!isMountedRef.current) return
 
       setAllFilteredEvents(filteredEvents)
 
-      // 무한 스크롤 모드면 첫 페이지만, 아니면 전체
+      // 무한 스크롤 모드면 첫 페이지만
+      // 아니면 maxInitialLoad 적용 (0이면 무제한)
       if (infiniteScroll) {
         setEvents(filteredEvents.slice(0, pageSize))
+      } else if (maxInitialLoad > 0) {
+        setEvents(filteredEvents.slice(0, maxInitialLoad))
       } else {
         setEvents(filteredEvents)
       }
     } catch (err) {
       console.error('타임라인 로드 실패:', err)
     } finally {
-      setIsLoading(false)
+      if (isMountedRef.current) {
+        setIsLoading(false)
+      }
     }
-  }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory, infiniteScroll, pageSize])
+  }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory, selectedUnit, infiniteScroll, pageSize, maxInitialLoad])
 
   // 초기 로드 및 필터 변경 시 refetch
   useEffect(() => {
     fetchData()
   }, [fetchData])
+
+  // K-0005: 언마운트 시 cleanup
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   return {
     events,
@@ -190,6 +219,7 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     categories,
     selectedSeasonId,
     selectedCategory,
+    selectedUnit,
     groupedBySeason,
     isLoading,
     isLoadingMore,
@@ -197,6 +227,7 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     loadMore,
     setSelectedSeasonId,
     setSelectedCategory,
+    setSelectedUnit,
     refetch: fetchData,
   }
 }

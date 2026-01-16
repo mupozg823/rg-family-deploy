@@ -54,10 +54,63 @@
 }
 
 .seasonFilter,
-.categoryFilter {
+.categoryFilter,
+.unitFilter {
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
+}
+
+/* Unit Filter Buttons (엑셀부/크루부) */
+.unitButton {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.unitButton:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(253, 104, 186, 0.1);
+}
+
+.unitButton.active {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 104, 186, 0.2) 0%,
+    rgba(253, 104, 186, 0.05) 100%
+  );
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.2);
+}
+
+.unitButton.excel.active {
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.2) 0%,
+    rgba(212, 175, 55, 0.05) 100%
+  );
+  border-color: var(--metallic-gold);
+  color: var(--metallic-gold);
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
+}
+
+.unitButton.crew.active {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 104, 186, 0.2) 0%,
+    rgba(253, 104, 186, 0.05) 100%
+  );
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.2);
 }
 
 .seasonButton {

@@ -7,19 +7,8 @@ import Link from "next/link";
 import type { RankingItem } from "@/types/common";
 import { hasHonorPageQualification } from "@/lib/mock";
 import { USE_MOCK_DATA } from "@/lib/config";
-import { getTributePageUrl } from "@/lib/utils";
+import { getTributePageUrl, formatAmountShort } from "@/lib/utils";
 import styles from "./RankingList.module.css";
-
-// Local helper function
-const formatCompactNumber = (amount: number): string => {
-  if (amount >= 100000000) {
-    return `${(amount / 100000000).toFixed(1)}억`;
-  }
-  if (amount >= 10000) {
-    return `${Math.floor(amount / 10000).toLocaleString()}만`;
-  }
-  return amount.toLocaleString();
-};
 
 interface RankingListProps {
   rankings: RankingItem[];
@@ -104,7 +93,7 @@ export default function RankingList({
 
               {/* Score Column */}
               <div className={styles.score}>
-                {formatCompactNumber(item.totalAmount)}
+                {formatAmountShort(item.totalAmount)}
               </div>
 
               {/* Badge Column */}

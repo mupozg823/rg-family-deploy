@@ -12,8 +12,8 @@ const EVENT_TYPES = [
   { label: "방송", color: "#ff0050" }, // Brand Pink
   { label: "콜라보", color: "#00d4ff" }, // Cyan (Crew)
   { label: "이벤트", color: "#d4af37" }, // Gold (Special)
-  { label: "공지", color: "#ffffff" }, // White
-  { label: "휴방", color: "#52525b" }, // Zinc-600 (Muted)
+  { label: "공지", color: "#a855f7" }, // Purple (better visibility)
+  { label: "휴방", color: "#6b7280" }, // Gray-500 (Muted)
 ];
 
 export default function SchedulePage() {

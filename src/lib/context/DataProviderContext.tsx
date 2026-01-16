@@ -85,6 +85,38 @@ export function usePosts() {
   return provider.posts
 }
 
+export function useBanners() {
+  const { provider } = useDataProviderContext()
+  if (!provider.banners) {
+    throw new Error('useBanners is not available in the current data provider')
+  }
+  return provider.banners
+}
+
+export function useComments() {
+  const { provider } = useDataProviderContext()
+  if (!provider.comments) {
+    throw new Error('useComments is not available in the current data provider')
+  }
+  return provider.comments
+}
+
+export function useSignatures() {
+  const { provider } = useDataProviderContext()
+  if (!provider.signatures) {
+    throw new Error('useSignatures is not available in the current data provider')
+  }
+  return provider.signatures
+}
+
+export function useMediaContent() {
+  const { provider } = useDataProviderContext()
+  if (!provider.mediaContent) {
+    throw new Error('useMediaContent is not available in the current data provider')
+  }
+  return provider.mediaContent
+}
+
 export function useTimeline() {
   const { provider } = useDataProviderContext()
   return provider.timeline
@@ -93,4 +125,12 @@ export function useTimeline() {
 export function useSchedules() {
   const { provider } = useDataProviderContext()
   return provider.schedules
+}
+
+export function useEpisodes() {
+  const { provider } = useDataProviderContext()
+  if (!provider.episodes) {
+    throw new Error('useEpisodes is not available in the current data provider')
+  }
+  return provider.episodes
 }

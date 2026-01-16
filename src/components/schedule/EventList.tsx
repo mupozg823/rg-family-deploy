@@ -36,11 +36,11 @@ const EVENT_LABELS = {
 }
 
 const EVENT_COLORS: Record<string, string> = {
-  broadcast: '#4ade80',
-  collab: '#60a5fa',
-  event: '#f472b6',
-  notice: '#fbbf24',
-  '休': '#94a3b8',
+  broadcast: '#ff0050',
+  collab: '#00d4ff',
+  event: '#d4af37',
+  notice: '#a855f7',
+  '休': '#6b7280',
 }
 
 export default function EventList({ date, events, onClose }: EventListProps) {

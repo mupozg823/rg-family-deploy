@@ -1,12 +1,9 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 import {
   Image as ImageIcon,
   Plus,
-  X,
-  Save,
   Eye,
   EyeOff,
   GripVertical,
@@ -14,8 +11,9 @@ import {
   Trash2,
 } from 'lucide-react'
 import Image from 'next/image'
-import { DataTable, Column } from '@/components/admin'
-import { useSupabaseContext } from '@/lib/context'
+import { DataTable, Column, AdminModal } from '@/components/admin'
+import { useAdminCRUD } from '@/lib/hooks'
+import { useBanners } from '@/lib/context'
 import styles from '../shared.module.css'
 import bannerStyles from './page.module.css'
 
@@ -30,140 +28,87 @@ interface Banner {
 }
 
 export default function BannersPage() {
-  const supabase = useSupabaseContext()
-  const [banners, setBanners] = useState<Banner[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingBanner, setEditingBanner] = useState<Partial<Banner> | null>(null)
-  const [isNew, setIsNew] = useState(false)
+  const bannersRepo = useBanners()
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
-  const fetchBanners = useCallback(async () => {
-    setIsLoading(true)
-
-    const { data, error } = await supabase
-      .from('banners')
-      .select('*')
-      .order('display_order', { ascending: true })
-
-    if (error) {
-      console.error('배너 데이터 로드 실패:', error)
-    } else {
-      setBanners(
-        (data || []).map((b) => ({
-          id: b.id,
-          title: b.title || '',
-          imageUrl: b.image_url,
-          linkUrl: b.link_url,
-          displayOrder: b.display_order,
-          isActive: b.is_active,
-          createdAt: b.created_at,
-        }))
-      )
-    }
-
-    setIsLoading(false)
-  }, [supabase])
-
-  useEffect(() => {
-    fetchBanners()
-  }, [fetchBanners])
-
-  const handleAdd = () => {
-    const maxOrder = Math.max(0, ...banners.map(b => b.displayOrder))
-    setEditingBanner({
+  const {
+    items: banners,
+    isLoading,
+    isModalOpen,
+    isNew,
+    editingItem: editingBanner,
+    setEditingItem: setEditingBanner,
+    openAddModal: baseOpenAddModal,
+    openEditModal: baseOpenEditModal,
+    closeModal: baseCloseModal,
+    handleSave,
+    handleDelete,
+    refetch,
+  } = useAdminCRUD<Banner>({
+    tableName: 'banners',
+    defaultItem: {
       title: '',
       imageUrl: '',
       linkUrl: '',
-      displayOrder: maxOrder + 1,
+      displayOrder: 0,
       isActive: true,
-    })
-    setIsNew(true)
+    },
+    orderBy: { column: 'display_order', ascending: true },
+    fromDbFormat: (row) => ({
+      id: row.id as number,
+      title: (row.title as string) || '',
+      imageUrl: row.image_url as string,
+      linkUrl: row.link_url as string | null,
+      displayOrder: row.display_order as number,
+      isActive: row.is_active as boolean,
+      createdAt: row.created_at as string,
+    }),
+    toDbFormat: (item) => ({
+      title: item.title || null,
+      image_url: item.imageUrl,
+      link_url: item.linkUrl || null,
+      display_order: item.displayOrder,
+      is_active: item.isActive ?? true,
+    }),
+    validate: (item) => {
+      if (!item.imageUrl) return '이미지 URL을 입력해주세요.'
+      return null
+    },
+  })
+
+  // 배너 추가 - displayOrder 자동 계산
+  const handleAdd = () => {
+    const maxOrder = Math.max(0, ...banners.map(b => b.displayOrder))
+    baseOpenAddModal()
+    setEditingBanner(prev => prev ? { ...prev, displayOrder: maxOrder + 1 } : null)
     setPreviewUrl(null)
-    setIsModalOpen(true)
   }
 
+  // 배너 수정 - 이미지 미리보기 설정
   const handleEdit = (banner: Banner) => {
-    setEditingBanner(banner)
-    setIsNew(false)
+    baseOpenEditModal(banner)
     setPreviewUrl(banner.imageUrl)
-    setIsModalOpen(true)
   }
 
-  const handleDelete = async (banner: Banner) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
-
-    const { error } = await supabase.from('banners').delete().eq('id', banner.id)
-
-    if (error) {
-      console.error('배너 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
-    } else {
-      fetchBanners()
-    }
+  // 모달 닫기 - 미리보기 초기화
+  const closeModal = () => {
+    baseCloseModal()
+    setPreviewUrl(null)
   }
 
+  // 활성화 토글 (useAdminCRUD 외부 기능)
   const handleToggleActive = async (banner: Banner) => {
-    const { error } = await supabase
-      .from('banners')
-      .update({ is_active: !banner.isActive })
-      .eq('id', banner.id)
-
-    if (error) {
-      console.error('배너 상태 변경 실패:', error)
+    const ok = await bannersRepo.toggleActive(banner.id)
+    if (!ok) {
       alert('상태 변경에 실패했습니다.')
     } else {
-      fetchBanners()
+      refetch()
     }
   }
 
-  const handleSave = async () => {
-    if (!editingBanner || !editingBanner.imageUrl) {
-      alert('이미지 URL을 입력해주세요.')
-      return
-    }
-
-    if (isNew) {
-      const { error } = await supabase.from('banners').insert({
-        title: editingBanner.title || null,
-        image_url: editingBanner.imageUrl,
-        link_url: editingBanner.linkUrl || null,
-        display_order: editingBanner.displayOrder,
-        is_active: editingBanner.isActive ?? true,
-      })
-
-      if (error) {
-        console.error('배너 등록 실패:', error)
-        alert('등록에 실패했습니다.')
-        return
-      }
-    } else {
-      const { error } = await supabase
-        .from('banners')
-        .update({
-          title: editingBanner.title || null,
-          image_url: editingBanner.imageUrl,
-          link_url: editingBanner.linkUrl || null,
-          display_order: editingBanner.displayOrder,
-          is_active: editingBanner.isActive,
-        })
-        .eq('id', editingBanner.id!)
-
-      if (error) {
-        console.error('배너 수정 실패:', error)
-        alert('수정에 실패했습니다.')
-        return
-      }
-    }
-
-    setIsModalOpen(false)
-    setEditingBanner(null)
-    setPreviewUrl(null)
-    fetchBanners()
-  }
-
+  // 이미지 URL 변경 + 미리보기 동기화
   const handleImageUrlChange = (url: string) => {
-    setEditingBanner(prev => ({ ...prev, imageUrl: url }))
+    setEditingBanner(prev => prev ? { ...prev, imageUrl: url } : null)
     setPreviewUrl(url)
   }
 
@@ -284,141 +229,106 @@ export default function BannersPage() {
       />
 
       {/* Edit Modal */}
-      <AnimatePresence>
-        {isModalOpen && editingBanner && (
-          <motion.div
-            className={styles.modalOverlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsModalOpen(false)}
-          >
-            <motion.div
-              className={styles.modal}
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className={styles.modalHeader}>
-                <h2>{isNew ? '배너 추가' : '배너 수정'}</h2>
-                <button
-                  className={styles.closeButton}
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  <X size={20} />
-                </button>
+      {editingBanner && (
+        <AdminModal
+          isOpen={isModalOpen}
+          title={isNew ? '배너 추가' : '배너 수정'}
+          onClose={closeModal}
+          onSave={handleSave}
+          saveLabel={isNew ? '등록' : '저장'}
+        >
+          {/* Image Preview */}
+          <div className={bannerStyles.imagePreview}>
+            {previewUrl ? (
+              <Image
+                src={previewUrl}
+                alt="배너 미리보기"
+                fill
+                className={bannerStyles.previewImage}
+                onError={() => setPreviewUrl(null)}
+              />
+            ) : (
+              <div className={bannerStyles.noPreview}>
+                <ImageIcon size={48} />
+                <span>이미지 URL을 입력하면 미리보기가 표시됩니다</span>
               </div>
+            )}
+          </div>
 
-              <div className={styles.modalBody}>
-                {/* Image Preview */}
-                <div className={bannerStyles.imagePreview}>
-                  {previewUrl ? (
-                    <Image
-                      src={previewUrl}
-                      alt="배너 미리보기"
-                      fill
-                      className={bannerStyles.previewImage}
-                      onError={() => setPreviewUrl(null)}
-                    />
-                  ) : (
-                    <div className={bannerStyles.noPreview}>
-                      <ImageIcon size={48} />
-                      <span>이미지 URL을 입력하면 미리보기가 표시됩니다</span>
-                    </div>
-                  )}
-                </div>
+          <div className={styles.formRow}>
+            <label className={styles.label}>
+              이미지 URL <span className={styles.required}>*</span>
+            </label>
+            <input
+              type="url"
+              value={editingBanner.imageUrl || ''}
+              onChange={(e) => handleImageUrlChange(e.target.value)}
+              placeholder="https://example.com/banner.jpg"
+              className={styles.input}
+            />
+          </div>
 
-                <div className={styles.formRow}>
-                  <label className={styles.label}>
-                    이미지 URL <span className={styles.required}>*</span>
-                  </label>
-                  <input
-                    type="url"
-                    value={editingBanner.imageUrl || ''}
-                    onChange={(e) => handleImageUrlChange(e.target.value)}
-                    placeholder="https://example.com/banner.jpg"
-                    className={styles.input}
-                  />
-                </div>
+          <div className={styles.formRow}>
+            <label className={styles.label}>제목 (선택)</label>
+            <input
+              type="text"
+              value={editingBanner.title || ''}
+              onChange={(e) =>
+                setEditingBanner(prev => prev ? { ...prev, title: e.target.value } : null)
+              }
+              placeholder="배너 제목"
+              className={styles.input}
+            />
+          </div>
 
-                <div className={styles.formRow}>
-                  <label className={styles.label}>제목 (선택)</label>
-                  <input
-                    type="text"
-                    value={editingBanner.title || ''}
-                    onChange={(e) =>
-                      setEditingBanner({ ...editingBanner, title: e.target.value })
-                    }
-                    placeholder="배너 제목"
-                    className={styles.input}
-                  />
-                </div>
+          <div className={styles.formRow}>
+            <label className={styles.label}>링크 URL (선택)</label>
+            <input
+              type="url"
+              value={editingBanner.linkUrl || ''}
+              onChange={(e) =>
+                setEditingBanner(prev => prev ? { ...prev, linkUrl: e.target.value } : null)
+              }
+              placeholder="https://example.com"
+              className={styles.input}
+            />
+          </div>
 
-                <div className={styles.formRow}>
-                  <label className={styles.label}>링크 URL (선택)</label>
-                  <input
-                    type="url"
-                    value={editingBanner.linkUrl || ''}
-                    onChange={(e) =>
-                      setEditingBanner({ ...editingBanner, linkUrl: e.target.value })
-                    }
-                    placeholder="https://example.com"
-                    className={styles.input}
-                  />
-                </div>
+          <div className={styles.formRow}>
+            <label className={styles.label}>표시 순서</label>
+            <input
+              type="number"
+              value={editingBanner.displayOrder || 0}
+              onChange={(e) =>
+                setEditingBanner(prev => prev ? {
+                  ...prev,
+                  displayOrder: parseInt(e.target.value) || 0,
+                } : null)
+              }
+              min="0"
+              className={styles.input}
+              style={{ width: '100px' }}
+            />
+          </div>
 
-                <div className={styles.formRow}>
-                  <label className={styles.label}>표시 순서</label>
-                  <input
-                    type="number"
-                    value={editingBanner.displayOrder || 0}
-                    onChange={(e) =>
-                      setEditingBanner({
-                        ...editingBanner,
-                        displayOrder: parseInt(e.target.value) || 0,
-                      })
-                    }
-                    min="0"
-                    className={styles.input}
-                    style={{ width: '100px' }}
-                  />
-                </div>
-
-                <div className={styles.formRow}>
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      checked={editingBanner.isActive ?? true}
-                      onChange={(e) =>
-                        setEditingBanner({
-                          ...editingBanner,
-                          isActive: e.target.checked,
-                        })
-                      }
-                      className={styles.checkbox}
-                    />
-                    <span>활성화</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className={styles.modalFooter}>
-                <button
-                  className={styles.cancelButton}
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  취소
-                </button>
-                <button className={styles.saveButton} onClick={handleSave}>
-                  <Save size={16} />
-                  <span>{isNew ? '등록' : '저장'}</span>
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className={styles.formRow}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={editingBanner.isActive ?? true}
+                onChange={(e) =>
+                  setEditingBanner(prev => prev ? {
+                    ...prev,
+                    isActive: e.target.checked,
+                  } : null)
+                }
+                className={styles.checkbox}
+              />
+              <span>활성화</span>
+            </label>
+          </div>
+        </AdminModal>
+      )}
     </div>
   )
 }

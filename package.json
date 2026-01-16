@@ -18,12 +18,24 @@
   },
   "scripts": {
     "dev": "next dev",
+    "dev:watch": "tsx scripts/dev-server-monitor.ts",
+    "dev:fast": "DEV_PREWARM=false tsx scripts/dev-server-monitor.ts",
+    "dev:mem": "NODE_OPTIONS='--max-old-space-size=2048' next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report",
+    "db:seed": "npx tsx scripts/seed-database.ts",
+    "db:migrate": "bash scripts/run-migrations.sh",
+    "db:test": "node -e \"const{createClient}=require('@supabase/supabase-js');const s=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);s.from('seasons').select('count').then(r=>console.log(r.error?'Error: '+r.error.message:'Connected!'))\""
   },
   "dependencies": {
     "@mantine/core": "^8.3.10",
@@ -54,9 +66,11 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tailwind-merge": "^3.4.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",
@@ -66,11 +80,16 @@
     "@vitejs/plugin-react": "^5.1.2",
     "autoprefixer": "^10.4.23",
     "babel-plugin-react-compiler": "1.0.0",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "eslint-config-prettier": "^10.1.8",
     "jsdom": "^27.4.0",
     "postcss": "^8.5.6",
+    "prettier": "^3.7.4",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4.1.18",
+    "tsx": "^4.21.0",
     "typescript": "5.9.3",
     "vitest": "^4.0.16"
   },

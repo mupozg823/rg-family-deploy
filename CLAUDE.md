@@ -1,512 +1,198 @@
-# RG Family - Claude Code 프로젝트 가이드
+# RG Family - 개발 가이드 (Claude Code용)
 
-## 프로젝트 개요
-
-**RG Family**는 PandaTV 스트리머 팬 커뮤니티 공식 웹사이트입니다.
-
-- **목적**: 팬덤 활동 중심지, 후원자 감사 플랫폼
-- **타겟**: 내부 팬/VIP 후원자
-- **배포**: Vercel
-- **백엔드**: Supabase (Auth + Database + Storage)
+> 이 문서는 AI가 개발할 때 참고하는 지침서야. 모든 규칙에는 "왜?"가 있어.
 
 ---
 
-## 기술 스택
+## 이 프로젝트가 뭔지 먼저 알아야 해
 
-```
-Frontend: Next.js 16+ (App Router, React 19)
-Styling: Tailwind CSS 4 + CSS Modules + CSS Variables
-UI Components: shadcn/ui (Radix) + Mantine 7
-State: React Hooks + Context API
-Animation: Framer Motion
-Carousel: Embla Carousel
-Icons: Lucide React
-Backend: Supabase
-```
+**RG Family**는 PandaTV 스트리머 "리나" 팬 커뮤니티 공식 웹사이트야.
 
-### UI 라이브러리 용도
+- **뭘 하는 사이트?**: 팬들이 후원 랭킹 보고, 멤버 정보 확인하고, VIP 혜택 받는 곳
+- **누가 쓰는데?**: 내부 팬들이랑 VIP 후원자들. 일반인 대상 아님
+- **배포**: Vercel / **백엔드**: Supabase
 
-| 라이브러리 | 용도 | 예시 |
-|-----------|------|------|
-| **Tailwind CSS 4** | 유틸리티 스타일링 | `className="flex gap-4 p-6"` |
-| **shadcn/ui** | 버튼, 카드, 모달 | `<Button variant="pink">` |
-| **Mantine** | 폼, 테이블, 알림 | `useForm()`, `notifications.show()` |
-| **CSS Modules** | 컴포넌트 고유 스타일 | `styles.hero` |
+왜 이걸 알아야 하냐면, 팬덤 내부용이라 복잡한 기능보다 **감성적 디자인**이랑 **후원자 감사 표현**이 더 중요해.
 
 ---
 
-## 프로젝트 구조
+## 기술 스택 - 왜 이걸 쓰는지
 
-```
-src/
-├── app/                    # Next.js App Router
-│   ├── (auth)/            # 로그인/회원가입
-│   ├── admin/             # Admin CMS (11개 페이지)
-│   ├── community/         # 커뮤니티 (자유/VIP)
-│   ├── rg/                # RG 정보 (조직도/시그/타임라인/라이브)
-│   │   ├── org/           # 조직도
-│   │   ├── sig/           # 시그리스트
-│   │   ├── history/       # 타임라인
-│   │   └── live/          # 라이브 상태
-│   ├── notice/            # 공지사항
-│   ├── ranking/           # 후원 랭킹
-│   └── schedule/          # 일정 캘린더
-├── components/            # 재사용 컴포넌트
-├── lib/
-│   ├── config.ts          # 환경 설정 (USE_MOCK_DATA)
-│   ├── context/           # React Context (Theme, Auth)
-│   ├── hooks/             # Custom Hooks
-│   ├── mock/              # Mock 데이터
-│   └── utils/             # 유틸리티 함수
-└── types/                 # TypeScript 타입 정의
-```
+| 기술 | 왜 쓰는지 |
+|-----|----------|
+| **Next.js 16+ App Router** | 라우팅 편하고 React 19 쓰려면 이게 최신 |
+| **Tailwind CSS 4** | 빠르게 스타일링하려고. 클래스 이름 고민 시간 아끼려면 유틸리티가 답 |
+| **shadcn/ui + Mantine** | 기본 컴포넌트 직접 만들 시간 없음. 폼은 Mantine이 더 잘 됨 |
+| **Supabase** | Firebase보다 SQL 쓸 수 있어서. 후원 데이터 조회 많아서 RDB가 맞음 |
+| **TypeScript** | 버그 방지. 타입 없으면 나중에 유지보수 지옥됨 |
 
 ---
 
-## 구현 현황
+## 핵심 개발 지침 (이것만은 꼭!)
 
-### ✅ 완료된 기능
+> 디자이너, 기획자, 개발자 통화 회의에서 합의한 내용들이야.
 
-| 카테고리 | 기능 | 파일 위치 |
-|---------|------|----------|
-| **메인** | Hero 배너 슬라이더 (Embla) | `src/components/Hero.tsx` |
-| **메인** | LIVE MEMBERS (시안색 펄스) | `src/components/LiveMembers.tsx` |
-| **메인** | 공지사항 섹션 | `src/components/Notice.tsx` |
-| **메인** | Shorts/VOD 섹션 | `src/components/Shorts.tsx`, `VOD.tsx` |
-| **RG Info** | 조직도 (계층 구조 + 연결선) | `src/app/rg/org/page.tsx` |
-| **RG Info** | 시그리스트 (6-col 그리드 + 필터) | `src/app/rg/sig/page.tsx` |
-| **RG Info** | 타임라인 (시즌별 카드형) | `src/app/rg/history/page.tsx` |
-| **RG Info** | 라이브 상태 | `src/app/rg/live/page.tsx` |
-| **랭킹** | 전체 랭킹 + 게이지 바 | `src/app/ranking/page.tsx` |
-| **랭킹** | 시즌별 랭킹 | `src/app/ranking/season/[id]/page.tsx` |
-| **랭킹** | VIP 페이지 | `src/app/ranking/vip/page.tsx` |
-| **커뮤니티** | 자유게시판/VIP게시판 | `src/app/community/` |
-| **일정** | 캘린더 | `src/app/schedule/page.tsx` |
-| **인증** | 로그인/회원가입 | `src/app/(auth)/` |
-| **Admin** | CMS 11개 페이지 | `src/app/admin/` |
-| **시스템** | 다크/라이트 모드 | `src/lib/context/ThemeContext.tsx` |
-| **시스템** | Mock 데이터 시스템 | `src/lib/mock/index.ts` |
-| **데이터베이스** | Supabase 스키마 (15개 테이블) | `supabase/migrations/` |
-| **접근 제어** | VIP/Admin 권한 체크 | `src/lib/auth/access-control.ts` |
-
-### ❌ 미구현 (우선순위순)
-
-| 기능 | 설명 | 우선순위 | 진행률 |
-|------|------|---------|--------|
-| **Top 1-3 헌정 페이지** | `/ranking/[userId]` 개인 페이지 | 🔴 높음 | 25% |
-| **실시간 라이브 상태** | PandaTV API 연동 | 🟡 중간 | 0% |
-| **알림 시스템** | 공지/일정 알림 | 🟢 낮음 | 0% |
-
----
-
-## 개발 가이드라인
-
-### 1. Mock 데이터 사용
-
-```typescript
-import { USE_MOCK_DATA } from '@/lib/config'
-import { mockProfiles } from '@/lib/mock/data'
-
-if (USE_MOCK_DATA) {
-  // Mock 데이터 사용
-  return mockProfiles
-}
-// Supabase 쿼리
+### 1. DB 연동은 Supabase로
+```
+왜? 지금 목업데이터로 돌아가는데, 실제 서비스하려면 DB 연결 필수
+Vercel 환경변수에 SUPABASE_URL이랑 ANON_KEY 넣어야 함
+목업 모드 끄기: NEXT_PUBLIC_USE_MOCK_DATA=false
 ```
 
-### 2. CSS 변수 (테마) - Minimal & Refined Hip
+### 2. 라이브 상태는 크롤링으로
+```
+왜? PandaTV는 공식 API가 없어. 방송 중인지 확인하려면 직접 긁어와야 함
+방법: 관리자 계정 즐겨찾기 페이지에서 파싱 (헤드리스 브라우저)
+메인 페이지는 모든 BJ가 나와서 파싱 어려움 → 즐겨찾기 페이지가 답
+```
 
+### 3. 컬러는 무조건 통일 (핑크 과용 주의!)
 ```css
-/* Typography */
---font-display: 'Outfit', -apple-system, sans-serif;
---font-body: 'Noto Sans KR', -apple-system, sans-serif;
+왜? 디자이너가 "컬러가 다 따로 논다"고 지적함. 일관성 없으면 촌스러워 보임
+그리고 핑크만 도배하면 오히려 촌스러워짐 → 뉴트럴 기반으로!
 
-/* 브랜드 컬러 */
---color-primary: #fd68ba;        /* 핑크 */
---color-primary-light: #ff8ed4;
---primary-deep: #fb37a3;
+--color-primary: #fd68ba;    /* 메인 핑크 - 포인트에만 */
+--live-color: #00d4ff;       /* 라이브는 시안색 */
+--gold: #ffd700;             /* 1등 */
+--silver: #c0c0c0;           /* 2등 */
+--bronze: #cd7f32;           /* 3등 */
 
-/* LIVE 상태 컬러 */
---live-color: #00d4ff;           /* 시안 (cnine.kr 스타일) */
---live-glow: rgba(0, 212, 255, 0.6);
+핑크 사용 비율:
+- 뉴트럴(흰/검/회) 85-90%: 배경, 텍스트, 카드, 테두리
+- 핑크 포인트 10-15%: CTA 버튼, 활성 상태, 로고, 호버
 
-/* 랭킹 컬러 */
---gold: #ffd700;
---silver: #c0c0c0;
---bronze: #cd7f32;
-
-/* 다크 테마 서피스 */
---background: #050505;
---surface: #121212;
---card-bg: #0a0a0a;
+마우스 호버할 때도 핑크로 바뀌게 해야 함
 ```
 
-### 3. 컴포넌트 패턴
-
-```typescript
-// 1. Supabase 훅 사용
-const supabase = useSupabase()
-
-// 2. Mock 데이터 분기
-if (USE_MOCK_DATA) {
-  // mock 데이터 처리
-  return
-}
-
-// 3. Supabase 쿼리
-const { data, error } = await supabase.from('table').select()
+### 4. 글씨는 키워
+```
+왜? "전체적으로 글씨가 조금 작은 느낌" - 디자이너 피드백
+어르신 팬분들 많아서 시인성 중요. 본문은 최소 16px
 ```
 
-### 4. 후원 단위
-
-```typescript
-// 팬더티비 후원 단위: 하트 (♥)
-const formatAmount = (amount: number) => {
-  if (amount >= 10000) return `${(amount / 10000).toFixed(1)}만 하트`
-  return `${amount.toLocaleString()} 하트`
-}
+### 5. 다크/라이트 모드 둘 다
+```
+왜? 이사님이 흰색 좋아하신대. 근데 다크가 더 프리미엄해 보여서 둘 다 지원
+기본값은 다크, 토글로 전환 가능하게
 ```
 
----
+### 6. 닉네임으로 표시 (아이디 X)
+```
+왜? "아이디 말고 닉네임으로 가는 거지" - 회의 내용
+실명이나 아이디 노출하면 안 됨. 팬들은 닉네임으로 불리길 원함
 
-## 디자인 레퍼런스
+❌ user.id, user.email
+✅ user.nickname, profile.nickname
+```
 
-### 스타일: "Minimal & Refined Hip"
+### 7. 조직도는 트리 구조로
+```
+왜? "대표 2명이 투톱으로 있고 나머지를 거미줄처럼 빠지게"
+기존: 가로 나열 (비어 보임)
+변경: 대표 → 팀장 → 멤버 계층으로 아래로 연결선
+참고: cnine.kr 조직도
+```
 
-RG Family 공식 디자인 컨셉으로, 프리미엄 팬 커뮤니티의 정체성을 반영합니다.
+### 8. 랭킹은 포디움 형태
+```
+왜? "1등이 가운데로 제일 높게, 2등 왼쪽, 3등 오른쪽"
+올림픽 시상대처럼. 컬러는 금은동으로 구분
+```
 
-**핵심 디자인 원칙:**
-- 다크 테마 기반의 프리미엄 감성
-- 핑크(#fd68ba) 브랜드 컬러 + 시안(#00d4ff) LIVE 포인트
-- 깔끔한 타이포그래피 (Outfit + Noto Sans KR)
-- 미니멀한 UI에 세련된 디테일
-- 애니메이션: 부드러운 전환, 펄스 효과
+### 9. 메인 배너는 꽉 채워
+```
+왜? "사진을 테두리 끝까지 다 채우시게" - 디자이너 피드백
+양옆 여백 비어있으면 허전해 보임
+참고: theK 그룹 페이지처럼 꽉 채운 배너
+```
 
-**주요 화면별 디자인:**
-| 화면 | 특징 |
-|------|------|
-| 메인 | Hero 배너 + 멤버 이미지, LIVE MEMBERS 그리드 |
-| RG Info | 트리 구조 조직도, 계층 연결선 |
-| 랭킹 | 수평 핑크 게이지 바, Top 3 포디움 |
-| VIP SECRET | 프리미엄 다크, 사인 갤러리, 특별 메시지 |
+### 10. 타임라인에 엑셀부/크루부 필터
+```
+왜? "제일 위에 엑셀부랑 크루부로 나누시는 게 나을 것 같아요"
+시즌 필터 위쪽에 팬클럽 그룹별 탭 추가 필요
+```
 
-### 참조 사이트
+### 11. 캘린더는 더케이 스타일로
+```
+왜? "왼쪽 거를 날리고 날짜 안에 일정이 들어가 있었으면"
+현재: 사이드바 + 작은 캘린더
+변경: 풀 캘린더 뷰, 날짜 칸 안에 일정 직접 표시
+```
 
-| 기능 | 참조 URL | 참고 요소 |
-|------|---------|----------|
-| 라이브/조직도 | kuniv.kr | 멤버 카드 UI |
-| 조직도/시그/타임라인 | cnine.kr | 시안색 LIVE 테두리, 계층 구조 |
-| 랭커 특전 | sooplive.co.kr | VIP 전용 페이지 |
-
----
-
-## 데이터베이스 스키마 (Supabase)
-
-### 핵심 테이블
-
-```sql
--- 프로필 (후원자)
-profiles: id, nickname, avatar_url, role, unit, total_donation
-
--- 후원 내역
-donations: id, donor_id, donor_name, amount, season_id, unit, created_at
-
--- 시즌
-seasons: id, name, start_date, end_date, is_active
-
--- 조직
-organization: id, name, role, unit, position_order, image_url, is_live
-
--- VIP 보상
-vip_rewards: id, rank_range, reward_type, content, image_url
+### 12. 마우스 호버 효과 필수
+```
+왜? 인터랙션 없으면 밋밋해 보임
+"마우스 갖다 대면 시그니처 컬러로 바뀌게끔"
+적용: 카드, 버튼, 링크, 테이블 행 전부 → 핑크(#fd68ba)로 변경
 ```
 
 ---
 
-## 향후 개발 로드맵
+## 스타일링 원칙
 
-> **디자인 레퍼런스**: "Minimal & Refined Hip" 스타일
-> - 프리미엄 다크 테마 기반
-> - 핑크(#fd68ba) + 시안(#00d4ff) 컬러 조합
-> - 깔끔한 타이포그래피 (Outfit + Noto Sans KR)
-
-### Phase 1: VIP 시스템 완성 ✅ (완료)
-
-1. **VIP 전용 콘텐츠 페이지** ✅
-   - `/ranking/vip` 접근 제어 (Top 50만)
-   - 멤버별 감사 영상 섹션
-   - VIP SECRET 사인 갤러리 섹션
-   - VIP 뱃지 표시
-
-2. **Top 1-3 헌정 페이지**
-   - `/ranking/vip/[userId]` 개인 페이지
-   - 골드/실버/브론즈 테마
-   - 커스텀 감사 메시지
-
-### Phase 2: UI/UX 프리미엄 디자인 ✅ (완료)
-
-1. **메인 페이지** ✅
-   - Hero 배너 슬라이더
-   - LIVE MEMBERS 시안색 펄스
-   - Shorts/VOD 그리드
-
-2. **조직도 (RG Info)** ✅
-   - 대표 → 부장 → 팀장 → 멤버 계층 구조
-   - 연결선 시각화 (vertical/horizontal)
-   - 프로필 카드 호버 & 상세 모달
-
-3. **랭킹 페이지** ✅
-   - 수평 핑크 게이지 바
-   - Top 3 포디움
-   - 퍼센티지 뱃지
-
-4. **VIP SECRET 페이지** ✅
-   - 프리미엄 다크 배경
-   - Special Thanks 섹션
-   - VIP Signatures 갤러리
-
-5. **타임라인** ✅
-   - 시즌별 그룹화 & 헤더 카드
-   - 이미지 카드형 디자인
-   - 카테고리/시즌 필터
-
-6. **시그리스트** ✅
-   - 6-column 그리드 (cnine 스타일)
-   - 카테고리/검색 필터
-   - 재생버튼 & 상세 모달
-
-### Phase 3: Admin 기능 강화 ✅ (완료)
-
-1. **CSV 대량 업로드** ✅
-   - 후원 데이터 일괄 등록
-   - 미리보기 + 검증
-   - PandaTV 형식 지원
-
-2. **Admin CMS** ✅
-   - 11개 관리 페이지 완료
-   - CRUD 기능 구현
-
-### Phase 4: 실시간 기능
-
-1. **PandaTV API 연동**
-   - 실시간 라이브 상태 감지
-   - 자동 LIVE 배지 업데이트
-
-2. **알림 시스템**
-   - 공지/일정 알림
-   - 푸시 알림 지원
+```
+왜? Tailwind랑 CSS 모듈 섞여있으면 "스타일 어디서 바꾸지?" 혼란
+- Tailwind 우선: 일반 스타일링
+- CSS 모듈: 복잡한 애니메이션, 테마 분기, :global 필요할 때만
+- globals.css: CSS 변수/테마, *.module.css: 컴포넌트별 복잡한 스타일
+```
 
 ---
 
-## 빠른 참조
+## Git 브랜치 전략
 
-### 주요 훅
-
-```typescript
-useSupabase()      // Supabase 클라이언트
-useAuth()          // 인증 상태
-useRanking()       // 랭킹 데이터
-useTheme()         // 다크/라이트 모드
+```
+왜? main 직접 푸시하면 위험함. 여러 명이 작업하면 코드 충돌남
+- main: 배포 전용 (PR 통해서만 병합)
+- feature/*: 새 기능, fix/*: 버그 수정
+흐름: 브랜치 생성 → 작업 → PR → 리뷰 → main 병합 → Vercel 자동 배포
 ```
 
-### 주요 컴포넌트
+---
 
-```typescript
-<Hero />           // 메인 배너 슬라이더
-<LiveMembers />    // 라이브 멤버 섹션
-<RankingCard />    // 랭킹 카드 (게이지 바)
-<GaugeBar />       // 후원 게이지 바
-<SigCard />        // 시그니처 카드
+## 절대 하면 안 되는 것들
+
+| 금지 | 이유 |
+|-----|------|
+| SOOP(별풍선) | 여긴 **PandaTV(하트)** 플랫폼임 |
+| 아이디/이메일 노출 | 닉네임만 표시해야 함 |
+| 라이브 컬러 핑크 | LIVE는 **시안색**(#00d4ff) |
+| 목업 모드로 배포 | 실서비스 전에 USE_MOCK_DATA=false 필수 |
+
+---
+
+## 주요 파일 위치
+
+```
+페이지: src/app/(page.tsx, rg/org/page.tsx, ranking/page.tsx, schedule/page.tsx)
+컴포넌트: src/components/
+목업 데이터: src/lib/mock/
+CSS 변수: src/app/globals.css
+타입: src/types/
 ```
 
-### 환경 변수
+---
+
+## 참고 사이트
+- **cnine.kr** → 조직도, 라이브 (시안색 테두리) / **theK** → 캘린더 / **sooplive** → VIP
+
+---
+
+## 환경변수
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_USE_MOCK_DATA=true  # 개발용
+NEXT_PUBLIC_SUPABASE_URL=xxx        # Supabase 프로젝트 URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx   # Supabase 익명 키
+NEXT_PUBLIC_USE_MOCK_DATA=true      # 개발용 true, 배포용 false
 ```
 
 ---
 
-## 주의사항
+## 요약: 개발할 때 이것만 기억해
 
-1. **후원 단위**: SOOP(별풍선) ❌ → PandaTV(하트) ✅
-2. **Mock 데이터**: 개발 시 `USE_MOCK_DATA=true` 사용
-3. **이미지 도메인**: `next.config.ts`에 허용 도메인 추가 필요
-4. **LIVE 상태 컬러**: 핑크가 아닌 **시안색** (cnine.kr 스타일)
-
----
-
-## 🤖 AI 워크플로우 자동화 (Claude Code)
-
-> **자동 매칭**: 사용자 프롬프트를 분석하여 최적의 도구/스킬을 자동 적용
-
-### 트리거 패턴 → 자동 워크플로우 매칭
-
-| 트리거 키워드/패턴 | 자동 적용 워크플로우 |
-|-------------------|---------------------|
-| `기능 추가`, `구현해줘`, `만들어줘`, `개발` | **새 기능 구현** 워크플로우 |
-| `버그`, `에러`, `안돼`, `수정`, `fix` | **버그 수정** 워크플로우 |
-| `리팩토링`, `구조 변경`, `정리`, `개선` | **리팩토링** 워크플로우 |
-| `디자인`, `UI`, `CSS`, `스타일`, `레이아웃` | **UI/디자인** 워크플로우 |
-| `API`, `라이브러리`, `패키지`, `npm` | **외부 라이브러리** 체크 |
-| `테스트`, `검증`, `확인해줘` | **테스트/검증** 워크플로우 |
-| `계획`, `설계`, `어떻게` (복잡한 요청) | **계획 수립** 먼저 |
-| 모호한 요청 (구체성 부족) | `code-prompt-coach` 스킬 |
-
-### 워크플로우별 도구 체인
-
-#### 1️⃣ 새 기능 구현
-```
-[모호하면] code-prompt-coach → feature-planner 스킬
-→ Explore Agent (코드베이스 파악)
-→ [외부 라이브러리] Context7 MCP
-→ frontend-design / software-architecture 스킬
-→ 구현 (Edit/Write)
-→ 빌드 검증 (npm run build)
-→ [프론트엔드] claude-in-chrome (스크린샷)
-→ workthrough-v2 스킬
-```
-
-#### 2️⃣ 버그 수정
-```
-→ Explore Agent (원인 분석)
-→ claude-in-chrome MCP:
-  - read_console_messages (에러 로그)
-  - read_network_requests (API 디버깅)
-→ ide MCP (getDiagnostics - TypeScript 오류)
-→ 수정 (Edit)
-→ 빌드 검증
-→ workthrough-v2 스킬
-```
-
-#### 3️⃣ 대규모 리팩토링
-```
-→ feature-planner 스킬 (계획)
-→ EnterPlanMode (복잡한 경우)
-→ software-architecture 스킬
-→ [심볼 변경] serena MCP
-→ 테스트 검증
-→ kaizen 스킬 (추가 개선점)
-→ workthrough-v2 스킬
-```
-
-#### 4️⃣ UI/디자인 작업
-```
-→ docs/RG_FAMILY_DESIGN_SYSTEM.md 참조 (필수)
-→ frontend-design 스킬
-→ 구현 (Edit CSS/TSX)
-→ claude-in-chrome MCP:
-  - screenshot (시각적 검증)
-  - gif_creator (변경 기록)
-→ workthrough-v2 스킬
-```
-
-#### 5️⃣ 외부 라이브러리 사용
-```
-→ Context7 MCP (최신 문서/예제 조회)
-→ WebSearch (버전별 변경사항)
-→ 구현
-→ 검증
-```
-
-### MCP 서버 활용 가이드
-
-| MCP | 자동 활용 시점 |
-|-----|---------------|
-| `context7` | 외부 라이브러리 API/버전 언급 시 |
-| `claude-in-chrome` | 프론트엔드 작업 완료 후 검증 |
-| `github` | PR 생성, 이슈 관리 요청 시 |
-| `supabase` | DB 스키마/쿼리 관련 작업 시 |
-| `playwright` | E2E 테스트 필요 시 |
-| `serena` | 대규모 심볼 리팩터링 시 |
-
-### Context7 UI 라이브러리 문서 조회
-
-프론트엔드 작업 시 **반드시** Context7로 최신 문서 확인:
-
-```bash
-# Tailwind CSS 4
-context7: resolve tailwindcss -> get /docs/installation
-context7: resolve tailwindcss -> get /docs/theme
-
-# shadcn/ui 컴포넌트
-context7: resolve shadcn-ui -> get /docs/components/button
-context7: resolve shadcn-ui -> get /docs/components/dialog
-context7: resolve shadcn-ui -> get /docs/components/card
-
-# Mantine
-context7: resolve mantine -> get /docs/core/button
-context7: resolve mantine -> get /docs/form/use-form
-context7: resolve mantine -> get /docs/x/notifications
-```
-
-**트리거 조건:**
-- `Tailwind`, `tw-`, `className` 언급 → Tailwind 문서 조회
-- `shadcn`, `ui/`, `Button variant` 언급 → shadcn/ui 문서 조회
-- `Mantine`, `useForm`, `notifications` 언급 → Mantine 문서 조회
-
-### Claude 스킬 자동 적용
-
-| 스킬 | 트리거 조건 |
-|------|------------|
-| `code-prompt-coach` | 모호하거나 구체성 부족한 요청 |
-| `feature-planner` | 새 기능 구현, 복잡한 작업 |
-| `frontend-design` | UI/CSS/Tailwind/shadcn/Mantine 관련 작업 + **Context7 문서 조회** |
-| `software-architecture` | 구조 설계, SOLID 원칙 필요 시 |
-| `test-driven-development` | 테스트 작성 요청 |
-| `kaizen` | 리팩토링, 코드 개선 |
-| `workthrough-v2` | **모든 작업 완료 후 자동 실행** |
-
-### 필수 참조 문서
-
-| 작업 유형 | 참조 문서 |
-|----------|----------|
-| 디자인/UI | `docs/RG_FAMILY_DESIGN_SYSTEM.md` |
-| 프로젝트 규칙 | `CLAUDE.md` (이 파일) |
-| 이전 작업 | `workthrough/*.md` |
-
-### 자동 워크플로우 예시
-
-**사용자**: "VIP 페이지에 애니메이션 추가해줘"
-```
-1. 트리거 감지: "VIP", "애니메이션" → UI/디자인 워크플로우
-2. 자동 적용:
-   - RG_FAMILY_DESIGN_SYSTEM.md 참조
-   - frontend-design 스킬 활성화
-   - 구현 후 claude-in-chrome으로 검증
-   - workthrough-v2로 문서화
-```
-
-**사용자**: "framer-motion 최신 버전으로 업그레이드"
-```
-1. 트리거 감지: "framer-motion", "최신 버전" → 외부 라이브러리
-2. 자동 적용:
-   - Context7 MCP로 최신 문서 조회
-   - 마이그레이션 가이드 확인
-   - 변경 사항 적용
-   - 빌드 검증
-```
-
-**사용자**: "로그인이 안돼"
-```
-1. 트리거 감지: "안돼" → 버그 수정 워크플로우
-2. 자동 적용:
-   - Explore Agent로 원인 분석
-   - claude-in-chrome으로 콘솔/네트워크 확인
-   - 수정 후 검증
-```
-
----
-
-## 문서 위치
-
-- 작업 기록: `/workthrough/YYYY-MM-DD_*.md`
-- 아카이브: `/workthrough/archive_2025/`, `/workthrough/archive_2026_jan/`
-- 개발 계획: `/.claude/plans/`
-- 타입 정의: `/src/types/`
-- 디자인 시스템: `/docs/RG_FAMILY_DESIGN_SYSTEM.md`
-- DB 스키마: `/docs/SUPABASE_SCHEMA.md`
-- 아키텍처: `/docs/ARCHITECTURE_ANALYSIS_REPORT.md`
-- Kaizen 보드: `/docs/KAIZEN_BOARD.md`
+1. **컬러 통일**: 핑크(#fd68ba) + 라이브는 시안(#00d4ff)
+2. **글씨 크게**: 최소 16px
+3. **닉네임만**: 아이디/이메일 절대 노출 금지
+4. **호버 효과**: 클릭 가능한 건 다 핑크로 변함
+5. **후원 단위**: 별풍선 아니고 **하트**
+6. **목업 끄기**: 배포 전에 USE_MOCK_DATA=false

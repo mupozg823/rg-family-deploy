@@ -1,83 +1,47 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { MessageSquare, Eye } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useSupabaseContext } from '@/lib/context'
-import type { JoinedProfile } from '@/types/common'
+import { usePosts } from '@/lib/context'
+import type { PostItem } from '@/types/content'
 import styles from '../shared.module.css'
 
-interface Post {
-  id: number
-  title: string
-  authorName: string
-  boardType: 'free' | 'vip'
-  viewCount: number
-  commentCount: number
-  createdAt: string
-}
-
 export default function PostsPage() {
-  const supabase = useSupabaseContext()
-  const [posts, setPosts] = useState<Post[]>([])
+  const postsRepo = usePosts()
+  const [posts, setPosts] = useState<PostItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<'all' | 'free' | 'vip'>('all')
-
-  const fetchPosts = useCallback(async () => {
-    setIsLoading(true)
-
-    let query = supabase
-      .from('posts')
-      .select('*, profiles!author_id(nickname), comments(id)')
-      .order('created_at', { ascending: false })
-
-    if (activeCategory !== 'all') {
-      query = query.eq('board_type', activeCategory)
-    }
-
-    const { data, error } = await query
-
-    if (error) {
-      console.error('게시글 데이터 로드 실패:', error)
-    } else {
-      setPosts(
-        (data || []).map((p) => {
-          const profile = p.profiles as JoinedProfile | null
-          const comments = p.comments as unknown[] | null
-          return {
-            id: p.id,
-            title: p.title,
-            authorName: profile?.nickname || '익명',
-            boardType: p.board_type,
-            viewCount: p.view_count || 0,
-            commentCount: comments?.length || 0,
-            createdAt: p.created_at,
-          }
-        })
-      )
-    }
-
-    setIsLoading(false)
-  }, [supabase, activeCategory])
+  const [refetchTrigger, setRefetchTrigger] = useState(0)
 
   useEffect(() => {
-    fetchPosts()
-  }, [fetchPosts])
+    const fetchPosts = async () => {
+      setIsLoading(true)
 
-  const handleDelete = async (post: Post) => {
+      const data = await postsRepo.findAll()
+      const filtered = activeCategory === 'all'
+        ? data
+        : data.filter((post) => post.boardType === activeCategory)
+      setPosts(filtered)
+
+      setIsLoading(false)
+    }
+
+    void fetchPosts()
+  }, [postsRepo, activeCategory, refetchTrigger])
+
+  const handleDelete = async (post: PostItem) => {
     if (!confirm('정말 삭제하시겠습니까? 댓글도 함께 삭제됩니다.')) return
 
-    const { error } = await supabase.from('posts').delete().eq('id', post.id)
-
-    if (error) {
-      console.error('게시글 삭제 실패:', error)
+    const ok = await postsRepo.delete(post.id)
+    if (!ok) {
       alert('삭제에 실패했습니다.')
-    } else {
-      fetchPosts()
+      return
     }
+    setRefetchTrigger((prev) => prev + 1)
   }
 
-  const handleView = (post: Post) => {
+  const handleView = (post: PostItem) => {
     window.open(`/community/${post.boardType}/${post.id}`, '_blank')
   }
 
@@ -89,7 +53,7 @@ export default function PostsPage() {
     })
   }
 
-  const columns: Column<Post>[] = [
+  const columns: Column<PostItem>[] = [
     { key: 'title', header: '제목' },
     { key: 'authorName', header: '작성자', width: '120px' },
     {

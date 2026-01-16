@@ -1,6 +1,6 @@
 'use client'
 
-import { Filter, Tag } from 'lucide-react'
+import { Filter, Tag, Users } from 'lucide-react'
 import { CATEGORY_LABELS, getCategoryColor } from '@/lib/hooks/useTimelineData'
 import type { Season } from '@/types/database'
 import styles from './Timeline.module.css'
@@ -10,8 +10,15 @@ interface TimelineFilterProps {
   categories: string[]
   selectedSeasonId: number | null
   selectedCategory: string | null
+  selectedUnit: 'excel' | 'crew' | null
   onSeasonChange: (seasonId: number | null) => void
   onCategoryChange: (category: string | null) => void
+  onUnitChange: (unit: 'excel' | 'crew' | null) => void
+}
+
+const UNIT_LABELS: Record<string, string> = {
+  excel: '엑셀부',
+  crew: '크루부',
 }
 
 export default function TimelineFilter({
@@ -19,11 +26,41 @@ export default function TimelineFilter({
   categories,
   selectedSeasonId,
   selectedCategory,
+  selectedUnit,
   onSeasonChange,
   onCategoryChange,
+  onUnitChange,
 }: TimelineFilterProps) {
   return (
     <div className={styles.filterSection}>
+      {/* Unit Filter (엑셀부/크루부) - 맨 위에 배치 */}
+      <div className={styles.filterRow}>
+        <div className={styles.filterLabel}>
+          <Users size={18} />
+          <span>유닛</span>
+        </div>
+        <div className={styles.unitFilter}>
+          <button
+            onClick={() => onUnitChange(null)}
+            className={`${styles.unitButton} ${selectedUnit === null ? styles.active : ''}`}
+          >
+            전체
+          </button>
+          <button
+            onClick={() => onUnitChange('excel')}
+            className={`${styles.unitButton} ${styles.excel} ${selectedUnit === 'excel' ? styles.active : ''}`}
+          >
+            {UNIT_LABELS.excel}
+          </button>
+          <button
+            onClick={() => onUnitChange('crew')}
+            className={`${styles.unitButton} ${styles.crew} ${selectedUnit === 'crew' ? styles.active : ''}`}
+          >
+            {UNIT_LABELS.crew}
+          </button>
+        </div>
+      </div>
+
       {/* Season Filter */}
       <div className={styles.filterRow}>
         <div className={styles.filterLabel}>
