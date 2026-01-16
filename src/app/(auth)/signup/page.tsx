@@ -13,7 +13,6 @@ import {
   Title,
   Text,
   Stack,
-  Loader,
   Anchor,
   Box,
   ThemeIcon,
@@ -84,21 +83,8 @@ export default function SignupPage() {
     }
   };
 
-  if (authLoading) {
-    return (
-      <Box
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "var(--background)",
-        }}
-      >
-        <Loader color="pink" size="lg" />
-      </Box>
-    );
-  }
+  // 인증 로딩 중에도 폼을 바로 표시 (UX 개선)
+  // 이미 로그인된 사용자는 useEffect에서 리다이렉트됨
 
   if (success) {
     return (
