@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Heart, Plus, Upload, List } from 'lucide-react'
+import { Heart, Plus, Upload, List, Download } from 'lucide-react'
 import { DataTable, Column, CsvUploader, DonationModal } from '@/components/admin'
 import { useDonationsData, type DonationItem } from '@/lib/hooks'
 import { formatAmount } from '@/lib/utils/format'
+import { exportDonations } from '@/lib/utils/excel'
 import styles from '../shared.module.css'
 
 type ViewMode = 'list' | 'upload'
@@ -35,6 +36,14 @@ export default function DonationsPage() {
     })
     setIsNew(true)
     setIsModalOpen(true)
+  }
+
+  const handleExport = () => {
+    if (donations.length === 0) {
+      alert('내보낼 데이터가 없습니다.')
+      return
+    }
+    exportDonations(donations)
   }
 
   const handleEdit = (donation: DonationItem) => {
@@ -144,14 +153,20 @@ export default function DonationsPage() {
               className={`${styles.tabButton} ${viewMode === 'upload' ? styles.active : ''}`}
             >
               <Upload size={16} />
-              CSV 업로드
+              파일 업로드
             </button>
           </div>
           {viewMode === 'list' && (
-            <button onClick={handleAdd} className={styles.addButton}>
-              <Plus size={18} />
-              후원 등록
-            </button>
+            <>
+              <button onClick={handleExport} className={styles.exportButton} title="Excel 파일로 내보내기">
+                <Download size={18} />
+                내보내기
+              </button>
+              <button onClick={handleAdd} className={styles.addButton}>
+                <Plus size={18} />
+                후원 등록
+              </button>
+            </>
           )}
         </div>
       </header>
@@ -168,8 +183,8 @@ export default function DonationsPage() {
       ) : (
         <div className={styles.uploadSection}>
           <div className={styles.uploadInfo}>
-            <h3>CSV 파일로 대량 등록</h3>
-            <p>아래 형식의 CSV 파일을 업로드하여 여러 후원 내역을 한 번에 등록할 수 있습니다.</p>
+            <h3>CSV/Excel 파일로 대량 등록</h3>
+            <p>아래 형식의 CSV 또는 Excel(.xlsx) 파일을 업로드하여 여러 후원 내역을 한 번에 등록할 수 있습니다.</p>
             <p className={styles.hint}>
               * 후원자명이 등록된 회원 닉네임과 일치하면 자동으로 연결됩니다.
             </p>
