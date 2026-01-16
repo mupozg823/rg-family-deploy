@@ -51,8 +51,8 @@
 }
 
 .amountCell {
-  color: var(--color-primary);
-  font-weight: 600;
+  color: var(--color-text);
+  font-weight: 700;
 }
 
 .quickActions {
@@ -89,8 +89,9 @@
 }
 
 .actionCard:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--color-border);
+  color: var(--color-text);
+  background: var(--surface-hover);
   transform: translateY(-2px);
 }
 
@@ -185,8 +186,9 @@
 }
 
 .refreshBtn:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--color-text-secondary);
+  color: var(--color-text);
+  background: var(--overlay-subtle);
 }
 
 .refreshBtn:disabled {

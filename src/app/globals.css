@@ -372,6 +372,19 @@
     border-color 0.3s var(--ease-smooth);
 
   /* ============================================
+     Color Aliases (Dark Mode)
+     - 컴포넌트에서 사용하는 시맨틱 변수
+     ============================================ */
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-border: var(--card-border);
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+
+  /* ============================================
      Premium/VIP Page Backgrounds (Dark Mode)
      ============================================ */
   --bg-deepest: #09090b;
@@ -619,6 +632,20 @@
   --crew-bg: rgba(82, 82, 91, 0.08);
   --crew-color: #52525b;
   --crew-border: rgba(82, 82, 91, 0.15);
+
+  /* ============================================
+     Color Aliases (Light Mode)
+     - 컴포넌트에서 사용하는 시맨틱 변수
+     - 시인성 개선: 더 진한 텍스트 색상 사용
+     ============================================ */
+  --color-text: #18181b;
+  --color-text-secondary: #3f3f46;
+  --color-text-muted: #71717a;
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-border: var(--card-border);
+  --color-primary: #e91e8c;
+  --color-primary-light: #f472b6;
 
   /* ============================================
      Premium/VIP Page Backgrounds (Light Mode)
