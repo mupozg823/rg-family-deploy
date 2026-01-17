@@ -35,6 +35,15 @@ export const CATEGORY_COLORS: Record<string, string> = {
 
 export const SEASON_COLORS = ['#fd68ba', '#60a5fa', '#4ade80', '#fbbf24', '#a78bfa']
 
+// 시간 필터 타입
+export type TimeFilter = 'all' | 'past' | 'upcoming'
+
+export const TIME_FILTER_LABELS: Record<TimeFilter, string> = {
+  all: '전체',
+  past: '과거',
+  upcoming: '예정',
+}
+
 export const getCategoryColor = (category: string | null): string => {
   return CATEGORY_COLORS[category || ''] || '#fd68ba'
 }
@@ -46,6 +55,7 @@ export const getSeasonColor = (seasonIndex: number): string => {
 export interface UseTimelineDataOptions {
   initialSeasonId?: number | null
   initialCategory?: string | null
+  initialTimeFilter?: TimeFilter
   /** 페이지당 이벤트 수 (무한 스크롤용) */
   pageSize?: number
   /** 무한 스크롤 모드 활성화 */
@@ -58,6 +68,7 @@ export interface UseTimelineDataReturn {
   categories: string[]
   selectedSeasonId: number | null
   selectedCategory: string | null
+  selectedTimeFilter: TimeFilter
   groupedBySeason: GroupedEvents[]
   isLoading: boolean
   /** 추가 로딩 중 여부 (무한 스크롤) */
@@ -68,6 +79,7 @@ export interface UseTimelineDataReturn {
   loadMore: () => Promise<void>
   setSelectedSeasonId: (id: number | null) => void
   setSelectedCategory: (category: string | null) => void
+  setSelectedTimeFilter: (filter: TimeFilter) => void
   refetch: () => Promise<void>
 }
 
@@ -88,6 +100,9 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
   )
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     options?.initialCategory ?? null
+  )
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState<TimeFilter>(
+    options?.initialTimeFilter ?? 'all'
   )
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
@@ -164,7 +179,19 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
         category: selectedCategory,
       })
 
-      setAllFilteredEvents(filteredEvents)
+      // 시간 필터 적용
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      const timeFilteredEvents = filteredEvents.filter((event) => {
+        if (selectedTimeFilter === 'all') return true
+        const eventDate = new Date(event.eventDate)
+        if (selectedTimeFilter === 'past') return eventDate < today
+        if (selectedTimeFilter === 'upcoming') return eventDate >= today
+        return true
+      })
+
+      setAllFilteredEvents(timeFilteredEvents)
 
       // 무한 스크롤 모드면 첫 페이지만, 아니면 전체
       if (infiniteScroll) {
@@ -177,7 +204,7 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     } finally {
       setIsLoading(false)
     }
-  }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory, infiniteScroll, pageSize])
+  }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory, selectedTimeFilter, infiniteScroll, pageSize])
 
   // 초기 로드 및 필터 변경 시 refetch
   useEffect(() => {
@@ -190,6 +217,7 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     categories,
     selectedSeasonId,
     selectedCategory,
+    selectedTimeFilter,
     groupedBySeason,
     isLoading,
     isLoadingMore,
@@ -197,6 +225,7 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     loadMore,
     setSelectedSeasonId,
     setSelectedCategory,
+    setSelectedTimeFilter,
     refetch: fetchData,
   }
 }

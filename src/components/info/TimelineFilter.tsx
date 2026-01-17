@@ -1,7 +1,7 @@
 'use client'
 
-import { Filter, Tag } from 'lucide-react'
-import { CATEGORY_LABELS, getCategoryColor } from '@/lib/hooks/useTimelineData'
+import { Clock, Filter, Tag } from 'lucide-react'
+import { CATEGORY_LABELS, getCategoryColor, TIME_FILTER_LABELS, type TimeFilter } from '@/lib/hooks/useTimelineData'
 import type { Season } from '@/types/database'
 import styles from './Timeline.module.css'
 
@@ -10,8 +10,10 @@ interface TimelineFilterProps {
   categories: string[]
   selectedSeasonId: number | null
   selectedCategory: string | null
+  selectedTimeFilter: TimeFilter
   onSeasonChange: (seasonId: number | null) => void
   onCategoryChange: (category: string | null) => void
+  onTimeFilterChange: (filter: TimeFilter) => void
 }
 
 export default function TimelineFilter({
@@ -19,8 +21,10 @@ export default function TimelineFilter({
   categories,
   selectedSeasonId,
   selectedCategory,
+  selectedTimeFilter,
   onSeasonChange,
   onCategoryChange,
+  onTimeFilterChange,
 }: TimelineFilterProps) {
   return (
     <div className={styles.filterSection}>
@@ -44,6 +48,25 @@ export default function TimelineFilter({
               className={`${styles.seasonButton} ${selectedSeasonId === season.id ? styles.active : ''}`}
             >
               {season.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Time Filter */}
+      <div className={styles.filterRow}>
+        <div className={styles.filterLabel}>
+          <Clock size={18} />
+          <span>기간</span>
+        </div>
+        <div className={styles.timeFilter}>
+          {(['all', 'past', 'upcoming'] as TimeFilter[]).map((filter) => (
+            <button
+              key={filter}
+              onClick={() => onTimeFilterChange(filter)}
+              className={`${styles.timeButton} ${selectedTimeFilter === filter ? styles.active : ''}`}
+            >
+              {TIME_FILTER_LABELS[filter]}
             </button>
           ))}
         </div>

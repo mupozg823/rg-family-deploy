@@ -21,6 +21,7 @@ import {
   LogOut,
   Settings,
   Home,
+  Clock,
 } from 'lucide-react'
 import { useAuthContext } from '@/lib/context'
 import styles from './Sidebar.module.css'
@@ -32,6 +33,7 @@ const menuItems = [
   { href: '/admin/seasons', icon: Calendar, label: '시즌 관리' },
   { href: '/admin/organization', icon: Building, label: '조직도 관리' },
   { href: '/admin/schedules', icon: CalendarDays, label: '일정 관리' },
+  { href: '/admin/timeline', icon: Clock, label: '타임라인 관리' },
   { href: '/admin/signatures', icon: Image, label: '시그니처 관리' },
   { href: '/admin/notices', icon: Megaphone, label: '공지사항 관리' },
   { href: '/admin/posts', icon: MessageSquare, label: '게시글 관리' },

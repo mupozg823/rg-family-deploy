@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Calendar, ExternalLink } from 'lucide-react'
+import { Calendar, Clock, ExternalLink } from 'lucide-react'
 import Image from 'next/image'
 import { CATEGORY_LABELS, getCategoryColor } from '@/lib/hooks/useTimelineData'
 import { formatDate } from '@/lib/utils/format'
@@ -14,8 +14,17 @@ interface TimelineEventCardProps {
   onSelect: (event: TimelineItem) => void
 }
 
+// 미래 날짜인지 확인
+const isFutureDate = (dateStr: string) => {
+  const eventDate = new Date(dateStr)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return eventDate > today
+}
+
 export default function TimelineEventCard({ event, index, onSelect }: TimelineEventCardProps) {
   const isLeft = index % 2 === 0
+  const isUpcoming = isFutureDate(event.eventDate)
 
   return (
     <motion.div
@@ -39,10 +48,18 @@ export default function TimelineEventCard({ event, index, onSelect }: TimelineEv
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && onSelect(event)}
       >
-        {/* Date */}
-        <div className={styles.date}>
-          <Calendar size={14} />
-          {formatDate(event.eventDate)}
+        {/* Date & Upcoming Badge */}
+        <div className={styles.dateRow}>
+          <div className={styles.date}>
+            <Calendar size={14} />
+            {formatDate(event.eventDate)}
+          </div>
+          {isUpcoming && (
+            <span className={styles.upcomingBadge}>
+              <Clock size={12} />
+              예정
+            </span>
+          )}
         </div>
 
         {/* Category Badge */}
