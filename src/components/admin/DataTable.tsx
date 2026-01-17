@@ -221,7 +221,7 @@ export default function DataTable<T extends { id: string | number }>({
     <Paper withBorder radius="md" p={0}>
       {/* 검색 툴바 */}
       {searchable && (
-        <Group justify="space-between" p="md" style={{ borderBottom: '1px solid var(--mantine-color-dark-4)' }}>
+        <Group justify="space-between" p="md" style={{ borderBottom: '1px solid var(--card-border)' }}>
           <TextInput
             placeholder={searchPlaceholder}
             leftSection={<IconSearch size={16} />}
@@ -290,7 +290,7 @@ export default function DataTable<T extends { id: string | number }>({
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <Group justify="center" p="md" style={{ borderTop: '1px solid var(--mantine-color-dark-4)' }}>
+        <Group justify="center" p="md" style={{ borderTop: '1px solid var(--card-border)' }}>
           <Pagination
             value={activePage}
             onChange={setActivePage}
