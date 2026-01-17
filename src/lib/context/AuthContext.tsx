@@ -41,6 +41,7 @@ interface AuthActions {
   signIn: (email: string, password: string) => Promise<{ data: AuthResponse['data']; error: AuthError | null }>
   signUp: (email: string, password: string, nickname: string) => Promise<{ data: AuthResponse['data']; error: AuthError | null }>
   signOut: () => Promise<{ error: AuthError | null }>
+  refreshProfile: () => Promise<void>
   hasRole: (roles: Role | Role[]) => boolean
   isAdmin: () => boolean
   isModerator: () => boolean
@@ -217,6 +218,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error }
   }, [supabase])
 
+  const refreshProfile = useCallback(async () => {
+    if (!state.user) return
+    const profile = await fetchProfile(state.user.id)
+    setState(prev => ({ ...prev, profile }))
+  }, [state.user, fetchProfile])
+
   const hasRole = useCallback((roles: Role | Role[]): boolean => {
     if (!state.profile) return false
     const roleArray = Array.isArray(roles) ? roles : [roles]
@@ -240,6 +247,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signUp,
     signOut,
+    refreshProfile,
     hasRole,
     isAdmin,
     isModerator,
