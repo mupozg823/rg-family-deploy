@@ -365,7 +365,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: var(--space-5);
+  margin-top: var(--space-8);
   gap: var(--space-4);
   position: relative;
 }

@@ -84,8 +84,9 @@ export default function FreeBoardPage() {
     const { data, error } = await withRetry(async () =>
       await supabase
         .from('posts')
-        .select('id, title, view_count, like_count, category, created_at, profiles!author_id(nickname), comments(id)')
+        .select('id, title, view_count, like_count, created_at, is_anonymous, profiles!author_id(nickname), comments(id)')
         .eq('board_type', 'free')
+        .eq('is_deleted', false)
         .order('created_at', { ascending: false })
         .limit(20)
     )
@@ -100,12 +101,12 @@ export default function FreeBoardPage() {
           return {
             id: p.id,
             title: p.title,
-            authorName: profile?.nickname || '익명',
+            authorName: (p as { is_anonymous?: boolean }).is_anonymous ? '익명' : (profile?.nickname || '익명'),
             viewCount: p.view_count || 0,
             commentCount: comments?.length || 0,
             likeCount: p.like_count || 0,
             createdAt: p.created_at,
-            category: p.category || '잡담',
+            category: '잡담',
           }
         })
       )
@@ -218,9 +219,18 @@ export default function FreeBoardPage() {
             <span>게시글을 불러오는 중...</span>
           </div>
         ) : sortedPosts.length === 0 ? (
-          <div className={styles.empty}>
-            <p>등록된 게시글이 없습니다</p>
-          </div>
+          <>
+            <div className={styles.empty}>
+              <p>등록된 게시글이 없습니다</p>
+            </div>
+            <div className={styles.boardFooter}>
+              <div />
+              <Link href="/community/free/write" className={styles.writeBtn}>
+                <PenLine size={16} />
+                글쓰기
+              </Link>
+            </div>
+          </>
         ) : (
           <>
             {/* Board Table */}
@@ -346,13 +356,10 @@ export default function FreeBoardPage() {
                 <button className={styles.pageBtn}>›</button>
                 <button className={styles.pageBtn}>»</button>
               </div>
-              <button
-                className={styles.writeBtn}
-                onClick={() => alert('글쓰기 기능은 준비 중입니다.')}
-              >
+              <Link href="/community/free/write" className={styles.writeBtn}>
                 <PenLine size={16} />
                 글쓰기
-              </button>
+              </Link>
             </div>
           </>
         )}
