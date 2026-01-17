@@ -21,6 +21,7 @@ interface PostDetail {
   content: string
   authorId: string
   authorName: string
+  authorRealName?: string // 관리자용 실제 닉네임
   authorAvatar?: string
   viewCount: number
   likeCount: number
@@ -34,6 +35,7 @@ interface CommentItem {
   content: string
   authorId: string
   authorName: string
+  authorRealName?: string // 관리자용 실제 닉네임
   authorAvatar?: string
   createdAt: string
   isAnonymous: boolean
@@ -63,12 +65,14 @@ export default function PostDetailPage() {
       const mockPost = mockPosts.find(p => p.id === postId && p.board_type === 'free')
       if (mockPost) {
         const author = mockProfiles.find(pr => pr.id === mockPost.author_id)
+        const realNickname = author?.nickname || '알 수 없음'
         setPost({
           id: mockPost.id,
           title: mockPost.title,
           content: mockPost.content,
           authorId: mockPost.author_id,
-          authorName: mockPost.is_anonymous ? '익명' : (author?.nickname || '익명'),
+          authorName: mockPost.is_anonymous ? '익명' : realNickname,
+          authorRealName: mockPost.is_anonymous ? realNickname : undefined,
           authorAvatar: author?.avatar_url || undefined,
           viewCount: mockPost.view_count || 0,
           likeCount: mockPost.like_count || 0,
@@ -83,11 +87,13 @@ export default function PostDetailPage() {
           .map(c => {
             const commentAuthor = mockProfiles.find(pr => pr.id === c.author_id)
             const isAnon = (c as { is_anonymous?: boolean }).is_anonymous || false
+            const commentRealNickname = commentAuthor?.nickname || '알 수 없음'
             return {
               id: c.id,
               content: c.content,
               authorId: c.author_id,
-              authorName: isAnon ? '익명' : (commentAuthor?.nickname || '익명'),
+              authorName: isAnon ? '익명' : commentRealNickname,
+              authorRealName: isAnon ? commentRealNickname : undefined,
               authorAvatar: commentAuthor?.avatar_url || undefined,
               createdAt: c.created_at,
               isAnonymous: isAnon,
@@ -115,12 +121,14 @@ export default function PostDetailPage() {
     }
 
     const postProfile = postData.profiles as JoinedProfile | null
+    const postRealNickname = postProfile?.nickname || '알 수 없음'
     setPost({
       id: postData.id,
       title: postData.title,
       content: postData.content,
       authorId: postData.author_id,
-      authorName: postData.is_anonymous ? '익명' : (postProfile?.nickname || '익명'),
+      authorName: postData.is_anonymous ? '익명' : postRealNickname,
+      authorRealName: postData.is_anonymous ? postRealNickname : undefined,
       authorAvatar: postProfile?.avatar_url || undefined,
       viewCount: postData.view_count || 0,
       likeCount: postData.like_count || 0,
@@ -148,11 +156,13 @@ export default function PostDetailPage() {
         commentsData.map(c => {
           const commentProfile = c.profiles as JoinedProfile | null
           const isAnon = c.is_anonymous || false
+          const commentRealNickname = commentProfile?.nickname || '알 수 없음'
           return {
             id: c.id,
             content: c.content,
             authorId: c.author_id,
-            authorName: isAnon ? '익명' : (commentProfile?.nickname || '익명'),
+            authorName: isAnon ? '익명' : commentRealNickname,
+            authorRealName: isAnon ? commentRealNickname : undefined,
             authorAvatar: commentProfile?.avatar_url || undefined,
             createdAt: c.created_at,
             isAnonymous: isAnon,
@@ -286,7 +296,12 @@ export default function PostDetailPage() {
                       {post.authorName.charAt(0)}
                     </div>
                   )}
-                  <span className={styles.authorName}>{post.authorName}</span>
+                  <span className={styles.authorName}>
+                      {post.authorName}
+                      {isAdmin && post.isAnonymous && post.authorRealName && (
+                        <span className={styles.adminRealName}>({post.authorRealName})</span>
+                      )}
+                    </span>
                   <span className={styles.dot}>·</span>
                   <span className={styles.date}>{formatRelativeTime(post.createdAt)}</span>
                 </div>
@@ -404,7 +419,12 @@ export default function PostDetailPage() {
                             {comment.authorName.charAt(0)}
                           </div>
                         )}
-                        <span className={styles.commentAuthorName}>{comment.authorName}</span>
+                        <span className={styles.commentAuthorName}>
+                            {comment.authorName}
+                            {isAdmin && comment.isAnonymous && comment.authorRealName && (
+                              <span className={styles.adminRealName}>({comment.authorRealName})</span>
+                            )}
+                          </span>
                         <span className={styles.commentDate}>{formatRelativeTime(comment.createdAt)}</span>
                       </div>
                       {(user?.id === comment.authorId || isAdmin) && (

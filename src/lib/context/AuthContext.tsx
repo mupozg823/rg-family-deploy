@@ -41,6 +41,8 @@ interface AuthActions {
   signIn: (email: string, password: string) => Promise<{ data: AuthResponse['data']; error: AuthError | null }>
   signUp: (email: string, password: string, nickname: string) => Promise<{ data: AuthResponse['data']; error: AuthError | null }>
   signOut: () => Promise<{ error: AuthError | null }>
+  resetPassword: (email: string) => Promise<{ error: AuthError | null }>
+  updatePassword: (newPassword: string) => Promise<{ error: AuthError | null }>
   refreshProfile: () => Promise<void>
   hasRole: (roles: Role | Role[]) => boolean
   isAdmin: () => boolean
@@ -218,6 +220,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error }
   }, [supabase])
 
+  const resetPassword = useCallback(async (email: string) => {
+    if (USE_MOCK_DATA) {
+      // Mock 모드에서는 성공 반환
+      return { error: null }
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    return { error }
+  }, [supabase])
+
+  const updatePassword = useCallback(async (newPassword: string) => {
+    if (USE_MOCK_DATA) {
+      return { error: null }
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    })
+    return { error }
+  }, [supabase])
+
   const refreshProfile = useCallback(async () => {
     if (!state.user) return
     const profile = await fetchProfile(state.user.id)
@@ -247,6 +272,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signUp,
     signOut,
+    resetPassword,
+    updatePassword,
     refreshProfile,
     hasRole,
     isAdmin,

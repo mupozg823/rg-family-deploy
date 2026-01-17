@@ -333,6 +333,18 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+/* 관리자용 실제 닉네임 표시 */
+.adminRealName {
+  color: var(--color-primary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-normal);
+  opacity: 0.8;
 }
 
 /* Cell Date */

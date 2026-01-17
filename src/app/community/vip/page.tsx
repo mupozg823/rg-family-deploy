@@ -20,6 +20,8 @@ interface Post {
   id: number
   title: string
   authorName: string
+  authorRealName?: string // 관리자용 실제 닉네임
+  isAnonymous: boolean
   viewCount: number
   commentCount: number
   createdAt: string
@@ -27,7 +29,8 @@ interface Post {
 
 export default function VipBoardPage() {
   const supabase = useSupabaseContext()
-  const { user } = useAuthContext()
+  const { user, profile } = useAuthContext()
+  const isAdmin = profile && ['admin', 'superadmin', 'moderator'].includes(profile.role)
   const { isVip, isLoading: vipStatusLoading } = useVipStatus()
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -57,10 +60,14 @@ export default function VipBoardPage() {
       setPosts(
         vipPosts.map((p) => {
           const author = mockProfiles.find((pr) => pr.id === p.author_id)
+          const realNickname = author?.nickname || '알 수 없음'
+          const isAnon = p.is_anonymous || false
           return {
             id: p.id,
             title: p.title,
-            authorName: p.is_anonymous ? '익명' : (author?.nickname || '익명'),
+            authorName: isAnon ? '익명' : realNickname,
+            authorRealName: isAnon ? realNickname : undefined,
+            isAnonymous: isAnon,
             viewCount: p.view_count || 0,
             commentCount: p.comment_count || 0,
             createdAt: p.created_at,
@@ -74,7 +81,7 @@ export default function VipBoardPage() {
     const { data, error } = await withRetry(async () =>
       await supabase
         .from('posts')
-        .select('id, title, view_count, created_at, profiles!author_id(nickname), comments(id)')
+        .select('id, title, view_count, is_anonymous, created_at, profiles!author_id(nickname), comments(id)')
         .eq('board_type', 'vip')
         .order('created_at', { ascending: false })
         .limit(20)
@@ -85,12 +92,16 @@ export default function VipBoardPage() {
     } else {
       setPosts(
         (data || []).map((p) => {
-          const profile = p.profiles as JoinedProfile | null
+          const postProfile = p.profiles as JoinedProfile | null
           const comments = p.comments as unknown[] | null
+          const isAnon = (p as { is_anonymous?: boolean }).is_anonymous || false
+          const realNickname = postProfile?.nickname || '알 수 없음'
           return {
             id: p.id,
             title: p.title,
-            authorName: profile?.nickname || '익명',
+            authorName: isAnon ? '익명' : realNickname,
+            authorRealName: isAnon ? realNickname : undefined,
+            isAnonymous: isAnon,
             viewCount: p.view_count || 0,
             commentCount: comments?.length || 0,
             createdAt: p.created_at,
@@ -184,6 +195,9 @@ export default function VipBoardPage() {
                   <span className={`${styles.cellAuthor} ${styles.authorVip}`}>
                     <Crown size={10} />
                     {post.authorName}
+                    {isAdmin && post.isAnonymous && post.authorRealName && (
+                      <span className={styles.adminRealName}>({post.authorRealName})</span>
+                    )}
                   </span>
                   <span className={styles.cellDate}>{formatRelativeTime(post.createdAt)}</span>
                   <span className={styles.cellViews}>{post.viewCount.toLocaleString()}</span>

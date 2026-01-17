@@ -168,6 +168,16 @@ export default function LoginPage() {
             >
               로그인
             </Button>
+
+            <Text ta="center" size="xs" c="dimmed">
+              <Anchor component={Link} href="/find-email" c="pink.3" size="xs">
+                아이디 찾기
+              </Anchor>
+              {" | "}
+              <Anchor component={Link} href="/forgot-password" c="pink.3" size="xs">
+                비밀번호 찾기
+              </Anchor>
+            </Text>
           </Stack>
         </form>
 

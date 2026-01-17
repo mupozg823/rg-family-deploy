@@ -6,7 +6,7 @@ import { Search, Eye, MessageSquare, ThumbsUp, PenLine, ChevronDown } from 'luci
 import { PageLayout } from '@/components/layout'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { useSupabaseContext } from '@/lib/context'
+import { useSupabaseContext, useAuthContext } from '@/lib/context'
 import { mockPosts, mockProfiles } from '@/lib/mock'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { withRetry } from '@/lib/utils/fetch-with-retry'
@@ -19,6 +19,8 @@ interface Post {
   id: number
   title: string
   authorName: string
+  authorRealName?: string // 관리자용 실제 닉네임
+  isAnonymous: boolean
   viewCount: number
   commentCount: number
   likeCount: number
@@ -43,6 +45,9 @@ function isPopular(likeCount: number): boolean {
 
 export default function FreeBoardPage() {
   const supabase = useSupabaseContext()
+  const { profile } = useAuthContext()
+  const isAdmin = profile && ['admin', 'superadmin', 'moderator'].includes(profile.role)
+
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -65,10 +70,14 @@ export default function FreeBoardPage() {
       setPosts(
         freePosts.map((p) => {
           const author = mockProfiles.find((pr) => pr.id === p.author_id)
+          const realNickname = author?.nickname || '알 수 없음'
+          const isAnon = p.is_anonymous || false
           return {
             id: p.id,
             title: p.title,
-            authorName: p.is_anonymous ? '익명' : (author?.nickname || '익명'),
+            authorName: isAnon ? '익명' : realNickname,
+            authorRealName: isAnon ? realNickname : undefined,
+            isAnonymous: isAnon,
             viewCount: p.view_count || 0,
             commentCount: p.comment_count || 0,
             likeCount: p.like_count || Math.floor(Math.random() * 30),
@@ -96,12 +105,16 @@ export default function FreeBoardPage() {
     } else {
       setPosts(
         (data || []).map((p) => {
-          const profile = p.profiles as JoinedProfile | null
+          const postProfile = p.profiles as JoinedProfile | null
           const comments = p.comments as unknown[] | null
+          const isAnon = (p as { is_anonymous?: boolean }).is_anonymous || false
+          const realNickname = postProfile?.nickname || '알 수 없음'
           return {
             id: p.id,
             title: p.title,
-            authorName: (p as { is_anonymous?: boolean }).is_anonymous ? '익명' : (profile?.nickname || '익명'),
+            authorName: isAnon ? '익명' : realNickname,
+            authorRealName: isAnon ? realNickname : undefined,
+            isAnonymous: isAnon,
             viewCount: p.view_count || 0,
             commentCount: comments?.length || 0,
             likeCount: p.like_count || 0,
@@ -287,7 +300,12 @@ export default function FreeBoardPage() {
                     </div>
 
                     {/* Author */}
-                    <span className={styles.cellAuthor}>{post.authorName}</span>
+                    <span className={styles.cellAuthor}>
+                      {post.authorName}
+                      {isAdmin && post.isAnonymous && post.authorRealName && (
+                        <span className={styles.adminRealName}>({post.authorRealName})</span>
+                      )}
+                    </span>
 
                     {/* Date */}
                     <span className={styles.cellDate}>
@@ -328,7 +346,12 @@ export default function FreeBoardPage() {
                     )}
                   </h3>
                   <div className={styles.mobileMeta}>
-                    <span className={styles.mobileAuthor}>{post.authorName}</span>
+                    <span className={styles.mobileAuthor}>
+                      {post.authorName}
+                      {isAdmin && post.isAnonymous && post.authorRealName && (
+                        <span className={styles.adminRealName}>({post.authorRealName})</span>
+                      )}
+                    </span>
                     <span className={styles.mobileDivider}>·</span>
                     <span>{formatShortDate(post.createdAt)}</span>
                     <span className={styles.mobileDivider}>·</span>
