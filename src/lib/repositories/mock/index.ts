@@ -554,6 +554,7 @@ class MockCommentRepository implements ICommentRepository {
       author_id: data.author_id,
       parent_id: data.parent_id || null,
       content: data.content,
+      is_anonymous: data.is_anonymous ?? false,
       is_deleted: false,
       created_at: getCurrentTimestamp(),
     }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Eye, ThumbsUp, MessageSquare, Trash2, Edit3, Send, MoreVertical } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, ThumbsUp, MessageSquare, Trash2, Edit3, Send, MoreVertical } from 'lucide-react'
 import { PageLayout } from '@/components/layout'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -51,6 +51,7 @@ export default function PostDetailPage() {
   const [comments, setComments] = useState<CommentItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [commentText, setCommentText] = useState('')
+  const [isAnonymousComment, setIsAnonymousComment] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
   const [error, setError] = useState('')
@@ -81,14 +82,15 @@ export default function PostDetailPage() {
           .filter(c => c.post_id === postId)
           .map(c => {
             const commentAuthor = mockProfiles.find(pr => pr.id === c.author_id)
+            const isAnon = (c as { is_anonymous?: boolean }).is_anonymous || false
             return {
               id: c.id,
               content: c.content,
               authorId: c.author_id,
-              authorName: commentAuthor?.nickname || '익명',
+              authorName: isAnon ? '익명' : (commentAuthor?.nickname || '익명'),
               authorAvatar: commentAuthor?.avatar_url || undefined,
               createdAt: c.created_at,
-              isAnonymous: false,
+              isAnonymous: isAnon,
             }
           })
         setComments(postComments)
@@ -145,7 +147,7 @@ export default function PostDetailPage() {
       setComments(
         commentsData.map(c => {
           const commentProfile = c.profiles as JoinedProfile | null
-          const isAnon = (c as { is_anonymous?: boolean }).is_anonymous
+          const isAnon = c.is_anonymous || false
           return {
             id: c.id,
             content: c.content,
@@ -153,7 +155,7 @@ export default function PostDetailPage() {
             authorName: isAnon ? '익명' : (commentProfile?.nickname || '익명'),
             authorAvatar: commentProfile?.avatar_url || undefined,
             createdAt: c.created_at,
-            isAnonymous: isAnon || false,
+            isAnonymous: isAnon,
           }
         })
       )
@@ -185,10 +187,12 @@ export default function PostDetailPage() {
     const result = await createComment({
       post_id: postId,
       content: commentText.trim(),
+      is_anonymous: isAnonymousComment,
     })
 
     if (result.data) {
       setCommentText('')
+      setIsAnonymousComment(false)
       // 댓글 목록 새로고침
       fetchPost()
     } else {
@@ -352,7 +356,14 @@ export default function PostDetailPage() {
                     rows={3}
                   />
                   <div className={styles.commentActions}>
-                    <div />
+                    <button
+                      type="button"
+                      onClick={() => setIsAnonymousComment(!isAnonymousComment)}
+                      className={`${styles.anonymousToggle} ${isAnonymousComment ? styles.active : ''}`}
+                    >
+                      {isAnonymousComment ? <EyeOff size={14} /> : <Eye size={14} />}
+                      {isAnonymousComment ? '익명' : '닉네임'}
+                    </button>
                     <button
                       onClick={handleSubmitComment}
                       disabled={isSubmitting || !commentText.trim()}

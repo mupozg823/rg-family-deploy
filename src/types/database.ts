@@ -498,6 +498,7 @@ export type Database = {
           author_id: string
           content: string
           parent_id: number | null
+          is_anonymous: boolean
           is_deleted: boolean
           created_at: string
         }
@@ -507,6 +508,7 @@ export type Database = {
           author_id: string
           content: string
           parent_id?: number | null
+          is_anonymous?: boolean
           is_deleted?: boolean
           created_at?: string
         }
@@ -516,6 +518,7 @@ export type Database = {
           author_id?: string
           content?: string
           parent_id?: number | null
+          is_anonymous?: boolean
           is_deleted?: boolean
           created_at?: string
         }
