@@ -126,8 +126,9 @@ export function useOrganizationData(
       const leaders = memberList.filter(
         (m) => m.role === '대표' || m.role === 'R대표' || m.role === 'G대표'
       )
-      const directors = memberList.filter((m) => m.role === '부장')
-      const managers = memberList.filter((m) => m.role === '팀장')
+      // 부장/팀장은 현재 사용하지 않지만 호환성 유지
+      const directors: T[] = []
+      const managers: T[] = []
       const regularMembers = memberList.filter(
         (m) => m.role === '멤버' || m.role === '크루'
       )

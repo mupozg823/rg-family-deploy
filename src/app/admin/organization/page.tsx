@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Building, Plus, X, Save, GripVertical, Radio, Link as LinkIcon } from 'lucide-react'
+import { Building, Plus, X, Save, GripVertical, Radio, Link as LinkIcon, Upload, User } from 'lucide-react'
+import Image from 'next/image'
 import { DataTable, Column } from '@/components/admin'
 import { useAdminCRUD } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
@@ -32,6 +33,7 @@ interface OrgMember {
   parentId: number | null
   socialLinks: SocialLinks | null
   profileInfo: ProfileInfo | null
+  imageUrl: string | null
   isLive: boolean
 }
 
@@ -81,6 +83,7 @@ export default function OrganizationPage() {
       parentId: null,
       socialLinks: null,
       profileInfo: null,
+      imageUrl: null,
       isLive: false,
     },
     orderBy: { column: 'position_order', ascending: true },
@@ -94,6 +97,7 @@ export default function OrganizationPage() {
       parentId: row.parent_id as number | null,
       socialLinks: row.social_links as SocialLinks | null,
       profileInfo: row.profile_info as ProfileInfo | null,
+      imageUrl: row.image_url as string | null,
       isLive: row.is_live as boolean,
     }),
     toDbFormat: (item) => ({
@@ -105,6 +109,7 @@ export default function OrganizationPage() {
       position_order: item.positionOrder,
       social_links: item.socialLinks,
       profile_info: item.profileInfo,
+      image_url: item.imageUrl,
     }),
     validate: (item) => {
       if (!item.name || !item.role) return '이름과 직책을 입력해주세요.'
@@ -129,6 +134,37 @@ export default function OrganizationPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <GripVertical size={16} style={{ color: 'var(--color-text-secondary)' }} />
           {item.positionOrder + 1}
+        </div>
+      ),
+    },
+    {
+      key: 'imageUrl',
+      header: '사진',
+      width: '60px',
+      render: (item) => (
+        <div style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '50%',
+          overflow: 'hidden',
+          background: 'var(--surface)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: item.isLive ? '2px solid #00d4ff' : '1px solid var(--border)',
+          boxShadow: item.isLive ? '0 0 8px #00d4ff' : 'none',
+        }}>
+          {item.imageUrl ? (
+            <Image
+              src={item.imageUrl}
+              alt={item.name}
+              width={40}
+              height={40}
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
+            <User size={20} style={{ color: 'var(--text-tertiary)' }} />
+          )}
         </div>
       ),
     },
@@ -239,6 +275,51 @@ export default function OrganizationPage() {
               </div>
 
               <div className={styles.modalBody}>
+                {/* 프로필 이미지 */}
+                <div className={styles.formGroup}>
+                  <label>프로필 이미지</label>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                    <div style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      background: 'var(--surface)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px solid var(--border)',
+                      flexShrink: 0,
+                    }}>
+                      {editingMember.imageUrl ? (
+                        <Image
+                          src={editingMember.imageUrl}
+                          alt="프로필"
+                          width={80}
+                          height={80}
+                          style={{ objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <User size={32} style={{ color: 'var(--text-tertiary)' }} />
+                      )}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <input
+                        type="url"
+                        value={editingMember.imageUrl || ''}
+                        onChange={(e) =>
+                          setEditingMember({ ...editingMember, imageUrl: e.target.value || null })
+                        }
+                        className={styles.input}
+                        placeholder="https://example.com/image.jpg"
+                      />
+                      <span className={styles.helperText} style={{ color: 'var(--text-tertiary)', marginTop: '0.25rem', display: 'block' }}>
+                        이미지 URL을 입력하세요
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 <div className={styles.formGroup}>
                   <label>이름 *</label>
                   <input
@@ -254,15 +335,17 @@ export default function OrganizationPage() {
 
                 <div className={styles.formGroup}>
                   <label>직책 *</label>
-                  <input
-                    type="text"
+                  <select
                     value={editingMember.role || ''}
                     onChange={(e) =>
                       setEditingMember({ ...editingMember, role: e.target.value })
                     }
-                    className={styles.input}
-                    placeholder="예: PRESIDENT, DIRECTOR, MEMBER..."
-                  />
+                    className={styles.select}
+                  >
+                    <option value="">선택</option>
+                    <option value="대표">대표</option>
+                    <option value="멤버">멤버</option>
+                  </select>
                 </div>
 
                 <div className={styles.formGroup}>
