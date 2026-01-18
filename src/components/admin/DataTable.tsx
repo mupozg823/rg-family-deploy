@@ -223,6 +223,7 @@ function SortableRow<T extends { id: string | number }>({
 
 const PAGE_SIZE_OPTIONS = [
   { value: 'all', label: '전체 보기' },
+  { value: '5', label: '5개씩 보기' },
   { value: '10', label: '10개씩 보기' },
   { value: '20', label: '20개씩 보기' },
   { value: '50', label: '50개씩 보기' },
@@ -245,7 +246,14 @@ export default function DataTable<T extends { id: string | number }>({
   const [sortBy, setSortBy] = useState<string | null>(null)
   const [reverseSortDirection, setReverseSortDirection] = useState(false)
   const [activePage, setActivePage] = useState(1)
-  const [pageSize, setPageSize] = useState<string>(String(itemsPerPage))
+
+  // itemsPerPage가 옵션에 없으면 가장 가까운 값 선택
+  const getInitialPageSize = () => {
+    const value = String(itemsPerPage)
+    const exists = PAGE_SIZE_OPTIONS.some(opt => opt.value === value)
+    return exists ? value : '10'
+  }
+  const [pageSize, setPageSize] = useState<string>(getInitialPageSize())
 
   const hasActions = onEdit || onDelete || onView
 
