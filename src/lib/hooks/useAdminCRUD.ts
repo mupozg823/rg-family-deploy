@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useSupabaseContext } from '@/lib/context'
 
 /**
@@ -130,14 +130,20 @@ export function useAdminCRUD<T extends { id?: number | string }>(
   const [editingItem, setEditingItem] = useState<Partial<T> | null>(null)
   const [isNew, setIsNew] = useState(false)
 
+  // Store config refs to avoid infinite loop
+  const fromDbFormatRef = React.useRef(fromDbFormat)
+  const orderByRef = React.useRef(orderBy)
+  fromDbFormatRef.current = fromDbFormat
+  orderByRef.current = orderBy
+
   // Fetch items
   const refetch = useCallback(async () => {
     setIsLoading(true)
 
     let query = supabase.from(tableName).select('*')
 
-    if (orderBy) {
-      query = query.order(orderBy.column, { ascending: orderBy.ascending ?? true })
+    if (orderByRef.current) {
+      query = query.order(orderByRef.current.column, { ascending: orderByRef.current.ascending ?? true })
     }
 
     const { data, error } = await query
@@ -145,11 +151,11 @@ export function useAdminCRUD<T extends { id?: number | string }>(
     if (error) {
       console.error(`${tableName} 데이터 로드 실패:`, error)
     } else {
-      setItems((data || []).map(fromDbFormat))
+      setItems((data || []).map(fromDbFormatRef.current))
     }
 
     setIsLoading(false)
-  }, [supabase, tableName, orderBy, fromDbFormat])
+  }, [supabase, tableName])
 
   // Initial fetch
   useEffect(() => {

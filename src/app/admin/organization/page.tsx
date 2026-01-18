@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Building, Plus, X, Save, GripVertical, Radio, Link as LinkIcon, User } from 'lucide-react'
+import { Building, Plus, X, Save, Radio, Link as LinkIcon, User } from 'lucide-react'
 import Image from 'next/image'
 import { DataTable, Column, ImageUpload } from '@/components/admin'
 import { useAdminCRUD } from '@/lib/hooks'
@@ -46,6 +46,8 @@ export default function OrganizationPage() {
   const supabase = useSupabaseContext()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [activeUnit, setActiveUnit] = useState<'excel' | 'crew'>('excel')
+  const [localMembers, setLocalMembers] = useState<OrgMember[]>([])
+  const [isSavingOrder, setIsSavingOrder] = useState(false)
 
   // Fetch profiles for linking
   const fetchProfiles = useCallback(async () => {
@@ -72,6 +74,7 @@ export default function OrganizationPage() {
     closeModal,
     handleSave,
     handleDelete,
+    refetch,
   } = useAdminCRUD<OrgMember>({
     tableName: 'organization',
     defaultItem: {
@@ -136,7 +139,49 @@ export default function OrganizationPage() {
     },
   })
 
-  const filteredMembers = members.filter((m) => m.unit === activeUnit)
+  // Sync local members with fetched members
+  useEffect(() => {
+    setLocalMembers(members)
+  }, [members])
+
+  const filteredMembers = localMembers.filter((m) => m.unit === activeUnit)
+
+  // 드래그앤드롭 순서 변경 핸들러
+  const handleReorder = async (reorderedItems: OrgMember[]) => {
+    // Update position_order for all reordered items
+    const updatedItems = reorderedItems.map((member, index) => ({
+      ...member,
+      positionOrder: index,
+    }))
+
+    // Update local state (merge with other unit's members)
+    const otherUnitMembers = localMembers.filter((m) => m.unit !== activeUnit)
+    setLocalMembers([...otherUnitMembers, ...updatedItems])
+
+    // Save to database
+    setIsSavingOrder(true)
+    try {
+      const updates = updatedItems.map((member) =>
+        supabase
+          .from('organization')
+          .update({ position_order: member.positionOrder })
+          .eq('id', member.id)
+      )
+
+      const results = await Promise.all(updates)
+      const hasError = results.some((r) => r.error)
+
+      if (hasError) {
+        console.error('순서 저장 중 오류 발생')
+        await refetch()
+      }
+    } catch (error) {
+      console.error('순서 저장 실패:', error)
+      await refetch()
+    } finally {
+      setIsSavingOrder(false)
+    }
+  }
 
   const openAddModal = () => {
     baseOpenAddModal()
@@ -148,13 +193,9 @@ export default function OrganizationPage() {
     {
       key: 'positionOrder',
       header: '순서',
-      width: '60px',
-      render: (item) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <GripVertical size={16} style={{ color: 'var(--color-text-secondary)' }} />
-          {item.positionOrder + 1}
-        </div>
-      ),
+      width: '50px',
+      sortable: false,
+      render: (item) => item.positionOrder + 1,
     },
     {
       key: 'imageUrl',
@@ -235,7 +276,7 @@ export default function OrganizationPage() {
           <Building size={24} className={styles.headerIcon} />
           <div>
             <h1 className={styles.title}>조직도 관리</h1>
-            <p className={styles.subtitle}>RG 패밀리 조직도</p>
+            <p className={styles.subtitle}>RG 패밀리 조직도{isSavingOrder && ' (저장 중...)'}</p>
           </div>
         </div>
         <button onClick={openAddModal} className={styles.addButton}>
@@ -267,6 +308,8 @@ export default function OrganizationPage() {
         onDelete={handleDelete}
         searchPlaceholder="이름으로 검색..."
         isLoading={isLoading}
+        draggable
+        onReorder={handleReorder}
       />
 
       {/* Modal */}
