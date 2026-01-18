@@ -130,7 +130,7 @@ export default function MediaPage() {
     {
       key: 'createdAt',
       header: '등록일',
-      width: '120px',
+      width: '140px',
       render: (item) => formatDate(item.createdAt),
     },
   ]

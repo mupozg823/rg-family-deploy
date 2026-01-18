@@ -121,7 +121,7 @@ export default function DonationsPage() {
     {
       key: 'createdAt',
       header: '일시',
-      width: '120px',
+      width: '140px',
       render: (item) => formatShortDate(item.createdAt),
     },
   ]

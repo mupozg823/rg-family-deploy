@@ -158,6 +158,7 @@ export default function AdminDashboardPage() {
     {
       key: 'createdAt',
       header: '일시',
+      width: '140px',
       render: (item) => formatDateTime(item.createdAt),
     },
   ]
@@ -168,6 +169,7 @@ export default function AdminDashboardPage() {
     {
       key: 'createdAt',
       header: '가입일',
+      width: '140px',
       render: (item) => formatDateTime(item.createdAt),
     },
   ]

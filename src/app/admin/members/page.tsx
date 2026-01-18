@@ -109,7 +109,7 @@ export default function MembersPage() {
     {
       key: 'createdAt',
       header: '가입일',
-      width: '120px',
+      width: '140px',
       render: (item) => formatShortDate(item.createdAt),
     },
   ]

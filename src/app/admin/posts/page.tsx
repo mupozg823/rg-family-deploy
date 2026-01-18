@@ -133,7 +133,7 @@ export default function PostsPage() {
     {
       key: 'createdAt',
       header: '작성일',
-      width: '120px',
+      width: '140px',
       render: (item) => formatDate(item.createdAt),
     },
   ]
