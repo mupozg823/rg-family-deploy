@@ -10,7 +10,6 @@ interface ImageUploadProps {
   onChange: (url: string | null) => void
   folder?: string
   size?: number
-  placeholder?: string
 }
 
 export function ImageUpload({
@@ -18,7 +17,6 @@ export function ImageUpload({
   onChange,
   folder = 'members',
   size = 80,
-  placeholder = '이미지 업로드'
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -108,17 +106,6 @@ export function ImageUpload({
         className={styles.input}
         disabled={isUploading}
       />
-
-      {!value && !isUploading && (
-        <button
-          type="button"
-          className={styles.uploadBtn}
-          onClick={() => inputRef.current?.click()}
-        >
-          <Upload size={14} />
-          {placeholder}
-        </button>
-      )}
 
       {error && <p className={styles.error}>{error}</p>}
     </div>

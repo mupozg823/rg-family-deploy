@@ -31,13 +31,16 @@ export default function LiveMembers() {
     )
   }
 
-  const members: LiveMember[] = rosterMembers.map((member) => ({
-    id: member.id,
-    nickname: member.name,
-    avatarUrl: member.image_url,
-    isLive: Boolean(member.is_live),
-    unit: member.unit,
-  }))
+  const members: LiveMember[] = rosterMembers
+    .map((member) => ({
+      id: member.id,
+      nickname: member.name,
+      avatarUrl: member.image_url,
+      isLive: Boolean(member.is_live),
+      unit: member.unit,
+    }))
+    // 라이브 중인 멤버 먼저 정렬
+    .sort((a, b) => (b.isLive ? 1 : 0) - (a.isLive ? 1 : 0))
 
   if (members.length === 0) {
     return (

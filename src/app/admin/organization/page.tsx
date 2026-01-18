@@ -283,7 +283,6 @@ export default function OrganizationPage() {
                     onChange={(url) => setEditingMember({ ...editingMember, imageUrl: url })}
                     folder="members"
                     size={80}
-                    placeholder="사진 업로드"
                   />
                 </div>
 
