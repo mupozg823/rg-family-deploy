@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Image as ImageIcon, Plus, X, Save, Hash, Video } from 'lucide-react'
 import Image from 'next/image'
 import { DataTable, Column, ImageUpload } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
@@ -25,6 +25,7 @@ interface Signature {
 export default function SignaturesPage() {
   const router = useRouter()
   const supabase = useSupabaseContext()
+  const alertHandler = useAlert()
   const [activeUnit, setActiveUnit] = useState<'excel' | 'crew'>('excel')
   const [videoCounts, setVideoCounts] = useState<Record<number, number>>({})
 
@@ -75,6 +76,7 @@ export default function SignaturesPage() {
       if (!item.title) return '시그 제목을 입력해주세요.'
       return null
     },
+    alertHandler,
   })
 
   // Fetch video counts for each signature
@@ -118,7 +120,7 @@ export default function SignaturesPage() {
 
   const handleSave = useCallback(async () => {
     if (!editingSignature || !editingSignature.title || !editingSignature.sigNumber) {
-      alert('시그 번호와 제목을 입력해주세요.')
+      alertHandler.showWarning('시그 번호와 제목을 입력해주세요.', '입력 오류')
       return
     }
 
@@ -129,7 +131,7 @@ export default function SignaturesPage() {
         s.id !== editingSignature.id
     )
     if (duplicate) {
-      alert(`${editingSignature.unit === 'excel' ? '엑셀부' : '크루부'}에 이미 ${editingSignature.sigNumber}번 시그가 있습니다.`)
+      alertHandler.showWarning(`${editingSignature.unit === 'excel' ? '엑셀부' : '크루부'}에 이미 ${editingSignature.sigNumber}번 시그가 있습니다.`, '중복 오류')
       return
     }
 
@@ -146,9 +148,9 @@ export default function SignaturesPage() {
       if (error) {
         console.error('시그 등록 실패:', error)
         if (error.code === '23505') {
-          alert('해당 부서에 같은 시그 번호가 이미 존재합니다.')
+          alertHandler.showError('해당 부서에 같은 시그 번호가 이미 존재합니다.', '등록 실패')
         } else {
-          alert('등록에 실패했습니다.')
+          alertHandler.showError('등록에 실패했습니다.', '오류')
         }
         return
       }
@@ -160,9 +162,9 @@ export default function SignaturesPage() {
       if (error) {
         console.error('시그 수정 실패:', error)
         if (error.code === '23505') {
-          alert('해당 부서에 같은 시그 번호가 이미 존재합니다.')
+          alertHandler.showError('해당 부서에 같은 시그 번호가 이미 존재합니다.', '수정 실패')
         } else {
-          alert('수정에 실패했습니다.')
+          alertHandler.showError('수정에 실패했습니다.', '오류')
         }
         return
       }
@@ -170,7 +172,7 @@ export default function SignaturesPage() {
 
     closeModal()
     refetch()
-  }, [supabase, editingSignature, isNew, allSignatures, closeModal, refetch])
+  }, [supabase, editingSignature, isNew, allSignatures, closeModal, refetch, alertHandler])
 
   const handleView = (sig: Signature) => {
     router.push(`/admin/signatures/${sig.id}`)

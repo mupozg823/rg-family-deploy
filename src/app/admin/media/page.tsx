@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Film, Plus, X, Save, ExternalLink } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
@@ -23,6 +23,7 @@ interface Media {
 
 export default function MediaPage() {
   const supabase = useSupabaseContext()
+  const alertHandler = useAlert()
   const [activeType, setActiveType] = useState<ContentType>('shorts')
 
   const {
@@ -71,6 +72,7 @@ export default function MediaPage() {
       if (!item.title || !item.videoUrl) return '제목과 영상 URL을 입력해주세요.'
       return null
     },
+    alertHandler,
   })
 
   // Filter by activeType

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Building, Plus, X, Save, Radio, Link as LinkIcon, User } from 'lucide-react'
 import Image from 'next/image'
 import { DataTable, Column, ImageUpload } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
@@ -44,6 +44,7 @@ interface Profile {
 
 export default function OrganizationPage() {
   const supabase = useSupabaseContext()
+  const alertHandler = useAlert()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [activeUnit, setActiveUnit] = useState<'excel' | 'crew'>('excel')
   const [localMembers, setLocalMembers] = useState<OrgMember[]>([])
@@ -137,6 +138,7 @@ export default function OrganizationPage() {
         throw new Error(`live_status 삭제 실패: ${liveError.message}`)
       }
     },
+    alertHandler,
   })
 
   // Sync local members with fetched members

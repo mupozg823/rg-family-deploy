@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Plus, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
@@ -18,6 +18,7 @@ interface Season {
 
 export default function SeasonsPage() {
   const supabase = useSupabaseContext()
+  const alertHandler = useAlert()
 
   const {
     items: seasons,
@@ -67,7 +68,8 @@ export default function SeasonsPage() {
           .neq('id', item.id || 0)
       }
     },
-    deleteConfirmMessage: '정말 삭제하시겠습니까? 관련된 모든 데이터가 삭제됩니다.',
+    deleteConfirmMessage: '정말 삭제하시겠습니까?\n\n관련된 모든 데이터가 함께 삭제됩니다.',
+    alertHandler,
   })
 
   const formatDate = (dateStr: string) => {

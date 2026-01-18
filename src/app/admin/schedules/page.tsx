@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { CalendarDays, Plus, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import styles from '../shared.module.css'
 
 type EventType = 'broadcast' | 'collab' | 'event' | 'notice' | '休'
@@ -37,6 +37,8 @@ const eventTypeColors: Record<EventType, string> = {
 }
 
 export default function SchedulesPage() {
+  const alertHandler = useAlert()
+
   const getDefaultStartDatetime = () => {
     const now = new Date()
     now.setHours(20, 0, 0, 0)
@@ -91,6 +93,7 @@ export default function SchedulesPage() {
       if (!item.title) return '일정 제목을 입력해주세요.'
       return null
     },
+    alertHandler,
   })
 
   const formatDate = (dateStr: string) => {

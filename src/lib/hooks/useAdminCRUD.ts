@@ -36,6 +36,60 @@ import { useSupabaseContext } from '@/lib/context'
  * ```
  */
 
+// FK 제약 조건 에러를 친절한 메시지로 변환
+function getFriendlyErrorMessage(error: { message?: string; code?: string }, tableName: string): string {
+  const message = error.message || ''
+
+  // FK 제약 조건 위반 (23503)
+  if (error.code === '23503' || message.includes('foreign key constraint')) {
+    // 테이블별 맞춤 메시지
+    const fkMessages: Record<string, Record<string, string>> = {
+      seasons: {
+        donations_season_id_fkey: '이 시즌에 후원 기록이 있어\n삭제할 수 없습니다.\n\n먼저 후원 기록을 삭제하거나\n다른 시즌으로 이동해주세요.',
+      },
+      organization: {
+        donations_donor_id_fkey: '이 멤버에게 연결된 후원 기록이 있어\n삭제할 수 없습니다.',
+        signature_videos_member_id_fkey: '이 멤버의 시그니처 영상이 있어\n삭제할 수 없습니다.',
+      },
+      signatures: {
+        signature_videos_signature_id_fkey: '이 시그니처에 등록된 영상이 있어\n삭제할 수 없습니다.',
+      },
+    }
+
+    // 해당 테이블의 FK 메시지 찾기
+    const tableMessages = fkMessages[tableName]
+    if (tableMessages) {
+      for (const [constraint, friendlyMsg] of Object.entries(tableMessages)) {
+        if (message.includes(constraint)) {
+          return friendlyMsg
+        }
+      }
+    }
+
+    // 일반적인 FK 에러 메시지
+    return '연관된 데이터가 있어\n삭제할 수 없습니다.\n\n먼저 연관 데이터를 삭제해주세요.'
+  }
+
+  // 기타 에러
+  return `삭제에 실패했습니다: ${message || error.code || '알 수 없는 오류'}`
+}
+
+export interface AlertHandler {
+  showError: (message: string, title?: string) => void
+  showSuccess: (message: string, title?: string) => void
+  showWarning: (message: string, title?: string) => void
+  showInfo: (message: string, title?: string) => void
+  showConfirm: (
+    message: string,
+    options?: {
+      title?: string
+      variant?: 'danger' | 'warning' | 'info'
+      confirmText?: string
+      cancelText?: string
+    }
+  ) => Promise<boolean>
+}
+
 export interface AdminCRUDConfig<T extends { id?: number | string }> {
   /** Supabase 테이블 이름 */
   tableName: string
@@ -66,6 +120,9 @@ export interface AdminCRUDConfig<T extends { id?: number | string }> {
 
   /** 삭제 확인 메시지 (선택) */
   deleteConfirmMessage?: string
+
+  /** 커스텀 Alert 핸들러 (선택, 미설정 시 기본 alert 사용) */
+  alertHandler?: AlertHandler
 }
 
 export interface AdminCRUDReturn<T extends { id?: number | string }> {
@@ -119,7 +176,13 @@ export function useAdminCRUD<T extends { id?: number | string }>(
     beforeSave,
     beforeDelete,
     deleteConfirmMessage = '정말 삭제하시겠습니까?',
+    alertHandler,
   } = config
+
+  // Alert 함수 (커스텀 핸들러 또는 기본 alert/confirm)
+  const showError = alertHandler?.showError || ((msg: string) => alert(msg))
+  const showWarning = alertHandler?.showWarning || ((msg: string) => alert(msg))
+  const showConfirm = alertHandler?.showConfirm || ((msg: string) => Promise.resolve(confirm(msg)))
 
   const supabase = useSupabaseContext()
 
@@ -188,7 +251,7 @@ export function useAdminCRUD<T extends { id?: number | string }>(
     if (validate) {
       const error = validate(editingItem)
       if (error) {
-        alert(error)
+        showWarning(error, '입력 오류')
         return false
       }
     }
@@ -209,7 +272,7 @@ export function useAdminCRUD<T extends { id?: number | string }>(
       const { error } = await supabase.from(tableName).insert(dbData)
       if (error) {
         console.error(`${tableName} 등록 실패:`, error)
-        alert('등록에 실패했습니다.')
+        showError('등록에 실패했습니다.', '오류')
         return false
       }
     } else {
@@ -219,7 +282,7 @@ export function useAdminCRUD<T extends { id?: number | string }>(
         .eq('id', editingItem.id)
       if (error) {
         console.error(`${tableName} 수정 실패:`, error)
-        alert('수정에 실패했습니다.')
+        showError('수정에 실패했습니다.', '오류')
         return false
       }
     }
@@ -231,7 +294,13 @@ export function useAdminCRUD<T extends { id?: number | string }>(
 
   // Delete handler
   const handleDelete = useCallback(async (item: T): Promise<boolean> => {
-    if (!confirm(deleteConfirmMessage)) return false
+    const confirmed = await showConfirm(deleteConfirmMessage, {
+      title: '삭제 확인',
+      variant: 'danger',
+      confirmText: '삭제',
+      cancelText: '취소',
+    })
+    if (!confirmed) return false
 
     // Before delete hook (예: 연관 데이터 삭제)
     if (beforeDelete) {
@@ -239,7 +308,7 @@ export function useAdminCRUD<T extends { id?: number | string }>(
         await beforeDelete(item)
       } catch (err) {
         console.error('beforeDelete 실패:', err)
-        alert(`삭제 전처리에 실패했습니다: ${err instanceof Error ? err.message : '알 수 없는 오류'}`)
+        showError(`삭제 전처리에 실패했습니다: ${err instanceof Error ? err.message : '알 수 없는 오류'}`, '오류')
         return false
       }
     }
@@ -250,13 +319,16 @@ export function useAdminCRUD<T extends { id?: number | string }>(
 
     if (error) {
       console.error(`${tableName} 삭제 실패:`, error, `code: ${error.code}, details: ${error.details}, hint: ${error.hint}`)
-      alert(`삭제에 실패했습니다: ${error.message || error.code || JSON.stringify(error)}`)
+
+      // FK 제약 조건 에러 친절한 메시지로 변환
+      const friendlyMessage = getFriendlyErrorMessage(error, tableName)
+      showError(friendlyMessage, '삭제 불가')
       return false
     }
 
     await refetch()
     return true
-  }, [supabase, tableName, deleteConfirmMessage, beforeDelete, refetch])
+  }, [supabase, tableName, deleteConfirmMessage, beforeDelete, refetch, showConfirm, showError])
 
   return {
     items,

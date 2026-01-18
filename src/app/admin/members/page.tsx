@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import { formatAmount } from '@/lib/utils/format'
 import styles from '../shared.module.css'
 
@@ -23,6 +23,8 @@ const formatShortDate = (dateStr: string): string => {
 }
 
 export default function MembersPage() {
+  const alertHandler = useAlert()
+
   const {
     items: members,
     isLoading,
@@ -50,6 +52,7 @@ export default function MembersPage() {
       role: item.role,
       unit: item.unit,
     }),
+    alertHandler,
   })
 
   const getRoleBadge = (role: string) => {

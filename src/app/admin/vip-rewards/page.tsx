@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Crown, Plus, X, Save } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import type { JoinedProfile, JoinedSeason } from '@/types/common'
 import styles from '../shared.module.css'
@@ -33,6 +33,7 @@ interface Profile {
 
 export default function VipRewardsPage() {
   const supabase = useSupabaseContext()
+  const alertHandler = useAlert()
   const [seasons, setSeasons] = useState<Season[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])
 
@@ -98,6 +99,7 @@ export default function VipRewardsPage() {
       if (!item.profileId) return 'VIP 회원을 선택해주세요.'
       return null
     },
+    alertHandler,
   })
 
   const openAddModal = () => {

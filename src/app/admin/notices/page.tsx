@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Megaphone, Plus, X, Save, Pin } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import styles from '../shared.module.css'
 
 interface Notice {
@@ -16,6 +16,8 @@ interface Notice {
 }
 
 export default function NoticesPage() {
+  const alertHandler = useAlert()
+
   const {
     items: notices,
     isLoading,
@@ -55,6 +57,7 @@ export default function NoticesPage() {
       if (!item.title) return '제목을 입력해주세요.'
       return null
     },
+    alertHandler,
   })
 
   const formatDate = (dateStr: string) => {

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/admin'
 import { useAuthContext } from '@/lib/context'
+import { AlertProvider } from '@/lib/hooks/useAlert'
 import styles from './layout.module.css'
 
 export default function AdminLayout({
@@ -43,13 +44,15 @@ export default function AdminLayout({
   }
 
   return (
-    <div className={styles.layout}>
-      <Sidebar />
-      <main className={styles.main}>
-        <div className={styles.content}>
-          {children}
-        </div>
-      </main>
-    </div>
+    <AlertProvider>
+      <div className={styles.layout}>
+        <Sidebar />
+        <main className={styles.main}>
+          <div className={styles.content}>
+            {children}
+          </div>
+        </main>
+      </div>
+    </AlertProvider>
   )
 }

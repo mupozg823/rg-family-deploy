@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Clock, Plus, X, Save, Calendar, Image as ImageIcon, Sparkles, Tag } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import { useSeasons } from '@/lib/context'
 import type { Season } from '@/types/database'
 import styles from '../shared.module.css'
@@ -39,6 +39,7 @@ const categoryColors: Record<TimelineCategory, string> = {
 
 export default function TimelinePage() {
   const seasonsRepo = useSeasons()
+  const alertHandler = useAlert()
   const [seasons, setSeasons] = useState<Season[]>([])
 
   // 시즌 목록 로드
@@ -96,6 +97,7 @@ export default function TimelinePage() {
       if (!item.eventDate) return '이벤트 날짜를 선택해주세요.'
       return null
     },
+    alertHandler,
   })
 
   // 날짜가 미래인지 확인
