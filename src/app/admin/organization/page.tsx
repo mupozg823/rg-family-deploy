@@ -2,11 +2,25 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Building, Plus, X, Save, GripVertical } from 'lucide-react'
+import { Building, Plus, X, Save, GripVertical, Radio, Link as LinkIcon } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
 import { useAdminCRUD } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
+
+interface SocialLinks {
+  pandatv?: string
+  youtube?: string
+  instagram?: string
+}
+
+interface ProfileInfo {
+  mbti?: string
+  bloodType?: string
+  height?: number
+  weight?: number
+  birthday?: string
+}
 
 interface OrgMember {
   id: number
@@ -16,6 +30,9 @@ interface OrgMember {
   role: string
   positionOrder: number
   parentId: number | null
+  socialLinks: SocialLinks | null
+  profileInfo: ProfileInfo | null
+  isLive: boolean
 }
 
 interface Profile {
@@ -62,6 +79,9 @@ export default function OrganizationPage() {
       role: '',
       positionOrder: 0,
       parentId: null,
+      socialLinks: null,
+      profileInfo: null,
+      isLive: false,
     },
     orderBy: { column: 'position_order', ascending: true },
     fromDbFormat: (row) => ({
@@ -72,6 +92,9 @@ export default function OrganizationPage() {
       role: row.role as string,
       positionOrder: row.position_order as number,
       parentId: row.parent_id as number | null,
+      socialLinks: row.social_links as SocialLinks | null,
+      profileInfo: row.profile_info as ProfileInfo | null,
+      isLive: row.is_live as boolean,
     }),
     toDbFormat: (item) => ({
       name: item.name,
@@ -80,6 +103,8 @@ export default function OrganizationPage() {
       profile_id: item.profileId,
       parent_id: item.parentId,
       position_order: item.positionOrder,
+      social_links: item.socialLinks,
+      profile_info: item.profileInfo,
     }),
     validate: (item) => {
       if (!item.name || !item.role) return '이름과 직책을 입력해주세요.'
@@ -99,7 +124,7 @@ export default function OrganizationPage() {
     {
       key: 'positionOrder',
       header: '순서',
-      width: '80px',
+      width: '60px',
       render: (item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <GripVertical size={16} style={{ color: 'var(--color-text-secondary)' }} />
@@ -107,8 +132,45 @@ export default function OrganizationPage() {
         </div>
       ),
     },
-    { key: 'name', header: '이름', width: '150px' },
-    { key: 'role', header: '직책' },
+    {
+      key: 'name',
+      header: '이름',
+      width: '120px',
+      render: (item) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {item.isLive && (
+            <span style={{
+              display: 'inline-block',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#00d4ff',
+              boxShadow: '0 0 8px #00d4ff',
+              animation: 'pulse 2s infinite',
+            }} title="LIVE" />
+          )}
+          {item.name}
+        </div>
+      ),
+    },
+    { key: 'role', header: '직책', width: '100px' },
+    {
+      key: 'socialLinks',
+      header: 'PandaTV',
+      render: (item) => item.socialLinks?.pandatv ? (
+        <a
+          href={item.socialLinks.pandatv}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+        >
+          <LinkIcon size={14} />
+          연결됨
+        </a>
+      ) : (
+        <span style={{ color: 'var(--text-tertiary)' }}>-</span>
+      ),
+    },
   ]
 
   return (
@@ -255,6 +317,146 @@ export default function OrganizationPage() {
                     className={styles.input}
                     min={0}
                   />
+                </div>
+
+                {/* Profile Info */}
+                <div className={styles.formGroup}>
+                  <label style={{ fontWeight: 600, marginBottom: '0.75rem', display: 'block' }}>프로필 정보</label>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '1rem',
+                    padding: '1rem',
+                    background: 'var(--surface)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)'
+                  }}>
+                    <div className={styles.formGroup} style={{ margin: 0 }}>
+                      <label>MBTI</label>
+                      <input
+                        type="text"
+                        value={editingMember.profileInfo?.mbti || ''}
+                        onChange={(e) =>
+                          setEditingMember({
+                            ...editingMember,
+                            profileInfo: {
+                              ...editingMember.profileInfo,
+                              mbti: e.target.value.toUpperCase() || undefined,
+                            },
+                          })
+                        }
+                        className={styles.input}
+                        placeholder="ENFP"
+                        maxLength={4}
+                        style={{ textTransform: 'uppercase' }}
+                      />
+                    </div>
+                    <div className={styles.formGroup} style={{ margin: 0 }}>
+                      <label>혈액형</label>
+                      <select
+                        value={editingMember.profileInfo?.bloodType || ''}
+                        onChange={(e) =>
+                          setEditingMember({
+                            ...editingMember,
+                            profileInfo: {
+                              ...editingMember.profileInfo,
+                              bloodType: e.target.value || undefined,
+                            },
+                          })
+                        }
+                        className={styles.select}
+                      >
+                        <option value="">선택</option>
+                        <option value="A">A형</option>
+                        <option value="B">B형</option>
+                        <option value="O">O형</option>
+                        <option value="AB">AB형</option>
+                      </select>
+                    </div>
+                    <div className={styles.formGroup} style={{ margin: 0 }}>
+                      <label>키 (cm)</label>
+                      <input
+                        type="number"
+                        value={editingMember.profileInfo?.height || ''}
+                        onChange={(e) =>
+                          setEditingMember({
+                            ...editingMember,
+                            profileInfo: {
+                              ...editingMember.profileInfo,
+                              height: e.target.value ? parseInt(e.target.value) : undefined,
+                            },
+                          })
+                        }
+                        className={styles.input}
+                        placeholder="170"
+                        min={100}
+                        max={250}
+                      />
+                    </div>
+                    <div className={styles.formGroup} style={{ margin: 0 }}>
+                      <label>몸무게 (kg)</label>
+                      <input
+                        type="number"
+                        value={editingMember.profileInfo?.weight || ''}
+                        onChange={(e) =>
+                          setEditingMember({
+                            ...editingMember,
+                            profileInfo: {
+                              ...editingMember.profileInfo,
+                              weight: e.target.value ? parseInt(e.target.value) : undefined,
+                            },
+                          })
+                        }
+                        className={styles.input}
+                        placeholder="65"
+                        min={30}
+                        max={200}
+                      />
+                    </div>
+                    <div className={styles.formGroup} style={{ margin: 0, gridColumn: 'span 2' }}>
+                      <label>생일</label>
+                      <input
+                        type="date"
+                        value={editingMember.profileInfo?.birthday || ''}
+                        onChange={(e) =>
+                          setEditingMember({
+                            ...editingMember,
+                            profileInfo: {
+                              ...editingMember.profileInfo,
+                              birthday: e.target.value || undefined,
+                            },
+                          })
+                        }
+                        className={styles.input}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Links */}
+                <div className={styles.formGroup}>
+                  <label>
+                    <Radio size={14} style={{ marginRight: '0.25rem' }} />
+                    PandaTV URL
+                  </label>
+                  <input
+                    type="url"
+                    value={editingMember.socialLinks?.pandatv || ''}
+                    onChange={(e) =>
+                      setEditingMember({
+                        ...editingMember,
+                        socialLinks: {
+                          ...editingMember.socialLinks,
+                          pandatv: e.target.value || undefined,
+                        },
+                      })
+                    }
+                    className={styles.input}
+                    placeholder="https://www.pandalive.co.kr/play/userid"
+                  />
+                  <span className={styles.helperText} style={{ color: 'var(--text-tertiary)' }}>
+                    라이브 상태 자동 감지에 사용됩니다
+                  </span>
                 </div>
               </div>
 

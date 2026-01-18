@@ -1,0 +1,4 @@
+NEXT_PUBLIC_SUPABASE_URL=https://cdiptfmagemjfmsuphaj.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_E-ZA7K1OcWl7F3K7m-uIUw_Oz-hROlE
+SUPABASE_SERVICE_ROLE_KEY=sb_secret_snZIkebQVn4xNPbHPMoDRQ_bl45b7rC
+NEXT_PUBLIC_USE_MOCK_DATA=false
