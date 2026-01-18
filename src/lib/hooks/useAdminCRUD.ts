@@ -61,6 +61,9 @@ export interface AdminCRUDConfig<T extends { id?: number | string }> {
   /** 저장 전 추가 작업 (선택, 예: 다른 행 업데이트) */
   beforeSave?: (item: Partial<T>, isNew: boolean) => Promise<void>
 
+  /** 삭제 전 추가 작업 (선택, 예: 연관 데이터 삭제) */
+  beforeDelete?: (item: T) => Promise<void>
+
   /** 삭제 확인 메시지 (선택) */
   deleteConfirmMessage?: string
 }
@@ -114,6 +117,7 @@ export function useAdminCRUD<T extends { id?: number | string }>(
     toDbFormat,
     validate,
     beforeSave,
+    beforeDelete,
     deleteConfirmMessage = '정말 삭제하시겠습니까?',
   } = config
 
@@ -223,17 +227,30 @@ export function useAdminCRUD<T extends { id?: number | string }>(
   const handleDelete = useCallback(async (item: T): Promise<boolean> => {
     if (!confirm(deleteConfirmMessage)) return false
 
-    const { error } = await supabase.from(tableName).delete().eq('id', item.id)
+    // Before delete hook (예: 연관 데이터 삭제)
+    if (beforeDelete) {
+      try {
+        await beforeDelete(item)
+      } catch (err) {
+        console.error('beforeDelete 실패:', err)
+        alert(`삭제 전처리에 실패했습니다: ${err instanceof Error ? err.message : '알 수 없는 오류'}`)
+        return false
+      }
+    }
+
+    console.log(`[handleDelete] Deleting ${tableName} id: ${item.id}`)
+    const { error, status, statusText } = await supabase.from(tableName).delete().eq('id', item.id)
+    console.log(`[handleDelete] Result - status: ${status}, statusText: ${statusText}, error:`, error)
 
     if (error) {
-      console.error(`${tableName} 삭제 실패:`, error)
-      alert('삭제에 실패했습니다.')
+      console.error(`${tableName} 삭제 실패:`, error, `code: ${error.code}, details: ${error.details}, hint: ${error.hint}`)
+      alert(`삭제에 실패했습니다: ${error.message || error.code || JSON.stringify(error)}`)
       return false
     }
 
     await refetch()
     return true
-  }, [supabase, tableName, deleteConfirmMessage, refetch])
+  }, [supabase, tableName, deleteConfirmMessage, beforeDelete, refetch])
 
   return {
     items,

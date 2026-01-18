@@ -115,6 +115,25 @@ export default function OrganizationPage() {
       if (!item.name || !item.role) return '이름과 직책을 입력해주세요.'
       return null
     },
+    beforeDelete: async (item) => {
+      // 1. 자식 멤버들의 parent_id를 null로 변경 (self-referencing FK)
+      const { error: parentError } = await supabase
+        .from('organization')
+        .update({ parent_id: null })
+        .eq('parent_id', item.id)
+      if (parentError) {
+        throw new Error(`parent_id 업데이트 실패: ${parentError.message}`)
+      }
+
+      // 2. 연관된 live_status 레코드 삭제 (FK 제약 조건)
+      const { error: liveError } = await supabase
+        .from('live_status')
+        .delete()
+        .eq('member_id', item.id)
+      if (liveError) {
+        throw new Error(`live_status 삭제 실패: ${liveError.message}`)
+      }
+    },
   })
 
   const filteredMembers = members.filter((m) => m.unit === activeUnit)
