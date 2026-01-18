@@ -9,6 +9,9 @@ import type { LiveMember, UnitFilter } from "@/types/organization";
 import { Radio, Youtube, Instagram, ExternalLink, X, ArrowLeft, Users, Filter } from "lucide-react";
 import styles from "./page.module.css";
 
+// PandaTV ID로 URL 생성
+const getPandaTvUrl = (id: string) => `https://www.pandalive.co.kr/play/${id}`;
+
 export default function LivePage() {
   const { members, isLoading } = useLiveRoster({ realtime: true });
   const [selectedMember, setSelectedMember] = useState<LiveMember | null>(null);
@@ -138,7 +141,7 @@ export default function LivePage() {
                       </div>
                       {member.social_links?.pandatv && (
                         <a
-                          href={member.social_links.pandatv}
+                          href={getPandaTvUrl(member.social_links.pandatv)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={styles.watchBtn}
@@ -295,7 +298,7 @@ function MemberDetailModal({ member, onClose }: { member: LiveMember; onClose: (
             <div className={styles.modalSocialGrid}>
               {member.social_links.pandatv && (
                 <a
-                  href={member.social_links.pandatv}
+                  href={getPandaTvUrl(member.social_links.pandatv)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.modalSocialLink}
@@ -348,7 +351,7 @@ function MemberDetailModal({ member, onClose }: { member: LiveMember; onClose: (
         {/* Watch Button */}
         {member.is_live && member.social_links?.pandatv && (
           <a
-            href={member.social_links.pandatv}
+            href={getPandaTvUrl(member.social_links.pandatv)}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.watchButton}

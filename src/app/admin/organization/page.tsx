@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Building, Plus, X, Save, GripVertical, Radio, Link as LinkIcon, Upload, User } from 'lucide-react'
+import { Building, Plus, X, Save, GripVertical, Radio, Link as LinkIcon, User } from 'lucide-react'
 import Image from 'next/image'
-import { DataTable, Column } from '@/components/admin'
+import { DataTable, Column, ImageUpload } from '@/components/admin'
 import { useAdminCRUD } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
@@ -195,13 +195,13 @@ export default function OrganizationPage() {
       header: 'PandaTV',
       render: (item) => item.socialLinks?.pandatv ? (
         <a
-          href={item.socialLinks.pandatv}
+          href={`https://www.pandalive.co.kr/play/${item.socialLinks.pandatv}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
         >
           <LinkIcon size={14} />
-          연결됨
+          {item.socialLinks.pandatv}
         </a>
       ) : (
         <span style={{ color: 'var(--text-tertiary)' }}>-</span>
@@ -278,46 +278,13 @@ export default function OrganizationPage() {
                 {/* 프로필 이미지 */}
                 <div className={styles.formGroup}>
                   <label>프로필 이미지</label>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                    <div style={{
-                      width: '80px',
-                      height: '80px',
-                      borderRadius: '50%',
-                      overflow: 'hidden',
-                      background: 'var(--surface)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '2px solid var(--border)',
-                      flexShrink: 0,
-                    }}>
-                      {editingMember.imageUrl ? (
-                        <Image
-                          src={editingMember.imageUrl}
-                          alt="프로필"
-                          width={80}
-                          height={80}
-                          style={{ objectFit: 'cover' }}
-                        />
-                      ) : (
-                        <User size={32} style={{ color: 'var(--text-tertiary)' }} />
-                      )}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <input
-                        type="url"
-                        value={editingMember.imageUrl || ''}
-                        onChange={(e) =>
-                          setEditingMember({ ...editingMember, imageUrl: e.target.value || null })
-                        }
-                        className={styles.input}
-                        placeholder="https://example.com/image.jpg"
-                      />
-                      <span className={styles.helperText} style={{ color: 'var(--text-tertiary)', marginTop: '0.25rem', display: 'block' }}>
-                        이미지 URL을 입력하세요
-                      </span>
-                    </div>
-                  </div>
+                  <ImageUpload
+                    value={editingMember.imageUrl ?? null}
+                    onChange={(url) => setEditingMember({ ...editingMember, imageUrl: url })}
+                    folder="members"
+                    size={80}
+                    placeholder="사진 업로드"
+                  />
                 </div>
 
                 <div className={styles.formGroup}>
@@ -520,10 +487,10 @@ export default function OrganizationPage() {
                 <div className={styles.formGroup}>
                   <label>
                     <Radio size={14} style={{ marginRight: '0.25rem' }} />
-                    PandaTV URL
+                    PandaTV ID
                   </label>
                   <input
-                    type="url"
+                    type="text"
                     value={editingMember.socialLinks?.pandatv || ''}
                     onChange={(e) =>
                       setEditingMember({
@@ -535,10 +502,10 @@ export default function OrganizationPage() {
                       })
                     }
                     className={styles.input}
-                    placeholder="https://www.pandalive.co.kr/play/userid"
+                    placeholder="hj042300"
                   />
                   <span className={styles.helperText} style={{ color: 'var(--text-tertiary)' }}>
-                    라이브 상태 자동 감지에 사용됩니다
+                    팬더티비 아이디만 입력 (예: hj042300)
                   </span>
                 </div>
               </div>

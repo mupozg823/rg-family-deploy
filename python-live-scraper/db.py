@@ -17,34 +17,14 @@ def get_supabase_client() -> Client:
     return create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 
-def extract_user_id_from_url(url: str) -> Optional[str]:
-    """
-    PandaTV URL에서 유저 ID 추출
-
-    Examples:
-        "https://www.pandalive.co.kr/play/s22unn22" -> "s22unn22"
-        "https://www.pandalive.co.kr/s22unn22" -> "s22unn22"
-    """
-    import re
-
-    if not url:
-        return None
-
-    # pandalive.co.kr 도메인 확인
-    if "pandalive.co.kr" not in url:
-        return None
-
-    # /play/xxx 또는 /xxx 형식
-    match = re.search(r'pandalive\.co\.kr/(?:play/)?([^/?#]+)', url)
-    return match.group(1) if match else None
-
-
 def get_pandatv_members(client: Client) -> list[dict]:
     """
-    PandaTV URL이 있는 활성 멤버 조회
+    PandaTV ID가 있는 활성 멤버 조회
+
+    social_links.pandatv에 ID만 저장되어 있음 (예: "hj042300")
 
     Returns:
-        [{"id": 1, "user_id": "s22unn22", "is_live": false}, ...]
+        [{"id": 1, "user_id": "hj042300", "is_live": false}, ...]
     """
     response = client.table("organization").select(
         "id, social_links, is_live"
@@ -53,16 +33,14 @@ def get_pandatv_members(client: Client) -> list[dict]:
     members = []
     for row in response.data:
         social_links = row.get("social_links") or {}
-        pandatv_url = social_links.get("pandatv")
+        pandatv_id = social_links.get("pandatv")
 
-        if pandatv_url:
-            user_id = extract_user_id_from_url(pandatv_url)
-            if user_id:
-                members.append({
-                    "id": row["id"],
-                    "user_id": user_id,
-                    "is_live": row.get("is_live", False)
-                })
+        if pandatv_id:
+            members.append({
+                "id": row["id"],
+                "user_id": pandatv_id,  # ID 직접 사용
+                "is_live": row.get("is_live", False)
+            })
 
     return members
 
@@ -81,7 +59,7 @@ def update_live_status(
     """
     now = datetime.now(timezone.utc).isoformat()
 
-    # live_status 테이블 upsert
+    # live_status 테이블 업데이트 (존재 확인 후 insert/update)
     live_status_data = {
         "member_id": member_id,
         "platform": "pandatv",
@@ -93,10 +71,23 @@ def update_live_status(
     }
 
     try:
-        client.table("live_status").upsert(
-            live_status_data,
-            on_conflict="member_id,platform"
-        ).execute()
+        # 먼저 기존 레코드 확인
+        existing = client.table("live_status").select("id").eq(
+            "member_id", member_id
+        ).eq("platform", "pandatv").execute()
+
+        if existing.data:
+            # 존재하면 업데이트
+            client.table("live_status").update({
+                "stream_url": live_status_data["stream_url"],
+                "thumbnail_url": live_status_data["thumbnail_url"],
+                "is_live": live_status_data["is_live"],
+                "viewer_count": live_status_data["viewer_count"],
+                "last_checked": live_status_data["last_checked"],
+            }).eq("member_id", member_id).eq("platform", "pandatv").execute()
+        else:
+            # 없으면 삽입
+            client.table("live_status").insert(live_status_data).execute()
 
         if DEBUG:
             print(f"[DB] Updated live_status for member {member_id}")

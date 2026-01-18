@@ -6,6 +6,9 @@ import { Radio, Youtube, Instagram, ExternalLink, X } from 'lucide-react'
 import type { OrgMember } from './MemberCard'
 import styles from './MemberDetailModal.module.css'
 
+// PandaTV ID로 URL 생성
+const getPandaTvUrl = (id: string) => `https://www.pandalive.co.kr/play/${id}`
+
 interface MemberDetailModalProps {
   member: OrgMember
   onClose: () => void
@@ -78,7 +81,7 @@ export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
             <h3 className={styles.modalSectionTitle}>소셜 링크</h3>
             <div className={styles.modalSocialGrid}>
               {member.social_links.pandatv && (
-                <a href={member.social_links.pandatv} target="_blank" rel="noopener noreferrer" className={styles.modalSocialLink}>
+                <a href={getPandaTvUrl(member.social_links.pandatv)} target="_blank" rel="noopener noreferrer" className={styles.modalSocialLink}>
                   <Radio size={20} />
                   <span>팬더티비</span>
                 </a>
@@ -106,7 +109,7 @@ export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
         )}
 
         {member.is_live && member.social_links?.pandatv && (
-          <a href={member.social_links.pandatv} target="_blank" rel="noopener noreferrer" className={styles.watchButton}>
+          <a href={getPandaTvUrl(member.social_links.pandatv)} target="_blank" rel="noopener noreferrer" className={styles.watchButton}>
             <Radio size={18} />
             지금 방송 보러가기
           </a>
