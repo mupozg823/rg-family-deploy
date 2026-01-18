@@ -150,7 +150,11 @@ function SortableRow<T extends { id: string | number }>({
   }
 
   return (
-    <Table.Tr ref={setNodeRef} style={style}>
+    <Table.Tr
+      ref={setNodeRef}
+      style={{ ...style, cursor: onView ? 'pointer' : undefined }}
+      onClick={() => onView?.(item)}
+    >
       {/* Drag Handle */}
       <Table.Td style={{ width: 40 }}>
         <Center>
@@ -338,7 +342,11 @@ export default function DataTable<T extends { id: string | number }>({
 
   // 일반 테이블 행 렌더링
   const rows = paginatedData.map((item) => (
-    <Table.Tr key={item.id}>
+    <Table.Tr
+      key={item.id}
+      style={{ cursor: onView ? 'pointer' : undefined }}
+      onClick={() => onView?.(item)}
+    >
       {columns.map((col) => (
         <Table.Td key={col.key as string}>
           {col.render
