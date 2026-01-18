@@ -53,20 +53,15 @@
   position: relative;
 }
 
-/* Gold ring for leader/VIP members */
+/* Gold ring for leader/VIP members - 외곽 테두리만 */
 .avatarWrapper.isLeader::before {
   content: '';
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  background: linear-gradient(135deg,
-    var(--metallic-gold) 0%,
-    var(--metallic-gold-light) 25%,
-    var(--metallic-gold) 50%,
-    var(--metallic-gold-light) 75%,
-    var(--metallic-gold) 100%);
+  border: 3px solid var(--metallic-gold);
+  background: transparent;
   z-index: 0;
-  animation: goldRingRotate 8s linear infinite;
 }
 
 .avatarWrapper.isLeader::after {
@@ -74,15 +69,8 @@
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  box-shadow:
-    0 0 20px var(--metallic-gold-glow),
-    0 0 40px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 15px var(--metallic-gold-glow);
   z-index: 0;
-}
-
-@keyframes goldRingRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 /* Pink ring for live members (overrides gold for live leaders) */
@@ -91,7 +79,8 @@
   position: absolute;
   inset: -3px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 50%, var(--color-primary) 100%);
+  border: 3px solid var(--color-primary);
+  background: transparent;
   z-index: 0;
   animation: none;
 }
@@ -108,18 +97,14 @@
 /* Combined: Live + Leader = Gold outer + Pink inner ring */
 .avatarWrapper.isLive.isLeader::before {
   inset: -6px;
-  background: linear-gradient(135deg,
-    var(--metallic-gold) 0%,
-    var(--metallic-gold-light) 25%,
-    var(--metallic-gold) 50%,
-    var(--metallic-gold-light) 75%,
-    var(--metallic-gold) 100%);
-  animation: goldRingRotate 8s linear infinite;
+  border: 3px solid var(--metallic-gold);
+  background: transparent;
 }
 
 .avatarWrapper.isLive.isLeader::after {
   inset: -3px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 50%, var(--color-primary) 100%);
+  border: 2px solid var(--color-primary);
+  background: transparent;
   box-shadow: 0 0 15px var(--color-primary-glow);
 }
 
