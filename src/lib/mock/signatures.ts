@@ -240,6 +240,7 @@ export const signatureCategories = [
 
 // 시그 번호 범위 필터
 export const signatureRanges = [
+  { id: 'all', label: '전체', min: 0, max: Infinity },
   { id: '1-1000', label: '1000~2000', min: 1000, max: 2000 },
   { id: '2001-3000', label: '2000~3000', min: 2000, max: 3000 },
   { id: '3001-5000', label: '3000~5000', min: 3000, max: 5000 },

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { PageLayout } from "@/components/layout";
 import Navbar from "@/components/Navbar";
-import { Hero, LiveMembers, Notice, Shorts, VOD } from "@/components/home";
+import { Hero, LiveMembers, BroadcastNotice, Shorts, VOD } from "@/components/home";
 import Footer from "@/components/Footer";
 import SectionSkeleton from "@/components/ui/SectionSkeleton";
 import styles from "./page.module.css";
@@ -21,7 +21,7 @@ export default function Home() {
             </div>
             <div className={styles.liveNoticeGrid}>
               <LiveMembers />
-              <Notice />
+              <BroadcastNotice />
             </div>
           </section>
 
