@@ -133,7 +133,12 @@ export default function VipRewardsPage() {
       },
     },
     { key: 'nickname', header: 'VIP', width: '150px' },
-    { key: 'seasonName', header: '시즌', width: '150px' },
+    {
+      key: 'seasonName',
+      header: '시즌',
+      width: '160px',
+      render: (item) => <span style={{ whiteSpace: 'nowrap' }}>{item.seasonName || '-'}</span>,
+    },
     {
       key: 'personalMessage',
       header: '개인 메시지',

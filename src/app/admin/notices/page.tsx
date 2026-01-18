@@ -80,8 +80,8 @@ export default function NoticesPage() {
     {
       key: 'createdAt',
       header: '작성일',
-      width: '150px',
-      render: (item) => formatDate(item.createdAt),
+      width: '160px',
+      render: (item) => <span style={{ whiteSpace: 'nowrap' }}>{formatDate(item.createdAt)}</span>,
     },
   ]
 

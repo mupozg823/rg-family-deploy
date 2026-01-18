@@ -126,9 +126,9 @@ export default function TimelinePage() {
     {
       key: 'eventDate',
       header: '날짜',
-      width: '140px',
+      width: '180px',
       render: (item) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}>
           <span>{formatDate(item.eventDate)}</span>
           {isFutureDate(item.eventDate) && (
             <span className={styles.upcomingBadge}>예정</span>
@@ -156,8 +156,8 @@ export default function TimelinePage() {
     {
       key: 'seasonId',
       header: '시즌',
-      width: '120px',
-      render: (item) => getSeasonName(item.seasonId),
+      width: '160px',
+      render: (item) => <span style={{ whiteSpace: 'nowrap' }}>{getSeasonName(item.seasonId)}</span>,
     },
     {
       key: 'imageUrl',

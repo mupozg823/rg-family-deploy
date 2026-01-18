@@ -85,14 +85,14 @@ export default function SeasonsPage() {
     {
       key: 'startDate',
       header: '시작일',
-      width: '150px',
-      render: (item) => formatDate(item.startDate),
+      width: '160px',
+      render: (item) => <span style={{ whiteSpace: 'nowrap' }}>{formatDate(item.startDate)}</span>,
     },
     {
       key: 'endDate',
       header: '종료일',
-      width: '150px',
-      render: (item) => (item.endDate ? formatDate(item.endDate) : '-'),
+      width: '160px',
+      render: (item) => <span style={{ whiteSpace: 'nowrap' }}>{item.endDate ? formatDate(item.endDate) : '-'}</span>,
     },
     {
       key: 'isActive',
@@ -107,8 +107,8 @@ export default function SeasonsPage() {
     {
       key: 'createdAt',
       header: '생성일',
-      width: '150px',
-      render: (item) => formatDate(item.createdAt),
+      width: '160px',
+      render: (item) => <span style={{ whiteSpace: 'nowrap' }}>{formatDate(item.createdAt)}</span>,
     },
   ]
 
