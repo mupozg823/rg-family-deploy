@@ -27,37 +27,54 @@ class LiveStatus:
 
 def get_all_live_streams() -> list[dict]:
     """
-    현재 라이브 중인 모든 BJ 목록 조회
+    현재 라이브 중인 모든 BJ 목록 조회 (페이지네이션 처리)
 
     Returns:
         라이브 중인 BJ 정보 리스트
     """
+    all_streams = []
+    offset = 0
+    limit = 100  # 한 번에 가져올 최대 개수
+
     try:
-        response = httpx.get(
-            PANDATV_API_URL,
-            headers={"User-Agent": "Mozilla/5.0"},
-            timeout=30.0
-        )
-        response.raise_for_status()
+        while True:
+            response = httpx.get(
+                PANDATV_API_URL,
+                params={"offset": offset, "limit": limit},
+                headers={"User-Agent": "Mozilla/5.0"},
+                timeout=30.0
+            )
+            response.raise_for_status()
 
-        data = response.json()
+            data = response.json()
 
-        if not data.get("result"):
-            if DEBUG:
-                print(f"[API] Request failed: {data.get('message', 'Unknown error')}")
-            return []
+            if not data.get("result"):
+                if DEBUG:
+                    print(f"[API] Request failed: {data.get('message', 'Unknown error')}")
+                break
 
-        live_list = data.get("list", [])
+            live_list = data.get("list", [])
+
+            if not live_list:
+                break
+
+            all_streams.extend(live_list)
+
+            # 가져온 개수가 limit보다 적으면 마지막 페이지
+            if len(live_list) < limit:
+                break
+
+            offset += limit
 
         if DEBUG:
-            print(f"[API] Found {len(live_list)} live streams")
+            print(f"[API] Found {len(all_streams)} live streams")
 
-        return live_list
+        return all_streams
 
     except Exception as e:
         if DEBUG:
             print(f"[API] Error: {e}")
-        return []
+        return all_streams
 
 
 def check_user_live_status(user_id: str) -> LiveStatus:
