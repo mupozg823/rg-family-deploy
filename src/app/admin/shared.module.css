@@ -127,6 +127,7 @@
   font-weight: 500;
   background: var(--surface);
   color: var(--text-tertiary);
+  white-space: nowrap;
 }
 
 .badgeSuperadmin {

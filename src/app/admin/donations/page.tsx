@@ -113,7 +113,7 @@ export default function DonationsPage() {
     {
       key: 'seasonName',
       header: '시즌',
-      width: '120px',
+      width: '160px',
       render: (item) => (
         <span className={styles.badge}>{item.seasonName || '-'}</span>
       ),
