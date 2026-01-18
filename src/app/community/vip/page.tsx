@@ -11,7 +11,7 @@ import { useVipStatus } from '@/lib/hooks'
 import { mockPosts, mockProfiles } from '@/lib/mock'
 import { USE_MOCK_DATA } from '@/lib/config'
 import { withRetry } from '@/lib/utils/fetch-with-retry'
-import { formatRelativeTime } from '@/lib/utils/format'
+import { formatShortDate } from '@/lib/utils/format'
 import TabFilter from '@/components/community/TabFilter'
 import type { JoinedProfile } from '@/types/common'
 import styles from '../free/page.module.css'
@@ -199,7 +199,7 @@ export default function VipBoardPage() {
                       <span className={styles.adminRealName}>({post.authorRealName})</span>
                     )}
                   </span>
-                  <span className={styles.cellDate}>{formatRelativeTime(post.createdAt)}</span>
+                  <span className={styles.cellDate}>{formatShortDate(post.createdAt)}</span>
                   <span className={styles.cellViews}>{post.viewCount.toLocaleString()}</span>
                 </Link>
               ))}
