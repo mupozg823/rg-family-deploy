@@ -7,6 +7,7 @@ import { ArrowLeft, Plus, X, Save, Video, Trash2, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSupabaseContext } from '@/lib/context'
+import { useAlert } from '@/lib/hooks'
 import styles from '../../shared.module.css'
 
 interface Signature {
@@ -40,6 +41,7 @@ export default function SignatureDetailPage() {
   const params = useParams()
   const router = useRouter()
   const supabase = useSupabaseContext()
+  const { showConfirm, showError } = useAlert()
   const signatureId = Number(params.id)
 
   const [signature, setSignature] = useState<Signature | null>(null)
@@ -161,7 +163,7 @@ export default function SignatureDetailPage() {
 
   const openAddModal = () => {
     if (availableMembers.length === 0) {
-      alert('모든 멤버에게 영상이 등록되어 있습니다.')
+      showError('모든 멤버에게 영상이 등록되어 있습니다.')
       return
     }
     setEditingVideo({
@@ -189,7 +191,7 @@ export default function SignatureDetailPage() {
 
   const handleSave = async () => {
     if (!editingVideo?.memberId || !editingVideo?.videoUrl) {
-      alert('멤버와 영상 URL을 입력해주세요.')
+      showError('멤버와 영상 URL을 입력해주세요.', '입력 오류')
       return
     }
 
@@ -202,9 +204,9 @@ export default function SignatureDetailPage() {
       if (error) {
         console.error('영상 등록 실패:', error)
         if (error.code === '23505') {
-          alert('이 멤버의 영상이 이미 등록되어 있습니다.')
+          showError('이 멤버의 영상이 이미 등록되어 있습니다.')
         } else {
-          alert('등록에 실패했습니다.')
+          showError('등록에 실패했습니다.')
         }
         return
       }
@@ -215,7 +217,7 @@ export default function SignatureDetailPage() {
         .eq('id', editingVideo.id!)
       if (error) {
         console.error('영상 수정 실패:', error)
-        alert('수정에 실패했습니다.')
+        showError('수정에 실패했습니다.')
         return
       }
     }
@@ -225,7 +227,13 @@ export default function SignatureDetailPage() {
   }
 
   const handleDelete = async (video: SignatureVideo) => {
-    if (!confirm(`${video.memberName}의 영상을 삭제하시겠습니까?`)) return
+    const confirmed = await showConfirm(`${video.memberName}의 영상을\n삭제하시겠습니까?`, {
+      title: '영상 삭제',
+      variant: 'danger',
+      confirmText: '삭제',
+      cancelText: '취소',
+    })
+    if (!confirmed) return
 
     const { error } = await supabase
       .from('signature_videos')
@@ -234,7 +242,7 @@ export default function SignatureDetailPage() {
 
     if (error) {
       console.error('영상 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
+      showError('삭제에 실패했습니다.')
       return
     }
 

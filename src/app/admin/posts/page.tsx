@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { MessageSquare, Eye } from 'lucide-react'
 import { DataTable, Column } from '@/components/admin'
 import { useSupabaseContext } from '@/lib/context'
+import { useAlert } from '@/lib/hooks'
 import type { JoinedProfile } from '@/types/common'
 import styles from '../shared.module.css'
 
@@ -19,6 +20,7 @@ interface Post {
 
 export default function PostsPage() {
   const supabase = useSupabaseContext()
+  const { showConfirm, showError } = useAlert()
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<'all' | 'free' | 'vip'>('all')
@@ -65,13 +67,19 @@ export default function PostsPage() {
   }, [fetchPosts])
 
   const handleDelete = async (post: Post) => {
-    if (!confirm('정말 삭제하시겠습니까? 댓글도 함께 삭제됩니다.')) return
+    const confirmed = await showConfirm('정말 삭제하시겠습니까?\n\n댓글도 함께 삭제됩니다.', {
+      title: '게시글 삭제',
+      variant: 'danger',
+      confirmText: '삭제',
+      cancelText: '취소',
+    })
+    if (!confirmed) return
 
     const { error } = await supabase.from('posts').delete().eq('id', post.id)
 
     if (error) {
       console.error('게시글 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
+      showError('삭제에 실패했습니다.')
     } else {
       fetchPosts()
     }

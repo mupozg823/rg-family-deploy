@@ -16,6 +16,7 @@ import {
 import Image from 'next/image'
 import { DataTable, Column } from '@/components/admin'
 import { useSupabaseContext } from '@/lib/context'
+import { useAlert } from '@/lib/hooks'
 import styles from '../shared.module.css'
 import bannerStyles from './page.module.css'
 
@@ -31,6 +32,7 @@ interface Banner {
 
 export default function BannersPage() {
   const supabase = useSupabaseContext()
+  const { showConfirm, showError } = useAlert()
   const [banners, setBanners] = useState<Banner[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -91,13 +93,19 @@ export default function BannersPage() {
   }
 
   const handleDelete = async (banner: Banner) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
+    const confirmed = await showConfirm('정말 삭제하시겠습니까?', {
+      title: '배너 삭제',
+      variant: 'danger',
+      confirmText: '삭제',
+      cancelText: '취소',
+    })
+    if (!confirmed) return
 
     const { error } = await supabase.from('banners').delete().eq('id', banner.id)
 
     if (error) {
       console.error('배너 삭제 실패:', error)
-      alert('삭제에 실패했습니다.')
+      showError('삭제에 실패했습니다.')
     } else {
       fetchBanners()
     }
@@ -111,7 +119,7 @@ export default function BannersPage() {
 
     if (error) {
       console.error('배너 상태 변경 실패:', error)
-      alert('상태 변경에 실패했습니다.')
+      showError('상태 변경에 실패했습니다.')
     } else {
       fetchBanners()
     }
@@ -119,7 +127,7 @@ export default function BannersPage() {
 
   const handleSave = async () => {
     if (!editingBanner || !editingBanner.imageUrl) {
-      alert('이미지 URL을 입력해주세요.')
+      showError('이미지 URL을 입력해주세요.', '입력 오류')
       return
     }
 
@@ -134,7 +142,7 @@ export default function BannersPage() {
 
       if (error) {
         console.error('배너 등록 실패:', error)
-        alert('등록에 실패했습니다.')
+        showError('등록에 실패했습니다.')
         return
       }
     } else {
@@ -151,7 +159,7 @@ export default function BannersPage() {
 
       if (error) {
         console.error('배너 수정 실패:', error)
-        alert('수정에 실패했습니다.')
+        showError('수정에 실패했습니다.')
         return
       }
     }

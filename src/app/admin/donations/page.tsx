@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Heart, Plus, Upload, List } from 'lucide-react'
 import { DataTable, Column, CsvUploader, DonationModal } from '@/components/admin'
-import { useDonationsData, type DonationItem } from '@/lib/hooks'
+import { useDonationsData, useAlert, type DonationItem } from '@/lib/hooks'
 import { formatAmount } from '@/lib/utils/format'
 import styles from '../shared.module.css'
 
@@ -20,6 +20,7 @@ export default function DonationsPage() {
     deleteDonation,
     uploadCsv,
   } = useDonationsData()
+  const { showConfirm, showError } = useAlert()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDonation, setEditingDonation] = useState<Partial<DonationItem> | null>(null)
@@ -44,16 +45,22 @@ export default function DonationsPage() {
   }
 
   const handleDelete = async (donation: DonationItem) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
+    const confirmed = await showConfirm('정말 삭제하시겠습니까?', {
+      title: '후원 기록 삭제',
+      variant: 'danger',
+      confirmText: '삭제',
+      cancelText: '취소',
+    })
+    if (!confirmed) return
     const success = await deleteDonation(donation.id)
     if (!success) {
-      alert('삭제에 실패했습니다.')
+      showError('삭제에 실패했습니다.')
     }
   }
 
   const handleSave = async () => {
     if (!editingDonation || !editingDonation.donorId || !editingDonation.amount) {
-      alert('후원자와 금액을 입력해주세요.')
+      showError('후원자와 금액을 입력해주세요.', '입력 오류')
       return
     }
 
@@ -64,7 +71,7 @@ export default function DonationsPage() {
     if (success) {
       setIsModalOpen(false)
     } else {
-      alert(isNew ? '등록에 실패했습니다.' : '수정에 실패했습니다.')
+      showError(isNew ? '등록에 실패했습니다.' : '수정에 실패했습니다.')
     }
   }
 
