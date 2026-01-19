@@ -147,15 +147,15 @@
   font-weight: 900;
   background: linear-gradient(
     135deg,
-    #fd68ba 0%,
-    #ff8ed4 50%,
-    #fd68ba 100%
+    #52525b 0%,
+    #71717a 50%,
+    #52525b 100%
   );
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: none;
-  filter: drop-shadow(0 0 20px rgba(253, 104, 186, 0.5));
+  filter: drop-shadow(0 0 20px rgba(82, 82, 91, 0.5));
 }
 
 .logoTitleFamily {

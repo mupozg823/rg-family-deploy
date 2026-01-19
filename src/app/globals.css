@@ -4,10 +4,10 @@
 
 /* Tailwind CSS 4.x Theme Configuration */
 @theme {
-  /* Brand Colors */
-  --color-primary: #fd68ba;
-  --color-primary-light: #ff8ed4;
-  --color-primary-deep: #fb37a3;
+  /* Brand Colors - Neutral Gray (Modern & Clean) */
+  --color-primary: #52525b;
+  --color-primary-light: #71717a;
+  --color-primary-deep: #3f3f46;
 
   /* Live Status */
   --color-live: #00d4ff;
@@ -135,12 +135,12 @@
      3. Core Colors - Official Brand Palette
      ============================================ */
 
-  /* Primary Brand Color: RG Deep Pink (The Only Accent) */
-  --color-pink: #c41e7f;
-  --color-pink-light: #d84a9a;
-  --color-pink-deep: #9a1a66;
-  --color-pink-glow: rgba(196, 30, 127, 0.3);
-  --color-pink-bg: rgba(196, 30, 127, 0.08);
+  /* Primary Brand Color: Neutral Dark/Light (Modern & Clean) */
+  --color-pink: #52525b;
+  --color-pink-light: #71717a;
+  --color-pink-deep: #3f3f46;
+  --color-pink-glow: rgba(82, 82, 91, 0.3);
+  --color-pink-bg: rgba(82, 82, 91, 0.08);
 
   /* Secondary Brand Color: Rose Gold (Luxury/VIP) */
   --color-gold: #d4af37;
@@ -245,11 +245,11 @@
      4. Theme Tokens
      ============================================ */
 
-  /* Pink Border (for badges/buttons) */
-  --color-pink-border: rgba(196, 30, 127, 0.4);
-  --color-pink-border-strong: rgba(196, 30, 127, 0.4);
+  /* Neutral Border (replaces pink) */
+  --color-pink-border: rgba(82, 82, 91, 0.4);
+  --color-pink-border-strong: rgba(82, 82, 91, 0.5);
 
-  /* Pink Gradients */
+  /* Neutral Gradients (replaces pink) */
   --pink-gradient-primary: linear-gradient(
     135deg,
     var(--color-pink),
@@ -267,11 +267,11 @@
     var(--color-pink-light)
   );
 
-  /* Pink Glow Shadows */
-  --pink-glow-sm: 0 4px 15px rgba(196, 30, 127, 0.3);
-  --pink-glow-md: 0 4px 15px rgba(196, 30, 127, 0.4);
-  --pink-glow-lg: 0 6px 20px rgba(196, 30, 127, 0.4);
-  --pink-glow-xl: 0 6px 25px rgba(196, 30, 127, 0.5);
+  /* Neutral Glow Shadows (replaces pink) */
+  --pink-glow-sm: 0 4px 15px rgba(82, 82, 91, 0.3);
+  --pink-glow-md: 0 4px 15px rgba(82, 82, 91, 0.4);
+  --pink-glow-lg: 0 6px 20px rgba(82, 82, 91, 0.4);
+  --pink-glow-xl: 0 6px 25px rgba(82, 82, 91, 0.5);
 
   /* Gold Light variant */
   --metallic-gold-light: #f0d060;
@@ -463,13 +463,13 @@
   --gray-overlay-15: rgba(100, 100, 100, 0.15);
   --gray-overlay-20: rgba(150, 150, 150, 0.15);
 
-  /* Pink Utility - Various Opacities */
-  --color-pink-overlay-01: rgba(196, 30, 127, 0.01);
-  --color-pink-overlay-02: rgba(196, 30, 127, 0.02);
-  --color-pink-overlay-03: rgba(196, 30, 127, 0.03);
-  --color-pink-overlay-05: rgba(196, 30, 127, 0.05);
-  --color-pink-overlay-08: rgba(196, 30, 127, 0.08);
-  --color-pink-overlay-10: rgba(196, 30, 127, 0.1);
+  /* Neutral Overlay - Various Opacities (replaces pink) */
+  --color-pink-overlay-01: rgba(82, 82, 91, 0.01);
+  --color-pink-overlay-02: rgba(82, 82, 91, 0.02);
+  --color-pink-overlay-03: rgba(82, 82, 91, 0.03);
+  --color-pink-overlay-05: rgba(82, 82, 91, 0.05);
+  --color-pink-overlay-08: rgba(82, 82, 91, 0.08);
+  --color-pink-overlay-10: rgba(82, 82, 91, 0.1);
 
   /* Live/Error Color Utility */
   --live-overlay-02: rgba(239, 68, 68, 0.02);
@@ -707,13 +707,13 @@
   --gray-overlay-15: rgba(100, 100, 100, 0.12);
   --gray-overlay-20: rgba(100, 100, 100, 0.15);
 
-  /* Pink Utility - Light Mode (slightly adjusted) */
-  --color-pink-overlay-01: rgba(196, 30, 127, 0.02);
-  --color-pink-overlay-02: rgba(196, 30, 127, 0.03);
-  --color-pink-overlay-03: rgba(196, 30, 127, 0.04);
-  --color-pink-overlay-05: rgba(196, 30, 127, 0.06);
-  --color-pink-overlay-08: rgba(196, 30, 127, 0.1);
-  --color-pink-overlay-10: rgba(196, 30, 127, 0.12);
+  /* Neutral Overlay - Light Mode (replaces pink) */
+  --color-pink-overlay-01: rgba(82, 82, 91, 0.02);
+  --color-pink-overlay-02: rgba(82, 82, 91, 0.03);
+  --color-pink-overlay-03: rgba(82, 82, 91, 0.04);
+  --color-pink-overlay-05: rgba(82, 82, 91, 0.06);
+  --color-pink-overlay-08: rgba(82, 82, 91, 0.1);
+  --color-pink-overlay-10: rgba(82, 82, 91, 0.12);
 
   /* Live/Error Color Utility - Light */
   --live-overlay-02: rgba(239, 68, 68, 0.03);

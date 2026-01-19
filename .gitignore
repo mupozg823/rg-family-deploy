@@ -54,3 +54,4 @@ __pycache__/
 *$py.class
 .Python
 *.so
+.env*.local

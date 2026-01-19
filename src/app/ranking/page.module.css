@@ -222,20 +222,19 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  background: linear-gradient(135deg, var(--color-primary), var(--primary-deep));
+  background: var(--text-primary);
   border: none;
   border-radius: var(--radius-full);
-  color: #fff;
+  color: var(--background);
   font-size: var(--text-xs);
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(253, 104, 186, 0.3);
 }
 
 .seasonBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(253, 104, 186, 0.4);
+  opacity: 0.9;
 }
 
 .seasonBtn svg {

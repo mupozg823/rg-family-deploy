@@ -10,13 +10,13 @@ interface CalendarGridProps {
 }
 
 const EVENT_COLORS: Record<string, string> = {
-  broadcast: '#4ade80', // green
-  collab: '#60a5fa', // blue
-  event: '#f472b6', // pink
-  notice: '#fbbf24', // yellow
-  '休': '#94a3b8', // gray
-  excel: '#fd68ba', // pink (Excel Unit)
-  crew: '#00d4ff', // cyan (Crew Unit)
+  broadcast: '#22c55e', // green-500 (방송)
+  collab: '#3b82f6', // blue-500 (콜라보)
+  event: '#f59e0b', // amber-500 (이벤트)
+  notice: '#a855f7', // purple-500 (공지)
+  '休': '#6b7280', // gray-500 (휴방)
+  excel: '#22c55e', // green-500 (Excel Unit)
+  crew: '#3b82f6', // blue-500 (Crew Unit)
 }
 
 export default function CalendarGrid({ days, selectedDate, onSelectDate }: CalendarGridProps) {
@@ -30,11 +30,11 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
   }
 
   const getEventColor = (event: { color?: string | null; eventType?: string }) => {
-    return event.color || EVENT_COLORS[event.eventType || ''] || '#fd68ba'
+    return event.color || EVENT_COLORS[event.eventType || ''] || '#6b7280'
   }
 
   return (
-    <div className="grid grid-cols-7 gap-[1px] bg-[var(--color-pink)]">
+    <div className="grid grid-cols-7 gap-[1px] bg-zinc-700/50">
         {days.map((day, index) => {
           const isSelected = isSameDay(day.date, selectedDate)
           const dayOfWeek = day.date.getDay()
@@ -52,7 +52,7 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
                 hover:bg-[var(--interactive-hover)]
                 ${!day.isCurrentMonth ? 'opacity-30' : ''}
                 ${day.isToday ? 'bg-[var(--interactive-active)]' : ''}
-                ${isSelected ? 'bg-[var(--interactive-focus)] shadow-[inset_0_0_0_2px_var(--color-pink)]' : ''}
+                ${isSelected ? 'bg-[var(--interactive-focus)] shadow-[inset_0_0_0_2px_var(--color-primary)]' : ''}
               `}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -70,11 +70,11 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
 
               {/* Event Text List (Desktop) */}
               {day.events.length > 0 && (
-                <div className="hidden md:flex flex-col gap-[2px] flex-1 overflow-hidden">
+                <div className="hidden md:flex flex-col gap-1 flex-1 overflow-hidden">
                   {day.events.slice(0, 3).map((event, eventIndex) => (
                     <div
                       key={eventIndex}
-                      className="px-2 py-1 rounded-md text-[11px] font-semibold text-white whitespace-nowrap overflow-hidden text-ellipsis transition-all hover:brightness-110 hover:translate-x-[2px] hover:shadow-md"
+                      className="px-2 py-1.5 rounded text-xs font-medium text-white whitespace-nowrap overflow-hidden text-ellipsis transition-all hover:brightness-110 hover:scale-[1.02] shadow-sm"
                       style={{
                         backgroundColor: getEventColor(event),
                       }}
@@ -83,8 +83,8 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
                     </div>
                   ))}
                   {day.events.length > 3 && (
-                    <span className="text-[10px] text-[var(--text-muted)] mt-1">
-                      +{day.events.length - 3}개
+                    <span className="text-xs text-[var(--text-muted)] font-medium mt-0.5">
+                      +{day.events.length - 3}개 더보기
                     </span>
                   )}
                 </div>
@@ -92,19 +92,19 @@ export default function CalendarGrid({ days, selectedDate, onSelectDate }: Calen
 
               {/* Event Dots (Mobile) */}
               {day.events.length > 0 && (
-                <div className="flex md:hidden gap-1 flex-wrap mt-1">
+                <div className="flex md:hidden gap-1.5 flex-wrap mt-auto">
                   {day.events.slice(0, 4).map((event, eventIndex) => (
                     <span
                       key={eventIndex}
-                      className="w-2 h-2 rounded-full animate-pulse"
+                      className="w-2.5 h-2.5 rounded-full"
                       style={{
                         backgroundColor: getEventColor(event),
-                        boxShadow: `0 0 6px ${getEventColor(event)}`,
+                        boxShadow: `0 0 4px ${getEventColor(event)}40`,
                       }}
                     />
                   ))}
                   {day.events.length > 4 && (
-                    <span className="text-[10px] text-[var(--text-muted)]">
+                    <span className="text-[10px] text-[var(--text-muted)] font-medium">
                       +{day.events.length - 4}
                     </span>
                   )}

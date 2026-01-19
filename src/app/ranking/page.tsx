@@ -1,12 +1,12 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Crown, Sparkles, ChevronDown, Calendar } from "lucide-react";
 import Footer from "@/components/Footer";
-import { useRanking } from "@/lib/hooks/useRanking";
-import { mockSeasons } from "@/lib/mock";
+import { mockSeasons, mockProfiles } from "@/lib/mock";
+import type { RankingItem, UnitFilter } from "@/types/common";
 import {
   RankingPodium,
   RankingFullList,
@@ -16,20 +16,37 @@ import styles from "./page.module.css";
 // 현재 활성 시즌 가져오기
 const getCurrentSeason = () => mockSeasons.find(s => s.is_active) || mockSeasons[mockSeasons.length - 1];
 
+// Mock 프로필에서 랭킹 데이터 직접 생성
+function getMockRankings(unitFilter: UnitFilter): RankingItem[] {
+  let profiles = mockProfiles.filter(p => p.id !== 'admin-user');
+
+  if (unitFilter && unitFilter !== 'all' && unitFilter !== 'vip') {
+    profiles = profiles.filter(p => p.unit === unitFilter);
+  }
+
+  return profiles
+    .filter(p => (p.total_donation || 0) > 0)
+    .sort((a, b) => (b.total_donation || 0) - (a.total_donation || 0))
+    .map((profile, index) => ({
+      donorId: profile.id,
+      donorName: profile.nickname,
+      avatarUrl: profile.avatar_url,
+      totalAmount: profile.total_donation || 0,
+      rank: index + 1,
+    }));
+}
+
 export default function TotalRankingPage() {
   const listRef = useRef<HTMLDivElement>(null);
+  const [unitFilter, setUnitFilter] = useState<UnitFilter>('all');
 
   const scrollToList = () => {
     listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const {
-    rankings,
-    unitFilter,
-    maxAmount,
-    isLoading,
-    setUnitFilter,
-  } = useRanking();
+  // Mock 데이터에서 직접 랭킹 생성
+  const rankings = useMemo(() => getMockRankings(unitFilter), [unitFilter]);
+  const maxAmount = rankings.length > 0 ? rankings[0].totalAmount : 0;
 
   // 50위까지만 표시
   const top50 = rankings.slice(0, 50);
@@ -116,11 +133,7 @@ export default function TotalRankingPage() {
           </div>
         </div>
 
-        {isLoading ? (
-          <div className={styles.loading}>
-            <div className={styles.spinner} />
-          </div>
-        ) : rankings.length === 0 ? (
+        {rankings.length === 0 ? (
           <div className={styles.empty}>
             <p>No rankings available</p>
           </div>
