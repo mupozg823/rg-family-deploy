@@ -70,6 +70,7 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
           parent_id: member.parent_id,
           image_url: member.image_url,
           social_links: (member.social_links || undefined) as OrgMember['social_links'],
+          profile_info: member.profile_info || undefined,
           is_live: isLive,
         }
       })
@@ -82,7 +83,7 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
 
     const { data: orgData, error: orgError } = await supabase
       .from('organization')
-      .select('id, name, role, unit, position_order, parent_id, image_url, social_links, is_live, profiles(nickname, avatar_url)')
+      .select('id, name, role, unit, position_order, parent_id, image_url, social_links, profile_info, is_live, profiles(nickname, avatar_url)')
       .eq('is_active', true)
       .order('position_order')
 
@@ -128,6 +129,7 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
         parent_id: member.parent_id,
         image_url: profile?.avatar_url || member.image_url,
         social_links: (member.social_links || undefined) as OrgMember['social_links'],
+        profile_info: (member.profile_info || undefined) as OrgMember['profile_info'],
         is_live: isLive,
       }
     })

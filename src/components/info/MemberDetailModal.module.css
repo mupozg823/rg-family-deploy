@@ -69,7 +69,7 @@
   position: absolute;
   inset: -3px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-pink-light) 50%, var(--color-pink) 100%);
+  background: var(--live-color);
   z-index: 0;
 }
 
@@ -78,7 +78,7 @@
   position: absolute;
   inset: -3px;
   border-radius: 50%;
-  box-shadow: 0 0 16px var(--color-pink-glow);
+  box-shadow: 0 0 12px var(--live-glow);
   z-index: 0;
 }
 
@@ -169,12 +169,12 @@
   color: var(--text-secondary);
 }
 
-/* Modal Status */
+/* Modal Status - 단일 항목이면 전체 너비 */
 .modalStatus {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--card-border);
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--surface);
   border-bottom: 1px solid var(--card-border);
 }
 
@@ -183,8 +183,10 @@
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-  padding: 1rem;
+  padding: 0.5rem 1.5rem;
   background: var(--card-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
 }
 
 .statusLabel {
