@@ -16,12 +16,24 @@ export interface PandaTVLiveStatus {
 }
 
 /**
- * PandaTV 채널 URL에서 채널 ID 추출
+ * PandaTV 채널 URL 또는 채널 ID에서 채널 ID 추출
  * @example "https://www.pandalive.co.kr/rina" -> "rina"
+ * @example "rina" -> "rina"
+ * @example "qwerdf1101" -> "qwerdf1101"
  */
-export function extractChannelId(url: string): string | null {
+export function extractChannelId(urlOrId: string): string | null {
+  if (!urlOrId || typeof urlOrId !== 'string') {
+    return null
+  }
+
+  const trimmed = urlOrId.trim()
+  if (!trimmed) {
+    return null
+  }
+
+  // URL인 경우 파싱
   try {
-    const urlObj = new URL(url)
+    const urlObj = new URL(trimmed)
     if (!urlObj.hostname.includes('pandalive.co.kr')) {
       return null
     }
@@ -30,6 +42,11 @@ export function extractChannelId(url: string): string | null {
     const match = pathname.match(/^\/(?:channel\/)?([^/]+)/)
     return match ? match[1] : null
   } catch {
+    // URL이 아닌 경우 - 채널 ID로 직접 사용
+    // 영문, 숫자, 언더스코어만 허용
+    if (/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+      return trimmed
+    }
     return null
   }
 }
