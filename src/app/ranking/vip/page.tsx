@@ -485,13 +485,7 @@ export default function VipLoungePage() {
                   {index < 3 ? <Crown size={14} /> : index + 1}
                 </span>
                 <span className={styles.memberName}>{item.donorName}</span>
-                <span className={styles.memberAmount}>
-                  {item.totalAmount >= 10000
-                    ? `${Math.floor(
-                        item.totalAmount / 10000
-                      ).toLocaleString()}만 하트`
-                    : `${item.totalAmount.toLocaleString()} 하트`}
-                </span>
+{/* 하트 개수 숨김 */}
               </div>
             ))}
           </div>
