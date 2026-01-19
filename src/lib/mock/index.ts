@@ -113,48 +113,31 @@ export {
 // ============================================
 import { mockOrganization } from './organization'
 import { mockLiveStatus } from './live-status'
-import { getMockDonations, clearDonationsCache } from './donations'
+import { mockDonations } from './donations'
 import { mockSeasons } from './seasons'
-
-// Re-export cache control functions
-export { clearDonationsCache }
 
 /**
  * 라이브 중인 멤버 정보 조회
  */
 export const getLiveMembersWithInfo = () => {
   return mockLiveStatus
-    .filter((status) => status.is_live)
-    .map((status) => {
-      const member = mockOrganization.find((m) => m.id === status.member_id)
+    .filter(status => status.is_live)
+    .map(status => {
+      const member = mockOrganization.find(m => m.id === status.member_id)
       return { ...status, member }
     })
 }
 
-// ============================================
-// 랭킹 데이터 캐시 (메모이제이션)
-// ============================================
-const rankingCache = new Map<number, { name: string; amount: number; unit: string | null; rank: number }[]>()
-
 /**
- * 시즌별 랭킹 데이터 조회 (메모이제이션 적용)
- * 동일한 시즌 ID에 대해 캐시된 결과 반환
+ * 시즌별 랭킹 데이터 조회
  */
 export const getRankingData = (seasonId?: number) => {
-  const targetSeasonId = seasonId || mockSeasons.find((s) => s.is_active)?.id || 4
-
-  // 캐시 확인
-  if (rankingCache.has(targetSeasonId)) {
-    return rankingCache.get(targetSeasonId)!
-  }
-
-  // 레이지 로딩된 donations 데이터 사용
-  const donations = getMockDonations()
-  const seasonDonations = donations.filter((d) => d.season_id === targetSeasonId)
+  const targetSeasonId = seasonId || mockSeasons.find(s => s.is_active)?.id || 4
+  const seasonDonations = mockDonations.filter(d => d.season_id === targetSeasonId)
 
   const rankingMap = new Map<string, { name: string; amount: number; unit: string | null }>()
 
-  seasonDonations.forEach((donation) => {
+  seasonDonations.forEach(donation => {
     const key = donation.donor_name
     const existing = rankingMap.get(key)
     if (existing) {
@@ -168,29 +151,7 @@ export const getRankingData = (seasonId?: number) => {
     }
   })
 
-  const result = Array.from(rankingMap.values())
+  return Array.from(rankingMap.values())
     .sort((a, b) => b.amount - a.amount)
     .map((item, index) => ({ rank: index + 1, ...item }))
-
-  // 캐시에 저장
-  rankingCache.set(targetSeasonId, result)
-
-  return result
-}
-
-/**
- * 랭킹 캐시 초기화
- * 후원 데이터 변경 시 호출 필요
- */
-export const clearRankingCache = () => {
-  rankingCache.clear()
-}
-
-/**
- * 모든 Mock 캐시 초기화
- * 테스트 또는 메모리 해제 용도
- */
-export const clearAllMockCaches = () => {
-  clearDonationsCache()
-  clearRankingCache()
 }

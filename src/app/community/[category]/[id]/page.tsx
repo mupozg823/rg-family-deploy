@@ -1,14 +1,34 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, useCallback, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, Eye, Calendar, User, MessageSquare, Send, Heart } from 'lucide-react'
-import { useAuthContext, useComments, usePosts } from '@/lib/context'
+import { ArrowLeft, Eye, Calendar, User, MessageSquare, Send } from 'lucide-react'
+import { useSupabaseContext, useAuthContext } from '@/lib/context'
 import { formatDate } from '@/lib/utils/format'
-import type { CommentItem, PostItem } from '@/types/content'
+import type { JoinedProfile } from '@/types/common'
 import styles from './page.module.css'
+
+interface PostDetail {
+  id: number
+  title: string
+  content: string
+  authorId: string
+  authorName: string
+  authorAvatar: string | null
+  viewCount: number
+  createdAt: string
+}
+
+interface Comment {
+  id: number
+  content: string
+  authorId: string
+  authorName: string
+  authorAvatar: string | null
+  createdAt: string
+}
 
 export default function PostDetailPage({
   params,
@@ -17,75 +37,75 @@ export default function PostDetailPage({
 }) {
   const { category, id } = use(params)
   const router = useRouter()
-  const postsRepo = usePosts()
-  const commentsRepo = useComments()
-  const { user } = useAuthContext()
-  const [post, setPost] = useState<PostItem | null>(null)
-  const [comments, setComments] = useState<CommentItem[]>([])
+  const supabase = useSupabaseContext()
+  const { user, profile } = useAuthContext()
+  const [post, setPost] = useState<PostDetail | null>(null)
+  const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(0)
-  const [isLiking, setIsLiking] = useState(false)
 
-  const fetchPost = async (shouldIncrementView = true) => {
+  const fetchPost = useCallback(async () => {
     setIsLoading(true)
 
-    const postData = await postsRepo.findById(parseInt(id))
-    if (!postData) {
+    // 게시글 조회
+    const { data: postData, error: postError } = await supabase
+      .from('posts')
+      .select('*, profiles!author_id(id, nickname, avatar_url)')
+      .eq('id', parseInt(id))
+      .single()
+
+    if (postError || !postData) {
+      console.error('게시글 로드 실패:', postError)
       setIsLoading(false)
       return
     }
 
-    let viewCount = postData.viewCount
-    if (shouldIncrementView) {
-      const updatedCount = await postsRepo.incrementViewCount(postData.id, postData.viewCount)
-      viewCount = updatedCount ?? postData.viewCount
-    }
+    // 조회수 증가
+    await supabase
+      .from('posts')
+      .update({ view_count: (postData.view_count || 0) + 1 })
+      .eq('id', parseInt(id))
 
-    setPost({ ...postData, viewCount })
-    setLikeCount(postData.likeCount)
+    const postProfile = postData.profiles as JoinedProfile | null
+    setPost({
+      id: postData.id,
+      title: postData.title,
+      content: postData.content || '',
+      authorId: postData.author_id,
+      authorName: postProfile?.nickname || '익명',
+      authorAvatar: postProfile?.avatar_url || null,
+      viewCount: (postData.view_count || 0) + 1,
+      createdAt: postData.created_at,
+    })
 
-    // 좋아요 상태 확인
-    if (user) {
-      const liked = await postsRepo.hasUserLiked(postData.id, user.id)
-      setIsLiked(liked)
-    }
+    // 댓글 조회
+    const { data: commentsData } = await supabase
+      .from('comments')
+      .select('*, profiles!author_id(id, nickname, avatar_url)')
+      .eq('post_id', parseInt(id))
+      .order('created_at', { ascending: true })
 
-    const postComments = await commentsRepo.findByPostId(parseInt(id))
-    setComments(postComments)
+    setComments(
+      (commentsData || []).map((c) => {
+        const commentProfile = c.profiles as JoinedProfile | null
+        return {
+          id: c.id,
+          content: c.content,
+          authorId: c.author_id,
+          authorName: commentProfile?.nickname || '익명',
+          authorAvatar: commentProfile?.avatar_url || null,
+          createdAt: c.created_at,
+        }
+      })
+    )
 
     setIsLoading(false)
-  }
-
-  const handleLike = async () => {
-    if (!user || !post || isLiking) return
-
-    setIsLiking(true)
-    const result = await postsRepo.toggleLike(post.id, user.id)
-
-    if (result) {
-      setIsLiked(result.liked)
-      setLikeCount(result.likeCount)
-    }
-
-    setIsLiking(false)
-  }
+  }, [supabase, id])
 
   useEffect(() => {
-    void fetchPost(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
-
-  // 로그인 상태 변경 시 좋아요 상태 갱신
-  useEffect(() => {
-    if (post && user) {
-      postsRepo.hasUserLiked(post.id, user.id).then(setIsLiked)
-    } else if (!user) {
-      setIsLiked(false)
-    }
-  }, [user, post?.id, postsRepo])
+    fetchPost()
+  }, [fetchPost])
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -93,17 +113,18 @@ export default function PostDetailPage({
 
     setIsSubmitting(true)
 
-    const created = await commentsRepo.create({
+    const { error } = await supabase.from('comments').insert({
       post_id: parseInt(id),
       author_id: user.id,
       content: newComment.trim(),
     })
 
-    if (!created) {
+    if (error) {
+      console.error('댓글 작성 실패:', error)
       alert('댓글 작성에 실패했습니다.')
     } else {
       setNewComment('')
-      fetchPost(false) // 댓글 새로고침
+      fetchPost() // 댓글 새로고침
     }
 
     setIsSubmitting(false)
@@ -188,19 +209,6 @@ export default function PostDetailPage({
             {post.content.split('\n').map((paragraph, index) => (
               <p key={index}>{paragraph || '\u00A0'}</p>
             ))}
-          </div>
-
-          {/* Article Actions */}
-          <div className={styles.articleActions}>
-            <button
-              onClick={handleLike}
-              disabled={!user || isLiking}
-              className={`${styles.likeButton} ${isLiked ? styles.liked : ''}`}
-              title={!user ? '로그인이 필요합니다' : isLiked ? '좋아요 취소' : '좋아요'}
-            >
-              <Heart size={18} />
-              <span>좋아요 {likeCount > 0 ? likeCount : ''}</span>
-            </button>
           </div>
         </article>
 

@@ -6,14 +6,25 @@ import { Search, Eye, MessageSquare, ThumbsUp, PenLine, ChevronDown } from 'luci
 import { PageLayout } from '@/components/layout'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { Pagination } from '@/components/common'
-import { usePosts } from '@/lib/context'
+import { useSupabaseContext, useAuthContext } from '@/lib/context'
+import { withRetry } from '@/lib/utils/fetch-with-retry'
 import { formatShortDate } from '@/lib/utils/format'
 import TabFilter from '@/components/community/TabFilter'
-import type { PostItem } from '@/types/content'
+import type { JoinedProfile } from '@/types/common'
 import styles from './page.module.css'
 
-const ITEMS_PER_PAGE = 20
+interface Post {
+  id: number
+  title: string
+  authorName: string
+  authorRealName?: string // 관리자용 실제 닉네임
+  isAnonymous: boolean
+  viewCount: number
+  commentCount: number
+  likeCount: number
+  createdAt: string
+  category?: string
+}
 
 function isNew(dateStr: string): boolean {
   const postDate = new Date(dateStr)
@@ -31,14 +42,13 @@ function isPopular(likeCount: number): boolean {
 }
 
 export default function FreeBoardPage() {
-  const postsRepo = usePosts()
-  const [posts, setPosts] = useState<PostItem[]>([])
-  const [totalCount, setTotalCount] = useState(0)
-  const [totalPages, setTotalPages] = useState(1)
-  const [currentPage, setCurrentPage] = useState(1)
+  const supabase = useSupabaseContext()
+  const { profile } = useAuthContext()
+  const isAdmin = profile && ['admin', 'superadmin', 'moderator'].includes(profile.role)
+
+  const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchInput, setSearchInput] = useState('')
   const [searchType, setSearchType] = useState<'all' | 'title' | 'author'>('all')
   const [sortBy, setSortBy] = useState<'latest' | 'views' | 'likes'>('latest')
 
@@ -47,48 +57,68 @@ export default function FreeBoardPage() {
     { label: 'VIP 라운지', value: 'vip', path: '/community/vip' },
   ]
 
-  const fetchPosts = useCallback(async (page: number, query?: string) => {
+  const fetchPosts = useCallback(async () => {
     setIsLoading(true)
 
-    if (query) {
-      const result = await postsRepo.search(query, {
-        page,
-        limit: ITEMS_PER_PAGE,
-        searchType,
-        category: 'free',
-      })
-      setPosts(result.data)
-      setTotalCount(result.totalCount)
-      setTotalPages(result.totalPages)
+    const { data, error } = await withRetry(async () =>
+      await supabase
+        .from('posts')
+        .select('id, title, view_count, like_count, created_at, is_anonymous, profiles!author_id(nickname), comments(id)')
+        .eq('board_type', 'free')
+        .eq('is_deleted', false)
+        .order('created_at', { ascending: false })
+        .limit(20)
+    )
+
+    if (error) {
+      console.error('게시글 로드 실패:', error)
     } else {
-      const result = await postsRepo.findPaginated('free', {
-        page,
-        limit: ITEMS_PER_PAGE,
-      })
-      setPosts(result.data)
-      setTotalCount(result.totalCount)
-      setTotalPages(result.totalPages)
+      setPosts(
+        (data || []).map((p) => {
+          const postProfile = p.profiles as JoinedProfile | null
+          const comments = p.comments as unknown[] | null
+          const isAnon = (p as { is_anonymous?: boolean }).is_anonymous || false
+          const realNickname = postProfile?.nickname || '알 수 없음'
+          return {
+            id: p.id,
+            title: p.title,
+            authorName: isAnon ? '익명' : realNickname,
+            authorRealName: isAnon ? realNickname : undefined,
+            isAnonymous: isAnon,
+            viewCount: p.view_count || 0,
+            commentCount: comments?.length || 0,
+            likeCount: p.like_count || 0,
+            createdAt: p.created_at,
+            category: '잡담',
+          }
+        })
+      )
     }
 
     setIsLoading(false)
-  }, [postsRepo, searchType])
+  }, [supabase])
 
   useEffect(() => {
-    void fetchPosts(currentPage, searchQuery)
-  }, [fetchPosts, currentPage, searchQuery])
+    fetchPosts()
+  }, [fetchPosts])
 
-  const handleSearch = () => {
-    setSearchQuery(searchInput)
-    setCurrentPage(1)
-  }
+  // 검색 필터링
+  const filteredPosts = posts.filter(post => {
+    if (!searchQuery) return true
+    const query = searchQuery.toLowerCase()
+    switch (searchType) {
+      case 'title':
+        return post.title.toLowerCase().includes(query)
+      case 'author':
+        return post.authorName.toLowerCase().includes(query)
+      default:
+        return post.title.toLowerCase().includes(query) ||
+          post.authorName.toLowerCase().includes(query)
+    }
+  })
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  // 정렬 (클라이언트 사이드)
-  const sortedPosts = [...posts].sort((a, b) => {
+  // 정렬
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
     switch (sortBy) {
       case 'views':
         return b.viewCount - a.viewCount
@@ -120,7 +150,7 @@ export default function FreeBoardPage() {
           {/* Left: Stats & Sort */}
           <div className={styles.boardLeft}>
             <span className={styles.totalCount}>
-              전체 <strong>{totalCount}</strong>건
+              전체 <strong>{sortedPosts.length}</strong>건
             </span>
             <div className={styles.sortSelect}>
               <select
@@ -155,11 +185,11 @@ export default function FreeBoardPage() {
                 type="text"
                 className={styles.searchInput}
                 placeholder="검색어를 입력하세요"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && fetchPosts()}
               />
-              <button className={styles.searchBtn} onClick={handleSearch}>
+              <button className={styles.searchBtn}>
                 <Search size={16} />
               </button>
             </div>
@@ -172,9 +202,18 @@ export default function FreeBoardPage() {
             <span>게시글을 불러오는 중...</span>
           </div>
         ) : sortedPosts.length === 0 ? (
-          <div className={styles.empty}>
-            <p>등록된 게시글이 없습니다</p>
-          </div>
+          <>
+            <div className={styles.empty}>
+              <p>등록된 게시글이 없습니다</p>
+            </div>
+            <div className={styles.boardFooter}>
+              <div />
+              <Link href="/community/free/write" className={styles.writeBtn}>
+                <PenLine size={16} />
+                글쓰기
+              </Link>
+            </div>
+          </>
         ) : (
           <>
             {/* Board Table */}
@@ -231,7 +270,12 @@ export default function FreeBoardPage() {
                     </div>
 
                     {/* Author */}
-                    <span className={styles.cellAuthor}>{post.authorName}</span>
+                    <span className={styles.cellAuthor}>
+                      {post.authorName}
+                      {isAdmin && post.isAnonymous && post.authorRealName && (
+                        <span className={styles.adminRealName}>({post.authorRealName})</span>
+                      )}
+                    </span>
 
                     {/* Date */}
                     <span className={styles.cellDate}>
@@ -254,7 +298,7 @@ export default function FreeBoardPage() {
 
             {/* Mobile Card View */}
             <div className={styles.mobileList}>
-              {sortedPosts.map((post) => (
+              {sortedPosts.map((post, index) => (
                 <Link
                   key={post.id}
                   href={`/community/free/${post.id}`}
@@ -272,7 +316,12 @@ export default function FreeBoardPage() {
                     )}
                   </h3>
                   <div className={styles.mobileMeta}>
-                    <span className={styles.mobileAuthor}>{post.authorName}</span>
+                    <span className={styles.mobileAuthor}>
+                      {post.authorName}
+                      {isAdmin && post.isAnonymous && post.authorRealName && (
+                        <span className={styles.adminRealName}>({post.authorRealName})</span>
+                      )}
+                    </span>
                     <span className={styles.mobileDivider}>·</span>
                     <span>{formatShortDate(post.createdAt)}</span>
                     <span className={styles.mobileDivider}>·</span>
@@ -289,12 +338,18 @@ export default function FreeBoardPage() {
 
             {/* Board Footer */}
             <div className={styles.boardFooter}>
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-              <Link href="/community/write?board=free" className={styles.writeBtn}>
+              <div className={styles.pagination}>
+                <button className={styles.pageBtn} disabled>«</button>
+                <button className={styles.pageBtn} disabled>‹</button>
+                <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
+                <button className={styles.pageBtn}>2</button>
+                <button className={styles.pageBtn}>3</button>
+                <button className={styles.pageBtn}>4</button>
+                <button className={styles.pageBtn}>5</button>
+                <button className={styles.pageBtn}>›</button>
+                <button className={styles.pageBtn}>»</button>
+              </div>
+              <Link href="/community/free/write" className={styles.writeBtn}>
                 <PenLine size={16} />
                 글쓰기
               </Link>

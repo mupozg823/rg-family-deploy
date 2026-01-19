@@ -16,7 +16,6 @@ export default function TimelinePage() {
         <span className={styles.heroBadge}>CHRONICLES</span>
         <h1 className={styles.title}>RG HISTORY</h1>
         <p className={styles.subtitle}>RG FAMILY가 걸어온 길</p>
-        <p className={styles.startDate}>📅 2025년 1월 20일부터 ~</p>
       </div>
       <Timeline />
       <Footer />

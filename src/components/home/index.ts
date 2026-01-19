@@ -7,5 +7,6 @@
 export { default as Hero } from './Hero'
 export { default as LiveMembers } from './LiveMembers'
 export { default as Notice } from './Notice'
+export { default as BroadcastNotice } from './BroadcastNotice'
 export { default as Shorts } from './Shorts'
 export { default as VOD } from './VOD'

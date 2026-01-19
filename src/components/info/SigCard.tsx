@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Play } from 'lucide-react'
 import Image from 'next/image'
 import { useLazyLoad } from '@/lib/hooks'
-import type { SignatureData } from '@/lib/mock/signatures'
+import type { SignatureData } from './SigGallery'
 import styles from './SigCard.module.css'
 
 interface SigCardProps {
@@ -19,7 +19,6 @@ export default function SigCard({ signature, onClick }: SigCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
 
   // Lazy loading with IntersectionObserver
-  // rootMargin: 200px = 뷰포트 200px 전에 미리 로드 시작
   const { ref, hasLoaded: isInView } = useLazyLoad<HTMLDivElement>({
     rootMargin: '200px',
     triggerOnce: true,
@@ -42,12 +41,12 @@ export default function SigCard({ signature, onClick }: SigCardProps) {
         {/* Facade Placeholder - 이미지 로드 전까지 표시 */}
         {(!isInView || !imageLoaded) && !imageError && (
           <div className={styles.facadePlaceholder}>
-            <span className={styles.facadeNumber}>{signature.number}</span>
+            <span className={styles.facadeNumber}>{signature.sigNumber}</span>
           </div>
         )}
 
         {/* 실제 이미지 - IntersectionObserver가 감지한 후에만 로드 */}
-        {isInView && !imageError && (
+        {isInView && !imageError && signature.thumbnailUrl && (
           <Image
             src={signature.thumbnailUrl}
             alt={signature.title}
@@ -61,15 +60,15 @@ export default function SigCard({ signature, onClick }: SigCardProps) {
         )}
 
         {/* Error Placeholder */}
-        {imageError && (
+        {(imageError || !signature.thumbnailUrl) && (
           <div className={styles.placeholder}>
-            <span className={styles.placeholderNumber}>{signature.number}</span>
+            <span className={styles.placeholderNumber}>{signature.sigNumber}</span>
           </div>
         )}
 
         {/* Number Badge - cnine style */}
         <div className={styles.numberBadge}>
-          <span className={styles.number}>{signature.number}</span>
+          <span className={styles.number}>{signature.sigNumber}</span>
         </div>
 
         {/* Play Button - always visible, positioned bottom-right */}
@@ -91,7 +90,7 @@ export default function SigCard({ signature, onClick }: SigCardProps) {
 
       {/* Info - Minimal */}
       <div className={styles.info}>
-        <span className={styles.sigNumber}>{signature.number}</span>
+        <span className={styles.sigNumber}>{signature.sigNumber}</span>
         <span className={styles.title}>{signature.title}</span>
       </div>
     </motion.div>

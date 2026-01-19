@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Film, Plus, ExternalLink } from 'lucide-react'
-import { DataTable, Column, AdminModal } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Film, Plus, X, Save, ExternalLink } from 'lucide-react'
+import { DataTable, Column } from '@/components/admin'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
+import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
 type ContentType = 'shorts' | 'vod'
@@ -20,6 +22,8 @@ interface Media {
 }
 
 export default function MediaPage() {
+  const supabase = useSupabaseContext()
+  const alertHandler = useAlert()
   const [activeType, setActiveType] = useState<ContentType>('shorts')
 
   const {
@@ -68,6 +72,7 @@ export default function MediaPage() {
       if (!item.title || !item.videoUrl) return '제목과 영상 URL을 입력해주세요.'
       return null
     },
+    alertHandler,
   })
 
   // Filter by activeType
@@ -125,7 +130,7 @@ export default function MediaPage() {
     {
       key: 'createdAt',
       header: '등록일',
-      width: '120px',
+      width: '140px',
       render: (item) => formatDate(item.createdAt),
     },
   ]
@@ -173,107 +178,136 @@ export default function MediaPage() {
       />
 
       {/* Modal */}
-      {editingMedia && (
-        <AdminModal
-          isOpen={isModalOpen}
-          title={isNew ? '미디어 추가' : '미디어 수정'}
-          onClose={closeModal}
-          onSave={handleSave}
-          saveLabel={isNew ? '추가' : '저장'}
-        >
-          <div className={styles.formGroup}>
-            <label>제목</label>
-            <input
-              type="text"
-              value={editingMedia.title || ''}
-              onChange={(e) =>
-                setEditingMedia({ ...editingMedia, title: e.target.value })
-              }
-              className={styles.input}
-              placeholder="영상 제목을 입력하세요"
-            />
-          </div>
+      <AnimatePresence>
+        {isModalOpen && editingMedia && (
+          <motion.div
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeModal}
+          >
+            <motion.div
+              className={styles.modal}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.modalHeader}>
+                <h2>{isNew ? '미디어 추가' : '미디어 수정'}</h2>
+                <button onClick={closeModal} className={styles.closeButton}>
+                  <X size={20} />
+                </button>
+              </div>
 
-          <div className={styles.formGroup}>
-            <label>콘텐츠 유형</label>
-            <div className={styles.typeSelector}>
-              <button
-                type="button"
-                onClick={() => setEditingMedia({ ...editingMedia, contentType: 'shorts' })}
-                className={`${styles.typeButton} ${editingMedia.contentType === 'shorts' ? styles.active : ''}`}
-              >
-                숏폼
-              </button>
-              <button
-                type="button"
-                onClick={() => setEditingMedia({ ...editingMedia, contentType: 'vod' })}
-                className={`${styles.typeButton} ${editingMedia.contentType === 'vod' ? styles.active : ''}`}
-              >
-                VOD
-              </button>
-            </div>
-          </div>
+              <div className={styles.modalBody}>
+                <div className={styles.formGroup}>
+                  <label>제목</label>
+                  <input
+                    type="text"
+                    value={editingMedia.title || ''}
+                    onChange={(e) =>
+                      setEditingMedia({ ...editingMedia, title: e.target.value })
+                    }
+                    className={styles.input}
+                    placeholder="영상 제목을 입력하세요"
+                  />
+                </div>
 
-          <div className={styles.formGroup}>
-            <label>부서</label>
-            <div className={styles.typeSelector}>
-              <button
-                type="button"
-                onClick={() => setEditingMedia({ ...editingMedia, unit: 'excel' })}
-                className={`${styles.typeButton} ${editingMedia.unit === 'excel' ? styles.active : ''}`}
-              >
-                엑셀부
-              </button>
-              <button
-                type="button"
-                onClick={() => setEditingMedia({ ...editingMedia, unit: 'crew' })}
-                className={`${styles.typeButton} ${editingMedia.unit === 'crew' ? styles.active : ''}`}
-              >
-                크루부
-              </button>
-            </div>
-          </div>
+                <div className={styles.formGroup}>
+                  <label>콘텐츠 유형</label>
+                  <div className={styles.typeSelector}>
+                    <button
+                      type="button"
+                      onClick={() => setEditingMedia({ ...editingMedia, contentType: 'shorts' })}
+                      className={`${styles.typeButton} ${editingMedia.contentType === 'shorts' ? styles.active : ''}`}
+                    >
+                      숏폼
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingMedia({ ...editingMedia, contentType: 'vod' })}
+                      className={`${styles.typeButton} ${editingMedia.contentType === 'vod' ? styles.active : ''}`}
+                    >
+                      VOD
+                    </button>
+                  </div>
+                </div>
 
-          <div className={styles.formGroup}>
-            <label>영상 URL</label>
-            <input
-              type="text"
-              value={editingMedia.videoUrl || ''}
-              onChange={(e) =>
-                setEditingMedia({ ...editingMedia, videoUrl: e.target.value })
-              }
-              className={styles.input}
-              placeholder="https://youtube.com/..."
-            />
-          </div>
+                <div className={styles.formGroup}>
+                  <label>부서</label>
+                  <div className={styles.typeSelector}>
+                    <button
+                      type="button"
+                      onClick={() => setEditingMedia({ ...editingMedia, unit: 'excel' })}
+                      className={`${styles.typeButton} ${editingMedia.unit === 'excel' ? styles.active : ''}`}
+                    >
+                      엑셀부
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingMedia({ ...editingMedia, unit: 'crew' })}
+                      className={`${styles.typeButton} ${editingMedia.unit === 'crew' ? styles.active : ''}`}
+                    >
+                      크루부
+                    </button>
+                  </div>
+                </div>
 
-          <div className={styles.formGroup}>
-            <label>썸네일 URL (선택)</label>
-            <input
-              type="text"
-              value={editingMedia.thumbnailUrl || ''}
-              onChange={(e) =>
-                setEditingMedia({ ...editingMedia, thumbnailUrl: e.target.value })
-              }
-              className={styles.input}
-              placeholder="https://..."
-            />
-          </div>
+                <div className={styles.formGroup}>
+                  <label>영상 URL</label>
+                  <input
+                    type="text"
+                    value={editingMedia.videoUrl || ''}
+                    onChange={(e) =>
+                      setEditingMedia({ ...editingMedia, videoUrl: e.target.value })
+                    }
+                    className={styles.input}
+                    placeholder="https://youtube.com/..."
+                  />
+                </div>
 
-          <div className={styles.formGroup}>
-            <label>설명 (선택)</label>
-            <textarea
-              value={editingMedia.description || ''}
-              onChange={(e) =>
-                setEditingMedia({ ...editingMedia, description: e.target.value })
-              }
-              className={styles.textarea}
-              placeholder="영상에 대한 설명..."
-              rows={3}
-            />
-          </div>
-        </AdminModal>
-      )}
+                <div className={styles.formGroup}>
+                  <label>썸네일 URL (선택)</label>
+                  <input
+                    type="text"
+                    value={editingMedia.thumbnailUrl || ''}
+                    onChange={(e) =>
+                      setEditingMedia({ ...editingMedia, thumbnailUrl: e.target.value })
+                    }
+                    className={styles.input}
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>설명 (선택)</label>
+                  <textarea
+                    value={editingMedia.description || ''}
+                    onChange={(e) =>
+                      setEditingMedia({ ...editingMedia, description: e.target.value })
+                    }
+                    className={styles.textarea}
+                    placeholder="영상에 대한 설명..."
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button onClick={closeModal} className={styles.cancelButton}>
+                  취소
+                </button>
+                <button onClick={handleSave} className={styles.saveButton}>
+                  <Save size={16} />
+                  {isNew ? '추가' : '저장'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

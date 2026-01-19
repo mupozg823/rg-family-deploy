@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MantineProvider, createTheme } from "@mantine/core";
+import { MantineProvider, createTheme, useMantineColorScheme } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/core/styles.css";
@@ -14,6 +14,7 @@ import {
   AuthProvider,
   DataProviderProvider,
   ThemeProvider,
+  useTheme,
 } from "@/lib/context";
 
 // RG Family Mantine Theme
@@ -53,6 +54,18 @@ const mantineTheme = createTheme({
   cursorType: "pointer",
 });
 
+// Mantine colorScheme을 앱 테마와 동기화하는 컴포넌트
+function MantineThemeSync({ children }: { children: React.ReactNode }) {
+  const { theme } = useTheme();
+  const { setColorScheme } = useMantineColorScheme();
+
+  useEffect(() => {
+    setColorScheme(theme);
+  }, [theme, setColorScheme]);
+
+  return <>{children}</>;
+}
+
 interface ProvidersProps {
   children: React.ReactNode;
 }
@@ -72,13 +85,15 @@ export default function Providers({ children }: ProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider theme={mantineTheme} defaultColorScheme="dark">
+      <MantineProvider theme={mantineTheme} defaultColorScheme="auto">
         <ModalsProvider>
           <Notifications position="top-right" />
           <SupabaseProvider>
             <AuthProvider>
               <DataProviderProvider>
-                <ThemeProvider>{children}</ThemeProvider>
+                <ThemeProvider>
+                  <MantineThemeSync>{children}</MantineThemeSync>
+                </ThemeProvider>
               </DataProviderProvider>
             </AuthProvider>
           </SupabaseProvider>

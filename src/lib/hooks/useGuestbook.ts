@@ -13,6 +13,7 @@ import {
   type GuestbookEntry,
 } from '@/lib/mock'
 import { useAuthContext, useSupabaseContext } from '@/lib/context'
+import { withRetry } from '@/lib/utils/fetch-with-retry'
 
 interface UseGuestbookOptions {
   tributeUserId: string
@@ -29,8 +30,8 @@ interface UseGuestbookReturn {
 }
 
 export function useGuestbook({ tributeUserId }: UseGuestbookOptions): UseGuestbookReturn {
-  const { user, profile, isAuthenticated } = useAuthContext()
   const supabase = useSupabaseContext()
+  const { user, profile, isAuthenticated } = useAuthContext()
   const [entries, setEntries] = useState<GuestbookEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -50,22 +51,33 @@ export function useGuestbook({ tributeUserId }: UseGuestbookOptions): UseGuestbo
         const mockEntries = getGuestbookByTributeUserId(tributeUserId)
         setEntries(mockEntries)
       } else {
-        // Supabase 쿼리 (테이블 미생성 시 mock fallback)
-        const { data, error: fetchError } = await supabase
-          .from('tribute_guestbook')
-          .select('*')
-          .eq('tribute_user_id', tributeUserId)
-          .eq('is_approved', true)
-          .eq('is_deleted', false)
-          .order('created_at', { ascending: false })
+        // Supabase에서 방명록 조회
+        const { data, error: fetchError } = await withRetry(async () =>
+          await supabase
+            .from('tribute_guestbook')
+            .select('*')
+            .eq('tribute_user_id', tributeUserId)
+            .eq('is_approved', true)
+            .eq('is_deleted', false)
+            .order('created_at', { ascending: false })
+        )
 
         if (fetchError) {
-          // 테이블 없거나 에러 시 mock 데이터 사용
-          console.warn('Guestbook fetch fallback to mock:', fetchError.message)
-          const mockEntries = getGuestbookByTributeUserId(tributeUserId)
-          setEntries(mockEntries)
+          console.error('방명록 로드 실패:', fetchError)
+          setEntries([])
         } else {
-          setEntries(data || [])
+          // DB 데이터를 GuestbookEntry 형식으로 변환
+          const converted: GuestbookEntry[] = (data || []).map((row) => ({
+            id: row.id,
+            tribute_user_id: row.tribute_user_id,
+            author_id: row.author_id,
+            author_name: row.author_name,
+            message: row.message,
+            is_member: row.is_member,
+            created_at: row.created_at,
+            author_unit: row.author_unit || null,
+          }))
+          setEntries(converted)
         }
       }
     } catch (err) {
@@ -74,7 +86,7 @@ export function useGuestbook({ tributeUserId }: UseGuestbookOptions): UseGuestbo
     } finally {
       setIsLoading(false)
     }
-  }, [tributeUserId, supabase])
+  }, [supabase, tributeUserId])
 
   // 방명록 작성
   const submitEntry = useCallback(async (message: string): Promise<boolean> => {
@@ -97,43 +109,54 @@ export function useGuestbook({ tributeUserId }: UseGuestbookOptions): UseGuestbo
     setError(null)
 
     try {
-      // 새 엔트리 객체 생성
-      const newEntry: GuestbookEntry = {
-        id: Date.now(),
-        tribute_user_id: tributeUserId,
-        author_id: user.id,
-        author_name: profile.nickname || '익명',
-        message: message.trim(),
-        is_member: profile.unit !== null, // 엑셀부/크루부 멤버인지
-        created_at: new Date().toISOString(),
-        author_unit: profile.unit,
-      }
-
       if (USE_MOCK_DATA) {
         // Mock 모드: 로컬 상태에만 추가 (새로고침 시 초기화)
+        const newEntry: GuestbookEntry = {
+          id: Date.now(),
+          tribute_user_id: tributeUserId,
+          author_id: user.id,
+          author_name: profile.nickname || '익명',
+          message: message.trim(),
+          is_member: profile.unit !== null, // 엑셀부/크루부 멤버인지
+          created_at: new Date().toISOString(),
+          author_unit: profile.unit,
+        }
         setEntries(prev => [newEntry, ...prev])
         return true
       } else {
-        // Supabase 쿼리 (테이블 미생성 시 mock fallback)
-        const { error: insertError } = await supabase
-          .from('tribute_guestbook')
-          .insert({
-            tribute_user_id: tributeUserId,
-            author_id: user.id,
-            author_name: profile.nickname || '익명',
-            message: message.trim(),
-            is_member: profile.unit !== null,
-            author_unit: profile.unit,
-          })
+        // Supabase에 방명록 작성
+        const { data: insertedData, error: insertError } = await withRetry(async () =>
+          await supabase
+            .from('tribute_guestbook')
+            .insert({
+              tribute_user_id: tributeUserId,
+              author_id: user.id,
+              author_name: profile.nickname || '익명',
+              message: message.trim(),
+              is_member: profile.unit !== null,
+            })
+            .select()
+            .single()
+        )
 
         if (insertError) {
-          // 테이블 없으면 로컬 상태만 업데이트
-          console.warn('Guestbook insert fallback to local:', insertError.message)
-          setEntries(prev => [newEntry, ...prev])
-        } else {
-          // 성공 시 새로고침
-          await fetchGuestbook()
+          console.error('방명록 작성 실패:', insertError)
+          setError('방명록 작성에 실패했습니다.')
+          return false
         }
+
+        // 성공 시 로컬 상태 업데이트
+        const newEntry: GuestbookEntry = {
+          id: insertedData.id,
+          tribute_user_id: insertedData.tribute_user_id,
+          author_id: insertedData.author_id,
+          author_name: insertedData.author_name,
+          message: insertedData.message,
+          is_member: insertedData.is_member,
+          created_at: insertedData.created_at,
+          author_unit: profile.unit,
+        }
+        setEntries(prev => [newEntry, ...prev])
         return true
       }
     } catch (err) {
@@ -143,7 +166,7 @@ export function useGuestbook({ tributeUserId }: UseGuestbookOptions): UseGuestbo
     } finally {
       setIsSubmitting(false)
     }
-  }, [canWrite, user, profile, tributeUserId, supabase, fetchGuestbook])
+  }, [supabase, canWrite, user, profile, tributeUserId])
 
   // 초기 로드
   useEffect(() => {

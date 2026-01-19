@@ -1,27 +1,14 @@
 import { Suspense } from "react";
-import { PageLayout, SideBanner } from "@/components/layout";
+import { PageLayout } from "@/components/layout";
 import Navbar from "@/components/Navbar";
-import { Hero, LiveMembers, Notice, Shorts, VOD } from "@/components/home";
+import { Hero, LiveMembers, BroadcastNotice, Shorts, VOD } from "@/components/home";
 import Footer from "@/components/Footer";
 import SectionSkeleton from "@/components/ui/SectionSkeleton";
 import styles from "./page.module.css";
 
 export default function Home() {
   return (
-    <PageLayout
-      leftBanner={
-        <SideBanner
-          src="/banners/miri-studio.jpg"
-          alt="MIRI STUDIO - Body Profile"
-        />
-      }
-      rightBanner={
-        <SideBanner
-          src="/banners/change-your-body.jpg"
-          alt="Change Your Body - 바디 프로필반"
-        />
-      }
-    >
+    <PageLayout>
       <div className={styles.main}>
         <Navbar />
         <Hero />
@@ -34,7 +21,7 @@ export default function Home() {
             </div>
             <div className={styles.liveNoticeGrid}>
               <LiveMembers />
-              <Notice />
+              <BroadcastNotice />
             </div>
           </section>
 

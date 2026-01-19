@@ -750,46 +750,6 @@
   margin-bottom: var(--space-8);
 }
 
-/* Filter Section - Season & Episode Selectors */
-.filterSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
-  padding: var(--space-4) var(--space-5);
-  background: var(--bg-darker);
-  border: 1px solid var(--border-overlay-08);
-  border-radius: var(--radius-xl);
-}
-
-/* List Loading State */
-.listLoading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  padding: var(--space-12);
-  color: var(--text-overlay-50);
-}
-
-.listLoading .spinner {
-  width: 32px;
-  height: 32px;
-  border: 2px solid var(--border-overlay-08);
-  border-top-color: var(--metallic-gold);
-}
-
-/* Empty State */
-.emptyState {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-12);
-  color: var(--text-overlay-50);
-  font-size: var(--text-sm);
-}
-
 .membersList {
   background: var(--bg-darker);
   border: 1px solid var(--border-overlay-08);
@@ -1161,7 +1121,7 @@
   }
 
   .vipBadge {
-    font-size: 0.625rem;
+    font-size: 0.6rem;
     padding: 0.5rem 0.875rem;
     letter-spacing: 1.5px;
   }
@@ -1511,22 +1471,4 @@
     rgba(184, 134, 11, 0.15) 0%,
     transparent 50%
   );
-}
-
-:global([data-theme="light"]) .filterSection {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.08);
-}
-
-:global([data-theme="light"]) .listLoading {
-  color: #71717a;
-}
-
-:global([data-theme="light"]) .listLoading .spinner {
-  border-color: rgba(0, 0, 0, 0.08);
-  border-top-color: #8b6914;
-}
-
-:global([data-theme="light"]) .emptyState {
-  color: #71717a;
 }

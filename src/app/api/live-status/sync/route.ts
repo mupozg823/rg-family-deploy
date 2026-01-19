@@ -165,11 +165,21 @@ export async function POST(request: Request) {
   })
 }
 
-// GET: API 상태 확인 (인증 불필요, 데이터 반환 안함)
-export async function GET() {
-  return NextResponse.json({
-    status: 'ok',
-    message: 'Live status sync API. Use POST with x-cron-secret header to sync.',
-    timestamp: new Date().toISOString(),
+// GET 요청으로도 호출 가능 (개발/테스트용)
+export async function GET(request: Request) {
+  // GET 요청은 x-cron-secret 헤더 대신 쿼리 파라미터로 인증
+  const { searchParams } = new URL(request.url)
+  const secret = searchParams.get('secret')
+
+  if (SYNC_SECRET && secret !== SYNC_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // POST와 동일한 로직 실행
+  const fakeRequest = new Request(request.url, {
+    method: 'POST',
+    headers: secret ? { 'x-cron-secret': secret } : {},
   })
+
+  return POST(fakeRequest)
 }

@@ -56,26 +56,15 @@
   box-shadow: var(--gold-shadow-05);
 }
 
-/* 2위 Silver 스타일 */
-.item.silver {
-  background: linear-gradient(90deg, var(--metallic-silver-bg) 0%, var(--card-bg) 30%);
-  border-color: var(--metallic-silver-border);
+/* 2,3위 Elite 스타일 (동일) */
+.item.elite {
+  background: linear-gradient(90deg, var(--overlay-subtle) 0%, var(--card-bg) 30%);
+  border-color: var(--border-overlay-15);
 }
 
-.link .item.silver:hover {
-  border-color: var(--metallic-silver);
-  box-shadow: 0 0 12px var(--metallic-silver-glow);
-}
-
-/* 3위 Bronze 스타일 */
-.item.bronze {
-  background: linear-gradient(90deg, var(--metallic-bronze-bg) 0%, var(--card-bg) 30%);
-  border-color: var(--metallic-bronze-border);
-}
-
-.link .item.bronze:hover {
-  border-color: var(--metallic-bronze);
-  box-shadow: 0 0 12px var(--metallic-bronze-glow);
+.link .item.elite:hover {
+  border-color: var(--border-overlay-25);
+  box-shadow: var(--shadow-md);
 }
 
 .item.top10 {
@@ -106,21 +95,9 @@
   font-size: var(--text-2xl);
 }
 
-/* 2위 Silver 순위 */
-.silver .rank {
-  background: var(--metallic-silver-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-size: var(--text-2xl);
-}
-
-/* 3위 Bronze 순위 */
-.bronze .rank {
-  background: var(--metallic-bronze-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* 2,3위 Elite 순위 (동일) */
+.elite .rank {
+  color: var(--text-primary);
   font-size: var(--text-2xl);
 }
 
@@ -145,17 +122,10 @@
   background: var(--surface);
 }
 
-/* 2위 Silver 아바타 */
-.silver .avatar {
-  border-color: var(--metallic-silver);
-  box-shadow: 0 0 10px var(--metallic-silver-glow);
-  background: var(--surface);
-}
-
-/* 3위 Bronze 아바타 */
-.bronze .avatar {
-  border-color: var(--metallic-bronze);
-  box-shadow: 0 0 10px var(--metallic-bronze-glow);
+/* 2,3위 Elite 아바타 (동일) */
+.elite .avatar {
+  border-color: var(--border-overlay-25);
+  box-shadow: var(--shadow-sm);
   background: var(--surface);
 }
 
@@ -198,15 +168,15 @@
   50% { background-position: 100% 50%; }
 }
 
-/* 2위 - Silver Initials */
-.silver .initials {
+/* 2,3위 - Elegant Platinum Initials (Theme Compatible) */
+.elite .initials {
   background: linear-gradient(
     135deg,
-    var(--metallic-silver-light) 0%,
-    var(--metallic-silver) 30%,
-    var(--metallic-silver-dark) 50%,
-    var(--metallic-silver) 70%,
-    var(--metallic-silver-light) 100%
+    var(--elite-gradient-from) 0%,
+    var(--elite-gradient-mid) 30%,
+    var(--elite-gradient-to) 50%,
+    var(--elite-gradient-mid) 70%,
+    var(--elite-gradient-from) 100%
   );
   background-size: 200% 200%;
   -webkit-background-clip: text;
@@ -214,36 +184,11 @@
   background-clip: text;
   font-size: var(--text-lg);
   font-weight: 900;
-  filter: drop-shadow(0 0 6px var(--metallic-silver-glow));
-  animation: listSilverShimmer 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px var(--elite-glow));
+  animation: listPlatinumShimmer 4s ease-in-out infinite;
 }
 
-@keyframes listSilverShimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-/* 3위 - Bronze Initials */
-.bronze .initials {
-  background: linear-gradient(
-    135deg,
-    var(--metallic-bronze-light) 0%,
-    var(--metallic-bronze) 30%,
-    var(--metallic-bronze-dark) 50%,
-    var(--metallic-bronze) 70%,
-    var(--metallic-bronze-light) 100%
-  );
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-size: var(--text-lg);
-  font-weight: 900;
-  filter: drop-shadow(0 0 6px var(--metallic-bronze-glow));
-  animation: listBronzeShimmer 4s ease-in-out infinite;
-}
-
-@keyframes listBronzeShimmer {
+@keyframes listPlatinumShimmer {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
@@ -286,14 +231,9 @@
   color: var(--metallic-gold);
 }
 
-/* 2위 Silver 이름 */
-.silver .name {
-  color: var(--metallic-silver);
-}
-
-/* 3위 Bronze 이름 */
-.bronze .name {
-  color: var(--metallic-bronze);
+/* 2,3위 Elite 이름 (동일) */
+.elite .name {
+  color: var(--text-primary);
 }
 
 /* Stats Row */
@@ -339,14 +279,9 @@
   background: var(--metallic-gold-gradient);
 }
 
-/* 2위 Silver 게이지 */
-.silver .gaugeFill {
-  background: var(--metallic-silver-gradient);
-}
-
-/* 3위 Bronze 게이지 */
-.bronze .gaugeFill {
-  background: var(--metallic-bronze-gradient);
+/* 2,3위 Elite 게이지 (동일) */
+.elite .gaugeFill {
+  background: linear-gradient(90deg, var(--text-tertiary), var(--text-secondary), var(--text-tertiary));
 }
 
 .gaugeGlow {
@@ -363,12 +298,8 @@
   background: var(--metallic-gold);
 }
 
-.silver .gaugeGlow {
-  background: var(--metallic-silver);
-}
-
-.bronze .gaugeGlow {
-  background: var(--metallic-bronze);
+.elite .gaugeGlow {
+  background: var(--text-secondary);
 }
 
 /* Amount Section */
@@ -390,14 +321,9 @@
   color: var(--metallic-gold);
 }
 
-/* 2위 Silver 금액 */
-.silver .amount {
-  color: var(--metallic-silver);
-}
-
-/* 3위 Bronze 금액 */
-.bronze .amount {
-  color: var(--metallic-bronze);
+/* 2,3위 Elite 금액 (동일) */
+.elite .amount {
+  color: var(--text-primary);
 }
 
 .unit {
@@ -419,8 +345,7 @@
   }
 
   .gold .rank,
-  .silver .rank,
-  .bronze .rank {
+  .elite .rank {
     font-size: var(--text-lg);
   }
 

@@ -15,7 +15,6 @@ export const mockTimelineEvents: TimelineEvent[] = [
     image_url: getTimelinePlaceholder('RG Family Launch', 'fd68ba'),
     category: 'founding',
     season_id: 1,
-    unit: null,  // 전체 (엑셀+크루)
     order_index: 1,
     created_at: '2024-01-01T00:00:00Z',
   },
@@ -27,7 +26,6 @@ export const mockTimelineEvents: TimelineEvent[] = [
     image_url: getTimelinePlaceholder('Valentine Collab', 'e91e63'),
     category: 'event',
     season_id: 1,
-    unit: 'excel',  // 엑셀부
     order_index: 2,
     created_at: '2024-02-14T00:00:00Z',
   },
@@ -39,7 +37,6 @@ export const mockTimelineEvents: TimelineEvent[] = [
     image_url: getTimelinePlaceholder('Season 2', '9c27b0'),
     category: 'milestone',
     season_id: 2,
-    unit: null,  // 전체
     order_index: 3,
     created_at: '2024-04-01T00:00:00Z',
   },
@@ -51,7 +48,6 @@ export const mockTimelineEvents: TimelineEvent[] = [
     image_url: getTimelinePlaceholder('100K Subs!', 'ffc107'),
     category: 'milestone',
     season_id: 2,
-    unit: 'crew',  // 크루부
     order_index: 4,
     created_at: '2024-06-15T00:00:00Z',
   },
@@ -63,7 +59,6 @@ export const mockTimelineEvents: TimelineEvent[] = [
     image_url: getTimelinePlaceholder('Fan Meeting', '4caf50'),
     category: 'event',
     season_id: 3,
-    unit: 'excel',  // 엑셀부
     order_index: 5,
     created_at: '2024-08-20T00:00:00Z',
   },
@@ -75,7 +70,6 @@ export const mockTimelineEvents: TimelineEvent[] = [
     image_url: getTimelinePlaceholder('Season 4', '2196f3'),
     category: 'milestone',
     season_id: 4,
-    unit: null,  // 전체
     order_index: 6,
     created_at: '2024-10-01T00:00:00Z',
   },
@@ -87,7 +81,6 @@ export const mockTimelineEvents: TimelineEvent[] = [
     image_url: getTimelinePlaceholder('Nano #1', 'ff5722'),
     category: 'member',
     season_id: 4,
-    unit: 'crew',  // 크루부
     order_index: 7,
     created_at: '2024-11-15T00:00:00Z',
   },

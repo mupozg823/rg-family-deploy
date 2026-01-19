@@ -30,7 +30,6 @@ import {
   IconReplace,
   IconPlus,
 } from '@tabler/icons-react'
-import * as XLSX from 'xlsx'
 import '@mantine/dropzone/styles.css'
 
 interface CsvRow {
@@ -79,36 +78,6 @@ export default function CsvUploader({ onUpload, columns, sampleFile, showDuplica
     return data
   }, [])
 
-  const parseExcel = useCallback((buffer: ArrayBuffer): CsvRow[] => {
-    const workbook = XLSX.read(buffer, { type: 'array' })
-    const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
-    const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
-      header: 1,
-      raw: false,
-      defval: ''
-    }) as unknown[][]
-
-    if (jsonData.length < 2) return []
-
-    const headerRow = jsonData[0] as unknown[]
-    const headers = headerRow.map(h => String(h ?? '').trim())
-    const data: CsvRow[] = []
-
-    for (let i = 1; i < jsonData.length; i++) {
-      const row: CsvRow = {}
-      const values = jsonData[i] as unknown[]
-      headers.forEach((header, idx) => {
-        row[header] = String(values?.[idx] ?? '').trim()
-      })
-      // Skip completely empty rows
-      if (Object.values(row).some(v => v !== '')) {
-        data.push(row)
-      }
-    }
-
-    return data
-  }, [])
-
   const validateData = useCallback((data: CsvRow[]): string[] => {
     const errors: string[] = []
     const requiredColumns = columns.filter(c => c.required).map(c => c.key)
@@ -128,38 +97,18 @@ export default function CsvUploader({ onUpload, columns, sampleFile, showDuplica
     const file = files[0]
     if (!file) return
 
-    const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls') ||
-      file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-      file.type === 'application/vnd.ms-excel'
-
     const reader = new FileReader()
     reader.onload = (e) => {
-      try {
-        let data: CsvRow[]
-        if (isExcel) {
-          const buffer = e.target?.result as ArrayBuffer
-          data = parseExcel(buffer)
-        } else {
-          const text = e.target?.result as string
-          data = parseCSV(text)
-        }
-        const validationErrors = validateData(data)
+      const text = e.target?.result as string
+      const data = parseCSV(text)
+      const validationErrors = validateData(data)
 
-        setParsedData(data)
-        setErrors(validationErrors)
-        setUploadResult(null)
-      } catch {
-        setErrors(['파일을 읽는 중 오류가 발생했습니다. 파일 형식을 확인해주세요.'])
-        setParsedData([])
-      }
+      setParsedData(data)
+      setErrors(validationErrors)
+      setUploadResult(null)
     }
-
-    if (isExcel) {
-      reader.readAsArrayBuffer(file)
-    } else {
-      reader.readAsText(file)
-    }
-  }, [parseCSV, parseExcel, validateData])
+    reader.readAsText(file)
+  }, [parseCSV, validateData])
 
   const handleUpload = async () => {
     if (parsedData.length === 0 || errors.length > 0) return
@@ -191,14 +140,8 @@ export default function CsvUploader({ onUpload, columns, sampleFile, showDuplica
       {/* Dropzone */}
       <Dropzone
         onDrop={handleDrop}
-        accept={[
-          MIME_TYPES.csv,
-          'text/csv',
-          MIME_TYPES.xlsx,
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-excel',
-        ]}
-        maxSize={10 * 1024 * 1024}
+        accept={[MIME_TYPES.csv, 'text/csv']}
+        maxSize={5 * 1024 * 1024}
         multiple={false}
       >
         <Group justify="center" gap="xl" mih={parsedData.length > 0 ? 80 : 140} style={{ pointerEvents: 'none' }}>
@@ -232,10 +175,10 @@ export default function CsvUploader({ onUpload, columns, sampleFile, showDuplica
             {parsedData.length === 0 ? (
               <>
                 <Text size="lg" inline fw={600}>
-                  CSV 또는 Excel 파일을 드래그하거나 클릭하여 선택
+                  CSV 파일을 드래그하거나 클릭하여 선택
                 </Text>
                 <Text size="sm" c="dimmed" inline mt={7}>
-                  {columns.map(c => c.label).join(', ')} 컬럼이 포함되어야 합니다 (.csv, .xlsx)
+                  {columns.map(c => c.label).join(', ')} 컬럼이 포함되어야 합니다
                 </Text>
                 {sampleFile && (
                   <Anchor
@@ -410,7 +353,7 @@ export default function CsvUploader({ onUpload, columns, sampleFile, showDuplica
                       </Badge>
                     )}
                     {(uploadResult.updated ?? 0) > 0 && (
-                      <Badge color="pink" variant="light" size="sm">
+                      <Badge color="blue" variant="light" size="sm">
                         업데이트: {uploadResult.updated}건
                       </Badge>
                     )}
@@ -430,7 +373,7 @@ export default function CsvUploader({ onUpload, columns, sampleFile, showDuplica
                       </Badge>
                     )}
                     {(uploadResult.updated ?? 0) > 0 && (
-                      <Badge color="pink" variant="light" size="sm">
+                      <Badge color="blue" variant="light" size="sm">
                         업데이트: {uploadResult.updated}건
                       </Badge>
                     )}

@@ -1,8 +1,9 @@
 'use client'
 
-import { Users } from 'lucide-react'
-import { DataTable, Column, AdminModal } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Users, X, Save } from 'lucide-react'
+import { DataTable, Column } from '@/components/admin'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import { formatAmount } from '@/lib/utils/format'
 import styles from '../shared.module.css'
 
@@ -22,6 +23,8 @@ const formatShortDate = (dateStr: string): string => {
 }
 
 export default function MembersPage() {
+  const alertHandler = useAlert()
+
   const {
     items: members,
     isLoading,
@@ -49,6 +52,7 @@ export default function MembersPage() {
       role: item.role,
       unit: item.unit,
     }),
+    alertHandler,
   })
 
   const getRoleBadge = (role: string) => {
@@ -105,7 +109,7 @@ export default function MembersPage() {
     {
       key: 'createdAt',
       header: '가입일',
-      width: '120px',
+      width: '140px',
       render: (item) => formatShortDate(item.createdAt),
     },
   ]
@@ -131,61 +135,91 @@ export default function MembersPage() {
       />
 
       {/* Edit Modal */}
-      {editingMember && (
-        <AdminModal
-          isOpen={isModalOpen}
-          title="회원 수정"
-          onClose={closeModal}
-          onSave={handleSave}
-        >
-          <div className={styles.formGroup}>
-            <label>닉네임</label>
-            <input
-              type="text"
-              value={editingMember.nickname || ''}
-              onChange={(e) =>
-                setEditingMember({ ...editingMember, nickname: e.target.value })
-              }
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>역할</label>
-            <select
-              value={editingMember.role || 'member'}
-              onChange={(e) =>
-                setEditingMember({ ...editingMember, role: e.target.value as Member['role'] })
-              }
-              className={styles.select}
+      <AnimatePresence>
+        {isModalOpen && editingMember && (
+          <motion.div
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeModal}
+          >
+            <motion.div
+              className={styles.modal}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <option value="member">회원</option>
-              <option value="vip">VIP</option>
-              <option value="moderator">운영자</option>
-              <option value="admin">관리자</option>
-              <option value="superadmin">최고관리자</option>
-            </select>
-          </div>
+              <div className={styles.modalHeader}>
+                <h2>회원 수정</h2>
+                <button onClick={closeModal} className={styles.closeButton}>
+                  <X size={20} />
+                </button>
+              </div>
 
-          <div className={styles.formGroup}>
-            <label>부서</label>
-            <select
-              value={editingMember.unit || ''}
-              onChange={(e) =>
-                setEditingMember({
-                  ...editingMember,
-                  unit: e.target.value === '' ? null : (e.target.value as 'excel' | 'crew'),
-                })
-              }
-              className={styles.select}
-            >
-              <option value="">미지정</option>
-              <option value="excel">엑셀부</option>
-              <option value="crew">크루부</option>
-            </select>
-          </div>
-        </AdminModal>
-      )}
+              <div className={styles.modalBody}>
+                <div className={styles.formGroup}>
+                  <label>닉네임</label>
+                  <input
+                    type="text"
+                    value={editingMember.nickname || ''}
+                    onChange={(e) =>
+                      setEditingMember({ ...editingMember, nickname: e.target.value })
+                    }
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>역할</label>
+                  <select
+                    value={editingMember.role || 'member'}
+                    onChange={(e) =>
+                      setEditingMember({ ...editingMember, role: e.target.value as Member['role'] })
+                    }
+                    className={styles.select}
+                  >
+                    <option value="member">회원</option>
+                    <option value="vip">VIP</option>
+                    <option value="moderator">운영자</option>
+                    <option value="admin">관리자</option>
+                    <option value="superadmin">최고관리자</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>부서</label>
+                  <select
+                    value={editingMember.unit || ''}
+                    onChange={(e) =>
+                      setEditingMember({
+                        ...editingMember,
+                        unit: e.target.value === '' ? null : (e.target.value as 'excel' | 'crew'),
+                      })
+                    }
+                    className={styles.select}
+                  >
+                    <option value="">미지정</option>
+                    <option value="excel">엑셀부</option>
+                    <option value="crew">크루부</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button onClick={closeModal} className={styles.cancelButton}>
+                  취소
+                </button>
+                <button onClick={handleSave} className={styles.saveButton}>
+                  <Save size={16} />
+                  저장
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

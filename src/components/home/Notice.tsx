@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Pin, ChevronRight } from "lucide-react";
-import { useNotices } from "@/lib/context";
+import { useSupabaseContext } from "@/lib/context";
 import styles from "./Notice.module.css";
 
 interface NoticeItem {
@@ -17,44 +17,41 @@ interface NoticeItem {
 }
 
 export default function Notice() {
-  const noticesRepo = useNotices();
+  const supabase = useSupabaseContext();
   const [notices, setNotices] = useState<NoticeItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchNotices = useCallback(async () => {
-    const data = await noticesRepo.findAll();
-    const sorted = [...data]
-      .sort((a, b) => {
-        if (a.is_pinned !== b.is_pinned) return b.is_pinned ? 1 : -1;
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      })
-      .slice(0, 2);
+    const { data, error } = await supabase
+      .from("notices")
+      .select("id, title, content, is_pinned, created_at, thumbnail_url")
+      .order("is_pinned", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(2);
 
-    setNotices(
-      sorted.map((n) => ({
-        id: n.id,
-        title: n.title,
-        content: n.content || "",
-        isPinned: n.is_pinned,
-        createdAt: n.created_at,
-        thumbnailUrl: n.thumbnail_url,
-      }))
-    );
+    if (error) {
+      console.error("공지사항 로드 실패:", error);
+    } else {
+      setNotices(
+        (data || []).map((n) => ({
+          id: n.id,
+          title: n.title,
+          content: n.content || "",
+          isPinned: n.is_pinned,
+          createdAt: n.created_at,
+          thumbnailUrl: n.thumbnail_url,
+        }))
+      );
+    }
+
     setIsLoading(false);
-  }, [noticesRepo]);
+  }, [supabase]);
 
   useEffect(() => {
-    let mounted = true;
-
     const init = async () => {
       await fetchNotices();
-      // mounted check는 fetchNotices 내부에서 처리됨
     };
     init();
-
-    return () => {
-      mounted = false;
-    };
   }, [fetchNotices]);
 
   const getPreviewLines = (content: string, maxLines: number = 2) => {

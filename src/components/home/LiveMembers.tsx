@@ -14,6 +14,7 @@ interface LiveMember {
   avatarUrl: string | null
   isLive: boolean
   unit: 'excel' | 'crew'
+  pandatvId: string | null
 }
 
 export default function LiveMembers() {
@@ -31,13 +32,17 @@ export default function LiveMembers() {
     )
   }
 
-  const members: LiveMember[] = rosterMembers.map((member) => ({
-    id: member.id,
-    nickname: member.name,
-    avatarUrl: member.image_url,
-    isLive: Boolean(member.is_live),
-    unit: member.unit,
-  }))
+  const members: LiveMember[] = rosterMembers
+    .map((member) => ({
+      id: member.id,
+      nickname: member.name,
+      avatarUrl: member.image_url,
+      isLive: Boolean(member.is_live),
+      unit: member.unit,
+      pandatvId: member.social_links?.pandatv || null,
+    }))
+    // 라이브 중인 멤버 먼저 정렬
+    .sort((a, b) => (b.isLive ? 1 : 0) - (a.isLive ? 1 : 0))
 
   if (members.length === 0) {
     return (
@@ -70,33 +75,56 @@ export default function LiveMembers() {
       </div>
 
       <div className={`${styles.grid} ${displayMembers.length <= 4 ? styles.singleRow : ''}`}>
-        {displayMembers.map((member) => (
-          <div key={member.id} className={styles.member}>
-            <div className={`${styles.avatarWrapper} ${member.isLive ? styles.isLive : ''}`}>
-              {member.isLive && (
-                <span className={styles.liveBadge}>
-                  LIVE
-                </span>
-              )}
-              <div className={`${styles.avatar} ${member.isLive ? styles.avatarLive : ''} ${member.unit === 'crew' ? styles.crew : ''}`}>
-                {member.avatarUrl ? (
-                  <Image
-                    src={member.avatarUrl}
-                    alt={member.nickname}
-                    fill
-                    className={styles.avatarImage}
-                    unoptimized
-                  />
-                ) : (
-                  <div className={styles.avatarPlaceholder}>
-                    {member.nickname.charAt(0)}
-                  </div>
+        {displayMembers.map((member) => {
+          const isClickable = member.isLive && member.pandatvId
+          const broadcastUrl = member.pandatvId
+            ? `https://www.pandalive.co.kr/live/play/${member.pandatvId}`
+            : undefined
+
+          const memberContent = (
+            <>
+              <div className={`${styles.avatarWrapper} ${member.isLive ? styles.isLive : ''}`}>
+                {member.isLive && (
+                  <span className={styles.liveBadge}>
+                    LIVE
+                  </span>
                 )}
+                <div className={`${styles.avatar} ${member.isLive ? styles.avatarLive : ''} ${member.unit === 'crew' ? styles.crew : ''}`}>
+                  {member.avatarUrl ? (
+                    <Image
+                      src={member.avatarUrl}
+                      alt={member.nickname}
+                      fill
+                      className={styles.avatarImage}
+                      unoptimized
+                    />
+                  ) : (
+                    <div className={styles.avatarPlaceholder}>
+                      {member.nickname.charAt(0)}
+                    </div>
+                  )}
+                </div>
               </div>
+              <span className={styles.name}>{member.nickname}</span>
+            </>
+          )
+
+          return isClickable ? (
+            <a
+              key={member.id}
+              href={broadcastUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.member} ${styles.clickable}`}
+            >
+              {memberContent}
+            </a>
+          ) : (
+            <div key={member.id} className={styles.member}>
+              {memberContent}
             </div>
-            <span className={styles.name}>{member.nickname}</span>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </section>
   )

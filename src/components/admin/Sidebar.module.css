@@ -3,8 +3,8 @@
   top: 0;
   left: 0;
   height: 100vh;
-  background: var(--color-surface);
-  border-right: 1px solid var(--color-border);
+  background: var(--card-bg);
+  border-right: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -16,14 +16,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 1rem;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--card-border);
   min-height: 72px;
 }
 
 .logoText {
   font-size: 1.25rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -39,15 +39,15 @@
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: var(--color-text-secondary);
+  color: var(--text-tertiary);
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .toggleButton:hover {
-  background: var(--color-background);
-  color: var(--color-primary);
+  background: var(--surface);
+  color: var(--primary);
 }
 
 .nav {
@@ -63,7 +63,7 @@
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  color: var(--color-text-secondary);
+  color: var(--text-tertiary);
   text-decoration: none;
   transition: all 0.2s ease;
   margin-bottom: 0.25rem;
@@ -71,13 +71,13 @@
 }
 
 .navItem:hover {
-  background: var(--color-background);
-  color: var(--color-text);
+  background: var(--surface);
+  color: var(--text-primary);
 }
 
 .navItem.active {
   background: var(--color-pink-overlay-10);
-  color: var(--color-primary);
+  color: var(--primary);
 }
 
 .icon {
@@ -97,13 +97,13 @@
   transform: translateY(-50%);
   width: 3px;
   height: 60%;
-  background: var(--color-primary);
+  background: var(--primary);
   border-radius: 0 4px 4px 0;
 }
 
 .footer {
   padding: 1rem 0.5rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--card-border);
 }
 
 .footerItem {
@@ -112,14 +112,18 @@
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  color: var(--color-text-secondary);
+  color: var(--text-tertiary);
   text-decoration: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .footerItem:hover {
-  background: var(--color-background);
-  color: var(--color-text);
+  background: var(--surface);
+  color: var(--text-primary);
 }
 
 /* Responsive - Tablet (1024px) */

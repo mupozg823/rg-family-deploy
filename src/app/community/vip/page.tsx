@@ -2,27 +2,35 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { MessageSquare, Crown, Lock } from 'lucide-react'
+import { MessageSquare, Eye, ChevronRight, Crown, Lock } from 'lucide-react'
 import { PageLayout } from '@/components/layout'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { Pagination } from '@/components/common'
-import { useAuthContext, usePosts } from '@/lib/context'
+import { useSupabaseContext, useAuthContext } from '@/lib/context'
 import { useVipStatus } from '@/lib/hooks'
-import { formatRelativeTime } from '@/lib/utils/format'
+import { withRetry } from '@/lib/utils/fetch-with-retry'
+import { formatShortDate } from '@/lib/utils/format'
 import TabFilter from '@/components/community/TabFilter'
-import type { PostItem } from '@/types/content'
+import type { JoinedProfile } from '@/types/common'
 import styles from '../free/page.module.css'
 
-const ITEMS_PER_PAGE = 20
+interface Post {
+  id: number
+  title: string
+  authorName: string
+  authorRealName?: string // 관리자용 실제 닉네임
+  isAnonymous: boolean
+  viewCount: number
+  commentCount: number
+  createdAt: string
+}
 
 export default function VipBoardPage() {
-  const postsRepo = usePosts()
-  const { user } = useAuthContext()
+  const supabase = useSupabaseContext()
+  const { user, profile } = useAuthContext()
+  const isAdmin = profile && ['admin', 'superadmin', 'moderator'].includes(profile.role)
   const { isVip, isLoading: vipStatusLoading } = useVipStatus()
-  const [posts, setPosts] = useState<PostItem[]>([])
-  const [totalPages, setTotalPages] = useState(1)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   const tabs = [
@@ -30,32 +38,56 @@ export default function VipBoardPage() {
     { label: 'VIP 라운지 (VIP)', value: 'vip', path: '/community/vip' },
   ]
 
-  const fetchPosts = useCallback(async (page: number) => {
-    const result = await postsRepo.findPaginated('vip', {
-      page,
-      limit: ITEMS_PER_PAGE,
-    })
-    setPosts(result.data)
-    setTotalPages(result.totalPages)
-    setIsLoading(false)
-  }, [postsRepo])
-
-  useEffect(() => {
-    // VIP 상태 확인 중이거나 VIP가 아니면 데이터 fetch 스킵
-    if (vipStatusLoading || !isVip) {
+  const fetchPosts = useCallback(async () => {
+    if (vipStatusLoading) {
       return
     }
 
-    void fetchPosts(currentPage)
-  }, [fetchPosts, currentPage, isVip, vipStatusLoading])
+    if (!isVip) {
+      setIsLoading(false)
+      return
+    }
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+    setIsLoading(true)
 
-  // VIP가 아닌 경우 로딩 상태 동기화 (effect 외부에서 파생 상태로 처리)
-  const effectiveLoading = vipStatusLoading || (isVip && isLoading)
+    const { data, error } = await withRetry(async () =>
+      await supabase
+        .from('posts')
+        .select('id, title, view_count, is_anonymous, created_at, profiles!author_id(nickname), comments(id)')
+        .eq('board_type', 'vip')
+        .order('created_at', { ascending: false })
+        .limit(20)
+    )
+
+    if (error) {
+      console.error('게시글 로드 실패:', error)
+    } else {
+      setPosts(
+        (data || []).map((p) => {
+          const postProfile = p.profiles as JoinedProfile | null
+          const comments = p.comments as unknown[] | null
+          const isAnon = (p as { is_anonymous?: boolean }).is_anonymous || false
+          const realNickname = postProfile?.nickname || '알 수 없음'
+          return {
+            id: p.id,
+            title: p.title,
+            authorName: isAnon ? '익명' : realNickname,
+            authorRealName: isAnon ? realNickname : undefined,
+            isAnonymous: isAnon,
+            viewCount: p.view_count || 0,
+            commentCount: comments?.length || 0,
+            createdAt: p.created_at,
+          }
+        })
+      )
+    }
+
+    setIsLoading(false)
+  }, [supabase, isVip, vipStatusLoading])
+
+  useEffect(() => {
+    fetchPosts()
+  }, [fetchPosts])
 
 
   return (
@@ -95,7 +127,7 @@ export default function VipBoardPage() {
             <p>후원 랭킹 <strong>Top 50</strong>만 VIP 라운지 이용이 가능합니다.</p>
             <Link href="/ranking" className={styles.loginBtn}>후원 랭킹 보기</Link>
           </div>
-        ) : effectiveLoading ? (
+        ) : isLoading ? (
           <div className={styles.loading}>
             <div className={styles.spinner} />
             <span>게시글을 불러오는 중...</span>
@@ -135,8 +167,11 @@ export default function VipBoardPage() {
                   <span className={`${styles.cellAuthor} ${styles.authorVip}`}>
                     <Crown size={10} />
                     {post.authorName}
+                    {isAdmin && post.isAnonymous && post.authorRealName && (
+                      <span className={styles.adminRealName}>({post.authorRealName})</span>
+                    )}
                   </span>
-                  <span className={styles.cellDate}>{formatRelativeTime(post.createdAt)}</span>
+                  <span className={styles.cellDate}>{formatShortDate(post.createdAt)}</span>
                   <span className={styles.cellViews}>{post.viewCount.toLocaleString()}</span>
                 </Link>
               ))}
@@ -146,12 +181,12 @@ export default function VipBoardPage() {
 
         {isVip && (
           <div className={styles.boardFooter}>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-            <Link href="/community/write?board=vip" className={`${styles.writeBtn} ${styles.vipWriteBtn}`}>
+            <div className={styles.pagination}>
+              <button className={styles.pageBtn} disabled>«</button>
+              <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
+              <button className={styles.pageBtn}>»</button>
+            </div>
+            <Link href="/community/vip/write" className={`${styles.writeBtn} ${styles.vipWriteBtn}`}>
               <Crown size={14} />
               글쓰기
             </Link>

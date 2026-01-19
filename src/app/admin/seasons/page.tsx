@@ -1,8 +1,9 @@
 'use client'
 
-import { Calendar, Plus } from 'lucide-react'
-import { DataTable, Column, AdminModal } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Calendar, Plus, X, Save } from 'lucide-react'
+import { DataTable, Column } from '@/components/admin'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import { useSupabaseContext } from '@/lib/context'
 import styles from '../shared.module.css'
 
@@ -17,6 +18,7 @@ interface Season {
 
 export default function SeasonsPage() {
   const supabase = useSupabaseContext()
+  const alertHandler = useAlert()
 
   const {
     items: seasons,
@@ -57,7 +59,7 @@ export default function SeasonsPage() {
       if (!item.name) return '시즌 이름을 입력해주세요.'
       return null
     },
-    beforeSave: async (item) => {
+    beforeSave: async (item, _isNew) => {
       // 활성화 시 다른 시즌 비활성화
       if (item.isActive) {
         await supabase
@@ -66,7 +68,8 @@ export default function SeasonsPage() {
           .neq('id', item.id || 0)
       }
     },
-    deleteConfirmMessage: '정말 삭제하시겠습니까? 관련된 모든 데이터가 삭제됩니다.',
+    deleteConfirmMessage: '정말 삭제하시겠습니까?\n\n관련된 모든 데이터가 함께 삭제됩니다.',
+    alertHandler,
   })
 
   const formatDate = (dateStr: string) => {
@@ -82,14 +85,14 @@ export default function SeasonsPage() {
     {
       key: 'startDate',
       header: '시작일',
-      width: '150px',
-      render: (item) => formatDate(item.startDate),
+      width: '160px',
+      render: (item) => <span style={{ whiteSpace: 'nowrap' }}>{formatDate(item.startDate)}</span>,
     },
     {
       key: 'endDate',
       header: '종료일',
-      width: '150px',
-      render: (item) => (item.endDate ? formatDate(item.endDate) : '-'),
+      width: '160px',
+      render: (item) => <span style={{ whiteSpace: 'nowrap' }}>{item.endDate ? formatDate(item.endDate) : '-'}</span>,
     },
     {
       key: 'isActive',
@@ -104,8 +107,8 @@ export default function SeasonsPage() {
     {
       key: 'createdAt',
       header: '생성일',
-      width: '150px',
-      render: (item) => formatDate(item.createdAt),
+      width: '160px',
+      render: (item) => <span style={{ whiteSpace: 'nowrap' }}>{formatDate(item.createdAt)}</span>,
     },
   ]
 
@@ -135,69 +138,98 @@ export default function SeasonsPage() {
       />
 
       {/* Modal */}
-      {editingSeason && (
-        <AdminModal
-          isOpen={isModalOpen}
-          title={isNew ? '시즌 추가' : '시즌 수정'}
-          onClose={closeModal}
-          onSave={handleSave}
-          saveLabel={isNew ? '추가' : '저장'}
-        >
-          <div className={styles.formGroup}>
-            <label>시즌명</label>
-            <input
-              type="text"
-              value={editingSeason.name || ''}
-              onChange={(e) =>
-                setEditingSeason({ ...editingSeason, name: e.target.value })
-              }
-              className={styles.input}
-              placeholder="예: 2024년 1분기"
-            />
-          </div>
+      <AnimatePresence>
+        {isModalOpen && editingSeason && (
+          <motion.div
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeModal}
+          >
+            <motion.div
+              className={styles.modal}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.modalHeader}>
+                <h2>{isNew ? '시즌 추가' : '시즌 수정'}</h2>
+                <button onClick={closeModal} className={styles.closeButton}>
+                  <X size={20} />
+                </button>
+              </div>
 
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>시작일</label>
-              <input
-                type="date"
-                value={editingSeason.startDate || ''}
-                onChange={(e) =>
-                  setEditingSeason({ ...editingSeason, startDate: e.target.value })
-                }
-                className={styles.input}
-              />
-            </div>
+              <div className={styles.modalBody}>
+                <div className={styles.formGroup}>
+                  <label>시즌명</label>
+                  <input
+                    type="text"
+                    value={editingSeason.name || ''}
+                    onChange={(e) =>
+                      setEditingSeason({ ...editingSeason, name: e.target.value })
+                    }
+                    className={styles.input}
+                    placeholder="예: 2024년 1분기"
+                  />
+                </div>
 
-            <div className={styles.formGroup}>
-              <label>종료일</label>
-              <input
-                type="date"
-                value={editingSeason.endDate || ''}
-                onChange={(e) =>
-                  setEditingSeason({ ...editingSeason, endDate: e.target.value || null })
-                }
-                className={styles.input}
-              />
-            </div>
-          </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>시작일</label>
+                    <input
+                      type="date"
+                      value={editingSeason.startDate || ''}
+                      onChange={(e) =>
+                        setEditingSeason({ ...editingSeason, startDate: e.target.value })
+                      }
+                      className={styles.input}
+                    />
+                  </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={editingSeason.isActive || false}
-                onChange={(e) =>
-                  setEditingSeason({ ...editingSeason, isActive: e.target.checked })
-                }
-                className={styles.checkbox}
-              />
-              <span>활성 시즌으로 설정</span>
-            </label>
-            <p className={styles.hint}>활성화 시 다른 시즌은 자동으로 비활성화됩니다.</p>
-          </div>
-        </AdminModal>
-      )}
+                  <div className={styles.formGroup}>
+                    <label>종료일</label>
+                    <input
+                      type="date"
+                      value={editingSeason.endDate || ''}
+                      onChange={(e) =>
+                        setEditingSeason({ ...editingSeason, endDate: e.target.value || null })
+                      }
+                      className={styles.input}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={editingSeason.isActive || false}
+                      onChange={(e) =>
+                        setEditingSeason({ ...editingSeason, isActive: e.target.checked })
+                      }
+                      className={styles.checkbox}
+                    />
+                    <span>활성 시즌으로 설정</span>
+                  </label>
+                  <p className={styles.hint}>활성화 시 다른 시즌은 자동으로 비활성화됩니다.</p>
+                </div>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button onClick={closeModal} className={styles.cancelButton}>
+                  취소
+                </button>
+                <button onClick={handleSave} className={styles.saveButton}>
+                  <Save size={16} />
+                  {isNew ? '추가' : '저장'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

@@ -66,26 +66,17 @@
   color: var(--text-primary);
 }
 
-/* Grid Layout */
+/* Grid Layout - 가로 우선 (라이브 멤버가 왼쪽부터 채워짐) */
 .grid {
   display: grid;
-  grid-template-rows: repeat(2, auto);
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(90px, auto);
-  gap: 1rem 1.5rem;
+  grid-template-columns: repeat(4, minmax(90px, 1fr));
+  gap: 1.5rem 1.5rem;
   padding: 0.5rem 0 1rem 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.grid::-webkit-scrollbar {
-  display: none;
 }
 
 .grid.singleRow {
-  grid-template-rows: auto;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  max-width: 480px;
 }
 
 /* Member Card */
@@ -94,9 +85,13 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
   min-width: 90px;
   transition: transform 0.2s ease;
+  text-decoration: none;
+}
+
+.member.clickable {
+  cursor: pointer;
 }
 
 .member:hover {
@@ -249,11 +244,12 @@
 /* Responsive */
 @media (max-width: 768px) {
   .grid {
-    gap: 0.75rem 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem 0.75rem;
   }
 
   .member {
-    min-width: 80px;
+    min-width: unset;
   }
 
   .avatarWrapper {
@@ -281,12 +277,13 @@
   }
 
   .grid {
-    gap: 0.5rem 0.75rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem 0.5rem;
     padding: 0.25rem 0 0.75rem 0;
   }
 
   .member {
-    min-width: 70px;
+    min-width: unset;
     gap: 6px;
   }
 
@@ -299,7 +296,7 @@
     top: -2px;
     right: -2px;
     padding: 0.15rem 0.3rem;
-    font-size: 0.625rem;
+    font-size: 0.5rem;
   }
 
   .name {

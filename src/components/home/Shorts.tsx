@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Play, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useMediaContent } from "@/lib/context";
+import { useSupabaseContext } from "@/lib/context";
 import { getYouTubeShortsEmbedUrl, getYouTubeThumbnail, extractYouTubeId } from "@/lib/utils/youtube";
 import styles from "./Shorts.module.css";
 
@@ -18,7 +18,7 @@ interface ShortItem {
 type UnitFilter = "all" | "excel" | "crew";
 
 export default function Shorts() {
-  const mediaContentRepo = useMediaContent();
+  const supabase = useSupabaseContext();
   const [shorts, setShorts] = useState<ShortItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeUnit, setActiveUnit] = useState<UnitFilter>("all");
@@ -26,34 +26,35 @@ export default function Shorts() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const fetchShorts = useCallback(async () => {
-    // setIsLoading(true) // Removed to prevent synchronous state update
+    const { data, error } = await supabase
+      .from("media_content")
+      .select("id, title, video_url, thumbnail_url, unit")
+      .eq("content_type", "shorts")
+      .order("created_at", { ascending: false })
+      .limit(12);
 
-    const data = await mediaContentRepo.findByType("shorts");
-    const shortsData = data.slice(0, 12);
-    setShorts(
-      shortsData.map((s) => ({
-        id: s.id,
-        title: s.title,
-        videoUrl: s.video_url,
-        thumbnailUrl: s.thumbnail_url || getYouTubeThumbnail(s.video_url, "hq") || "",
-        unit: s.unit,
-      }))
-    );
+    if (error) {
+      console.error("숏폼 로드 실패:", error);
+    } else {
+      setShorts(
+        (data || []).map((s) => ({
+          id: s.id,
+          title: s.title,
+          videoUrl: s.video_url,
+          thumbnailUrl: s.thumbnail_url || getYouTubeThumbnail(s.video_url, "hq") || "",
+          unit: s.unit,
+        }))
+      );
+    }
+
     setIsLoading(false);
-  }, [mediaContentRepo]);
+  }, [supabase]);
 
   useEffect(() => {
-    let mounted = true;
-
     const init = async () => {
       await fetchShorts();
-      // mounted check는 fetchShorts 내부에서 처리됨
     };
     init();
-
-    return () => {
-      mounted = false;
-    };
   }, [fetchShorts]);
 
   const scroll = (direction: "left" | "right") => {
@@ -155,7 +156,6 @@ export default function Shorts() {
                   alt={short.title}
                   fill
                   className={styles.thumbnailImage}
-                  unoptimized={short.thumbnailUrl.includes('youtube.com') || short.thumbnailUrl.includes('ytimg.com')}
                 />
               ) : (
                 <div className={styles.thumbnailPlaceholder} />

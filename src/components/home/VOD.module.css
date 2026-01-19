@@ -208,7 +208,7 @@
   backdrop-filter: blur(8px);
   border: 1px solid var(--overlay-strong);
   color: var(--text-primary);
-  font-size: 0.625rem;
+  font-size: 0.6rem;
   font-weight: 700;
   border-radius: 4px;
   text-transform: uppercase;
@@ -440,7 +440,7 @@
   }
 
   .unitBadge {
-    font-size: 0.625rem;
+    font-size: 0.55rem;
     padding: 2px 6px;
   }
 

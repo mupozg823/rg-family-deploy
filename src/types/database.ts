@@ -83,7 +83,7 @@ export type Database = {
           parent_id: number | null
           image_url: string | null
           social_links: Json | null
-          member_profile: Json | null
+          profile_info: Json | null
           is_live: boolean
           is_active: boolean
           created_at: string
@@ -98,7 +98,7 @@ export type Database = {
           parent_id?: number | null
           image_url?: string | null
           social_links?: Json | null
-          member_profile?: Json | null
+          profile_info?: Json | null
           is_live?: boolean
           is_active?: boolean
           created_at?: string
@@ -113,7 +113,7 @@ export type Database = {
           parent_id?: number | null
           image_url?: string | null
           social_links?: Json | null
-          member_profile?: Json | null
+          profile_info?: Json | null
           is_live?: boolean
           is_active?: boolean
           created_at?: string
@@ -133,6 +133,46 @@ export type Database = {
           }
         ]
       }
+      episodes: {
+        Row: {
+          id: number
+          season_id: number
+          episode_number: number
+          title: string
+          broadcast_date: string
+          is_rank_battle: boolean
+          description: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          season_id: number
+          episode_number: number
+          title: string
+          broadcast_date: string
+          is_rank_battle?: boolean
+          description?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          season_id?: number
+          episode_number?: number
+          title?: string
+          broadcast_date?: string
+          is_rank_battle?: boolean
+          description?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'episodes_season_id_fkey'
+            columns: ['season_id']
+            referencedRelation: 'seasons'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       donations: {
         Row: {
           id: number
@@ -140,7 +180,6 @@ export type Database = {
           donor_name: string
           amount: number
           season_id: number
-          episode_id: number | null
           unit: 'excel' | 'crew' | null
           message: string | null
           created_at: string
@@ -151,7 +190,6 @@ export type Database = {
           donor_name: string
           amount: number
           season_id: number
-          episode_id?: number | null
           unit?: 'excel' | 'crew' | null
           message?: string | null
           created_at?: string
@@ -162,7 +200,6 @@ export type Database = {
           donor_name?: string
           amount?: number
           season_id?: number
-          episode_id?: number | null
           unit?: 'excel' | 'crew' | null
           message?: string | null
           created_at?: string
@@ -178,12 +215,6 @@ export type Database = {
             foreignKeyName: 'donations_season_id_fkey'
             columns: ['season_id']
             referencedRelation: 'seasons'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'donations_episode_id_fkey'
-            columns: ['episode_id']
-            referencedRelation: 'episodes'
             referencedColumns: ['id']
           }
         ]
@@ -371,7 +402,6 @@ export type Database = {
           image_url: string | null
           category: string | null
           season_id: number | null
-          unit: 'excel' | 'crew' | null
           order_index: number
           created_at: string
         }
@@ -383,7 +413,6 @@ export type Database = {
           image_url?: string | null
           category?: string | null
           season_id?: number | null
-          unit?: 'excel' | 'crew' | null
           order_index?: number
           created_at?: string
         }
@@ -395,7 +424,6 @@ export type Database = {
           image_url?: string | null
           category?: string | null
           season_id?: number | null
-          unit?: 'excel' | 'crew' | null
           order_index?: number
           created_at?: string
         }
@@ -513,6 +541,7 @@ export type Database = {
           author_id: string
           content: string
           parent_id: number | null
+          is_anonymous: boolean
           is_deleted: boolean
           created_at: string
         }
@@ -522,6 +551,7 @@ export type Database = {
           author_id: string
           content: string
           parent_id?: number | null
+          is_anonymous?: boolean
           is_deleted?: boolean
           created_at?: string
         }
@@ -531,6 +561,7 @@ export type Database = {
           author_id?: string
           content?: string
           parent_id?: number | null
+          is_anonymous?: boolean
           is_deleted?: boolean
           created_at?: string
         }
@@ -637,46 +668,6 @@ export type Database = {
           }
         ]
       }
-      episodes: {
-        Row: {
-          id: number
-          season_id: number
-          episode_number: number
-          title: string
-          broadcast_date: string
-          is_rank_battle: boolean
-          description: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: number
-          season_id: number
-          episode_number: number
-          title: string
-          broadcast_date: string
-          is_rank_battle?: boolean
-          description?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: number
-          season_id?: number
-          episode_number?: number
-          title?: string
-          broadcast_date?: string
-          is_rank_battle?: boolean
-          description?: string | null
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'episodes_season_id_fkey'
-            columns: ['season_id']
-            referencedRelation: 'seasons'
-            referencedColumns: ['id']
-          }
-        ]
-      }
       banners: {
         Row: {
           id: number
@@ -762,40 +753,6 @@ export type Database = {
           }
         ]
       }
-      post_likes: {
-        Row: {
-          id: number
-          post_id: number
-          user_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: number
-          post_id: number
-          user_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: number
-          post_id?: number
-          user_id?: string
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'post_likes_post_id_fkey'
-            columns: ['post_id']
-            referencedRelation: 'posts'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'post_likes_user_id_fkey'
-            columns: ['user_id']
-            referencedRelation: 'profiles'
-            referencedColumns: ['id']
-          }
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -848,8 +805,8 @@ export type UpdateTables<T extends keyof Database['public']['Tables']> = Databas
 export type Profile = Tables<'profiles'>
 export type Season = Tables<'seasons'>
 export type Organization = Tables<'organization'>
-export type Donation = Tables<'donations'>
 export type Episode = Tables<'episodes'>
+export type Donation = Tables<'donations'>
 export type VipReward = Tables<'vip_rewards'>
 export type VipImage = Tables<'vip_images'>
 export type Signature = Tables<'signatures'>
@@ -862,7 +819,6 @@ export type MediaContent = Tables<'media_content'>
 export type LiveStatus = Tables<'live_status'>
 export type Banner = Tables<'banners'>
 export type TributeGuestbook = Tables<'tribute_guestbook'>
-export type PostLike = Tables<'post_likes'>
 
 // Unit type
 export type Unit = 'excel' | 'crew'

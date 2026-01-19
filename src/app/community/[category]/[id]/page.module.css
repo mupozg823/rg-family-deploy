@@ -113,49 +113,6 @@
   margin-bottom: 0;
 }
 
-/* Article Actions (Like Button) */
-.articleActions {
-  display: flex;
-  justify-content: center;
-  padding: 1.5rem;
-  border-top: 1px solid var(--color-border);
-}
-
-.likeButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: 24px;
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.likeButton:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.likeButton.liked {
-  background: rgba(253, 104, 186, 0.1);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.likeButton.liked svg {
-  fill: var(--color-primary);
-}
-
-.likeButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 /* Comments */
 .comments {
   margin-top: 2rem;

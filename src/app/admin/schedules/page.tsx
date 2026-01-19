@@ -1,8 +1,9 @@
 'use client'
 
-import { CalendarDays, Plus } from 'lucide-react'
-import { DataTable, Column, AdminModal } from '@/components/admin'
-import { useAdminCRUD } from '@/lib/hooks'
+import { motion, AnimatePresence } from 'framer-motion'
+import { CalendarDays, Plus, X, Save } from 'lucide-react'
+import { DataTable, Column } from '@/components/admin'
+import { useAdminCRUD, useAlert } from '@/lib/hooks'
 import styles from '../shared.module.css'
 
 type EventType = 'broadcast' | 'collab' | 'event' | 'notice' | '休'
@@ -28,7 +29,7 @@ const eventTypeLabels: Record<EventType, string> = {
 }
 
 const eventTypeColors: Record<EventType, string> = {
-  broadcast: 'rgba(253, 104, 186, 0.15)',
+  broadcast: 'rgba(196, 30, 127, 0.15)',
   collab: 'rgba(96, 165, 250, 0.15)',
   event: 'rgba(59, 130, 246, 0.15)',
   notice: 'rgba(234, 179, 8, 0.15)',
@@ -36,6 +37,8 @@ const eventTypeColors: Record<EventType, string> = {
 }
 
 export default function SchedulesPage() {
+  const alertHandler = useAlert()
+
   const getDefaultStartDatetime = () => {
     const now = new Date()
     now.setHours(20, 0, 0, 0)
@@ -90,6 +93,7 @@ export default function SchedulesPage() {
       if (!item.title) return '일정 제목을 입력해주세요.'
       return null
     },
+    alertHandler,
   })
 
   const formatDate = (dateStr: string) => {
@@ -172,106 +176,135 @@ export default function SchedulesPage() {
       />
 
       {/* Modal */}
-      {editingSchedule && (
-        <AdminModal
-          isOpen={isModalOpen}
-          title={isNew ? '일정 추가' : '일정 수정'}
-          onClose={closeModal}
-          onSave={handleSave}
-          saveLabel={isNew ? '추가' : '저장'}
-        >
-          <div className={styles.formGroup}>
-            <label>제목</label>
-            <input
-              type="text"
-              value={editingSchedule.title || ''}
-              onChange={(e) =>
-                setEditingSchedule({ ...editingSchedule, title: e.target.value })
-              }
-              className={styles.input}
-              placeholder="일정 제목을 입력하세요"
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>유형</label>
-            <div className={styles.typeSelector}>
-              {(['broadcast', 'collab', 'event', 'notice', '休'] as EventType[]).map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setEditingSchedule({ ...editingSchedule, eventType: type })}
-                  className={`${styles.typeButton} ${editingSchedule.eventType === type ? styles.active : ''}`}
-                >
-                  {eventTypeLabels[type]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>대상</label>
-            <select
-              value={editingSchedule.unit || ''}
-              onChange={(e) =>
-                setEditingSchedule({
-                  ...editingSchedule,
-                  unit: e.target.value === '' ? null : (e.target.value as 'excel' | 'crew'),
-                })
-              }
-              className={styles.select}
+      <AnimatePresence>
+        {isModalOpen && editingSchedule && (
+          <motion.div
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeModal}
+          >
+            <motion.div
+              className={styles.modal}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <option value="">전체</option>
-              <option value="excel">엑셀부</option>
-              <option value="crew">크루부</option>
-            </select>
-          </div>
+              <div className={styles.modalHeader}>
+                <h2>{isNew ? '일정 추가' : '일정 수정'}</h2>
+                <button onClick={closeModal} className={styles.closeButton}>
+                  <X size={20} />
+                </button>
+              </div>
 
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>시작 일시</label>
-              <input
-                type="datetime-local"
-                value={editingSchedule.startDatetime?.slice(0, 16) || ''}
-                onChange={(e) =>
-                  setEditingSchedule({
-                    ...editingSchedule,
-                    startDatetime: new Date(e.target.value).toISOString(),
-                  })
-                }
-                className={styles.input}
-              />
-            </div>
+              <div className={styles.modalBody}>
+                <div className={styles.formGroup}>
+                  <label>제목</label>
+                  <input
+                    type="text"
+                    value={editingSchedule.title || ''}
+                    onChange={(e) =>
+                      setEditingSchedule({ ...editingSchedule, title: e.target.value })
+                    }
+                    className={styles.input}
+                    placeholder="일정 제목을 입력하세요"
+                  />
+                </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={editingSchedule.isAllDay || false}
-                  onChange={(e) =>
-                    setEditingSchedule({ ...editingSchedule, isAllDay: e.target.checked })
-                  }
-                  className={styles.checkbox}
-                />
-                <span>종일</span>
-              </label>
-            </div>
-          </div>
+                <div className={styles.formGroup}>
+                  <label>유형</label>
+                  <div className={styles.typeSelector}>
+                    {(['broadcast', 'collab', 'event', 'notice', '休'] as EventType[]).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setEditingSchedule({ ...editingSchedule, eventType: type })}
+                        className={`${styles.typeButton} ${editingSchedule.eventType === type ? styles.active : ''}`}
+                      >
+                        {eventTypeLabels[type]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-          <div className={styles.formGroup}>
-            <label>설명 (선택)</label>
-            <textarea
-              value={editingSchedule.description || ''}
-              onChange={(e) =>
-                setEditingSchedule({ ...editingSchedule, description: e.target.value })
-              }
-              className={styles.textarea}
-              placeholder="일정에 대한 추가 설명..."
-              rows={3}
-            />
-          </div>
-        </AdminModal>
-      )}
+                <div className={styles.formGroup}>
+                  <label>대상</label>
+                  <select
+                    value={editingSchedule.unit || ''}
+                    onChange={(e) =>
+                      setEditingSchedule({
+                        ...editingSchedule,
+                        unit: e.target.value === '' ? null : (e.target.value as 'excel' | 'crew'),
+                      })
+                    }
+                    className={styles.select}
+                  >
+                    <option value="">전체</option>
+                    <option value="excel">엑셀부</option>
+                    <option value="crew">크루부</option>
+                  </select>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>시작 일시</label>
+                    <input
+                      type="datetime-local"
+                      value={editingSchedule.startDatetime?.slice(0, 16) || ''}
+                      onChange={(e) =>
+                        setEditingSchedule({
+                          ...editingSchedule,
+                          startDatetime: new Date(e.target.value).toISOString(),
+                        })
+                      }
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        checked={editingSchedule.isAllDay || false}
+                        onChange={(e) =>
+                          setEditingSchedule({ ...editingSchedule, isAllDay: e.target.checked })
+                        }
+                        className={styles.checkbox}
+                      />
+                      <span>종일</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>설명 (선택)</label>
+                  <textarea
+                    value={editingSchedule.description || ''}
+                    onChange={(e) =>
+                      setEditingSchedule({ ...editingSchedule, description: e.target.value })
+                    }
+                    className={styles.textarea}
+                    placeholder="일정에 대한 추가 설명..."
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button onClick={closeModal} className={styles.cancelButton}>
+                  취소
+                </button>
+                <button onClick={handleSave} className={styles.saveButton}>
+                  <Save size={16} />
+                  {isNew ? '추가' : '저장'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

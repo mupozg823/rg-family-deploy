@@ -26,19 +26,16 @@ export interface SocialLinks {
   instagram?: string
 }
 
-/** 멤버 개인정보 타입 (소개 페이지용) */
-export interface MemberProfile {
-  nickname?: string        // 별명
-  mbti?: string           // MBTI
-  height?: number         // 키 (cm)
-  weight?: number         // 몸무게 (kg)
-  age?: number            // 나이
-  birthday?: string       // 생일 (YYYY.MM.DD 또는 MM-DD)
-  bloodType?: string      // 혈액형
-  hobby?: string          // 취미
-  specialty?: string      // 특기
-  favoriteFood?: string   // 좋아하는 음식
-  introduction?: string   // 자기소개
+/** 프로필 정보 타입 (profile_info JSONB 컬럼) */
+export interface ProfileInfo {
+  mbti?: string           // MBTI 성격 유형
+  blood_type?: string     // 혈액형
+  height?: string         // 키
+  weight?: string         // 몸무게
+  birthday?: string       // 생일
+  signal_price?: number   // 신호탄 단가
+  photo_delivery?: boolean // 사진 전달 유무
+  position_pledge?: string // 직급 공약 (긴 텍스트)
 }
 
 /**
@@ -55,7 +52,7 @@ export interface OrganizationRecord {
   parent_id: number | null
   image_url: string | null
   social_links: SocialLinks | null
-  member_profile: MemberProfile | null  // 멤버 개인정보
+  profile_info: ProfileInfo | null
   is_live: boolean
   is_active: boolean
   created_at: string
@@ -73,8 +70,8 @@ export interface OrgMember {
   position_order: number
   parent_id: number | null
   image_url: string | null
-  social_links?: SocialLinks | null
-  member_profile?: MemberProfile | null  // 멤버 개인정보
+  social_links?: SocialLinks
+  profile_info?: ProfileInfo
   is_live?: boolean
 }
 
@@ -89,6 +86,32 @@ export interface LiveMember {
   image_url: string | null
   is_live: boolean
   social_links?: SocialLinks
+}
+
+// ==============================================
+// Organization Tree Types
+// ==============================================
+
+/**
+ * 조직도 트리 노드 (camelCase - 레거시 호환)
+ * @deprecated OrgMember 사용 권장
+ */
+export interface OrgTreeMember {
+  id: number
+  name: string
+  role: string
+  imageUrl: string | null
+  socialLinks: SocialLinks | null
+  isLive?: boolean
+  children?: OrgTreeMember[]
+}
+
+/**
+ * 유닛별 조직도 데이터
+ */
+export interface OrgTreeData {
+  excel: OrgTreeMember[]
+  crew: OrgTreeMember[]
 }
 
 // ==============================================

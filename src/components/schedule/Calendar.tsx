@@ -109,8 +109,8 @@ export default function Calendar() {
           {WEEKDAYS.map((day, index) => (
             <div
               key={day}
-              className={`py-5 px-3 text-center text-base font-bold uppercase tracking-wider bg-[var(--surface)] ${
-                index === 0 ? 'text-red-500' : index === 6 ? 'text-[var(--color-pink)]' : 'text-[var(--text-primary)]'
+              className={`py-4 px-2 text-center text-sm font-bold uppercase tracking-wide bg-[var(--surface)] ${
+                index === 0 ? 'text-red-500' : index === 6 ? 'text-blue-500' : 'text-[var(--text-muted)]'
               }`}
             >
               {day}

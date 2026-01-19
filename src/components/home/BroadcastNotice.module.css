@@ -1,0 +1,209 @@
+.section {
+  width: 100%;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: nowrap;
+}
+
+.header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Live Icon - Cyan/Teal Box */
+.liveIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--live-color);
+  border-radius: 6px;
+  color: var(--background);
+  box-shadow: var(--shadow-sm), 0 0 12px var(--live-glow);
+  margin-right: 0.5rem;
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background: var(--glass-border);
+}
+
+.viewAll {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-body-sm);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.viewAll:hover {
+  color: var(--live-color);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Notice List Item - Banner Card Style */
+.item {
+  position: relative;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-sm);
+  min-height: 140px;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: var(--surface-hover);
+  border-color: var(--live-color);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md), 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+/* Thumbnail - Banner Style (Left 35-40%) */
+.itemThumbnail {
+  flex-shrink: 0;
+  width: 35%;
+  position: relative;
+  background: var(--surface-secondary);
+  border-right: 1px solid var(--card-border);
+}
+
+.itemLogo {
+  flex-shrink: 0;
+  width: 35%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+  border-right: 1px solid var(--card-border);
+}
+
+/* Content - Right Side */
+.itemContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.25rem;
+  gap: 0.5rem;
+}
+
+/* Tag row */
+.tagRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tag {
+  display: inline-block;
+  background: var(--live-glow);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  color: var(--live-color);
+  font-size: var(--text-label);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.date {
+  color: var(--text-muted);
+  font-size: var(--text-label);
+}
+
+.content {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-line;
+}
+
+.more {
+  margin-top: 0.5rem;
+  font-size: var(--text-label);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.item:hover .more {
+  color: var(--live-color);
+}
+
+/* Responsive Banner */
+@media (max-width: 768px) {
+  .item {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .itemThumbnail,
+  .itemLogo {
+    width: 100%;
+    height: 180px;
+    border-right: none;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .itemContent {
+    width: 100%;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .itemThumbnail,
+  .itemLogo {
+    height: 160px;
+  }
+
+  .itemContent {
+    padding: 1rem 0.875rem;
+  }
+}
+
+.loading,
+.empty {
+  color: var(--text-muted);
+  padding: 2rem;
+  text-align: center;
+}

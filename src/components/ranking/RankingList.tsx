@@ -5,10 +5,19 @@ import { User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RankingItem } from "@/types/common";
-import { hasHonorPageQualification } from "@/lib/mock";
-import { USE_MOCK_DATA } from "@/lib/config";
-import { getTributePageUrl, formatAmountShort } from "@/lib/utils";
+import { getTributePageUrl } from "@/lib/utils";
 import styles from "./RankingList.module.css";
+
+// Local helper function
+const formatCompactNumber = (amount: number): string => {
+  if (amount >= 100000000) {
+    return `${(amount / 100000000).toFixed(1)}억`;
+  }
+  if (amount >= 10000) {
+    return `${Math.floor(amount / 10000).toLocaleString()}만`;
+  }
+  return amount.toLocaleString();
+};
 
 interface RankingListProps {
   rankings: RankingItem[];
@@ -93,7 +102,7 @@ export default function RankingList({
 
               {/* Score Column */}
               <div className={styles.score}>
-                {formatAmountShort(item.totalAmount)}
+                {formatCompactNumber(item.totalAmount)}
               </div>
 
               {/* Badge Column */}
@@ -114,9 +123,8 @@ export default function RankingList({
             </motion.div>
           );
 
-          // 시즌 TOP 3 또는 회차별 고액 후원자만 개인 헌정 페이지로 이동 가능
-          const hasHonorPage = actualRank <= 3 ||
-            (USE_MOCK_DATA && item.donorId && hasHonorPageQualification(item.donorId));
+          // 시즌 TOP 3만 개인 헌정 페이지로 이동 가능
+          const hasHonorPage = actualRank <= 3;
 
           if (item.donorId && hasHonorPage) {
             return (

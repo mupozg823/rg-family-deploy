@@ -37,14 +37,14 @@
   z-index: 0;
 }
 
-/* Crew Unit Theme - Neutral with subtle pink accent */
+/* Crew Unit Theme - Pink Dominant */
 .crewTheme {
   background: linear-gradient(
     180deg,
-    #050505 0%,
-    #0a0a0a 30%,
-    #080808 70%,
-    #050505 100%
+    #0a0508 0%,
+    #0d0609 30%,
+    #100810 70%,
+    #0a0508 100%
   );
 }
 
@@ -54,8 +54,18 @@
   inset: 0;
   background: radial-gradient(
     ellipse 80% 50% at 50% 20%,
-    rgba(255, 255, 255, 0.02) 0%,
+    rgba(253, 104, 186, 0.06) 0%,
     transparent 50%
+  ),
+  radial-gradient(
+    ellipse 60% 40% at 30% 80%,
+    rgba(253, 104, 186, 0.03) 0%,
+    transparent 40%
+  ),
+  radial-gradient(
+    ellipse 60% 40% at 70% 80%,
+    rgba(253, 104, 186, 0.03) 0%,
+    transparent 40%
   );
   pointer-events: none;
   z-index: 0;
@@ -65,158 +75,118 @@
 .crewTheme .toggleBtn.active {
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.04) 100%
+    rgba(253, 104, 186, 0.2) 0%,
+    rgba(253, 104, 186, 0.08) 100%
   );
-  border-color: var(--color-primary);
+  border-color: rgba(253, 104, 186, 0.4);
   color: var(--color-primary);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.15);
 }
 
 .crewTheme .toggleBtn.active::before {
-  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  background: linear-gradient(90deg, transparent, rgba(253, 104, 186, 0.5), transparent);
 }
 
-/* Theme-specific connector lines - neutral gray */
+/* Theme-specific connector lines */
 .crewTheme .connector::before {
-  background: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+  background: var(--color-primary);
+  box-shadow: 0 0 10px rgba(253, 104, 186, 0.4);
 }
 
 .crewTheme .verticalLine {
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.4) 0%,
-    rgba(255, 255, 255, 0.1) 100%
+    var(--color-primary) 0%,
+    rgba(253, 104, 186, 0.3) 100%
   );
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 8px rgba(253, 104, 186, 0.2);
 }
 
 .crewTheme .horizontalLine {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.2) 10%,
-    rgba(255, 255, 255, 0.4) 50%,
-    rgba(255, 255, 255, 0.2) 90%,
+    rgba(253, 104, 186, 0.4) 10%,
+    var(--color-primary) 50%,
+    rgba(253, 104, 186, 0.4) 90%,
     transparent 100%
   );
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 8px rgba(253, 104, 186, 0.15);
 }
 
 .crewTheme .branchLine {
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.4) 0%,
-    rgba(255, 255, 255, 0.1) 80%,
+    var(--color-primary) 0%,
+    rgba(253, 104, 186, 0.2) 80%,
     transparent 100%
   );
 }
 
 .crewTheme .branchLine::before {
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  background: var(--color-primary);
+  box-shadow: 0 0 6px rgba(253, 104, 186, 0.5);
 }
 
 /* Theme-specific org chart glow */
 .crewTheme .orgChart::before {
   background: radial-gradient(
     ellipse at center,
-    rgba(255, 255, 255, 0.02) 0%,
+    rgba(253, 104, 186, 0.04) 0%,
     transparent 70%
   );
-}
-
-/* Theme-specific tree connector for crew */
-.crewTheme .mainVerticalLine {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.2) 100%
-  );
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
-}
-
-.crewTheme .mainVerticalLine::before {
-  background: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-}
-
-.crewTheme .distributionLine {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.2) 5%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0.2) 95%,
-    transparent 100%
-  );
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
-}
-
-.crewTheme .dropLine {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.1) 100%
-  );
-}
-
-.crewTheme .dropLine::after {
-  background: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 /* Theme-specific header gradient */
 .crewTheme .header::before {
   background: radial-gradient(
     ellipse 60% 60% at 50% 30%,
-    rgba(255, 255, 255, 0.03) 0%,
+    rgba(253, 104, 186, 0.08) 0%,
     transparent 60%
   );
 }
 
 /* Theme-specific member card hover */
 .crewTheme .memberCard:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(253, 104, 186, 0.3);
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    0 0 20px rgba(255, 255, 255, 0.05);
+    0 20px 40px rgba(0, 0, 0, 0.2),
+    0 0 30px rgba(253, 104, 186, 0.08);
 }
 
 .crewTheme .memberCard.large {
   background: linear-gradient(
     145deg,
-    rgba(255, 255, 255, 0.04) 0%,
+    rgba(253, 104, 186, 0.08) 0%,
     var(--card-bg) 100%
   );
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(253, 104, 186, 0.25);
 }
 
 .crewTheme .memberCard.large::before {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
 }
 
 .crewTheme .memberCard.large .memberRole {
-  color: var(--text-secondary);
+  color: var(--color-primary);
 }
 
 /* Theme-specific unit label */
 .crewTheme .unitLabel {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: var(--text-secondary);
+  background: rgba(253, 104, 186, 0.1);
+  border-color: rgba(253, 104, 186, 0.3);
+  color: var(--color-primary);
 }
 
 /* Theme-specific spinner */
 .crewTheme .spinner {
-  border-top-color: var(--text-secondary);
+  border-top-color: var(--color-primary);
 }
 
 /* Theme-specific nav tab active state */
 .crewTheme .navTab.active {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--color-primary);
+  background: rgba(253, 104, 186, 0.15);
+  border-color: rgba(253, 104, 186, 0.3);
   color: var(--color-primary);
 }
 
@@ -224,21 +194,21 @@
 .crewTheme .logoCircle {
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.03) 100%
+    rgba(253, 104, 186, 0.15) 0%,
+    rgba(253, 104, 186, 0.05) 100%
   );
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(253, 104, 186, 0.3);
   box-shadow:
-    0 0 30px rgba(255, 255, 255, 0.05),
-    inset 0 0 20px rgba(255, 255, 255, 0.02);
+    0 0 40px rgba(253, 104, 186, 0.15),
+    inset 0 0 30px rgba(253, 104, 186, 0.05);
 }
 
 .crewTheme .logoCircle::before {
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.15) 0%,
+    rgba(253, 104, 186, 0.3) 0%,
     transparent 50%,
-    rgba(255, 255, 255, 0.15) 100%
+    rgba(253, 104, 186, 0.3) 100%
   );
 }
 
@@ -266,140 +236,150 @@
 :global([data-theme="light"]) .crewTheme {
   background: linear-gradient(
     180deg,
-    #fafafa 0%,
-    #f5f5f5 30%,
-    #f8f8f8 70%,
-    #fafafa 100%
+    #fdf7fa 0%,
+    #fef5f9 30%,
+    #fdf7fa 70%,
+    #fdf5f8 100%
   );
 }
 
 :global([data-theme="light"]) .crewTheme::before {
   background: radial-gradient(
     ellipse 80% 50% at 50% 20%,
-    rgba(0, 0, 0, 0.02) 0%,
+    rgba(253, 104, 186, 0.08) 0%,
     transparent 50%
+  ),
+  radial-gradient(
+    ellipse 60% 40% at 30% 80%,
+    rgba(253, 104, 186, 0.04) 0%,
+    transparent 40%
+  ),
+  radial-gradient(
+    ellipse 60% 40% at 70% 80%,
+    rgba(253, 104, 186, 0.04) 0%,
+    transparent 40%
   );
 }
 
 :global([data-theme="light"]) .crewTheme .toggleBtn.active {
   background: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.06) 0%,
-    rgba(0, 0, 0, 0.03) 100%
+    rgba(253, 104, 186, 0.15) 0%,
+    rgba(253, 104, 186, 0.08) 100%
   );
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-color: rgba(253, 104, 186, 0.4);
+  color: #d63384;
+  box-shadow: 0 4px 20px rgba(253, 104, 186, 0.12);
 }
 
 :global([data-theme="light"]) .crewTheme .memberCard {
   background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.08);
+  border-color: rgba(253, 104, 186, 0.1);
 }
 
 :global([data-theme="light"]) .crewTheme .memberCard:hover {
-  background: #fafafa;
-  border-color: rgba(0, 0, 0, 0.15);
+  background: #fff9fc;
+  border-color: rgba(253, 104, 186, 0.3);
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.06),
-    0 0 30px rgba(0, 0, 0, 0.03);
+    0 0 30px rgba(253, 104, 186, 0.06);
 }
 
 :global([data-theme="light"]) .crewTheme .memberCard.large {
   background: linear-gradient(
     145deg,
-    rgba(0, 0, 0, 0.02) 0%,
+    rgba(253, 104, 186, 0.06) 0%,
     #ffffff 100%
   );
-  border-color: rgba(0, 0, 0, 0.1);
+  border-color: rgba(253, 104, 186, 0.2);
 }
 
 :global([data-theme="light"]) .crewTheme .memberCard.large .memberRole {
-  color: var(--text-secondary);
+  color: #d63384;
 }
 
 :global([data-theme="light"]) .crewTheme .connector::before {
-  background: #888888;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  background: #d63384;
+  box-shadow: 0 0 8px rgba(253, 104, 186, 0.3);
 }
 
 :global([data-theme="light"]) .crewTheme .verticalLine {
   background: linear-gradient(
     180deg,
-    #888888 0%,
-    rgba(0, 0, 0, 0.2) 100%
+    #d63384 0%,
+    rgba(253, 104, 186, 0.3) 100%
   );
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 6px rgba(253, 104, 186, 0.15);
 }
 
 :global([data-theme="light"]) .crewTheme .horizontalLine {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.15) 10%,
-    #888888 50%,
-    rgba(0, 0, 0, 0.15) 90%,
+    rgba(253, 104, 186, 0.3) 10%,
+    #d63384 50%,
+    rgba(253, 104, 186, 0.3) 90%,
     transparent 100%
   );
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 6px rgba(253, 104, 186, 0.1);
 }
 
 :global([data-theme="light"]) .crewTheme .branchLine {
   background: linear-gradient(
     180deg,
-    #888888 0%,
-    rgba(0, 0, 0, 0.1) 80%,
+    #d63384 0%,
+    rgba(253, 104, 186, 0.2) 80%,
     transparent 100%
   );
 }
 
 :global([data-theme="light"]) .crewTheme .branchLine::before {
-  background: #888888;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  background: #d63384;
+  box-shadow: 0 0 5px rgba(253, 104, 186, 0.4);
 }
 
 :global([data-theme="light"]) .crewTheme .unitLabel {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: var(--text-secondary);
+  background: rgba(253, 104, 186, 0.08);
+  border-color: rgba(253, 104, 186, 0.2);
+  color: #d63384;
 }
 
 :global([data-theme="light"]) .crewTheme .spinner {
   border-color: rgba(0, 0, 0, 0.1);
-  border-top-color: #666666;
+  border-top-color: #d63384;
 }
 
 :global([data-theme="light"]) .crewTheme .navTab.active {
-  background: rgba(0, 0, 0, 0.06);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  background: rgba(253, 104, 186, 0.12);
+  border-color: rgba(253, 104, 186, 0.3);
+  color: #d63384;
 }
 
 :global([data-theme="light"]) .crewTheme .logoCircle {
   background: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.04) 0%,
-    rgba(0, 0, 0, 0.02) 100%
+    rgba(253, 104, 186, 0.1) 0%,
+    rgba(253, 104, 186, 0.05) 100%
   );
-  border-color: rgba(0, 0, 0, 0.12);
+  border-color: rgba(253, 104, 186, 0.3);
   box-shadow:
-    0 0 30px rgba(0, 0, 0, 0.05),
-    inset 0 0 20px rgba(0, 0, 0, 0.02);
+    0 0 30px rgba(253, 104, 186, 0.1),
+    inset 0 0 20px rgba(253, 104, 186, 0.05);
 }
 
 :global([data-theme="light"]) .crewTheme .logoCircle::before {
   background: linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.08) 0%,
+    rgba(253, 104, 186, 0.2) 0%,
     transparent 50%,
-    rgba(0, 0, 0, 0.08) 100%
+    rgba(253, 104, 186, 0.2) 100%
   );
 }
 
 :global([data-theme="light"]) .crewTheme .header::before {
   background: radial-gradient(
     ellipse 60% 60% at 50% 30%,
-    rgba(0, 0, 0, 0.03) 0%,
+    rgba(253, 104, 186, 0.1) 0%,
     transparent 60%
   );
 }
@@ -407,7 +387,7 @@
 :global([data-theme="light"]) .crewTheme .orgChart::before {
   background: radial-gradient(
     ellipse at center,
-    rgba(0, 0, 0, 0.02) 0%,
+    rgba(253, 104, 186, 0.05) 0%,
     transparent 70%
   );
 }
@@ -739,43 +719,18 @@
   opacity: 1;
 }
 
-/* Member Count Badge */
-.memberCount {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  background: var(--overlay-subtle);
-  border: 1px solid var(--overlay-strong);
-  border-radius: var(--radius-full);
-  color: var(--text-muted);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  backdrop-filter: blur(8px);
-}
-
-.memberCount svg {
-  color: var(--color-primary);
-}
-
-:global([data-theme="light"]) .memberCount {
-  background: rgba(253, 104, 186, 0.08);
-  border-color: rgba(253, 104, 186, 0.2);
-  color: #d63384;
-}
-
 /* =======================================
-   Premium Org Chart Layout - Tree Structure
+   Premium Org Chart Layout
    ======================================= */
 .orgChart {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-8) var(--space-4);
+  padding: var(--space-8);
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  min-height: 600px;
+  min-height: 500px;
 }
 
 /* Subtle Radial Glow */
@@ -785,164 +740,14 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90%;
-  height: 90%;
+  width: 80%;
+  height: 80%;
   background: radial-gradient(
     ellipse at center,
-    rgba(212, 175, 55, 0.04) 0%,
+    rgba(212, 175, 55, 0.03) 0%,
     transparent 70%
   );
   pointer-events: none;
-}
-
-/* =======================================
-   Tree Structure - Leaders Row
-   ======================================= */
-.leadersRow {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: var(--space-8);
-  position: relative;
-  z-index: 2;
-  margin-bottom: var(--space-2);
-}
-
-/* Main vertical line from leaders */
-.mainConnector {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 1000px;
-  padding: var(--space-4) 0;
-}
-
-.mainVerticalLine {
-  width: 3px;
-  height: 50px;
-  background: linear-gradient(
-    180deg,
-    var(--metallic-gold) 0%,
-    rgba(212, 175, 55, 0.6) 100%
-  );
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
-  position: relative;
-}
-
-.mainVerticalLine::before {
-  content: "";
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 12px;
-  height: 12px;
-  background: var(--metallic-gold);
-  border-radius: 50%;
-  box-shadow: 0 0 15px var(--metallic-gold-glow);
-}
-
-/* Horizontal distribution line */
-.distributionLine {
-  width: 90%;
-  max-width: 900px;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--metallic-gold-dark) 5%,
-    var(--metallic-gold) 50%,
-    var(--metallic-gold-dark) 95%,
-    transparent 100%
-  );
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
-  position: relative;
-}
-
-/* Drop lines to members */
-.dropLinesContainer {
-  display: flex;
-  justify-content: space-around;
-  width: 90%;
-  max-width: 900px;
-  position: relative;
-}
-
-.dropLine {
-  width: 2px;
-  height: 30px;
-  background: linear-gradient(
-    180deg,
-    var(--metallic-gold) 0%,
-    rgba(212, 175, 55, 0.3) 100%
-  );
-  position: relative;
-}
-
-.dropLine::after {
-  content: "";
-  position: absolute;
-  top: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 8px;
-  height: 8px;
-  background: var(--metallic-gold);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--metallic-gold-glow);
-}
-
-/* =======================================
-   Members Grid - Dense Layout
-   ======================================= */
-.membersGrid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: var(--space-4);
-  width: 100%;
-  max-width: 1000px;
-  justify-items: center;
-  position: relative;
-  z-index: 1;
-}
-
-@media (max-width: 1024px) {
-  .membersGrid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-3);
-  }
-}
-
-@media (max-width: 768px) {
-  .membersGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-2);
-  }
-
-  .leadersRow {
-    gap: var(--space-4);
-  }
-}
-
-@media (max-width: 480px) {
-  .membersGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-2);
-  }
-
-  .mainConnector {
-    padding: var(--space-2) 0;
-  }
-
-  .mainVerticalLine {
-    height: 30px;
-  }
-
-  .dropLinesContainer {
-    display: none;
-  }
 }
 
 /* =======================================
@@ -972,31 +777,6 @@
   align-items: flex-start;
   gap: var(--space-6);
   flex-wrap: wrap;
-}
-
-/* 14명 멤버 레이아웃 최적화 - Level 2 그리드 */
-.level[data-level="2"] .levelMembers {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-  max-width: 700px;
-  gap: var(--space-4);
-  justify-items: center;
-}
-
-@media (min-width: 768px) {
-  .level[data-level="2"] .levelMembers {
-    grid-template-columns: repeat(6, 1fr);
-    max-width: 800px;
-    gap: var(--space-5);
-  }
-}
-
-@media (min-width: 1024px) {
-  .level[data-level="2"] .levelMembers {
-    grid-template-columns: repeat(6, 1fr);
-    max-width: 900px;
-    gap: var(--space-6);
-  }
 }
 
 /* Unit Section */
@@ -1368,7 +1148,7 @@
   padding: 2px 6px;
   background: var(--live-color);
   border-radius: 10px;
-  font-size: 0.625rem;
+  font-size: 0.55rem;
   font-weight: 700;
   color: white;
   z-index: 3;
@@ -2036,46 +1816,6 @@
 :global([data-theme="light"]) .branchLine::before {
   background: #b8860b;
   box-shadow: 0 0 5px rgba(184, 134, 11, 0.4);
-}
-
-/* Light mode: New tree connector styles */
-:global([data-theme="light"]) .mainVerticalLine {
-  background: linear-gradient(
-    180deg,
-    #b8860b 0%,
-    rgba(184, 134, 11, 0.4) 100%
-  );
-  box-shadow: 0 0 12px rgba(184, 134, 11, 0.2);
-}
-
-:global([data-theme="light"]) .mainVerticalLine::before {
-  background: #b8860b;
-  box-shadow: 0 0 15px rgba(184, 134, 11, 0.5);
-}
-
-:global([data-theme="light"]) .distributionLine {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(184, 134, 11, 0.3) 5%,
-    #b8860b 50%,
-    rgba(184, 134, 11, 0.3) 95%,
-    transparent 100%
-  );
-  box-shadow: 0 0 10px rgba(184, 134, 11, 0.15);
-}
-
-:global([data-theme="light"]) .dropLine {
-  background: linear-gradient(
-    180deg,
-    #b8860b 0%,
-    rgba(184, 134, 11, 0.2) 100%
-  );
-}
-
-:global([data-theme="light"]) .dropLine::after {
-  background: #b8860b;
-  box-shadow: 0 0 8px rgba(184, 134, 11, 0.5);
 }
 
 :global([data-theme="light"]) .unitLabel {

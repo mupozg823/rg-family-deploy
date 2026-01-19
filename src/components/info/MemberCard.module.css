@@ -53,20 +53,15 @@
   position: relative;
 }
 
-/* Gold ring for leader/VIP members */
+/* Gold ring for leader/VIP members - 외곽 테두리만 */
 .avatarWrapper.isLeader::before {
   content: '';
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  background: linear-gradient(135deg,
-    var(--metallic-gold) 0%,
-    var(--metallic-gold-light) 25%,
-    var(--metallic-gold) 50%,
-    var(--metallic-gold-light) 75%,
-    var(--metallic-gold) 100%);
+  border: 3px solid var(--metallic-gold);
+  background: transparent;
   z-index: 0;
-  animation: goldRingRotate 8s linear infinite;
 }
 
 .avatarWrapper.isLeader::after {
@@ -74,26 +69,20 @@
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  box-shadow:
-    0 0 20px var(--metallic-gold-glow),
-    0 0 40px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 15px var(--metallic-gold-glow);
   z-index: 0;
 }
 
-@keyframes goldRingRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Cyan ring for live members (cnine.kr style - overrides gold for live leaders) */
+/* Pink ring for live members (overrides gold for live leaders) */
 .avatarWrapper.isLive::before {
   content: '';
   position: absolute;
   inset: -3px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--live-color) 0%, rgba(0, 212, 255, 0.7) 50%, var(--live-color) 100%);
+  border: 3px solid var(--color-primary);
+  background: transparent;
   z-index: 0;
-  animation: liveBorderPulse 2s ease-in-out infinite;
+  animation: none;
 }
 
 .avatarWrapper.isLive::after {
@@ -101,38 +90,22 @@
   position: absolute;
   inset: -3px;
   border-radius: 50%;
-  box-shadow: 0 0 15px var(--live-glow), 0 0 30px rgba(0, 212, 255, 0.2);
+  box-shadow: 0 0 12px var(--color-primary-glow);
   z-index: 0;
 }
 
-@keyframes liveBorderPulse {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 15px var(--live-glow);
-  }
-  50% {
-    opacity: 0.8;
-    box-shadow: 0 0 25px var(--live-glow), 0 0 40px rgba(0, 212, 255, 0.3);
-  }
-}
-
-/* Combined: Live + Leader = Gold outer + Cyan inner ring */
+/* Combined: Live + Leader = Gold outer + Pink inner ring */
 .avatarWrapper.isLive.isLeader::before {
   inset: -6px;
-  background: linear-gradient(135deg,
-    var(--metallic-gold) 0%,
-    var(--metallic-gold-light) 25%,
-    var(--metallic-gold) 50%,
-    var(--metallic-gold-light) 75%,
-    var(--metallic-gold) 100%);
-  animation: goldRingRotate 8s linear infinite;
+  border: 3px solid var(--metallic-gold);
+  background: transparent;
 }
 
 .avatarWrapper.isLive.isLeader::after {
   inset: -3px;
-  background: linear-gradient(135deg, var(--live-color) 0%, rgba(0, 212, 255, 0.7) 50%, var(--live-color) 100%);
-  box-shadow: 0 0 15px var(--live-glow), 0 0 25px rgba(0, 212, 255, 0.25);
-  animation: liveBorderPulse 2s ease-in-out infinite;
+  border: 2px solid var(--color-primary);
+  background: transparent;
+  box-shadow: 0 0 15px var(--color-primary-glow);
 }
 
 .avatar {

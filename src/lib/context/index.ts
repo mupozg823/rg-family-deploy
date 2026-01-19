@@ -26,11 +26,9 @@ export {
   useOrganization,
   useNotices,
   usePosts,
-  useBanners,
-  useComments,
-  useSignatures,
-  useMediaContent,
   useTimeline,
   useSchedules,
-  useEpisodes,
 } from './DataProviderContext'
+
+// Episodes (회차 기반 VIP 시스템)
+export { useEpisodes } from '@/lib/hooks/useEpisodes'

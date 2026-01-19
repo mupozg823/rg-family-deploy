@@ -7,6 +7,7 @@ import {
   ChevronDown,
   User,
   LogIn,
+  LogOut,
   Crown,
   Radio,
   Users,
@@ -18,6 +19,7 @@ import {
   MessageSquare,
   Sparkles,
   Shield,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 import { useAuthContext } from "@/lib/context";
@@ -81,10 +83,17 @@ const navItems: NavItem[] = [
 ];
 
 export default function Navbar() {
-  const { user, profile } = useAuthContext();
+  const { user, profile, signOut } = useAuthContext();
   const { isQualified: isHonorQualified, isLoading: honorLoading } = useHonorQualification();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsProfileMenuOpen(false);
+    setIsMobileMenuOpen(false);
+    await signOut();
+  };
 
   // Admin 권한 확인 (admin 또는 superadmin)
   const isAdmin = useMemo(() => {
@@ -200,16 +209,46 @@ export default function Navbar() {
           )}
           <ThemeToggle />
           {user ? (
-            <Link href="/mypage" className={styles.profileButton}>
-              <div className={styles.avatar}>
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt={profile.nickname} />
-                ) : (
-                  <User size={18} />
-                )}
-              </div>
-              <span className={styles.nickname}>{profile?.nickname || "회원"}</span>
-            </Link>
+            <div
+              className={styles.profileWrapper}
+              onMouseEnter={() => setIsProfileMenuOpen(true)}
+              onMouseLeave={() => setIsProfileMenuOpen(false)}
+            >
+              <button className={styles.profileButton}>
+                <div className={styles.avatar}>
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt={profile.nickname} />
+                  ) : (
+                    <User size={18} />
+                  )}
+                </div>
+                <span className={styles.nickname}>{profile?.nickname || "회원"}</span>
+                <ChevronDown size={14} className={`${styles.chevron} ${isProfileMenuOpen ? styles.chevronOpen : ''}`} />
+              </button>
+
+              {/* Profile Dropdown */}
+              {isProfileMenuOpen && (
+                <div className={styles.profileDropdown}>
+                  <div className={styles.profileDropdownContent}>
+                    <Link
+                      href="/mypage"
+                      className={styles.profileDropdownItem}
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      <Settings size={16} />
+                      <span>마이페이지</span>
+                    </Link>
+                    <button
+                      className={styles.profileDropdownItem}
+                      onClick={handleSignOut}
+                    >
+                      <LogOut size={16} />
+                      <span>로그아웃</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <Link href="/login" className={styles.loginBtn}>
               <LogIn size={16} />
@@ -255,14 +294,23 @@ export default function Navbar() {
               </Link>
             )}
             {user ? (
-              <Link
-                href="/mypage"
-                className={styles.mobileProfileBtn}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <User size={16} />
-                <span>{profile?.nickname || "마이페이지"}</span>
-              </Link>
+              <>
+                <Link
+                  href="/mypage"
+                  className={styles.mobileProfileBtn}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User size={16} />
+                  <span>{profile?.nickname || "마이페이지"}</span>
+                </Link>
+                <button
+                  className={styles.mobileLogoutBtn}
+                  onClick={handleSignOut}
+                >
+                  <LogOut size={16} />
+                  <span>로그아웃</span>
+                </button>
+              </>
             ) : (
               <Link
                 href="/login"

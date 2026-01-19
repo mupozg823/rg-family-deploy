@@ -1,16 +1,27 @@
 'use client'
 
 import { useState } from 'react'
-import type { HallOfFameHonor } from '@/lib/mock'
+import { motion } from 'framer-motion'
+import Image from 'next/image'
 import {
-  TributeMessageSection,
-  TributeVideoSection,
-  TributeMemberVideosSection,
-  TributeGallerySection,
-  TributeSignaturesSection,
-  TributeGuestbookSection,
-  TributeHistorySection,
-} from './sections'
+  Heart,
+  Play,
+  Film,
+  Crown,
+  Video,
+  ImageIcon,
+  Download,
+  Sparkles,
+  Trophy,
+  Upload,
+  MessageSquare,
+  Send,
+  User,
+  Loader2,
+} from 'lucide-react'
+import type { HallOfFameHonor } from '@/lib/mock'
+import { formatAmount } from '@/lib/utils/format'
+import { useGuestbook } from '@/lib/hooks'
 import styles from './TributeSections.module.css'
 
 interface TributeSectionsProps {
@@ -18,12 +29,6 @@ interface TributeSectionsProps {
   allHonors: HallOfFameHonor[]
 }
 
-/**
- * TributeSections - 헌정 페이지 섹션 조합 컴포넌트
- *
- * 개별 섹션 컴포넌트는 ./sections/ 폴더에서 관리
- * 이 컴포넌트는 섹션들을 조합하는 역할만 담당
- */
 export default function TributeSections({ honor, allHonors }: TributeSectionsProps) {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
 
@@ -70,5 +75,456 @@ export default function TributeSections({ honor, allHonors }: TributeSectionsPro
         <TributeHistorySection honors={allHonors} />
       )}
     </div>
+  )
+}
+
+// Message Section
+function TributeMessageSection({ donorName, message }: { donorName: string; message: string }) {
+  return (
+    <motion.section
+      className={styles.section}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 }}
+    >
+      <div className={styles.sectionHeader}>
+        <Heart size={20} />
+        <h2>TO. {donorName}</h2>
+      </div>
+      <div className={styles.messageCard}>
+        <p>{message}</p>
+      </div>
+    </motion.section>
+  )
+}
+
+// Video Section
+function TributeVideoSection({
+  donorName,
+  videoUrl,
+  isPlaying,
+  onPlay,
+}: {
+  donorName: string
+  videoUrl: string
+  isPlaying: boolean
+  onPlay: () => void
+}) {
+  return (
+    <motion.section
+      className={styles.section}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
+    >
+      <div className={styles.sectionHeader}>
+        <Film size={20} />
+        <h2>EXCLUSIVE VIDEO</h2>
+      </div>
+      <div className={styles.videoWrapper}>
+        <div className={styles.videoInner}>
+          <div className={styles.video} onClick={onPlay}>
+            {isPlaying ? (
+              <video
+                src={videoUrl}
+                controls
+                autoPlay
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
+            ) : (
+              <>
+                <div className={styles.videoBadge}>
+                  <Crown size={12} />
+                  TRIBUTE
+                </div>
+                <button className={styles.playBtn}>
+                  <Play size={32} />
+                </button>
+                <span className={styles.videoLabel}>{donorName} 헌정 영상</span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.section>
+  )
+}
+
+// Member Videos Section
+function TributeMemberVideosSection({
+  memberVideos,
+}: {
+  memberVideos?: HallOfFameHonor['memberVideos']
+}) {
+  if (memberVideos && memberVideos.length > 0) {
+    return (
+      <motion.section
+        className={styles.section}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className={styles.sectionHeader}>
+          <Play size={20} />
+          <h2>멤버 감사 영상</h2>
+        </div>
+        <div className={styles.videosGrid}>
+          {memberVideos.map((video) => (
+            <div key={video.id} className={styles.videoCard}>
+              <div className={styles.videoThumbnail}>
+                <div className={styles.videoPlaceholder}>
+                  <Play size={32} />
+                </div>
+                <div className={styles.unitBadge} data-unit={video.memberUnit}>
+                  {video.memberUnit === 'excel' ? 'EXCEL' : 'CREW'}
+                </div>
+              </div>
+              <div className={styles.videoInfo}>
+                <h3>{video.memberName}</h3>
+                <p>{video.message}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.section>
+    )
+  }
+
+  return (
+    <motion.section
+      className={styles.emptySection}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+    >
+      <div className={styles.emptySectionContent}>
+        <Video size={32} />
+        <h3>멤버 감사 영상</h3>
+        <p>아직 등록된 감사 영상이 없습니다</p>
+        <span className={styles.adminHint}>Admin에서 영상을 업로드할 수 있습니다</span>
+      </div>
+    </motion.section>
+  )
+}
+
+// Gallery Section
+function TributeGallerySection({
+  images,
+  legacyImage,
+}: {
+  images?: string[]
+  legacyImage?: string
+}) {
+  const hasImages = images && images.length > 0
+  const hasLegacy = legacyImage && !hasImages
+
+  if (hasImages) {
+    return (
+      <motion.section
+        className={styles.section}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+      >
+        <div className={styles.sectionHeader}>
+          <ImageIcon size={20} />
+          <h2>감사 포토</h2>
+        </div>
+        <div className={styles.galleryGrid}>
+          {images.map((imageUrl, index) => (
+            <a key={index} href={imageUrl} download className={styles.galleryCard}>
+              <Image
+                src={imageUrl}
+                alt={`Tribute Photo ${index + 1}`}
+                fill
+                className={styles.galleryImage}
+                unoptimized
+              />
+              <div className={styles.galleryOverlay}>
+                <Download size={20} />
+              </div>
+            </a>
+          ))}
+        </div>
+      </motion.section>
+    )
+  }
+
+  if (hasLegacy) {
+    return (
+      <motion.section
+        className={styles.section}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+      >
+        <div className={styles.sectionHeader}>
+          <ImageIcon size={20} />
+          <h2>감사 포토</h2>
+        </div>
+        <div className={styles.galleryGrid}>
+          <a href={legacyImage} download className={styles.galleryCard}>
+            <Image
+              src={legacyImage}
+              alt="Exclusive Signature"
+              fill
+              className={styles.galleryImage}
+              unoptimized
+            />
+            <div className={styles.galleryOverlay}>
+              <Download size={20} />
+            </div>
+          </a>
+        </div>
+      </motion.section>
+    )
+  }
+
+  return (
+    <motion.section
+      className={styles.emptySection}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.25 }}
+    >
+      <div className={styles.emptySectionContent}>
+        <ImageIcon size={32} />
+        <h3>감사 포토</h3>
+        <p>아직 등록된 감사 사진이 없습니다</p>
+        <span className={styles.adminHint}>Admin에서 이미지를 업로드할 수 있습니다</span>
+      </div>
+    </motion.section>
+  )
+}
+
+// Signatures Section
+function TributeSignaturesSection({
+  donorName,
+  signatures,
+}: {
+  donorName: string
+  signatures?: HallOfFameHonor['exclusiveSignatures']
+}) {
+  if (signatures && signatures.length > 0) {
+    return (
+      <motion.section
+        className={styles.secretSection}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className={styles.secretHeader}>
+          <div className={styles.secretBadge}>
+            <Sparkles size={16} />
+            <span>VIP SECRET</span>
+          </div>
+          <h2>VIP Exclusive Signature Reactions</h2>
+          <p>{donorName}님을 위한 전용 시그니처 리액션</p>
+        </div>
+        <div className={styles.signaturesGrid}>
+          {signatures.map((sig) => (
+            <div key={sig.id} className={styles.signatureCard}>
+              <div className={styles.signaturePlaceholder}>
+                <Video size={24} />
+                <span className={styles.signatureName}>{sig.memberName}</span>
+                <Play size={16} className={styles.playIcon} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.section>
+    )
+  }
+
+  return (
+    <motion.section
+      className={styles.emptySection}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+    >
+      <div className={styles.emptySectionContent}>
+        <Sparkles size={32} />
+        <h3>VIP 전용 시그니처</h3>
+        <p>아직 등록된 시그니처 리액션이 없습니다</p>
+        <span className={styles.adminHint}>Admin에서 시그니처를 업로드할 수 있습니다</span>
+      </div>
+    </motion.section>
+  )
+}
+
+// Guestbook Section
+function TributeGuestbookSection({
+  donorName,
+  tributeUserId,
+}: {
+  donorName: string
+  tributeUserId: string
+}) {
+  const [inputValue, setInputValue] = useState('')
+  const {
+    entries,
+    isLoading,
+    error,
+    submitEntry,
+    isSubmitting,
+    canWrite,
+  } = useGuestbook({ tributeUserId })
+
+  // 날짜 포맷팅
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+  }
+
+  // 메시지 제출
+  const handleSubmit = async () => {
+    if (!inputValue.trim() || isSubmitting) return
+
+    const success = await submitEntry(inputValue)
+    if (success) {
+      setInputValue('')
+    }
+  }
+
+  // Enter 키 제출
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit()
+    }
+  }
+
+  return (
+    <motion.section
+      className={styles.guestbookSection}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.35 }}
+    >
+      <div className={styles.sectionHeader}>
+        <MessageSquare size={20} />
+        <h2>{donorName}님의 방명록</h2>
+        <span className={styles.entryCount}>{entries.length}개의 메시지</span>
+      </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className={styles.guestbookLoading}>
+          <Loader2 size={24} className={styles.spinner} />
+          <span>방명록을 불러오는 중...</span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className={styles.guestbookError}>
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Guestbook Entries */}
+      {!isLoading && (
+        <div className={styles.guestbookList}>
+          {entries.length === 0 ? (
+            <div className={styles.guestbookEmpty}>
+              <MessageSquare size={32} />
+              <p>아직 방명록이 없습니다.</p>
+              <span>첫 번째 축하 메시지를 남겨주세요!</span>
+            </div>
+          ) : (
+            entries.map((entry) => (
+              <div key={entry.id} className={styles.guestbookEntry}>
+                <div
+                  className={`${styles.guestbookAvatar} ${entry.is_member ? styles.memberAvatar : ''}`}
+                  data-unit={entry.author_unit}
+                >
+                  <User size={16} />
+                </div>
+                <div className={styles.guestbookContent}>
+                  <div className={styles.guestbookMeta}>
+                    <span className={styles.guestbookAuthor}>
+                      {entry.author_name}
+                      {entry.is_member && (
+                        <span className={styles.memberBadge} data-unit={entry.author_unit}>
+                          {entry.author_unit === 'excel' ? 'EXCEL' : entry.author_unit === 'crew' ? 'CREW' : 'MEMBER'}
+                        </span>
+                      )}
+                    </span>
+                    <span className={styles.guestbookDate}>{formatDate(entry.created_at)}</span>
+                  </div>
+                  <p className={styles.guestbookMessage}>{entry.message}</p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Guestbook Input */}
+      <div className={styles.guestbookInputWrapper}>
+        <div className={styles.guestbookInput}>
+          <input
+            type="text"
+            placeholder={canWrite ? '축하 메시지를 남겨주세요...' : '로그인 후 작성할 수 있습니다'}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={!canWrite || isSubmitting}
+            maxLength={500}
+          />
+          <button
+            className={styles.guestbookSendBtn}
+            onClick={handleSubmit}
+            disabled={!canWrite || isSubmitting || !inputValue.trim()}
+          >
+            {isSubmitting ? (
+              <Loader2 size={18} className={styles.spinner} />
+            ) : (
+              <Send size={18} />
+            )}
+          </button>
+        </div>
+        {!canWrite && (
+          <span className={styles.guestbookHint}>
+            로그인 후 메시지를 남길 수 있습니다
+          </span>
+        )}
+        {canWrite && inputValue.length > 0 && (
+          <span className={styles.guestbookCharCount}>
+            {inputValue.length}/500
+          </span>
+        )}
+      </div>
+    </motion.section>
+  )
+}
+
+// History Section
+function TributeHistorySection({ honors }: { honors: HallOfFameHonor[] }) {
+  return (
+    <motion.section
+      className={styles.section}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 }}
+    >
+      <div className={styles.sectionHeader}>
+        <Trophy size={20} />
+        <h2>명예의 전당 기록</h2>
+      </div>
+      <div className={styles.historyList}>
+        {honors.map((honor) => (
+          <div key={honor.id} className={styles.historyItem}>
+            <span className={styles.historyDate}>
+              {honor.honorType === 'season_top3'
+                ? `${honor.seasonName} TOP ${honor.rank}`
+                : honor.episodeName}
+            </span>
+            <span className={styles.historyAmount}>{formatAmount(honor.amount)}</span>
+          </div>
+        ))}
+      </div>
+    </motion.section>
   )
 }

@@ -9,7 +9,7 @@
  * - 시즌별 그룹화 기능
  */
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTimeline, useSeasons } from '@/lib/context'
 import type { TimelineItem } from '@/types/common'
 import type { Season } from '@/types/database'
@@ -35,6 +35,15 @@ export const CATEGORY_COLORS: Record<string, string> = {
 
 export const SEASON_COLORS = ['#fd68ba', '#60a5fa', '#4ade80', '#fbbf24', '#a78bfa']
 
+// 시간 필터 타입
+export type TimeFilter = 'all' | 'past' | 'upcoming'
+
+export const TIME_FILTER_LABELS: Record<TimeFilter, string> = {
+  all: '전체',
+  past: '과거',
+  upcoming: '예정',
+}
+
 export const getCategoryColor = (category: string | null): string => {
   return CATEGORY_COLORS[category || ''] || '#fd68ba'
 }
@@ -46,13 +55,11 @@ export const getSeasonColor = (seasonIndex: number): string => {
 export interface UseTimelineDataOptions {
   initialSeasonId?: number | null
   initialCategory?: string | null
-  initialUnit?: 'excel' | 'crew' | null  // 엑셀부/크루부 초기값
+  initialTimeFilter?: TimeFilter
   /** 페이지당 이벤트 수 (무한 스크롤용) */
   pageSize?: number
   /** 무한 스크롤 모드 활성화 */
   infiniteScroll?: boolean
-  /** 초기 로드 시 최대 이벤트 수 (infiniteScroll=false일 때, 0이면 무제한) */
-  maxInitialLoad?: number
 }
 
 export interface UseTimelineDataReturn {
@@ -61,7 +68,7 @@ export interface UseTimelineDataReturn {
   categories: string[]
   selectedSeasonId: number | null
   selectedCategory: string | null
-  selectedUnit: 'excel' | 'crew' | null  // 엑셀부/크루부 필터
+  selectedTimeFilter: TimeFilter
   groupedBySeason: GroupedEvents[]
   isLoading: boolean
   /** 추가 로딩 중 여부 (무한 스크롤) */
@@ -72,12 +79,12 @@ export interface UseTimelineDataReturn {
   loadMore: () => Promise<void>
   setSelectedSeasonId: (id: number | null) => void
   setSelectedCategory: (category: string | null) => void
-  setSelectedUnit: (unit: 'excel' | 'crew' | null) => void  // 엑셀부/크루부 setter
+  setSelectedTimeFilter: (filter: TimeFilter) => void
   refetch: () => Promise<void>
 }
 
 export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDataReturn {
-  const { pageSize = 10, infiniteScroll = false, maxInitialLoad = 50 } = options || {}
+  const { pageSize = 10, infiniteScroll = false } = options || {}
 
   // Repository hooks
   const timelineRepo = useTimeline()
@@ -94,15 +101,12 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     options?.initialCategory ?? null
   )
-  const [selectedUnit, setSelectedUnit] = useState<'excel' | 'crew' | null>(
-    options?.initialUnit ?? null
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState<TimeFilter>(
+    options?.initialTimeFilter ?? 'all'
   )
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-
-  // K-0005: mounted 체크로 언마운트 후 상태 업데이트 방지
-  const isMountedRef = useRef(true)
 
   // 시즌별로 이벤트 그룹화
   const groupedBySeason = useMemo((): GroupedEvents[] => {
@@ -166,52 +170,46 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
         timelineRepo.getCategories(),
       ])
 
-      // K-0005: 언마운트된 경우 상태 업데이트 스킵
-      if (!isMountedRef.current) return
-
       setSeasons(allSeasons)
       setCategories(allCategories)
 
-      // 필터링된 이벤트 로드 (unit 필터 포함)
+      // 필터링된 이벤트 로드
       const filteredEvents = await timelineRepo.findByFilter({
         seasonId: selectedSeasonId,
         category: selectedCategory,
-        unit: selectedUnit,
       })
 
-      if (!isMountedRef.current) return
+      // 시간 필터 적용
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
 
-      setAllFilteredEvents(filteredEvents)
+      const timeFilteredEvents = filteredEvents.filter((event) => {
+        if (selectedTimeFilter === 'all') return true
+        const eventDate = new Date(event.eventDate)
+        if (selectedTimeFilter === 'past') return eventDate < today
+        if (selectedTimeFilter === 'upcoming') return eventDate >= today
+        return true
+      })
 
-      // 무한 스크롤 모드면 첫 페이지만
-      // 아니면 maxInitialLoad 적용 (0이면 무제한)
+      setAllFilteredEvents(timeFilteredEvents)
+
+      // 무한 스크롤 모드면 첫 페이지만, 아니면 전체
       if (infiniteScroll) {
         setEvents(filteredEvents.slice(0, pageSize))
-      } else if (maxInitialLoad > 0) {
-        setEvents(filteredEvents.slice(0, maxInitialLoad))
       } else {
         setEvents(filteredEvents)
       }
     } catch (err) {
       console.error('타임라인 로드 실패:', err)
     } finally {
-      if (isMountedRef.current) {
-        setIsLoading(false)
-      }
+      setIsLoading(false)
     }
-  }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory, selectedUnit, infiniteScroll, pageSize, maxInitialLoad])
+  }, [timelineRepo, seasonsRepo, selectedSeasonId, selectedCategory, selectedTimeFilter, infiniteScroll, pageSize])
 
   // 초기 로드 및 필터 변경 시 refetch
   useEffect(() => {
     fetchData()
   }, [fetchData])
-
-  // K-0005: 언마운트 시 cleanup
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false
-    }
-  }, [])
 
   return {
     events,
@@ -219,7 +217,7 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     categories,
     selectedSeasonId,
     selectedCategory,
-    selectedUnit,
+    selectedTimeFilter,
     groupedBySeason,
     isLoading,
     isLoadingMore,
@@ -227,7 +225,7 @@ export function useTimelineData(options?: UseTimelineDataOptions): UseTimelineDa
     loadMore,
     setSelectedSeasonId,
     setSelectedCategory,
-    setSelectedUnit,
+    setSelectedTimeFilter,
     refetch: fetchData,
   }
 }

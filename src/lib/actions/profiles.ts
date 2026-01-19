@@ -82,12 +82,50 @@ export async function updateUserRole(
 }
 
 /**
- * 자신의 프로필 수정
+ * 닉네임 중복 체크
+ */
+export async function checkNicknameDuplicate(
+  nickname: string,
+  excludeUserId?: string
+): Promise<ActionResult<boolean>> {
+  return publicAction(async (supabase) => {
+    let query = supabase
+      .from('profiles')
+      .select('id')
+      .eq('nickname', nickname)
+
+    if (excludeUserId) {
+      query = query.neq('id', excludeUserId)
+    }
+
+    const { data, error } = await query.limit(1)
+
+    if (error) throw new Error(error.message)
+    return (data?.length || 0) > 0
+  })
+}
+
+/**
+ * 자신의 프로필 수정 (닉네임 중복 체크 포함)
  */
 export async function updateMyProfile(
   data: Pick<ProfileUpdate, 'nickname' | 'avatar_url'>
 ): Promise<ActionResult<Profile>> {
   return authAction(async (supabase, userId) => {
+    // 닉네임 중복 체크
+    if (data.nickname) {
+      const { data: existing } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('nickname', data.nickname)
+        .neq('id', userId)
+        .limit(1)
+
+      if (existing && existing.length > 0) {
+        throw new Error('이미 사용 중인 닉네임입니다.')
+      }
+    }
+
     const { data: profile, error } = await supabase
       .from('profiles')
       .update(data)
@@ -97,6 +135,43 @@ export async function updateMyProfile(
 
     if (error) throw new Error(error.message)
     return profile
+  }, ['/mypage'])
+}
+
+/**
+ * 비밀번호 변경
+ */
+export async function changePassword(
+  newPassword: string
+): Promise<ActionResult<null>> {
+  return authAction(async (supabase) => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    })
+
+    if (error) throw new Error(error.message)
+    return null
+  })
+}
+
+/**
+ * 회원 탈퇴
+ */
+export async function deleteMyAccount(): Promise<ActionResult<null>> {
+  return authAction(async (supabase, userId) => {
+    // 1. 프로필 삭제 (soft delete 또는 익명화 처리 가능)
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', userId)
+
+    if (profileError) throw new Error(profileError.message)
+
+    // 2. Supabase Auth에서 사용자 삭제는 Admin API로만 가능
+    // 클라이언트에서 signOut 처리
+    await supabase.auth.signOut()
+
+    return null
   })
 }
 

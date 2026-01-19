@@ -1,93 +1,179 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X } from 'lucide-react'
-import { useSignatures } from '@/lib/context'
-import { mockSignatureData, signatureCategories, type SignatureData } from '@/lib/mock/signatures'
-import { USE_MOCK_DATA } from '@/lib/config'
+import { useSupabaseContext } from '@/lib/context'
+import { withRetry } from '@/lib/utils/fetch-with-retry'
 import SigCard from './SigCard'
 import SigDetailModal from './SigDetailModal'
 import styles from './SigGallery.module.css'
 
+// 시그니처 타입 정의
+export interface SignatureVideo {
+  id: number
+  memberId: number
+  memberName: string
+  memberImage: string | null
+  videoUrl: string
+  createdAt: string
+}
+
+export interface SignatureData {
+  id: number
+  sigNumber: number
+  title: string
+  description: string
+  thumbnailUrl: string
+  unit: 'excel' | 'crew' | null
+  isGroup: boolean
+  videos: SignatureVideo[]
+  createdAt: string
+}
+
+// 필터 카테고리
+const signatureCategories = [
+  { id: 'all', label: '전체' },
+  { id: 'new', label: '신규' },
+] as const
+
+// 번호 범위 필터
+const signatureRanges = [
+  { id: 'all', label: '전체', min: 0, max: 9999 },
+  { id: '1-50', label: '1-50', min: 1, max: 50 },
+  { id: '51-100', label: '51-100', min: 51, max: 100 },
+  { id: '101-150', label: '101-150', min: 101, max: 150 },
+  { id: '151-200', label: '151-200', min: 151, max: 200 },
+] as const
+
 type CategoryFilter = typeof signatureCategories[number]['id']
+type RangeFilter = typeof signatureRanges[number]['id']
 type UnitFilter = 'all' | 'excel' | 'crew'
 
 export default function SigGallery() {
-  const signaturesRepo = useSignatures()
+  const supabase = useSupabaseContext()
   const [signatures, setSignatures] = useState<SignatureData[]>([])
   const [selectedSig, setSelectedSig] = useState<SignatureData | null>(null)
   const [unitFilter, setUnitFilter] = useState<UnitFilter>('all')
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
+  const [rangeFilter, setRangeFilter] = useState<RangeFilter>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchSignatures = async () => {
-      setIsLoading(true)
+  const fetchSignatures = useCallback(async () => {
+    setIsLoading(true)
 
-      const data = USE_MOCK_DATA ? [] : await signaturesRepo.findAll()
-      const baseSignatures = USE_MOCK_DATA || data.length === 0
-        ? [...mockSignatureData]
-        : data.map((sig, idx) => ({
-          id: sig.id,
-          number: sig.id * 100 + idx,
-          title: sig.title,
-          category: 'all' as const,
-          thumbnailUrl: sig.thumbnail_url || '/assets/thumbnails/default.jpg',
-          unit: sig.unit,
-          videos: [{
-            id: sig.id,
-            memberName: sig.member_name,
-            date: new Date(sig.created_at).toLocaleDateString('ko-KR'),
-            videoUrl: sig.media_url,
-            thumbnailUrl: sig.thumbnail_url || '/assets/thumbnails/default.jpg',
-            duration: '0:00',
-            viewCount: sig.view_count || 0,
-          }],
-          totalVideoCount: 1,
-          isFeatured: sig.is_featured,
-          createdAt: sig.created_at,
-        }))
+    // Supabase에서 시그니처 데이터 조회
+    try {
+      const { data: sigData, error: sigError } = await withRetry(async () => {
+        let query = supabase
+          .from('signatures')
+          .select('*')
+          .order('sig_number', { ascending: true })
 
-      let filtered = [...baseSignatures]
+        if (unitFilter !== 'all') {
+          query = query.eq('unit', unitFilter)
+        }
 
-      // Unit filter
-      if (unitFilter !== 'all') {
-        filtered = filtered.filter(sig => sig.unit === unitFilter)
+
+        return await query
+      })
+
+      if (sigError) {
+        console.error('시그니처 로드 실패:', sigError)
+        setSignatures([])
+        setIsLoading(false)
+        return
       }
 
-      // Category filter
-      if (categoryFilter !== 'all' && categoryFilter !== 'new') {
-        filtered = filtered.filter(sig => sig.category === categoryFilter)
-      }
-
-      // New filter - show most recent
+      // 신규 필터: 최근 10개만
+      let signaturesList = sigData || []
       if (categoryFilter === 'new') {
-        filtered = filtered
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        signaturesList = [...signaturesList]
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
           .slice(0, 10)
       }
 
-      // Search filter
+      // Range filter
+      if (rangeFilter !== 'all') {
+        const range = signatureRanges.find(r => r.id === rangeFilter)
+        if (range) {
+          signaturesList = signaturesList.filter(sig => sig.sig_number >= range.min && sig.sig_number <= range.max)
+        }
+      }
+
+      // 각 시그니처의 영상 목록 조회
+      const sigIds = signaturesList.map((s) => s.id)
+      const { data: videoData } = await supabase
+        .from('signature_videos')
+        .select(`
+          id,
+          signature_id,
+          member_id,
+          video_url,
+          created_at,
+          organization!member_id(id, name, image_url)
+        `)
+        .in('signature_id', sigIds)
+        .order('created_at', { ascending: false })
+
+      // 시그니처별 영상 매핑
+      const videosBySignature: Record<number, SignatureData['videos']> = {}
+      ;(videoData || []).forEach((v) => {
+        const org = v.organization as unknown
+        const member = org as { id: number; name: string; image_url: string | null } | null
+        if (!videosBySignature[v.signature_id]) {
+          videosBySignature[v.signature_id] = []
+        }
+        videosBySignature[v.signature_id].push({
+          id: v.id,
+          memberId: v.member_id,
+          memberName: member?.name || '알 수 없음',
+          memberImage: member?.image_url || null,
+          videoUrl: v.video_url,
+          createdAt: v.created_at,
+        })
+      })
+
+      // DB 데이터를 SignatureData 형식으로 변환
+      const converted: SignatureData[] = signaturesList.map((row) => ({
+        id: row.id,
+        sigNumber: row.sig_number,
+        title: row.title,
+        description: row.description || '',
+        thumbnailUrl: row.thumbnail_url || '',
+        unit: row.unit,
+        isGroup: row.is_group || false,
+        videos: videosBySignature[row.id] || [],
+        createdAt: row.created_at,
+      }))
+
+      // 검색 필터 적용
+      let filtered = converted
       if (searchQuery) {
         const query = searchQuery.toLowerCase()
         filtered = filtered.filter(sig =>
           sig.title.toLowerCase().includes(query) ||
-          sig.number.toString().includes(query) ||
+          sig.sigNumber.toString().includes(query) ||
           sig.videos.some(v => v.memberName.toLowerCase().includes(query))
         )
       }
 
-      // Sort by number
-      filtered.sort((a, b) => a.number - b.number)
+      // 정렬
+      filtered.sort((a, b) => a.sigNumber - b.sigNumber)
 
       setSignatures(filtered)
-      setIsLoading(false)
+    } catch (err) {
+      console.error('시그니처 로드 중 오류:', err)
+      setSignatures([])
     }
 
-    void fetchSignatures()
-  }, [unitFilter, categoryFilter, searchQuery, signaturesRepo])
+    setIsLoading(false)
+  }, [supabase, unitFilter, categoryFilter, rangeFilter, searchQuery])
+
+  useEffect(() => {
+    fetchSignatures()
+  }, [fetchSignatures])
 
   return (
     <div className={styles.container}>
@@ -115,15 +201,30 @@ export default function SigGallery() {
 
       {/* Filters - cnine style */}
       <div className={styles.filterBar}>
-        {/* Category Tabs */}
-        <div className={styles.categoryTabs}>
+        {/* All Filters in one row */}
+        <div className={styles.filterTabs}>
+          {/* Category Tabs */}
           {signatureCategories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setCategoryFilter(cat.id)}
-              className={`${styles.categoryTab} ${categoryFilter === cat.id ? styles.active : ''}`}
+              className={`${styles.filterTab} ${categoryFilter === cat.id ? styles.active : ''}`}
             >
               {cat.label}
+            </button>
+          ))}
+
+          {/* Divider */}
+          <div className={styles.filterDivider} />
+
+          {/* Range Tabs */}
+          {signatureRanges.map((range) => (
+            <button
+              key={range.id}
+              onClick={() => setRangeFilter(range.id)}
+              className={`${styles.filterTab} ${rangeFilter === range.id ? styles.activeRange : ''}`}
+            >
+              {range.label}
             </button>
           ))}
         </div>

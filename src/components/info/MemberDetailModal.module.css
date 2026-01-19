@@ -167,16 +167,62 @@
   color: var(--text-secondary);
 }
 
-.modalNickname {
-  font-size: var(--text-sm);
-  color: var(--color-primary);
-  font-style: italic;
-  margin-top: -0.25rem;
+/* Modal Status */
+.modalStatus {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--card-border);
+  border-bottom: 1px solid var(--card-border);
 }
 
-/* Profile Section - 개인정보 표시 */
-.profileSection {
-  padding: 1.25rem 1.5rem;
+.statusItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: var(--card-bg);
+}
+
+.statusLabel {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statusValue {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.statusValue.statusLive {
+  color: var(--live-color);
+}
+
+/* Modal Social */
+.modalSocial {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.modalSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Profile Info Section */
+.modalProfile {
+  padding: 1.5rem;
   border-bottom: 1px solid var(--card-border);
 }
 
@@ -192,16 +238,18 @@
   gap: 0.25rem;
   padding: 0.75rem;
   background: var(--surface);
-  border-radius: var(--radius-md);
   border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
 }
 
 .profileLabel {
-  font-size: 0.65rem;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
 }
 
 .profileValue {
@@ -210,44 +258,59 @@
   color: var(--text-primary);
 }
 
-.introduction {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: linear-gradient(135deg, var(--surface), var(--card-bg));
-  border-radius: var(--radius-md);
-  border: 1px solid var(--card-border);
-  border-left: 3px solid var(--color-primary);
+.profileValue.photoYes {
+  color: var(--color-success, #22c55e);
 }
 
-.introduction p {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin: 0;
-}
-
-.noProfile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
+.profileValue.photoNo {
   color: var(--text-muted);
-  font-size: var(--text-sm);
 }
 
-/* Modal Social */
-.modalSocial {
-  padding: 1.5rem;
+/* Pledge Section (접이식) */
+.pledgeSection {
   border-bottom: 1px solid var(--card-border);
 }
 
-.modalSectionTitle {
+.pledgeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.pledgeHeader:hover {
+  background: var(--surface);
+}
+
+.pledgeHeader .modalSectionTitle {
+  margin: 0;
+}
+
+.pledgeChevron {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.pledgeChevron.expanded {
+  transform: rotate(180deg);
+}
+
+.pledgeContent {
+  overflow: hidden;
+}
+
+.pledgeText {
+  padding: 0 1.5rem 1.5rem;
+  margin: 0;
   font-size: var(--text-sm);
-  font-weight: 600;
+  line-height: 1.7;
   color: var(--text-secondary);
-  margin: 0 0 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  white-space: pre-line;
 }
 
 .modalSocialGrid {

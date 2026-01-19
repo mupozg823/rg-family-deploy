@@ -18,8 +18,6 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import DataTable, { type Column } from '@/components/admin/DataTable'
 import { useSupabaseContext, useAuthContext } from '@/lib/context'
-import { USE_MOCK_DATA } from '@/lib/config'
-import { mockProfiles } from '@/lib/mock'
 import styles from './page.module.css'
 import sharedStyles from '../shared.module.css'
 
@@ -68,20 +66,6 @@ export default function AdminPermissionsPage() {
     setError(null)
 
     try {
-      if (USE_MOCK_DATA) {
-        const mockUsers: UserPermission[] = mockProfiles.map((p) => ({
-          id: p.id,
-          nickname: p.nickname,
-          email: p.email || null,
-          role: p.role || 'member',
-          is_secret_page_allowed: (p.role === 'vip' && p.total_donation >= 5000000) || p.role === 'admin',
-          total_donation: p.total_donation,
-        }))
-        setUsers(mockUsers)
-        setIsLoading(false)
-        return
-      }
-
       const { data, error: fetchError } = await supabase
         .from('profiles')
         .select('id, nickname, email, role, total_donation')
@@ -139,14 +123,12 @@ export default function AdminPermissionsPage() {
     setIsSaving(true)
 
     try {
-      if (!USE_MOCK_DATA) {
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ role: selectedRole })
-          .eq('id', editingUser.id)
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ role: selectedRole })
+        .eq('id', editingUser.id)
 
-        if (updateError) throw updateError
-      }
+      if (updateError) throw updateError
 
       // 로컬 상태 업데이트
       setUsers((prev) =>

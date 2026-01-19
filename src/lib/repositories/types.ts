@@ -1,57 +1,28 @@
 /**
  * Repository Interfaces - Clean Architecture
- * 데이터 접근 추상화 레이어
+ * 데이터 접근 추상화 레이어 (Full CRUD Support)
  */
 
 import type {
-  Profile,
-  Season,
-  Donation,
-  Episode,
-  Notice,
-  Schedule,
-  Signature,
-  VipReward,
-  VipImage,
-  MediaContent,
-  LiveStatus,
-  Banner,
-  TributeGuestbook,
+  Profile, Season, Donation, Organization, Notice, Post, Schedule,
+  Comment, Signature, VipReward, VipImage, MediaContent, LiveStatus, Banner, TributeGuestbook,
+  InsertTables, UpdateTables
 } from '@/types/database'
-import type { OrganizationRecord } from '@/types/organization'
 import type { RankingItem, UnitFilter, TimelineItem } from '@/types/common'
-import type { CommentItem, PostItem } from '@/types/content'
 
 // ============================================
-// Pagination Types
+// Base Repository Interface (Generic CRUD)
 // ============================================
-export interface PaginationOptions {
-  page: number
-  limit: number
-}
-
-export interface PaginatedResult<T> {
-  data: T[]
-  totalCount: number
-  page: number
-  limit: number
-  totalPages: number
-}
-
-export interface SearchOptions extends PaginationOptions {
-  searchType?: 'all' | 'title' | 'author'
-}
-
-// ============================================
-// Base Repository Interface
-// ============================================
-export interface IRepository<T> {
+export interface IRepository<T, TInsert, TUpdate> {
   findById(id: string | number): Promise<T | null>
   findAll(): Promise<T[]>
+  create(data: TInsert): Promise<T>
+  update(id: string | number, data: TUpdate): Promise<T>
+  delete(id: string | number): Promise<void>
 }
 
 // ============================================
-// Domain-Specific Repositories
+// Domain-Specific Repositories (with CRUD)
 // ============================================
 
 export interface IRankingRepository {
@@ -59,157 +30,175 @@ export interface IRankingRepository {
     seasonId?: number | null
     unitFilter?: UnitFilter
   }): Promise<RankingItem[]>
-
   getTopRankers(limit: number): Promise<RankingItem[]>
 }
 
-export interface ISeasonRepository extends IRepository<Season> {
+export interface ISeasonRepository {
+  findById(id: number): Promise<Season | null>
   findActive(): Promise<Season | null>
   findAll(): Promise<Season[]>
+  create(data: InsertTables<'seasons'>): Promise<Season>
+  update(id: number, data: UpdateTables<'seasons'>): Promise<Season>
+  delete(id: number): Promise<void>
 }
 
-export interface IProfileRepository extends IRepository<Profile> {
+export interface IProfileRepository {
+  findById(id: string): Promise<Profile | null>
   findByNickname(nickname: string): Promise<Profile | null>
   findVipMembers(): Promise<Profile[]>
+  findAll(): Promise<Profile[]>
+  create(data: InsertTables<'profiles'>): Promise<Profile>
+  update(id: string, data: UpdateTables<'profiles'>): Promise<Profile>
+  delete(id: string): Promise<void>
 }
 
 export interface IDonationRepository {
+  findById(id: number): Promise<Donation | null>
   findByDonor(donorId: string): Promise<Donation[]>
   findBySeason(seasonId: number): Promise<Donation[]>
-  findByEpisode(episodeId: number): Promise<Donation[]>
+  findAll(): Promise<Donation[]>
   getTotal(donorId: string): Promise<number>
-  getTotalByEpisode(donorId: string, episodeId: number): Promise<number>
-}
-
-export interface IEpisodeRepository {
-  findById(id: number): Promise<Episode | null>
-  findBySeason(seasonId: number): Promise<Episode[]>
-  findRankBattles(seasonId: number): Promise<Episode[]>
-  findLatestRankBattle(seasonId?: number): Promise<Episode | null>
-  getEpisodeRankings(episodeId: number, limit?: number): Promise<{
-    rank: number
-    donorId: string | null
-    donorName: string
-    totalAmount: number
-  }[]>
-  isVipForEpisode(userId: string, episodeId: number): Promise<boolean>
-  isVipForRankBattles(userId: string, seasonId?: number): Promise<boolean>
+  create(data: InsertTables<'donations'>): Promise<Donation>
+  update(id: number, data: UpdateTables<'donations'>): Promise<Donation>
+  delete(id: number): Promise<void>
 }
 
 export interface IOrganizationRepository {
-  findByUnit(unit: 'excel' | 'crew'): Promise<OrganizationRecord[]>
-  findLiveMembers(): Promise<OrganizationRecord[]>
-  findAll(): Promise<OrganizationRecord[]>
+  findById(id: number): Promise<Organization | null>
+  findByUnit(unit: 'excel' | 'crew'): Promise<Organization[]>
+  findLiveMembers(): Promise<Organization[]>
+  findAll(): Promise<Organization[]>
+  create(data: InsertTables<'organization'>): Promise<Organization>
+  update(id: number, data: UpdateTables<'organization'>): Promise<Organization>
+  delete(id: number): Promise<void>
 }
 
-export interface INoticeRepository extends IRepository<Notice> {
+export interface INoticeRepository {
+  findById(id: number): Promise<Notice | null>
   findRecent(limit: number): Promise<Notice[]>
   findPublished(): Promise<Notice[]>
-  findPaginated(options: PaginationOptions & { category?: string }): Promise<PaginatedResult<Notice>>
-  search(query: string, options: SearchOptions & { category?: string }): Promise<PaginatedResult<Notice>>
+  findAll(): Promise<Notice[]>
+  create(data: InsertTables<'notices'>): Promise<Notice>
+  update(id: number, data: UpdateTables<'notices'>): Promise<Notice>
+  delete(id: number): Promise<void>
 }
 
-export interface IPostRepository extends IRepository<PostItem> {
-  findByCategory(category: string): Promise<PostItem[]>
-  findRecent(limit: number): Promise<PostItem[]>
-  findAll(): Promise<PostItem[]>
-  incrementViewCount(id: number, currentCount?: number): Promise<number | null>
-  delete(id: number): Promise<boolean>
-  findPaginated(category: string, options: PaginationOptions): Promise<PaginatedResult<PostItem>>
-  search(query: string, options: SearchOptions & { category?: string }): Promise<PaginatedResult<PostItem>>
-  // 좋아요 기능
-  toggleLike(postId: number, userId: string): Promise<{ liked: boolean; likeCount: number } | null>
-  hasUserLiked(postId: number, userId: string): Promise<boolean>
+export interface IPostRepository {
+  findById(id: number): Promise<Post | null>
+  findByCategory(category: string): Promise<Post[]>
+  findRecent(limit: number): Promise<Post[]>
+  findAll(): Promise<Post[]>
+  create(data: InsertTables<'posts'>): Promise<Post>
+  update(id: number, data: UpdateTables<'posts'>): Promise<Post>
+  delete(id: number): Promise<void>
+  incrementViewCount(id: number): Promise<void>
+}
+
+export interface ICommentRepository {
+  findById(id: number): Promise<Comment | null>
+  findByPostId(postId: number): Promise<Comment[]>
+  findAll(): Promise<Comment[]>
+  create(data: InsertTables<'comments'>): Promise<Comment>
+  update(id: number, data: UpdateTables<'comments'>): Promise<Comment>
+  delete(id: number): Promise<void>
 }
 
 export interface ITimelineRepository {
+  findById(id: number): Promise<TimelineItem | null>
   findAll(): Promise<TimelineItem[]>
   findByFilter(options: {
     seasonId?: number | null
     category?: string | null
-    unit?: 'excel' | 'crew' | null  // 엑셀부/크루부 필터
   }): Promise<TimelineItem[]>
   getCategories(): Promise<string[]>
+  create(data: InsertTables<'timeline_events'>): Promise<TimelineItem>
+  update(id: number, data: UpdateTables<'timeline_events'>): Promise<TimelineItem>
+  delete(id: number): Promise<void>
 }
 
 export interface IScheduleRepository {
+  findById(id: number): Promise<Schedule | null>
   findByMonth(year: number, month: number): Promise<Schedule[]>
   findByMonthAndUnit(year: number, month: number, unit: string | null): Promise<Schedule[]>
-}
-
-// ============================================
-// New Domain Repositories (미구현 → 구현)
-// ============================================
-
-export interface ICommentRepository {
-  findByPostId(postId: number): Promise<CommentItem[]>
-  findById(id: number): Promise<CommentItem | null>
-  create(data: { post_id: number; author_id: string; content: string; parent_id?: number }): Promise<CommentItem | null>
-  delete(id: number): Promise<boolean>
+  findAll(): Promise<Schedule[]>
+  create(data: InsertTables<'schedules'>): Promise<Schedule>
+  update(id: number, data: UpdateTables<'schedules'>): Promise<Schedule>
+  delete(id: number): Promise<void>
 }
 
 export interface ISignatureRepository {
-  findAll(): Promise<Signature[]>
   findById(id: number): Promise<Signature | null>
   findByUnit(unit: 'excel' | 'crew'): Promise<Signature[]>
-  findByMemberName(memberName: string): Promise<Signature[]>
   findFeatured(): Promise<Signature[]>
+  findAll(): Promise<Signature[]>
+  create(data: InsertTables<'signatures'>): Promise<Signature>
+  update(id: number, data: UpdateTables<'signatures'>): Promise<Signature>
+  delete(id: number): Promise<void>
 }
 
 export interface IVipRewardRepository {
-  findByProfileId(profileId: string): Promise<VipReward | null>
-  findByRank(rank: number, seasonId?: number): Promise<VipReward | null>
+  findById(id: number): Promise<VipReward | null>
+  findByProfile(profileId: string): Promise<VipReward[]>
   findBySeason(seasonId: number): Promise<VipReward[]>
-  findTop3(seasonId?: number): Promise<VipReward[]>
-  findTop50(seasonId?: number): Promise<VipReward[]>
+  findAll(): Promise<VipReward[]>
+  create(data: InsertTables<'vip_rewards'>): Promise<VipReward>
+  update(id: number, data: UpdateTables<'vip_rewards'>): Promise<VipReward>
+  delete(id: number): Promise<void>
 }
 
 export interface IVipImageRepository {
-  findByRewardId(rewardId: number): Promise<VipImage[]>
-  findByProfileId(profileId: string): Promise<VipImage[]>
+  findById(id: number): Promise<VipImage | null>
+  findByReward(rewardId: number): Promise<VipImage[]>
+  findAll(): Promise<VipImage[]>
+  create(data: InsertTables<'vip_images'>): Promise<VipImage>
+  update(id: number, data: UpdateTables<'vip_images'>): Promise<VipImage>
+  delete(id: number): Promise<void>
 }
 
-export interface IMediaContentRepository {
-  findAll(): Promise<MediaContent[]>
+export interface IMediaRepository {
   findById(id: number): Promise<MediaContent | null>
-  findByType(contentType: 'shorts' | 'vod'): Promise<MediaContent[]>
-  findByUnit(unit: 'excel' | 'crew' | null): Promise<MediaContent[]>
+  findByType(type: 'shorts' | 'vod'): Promise<MediaContent[]>
   findFeatured(): Promise<MediaContent[]>
-}
-
-export interface ILiveStatusRepository {
-  findAll(): Promise<LiveStatus[]>
-  findByMemberId(memberId: number): Promise<LiveStatus[]>
-  findLive(): Promise<LiveStatus[]>
-  updateStatus(memberId: number, isLive: boolean, viewerCount?: number): Promise<boolean>
+  findAll(): Promise<MediaContent[]>
+  create(data: InsertTables<'media_content'>): Promise<MediaContent>
+  update(id: number, data: UpdateTables<'media_content'>): Promise<MediaContent>
+  delete(id: number): Promise<void>
 }
 
 export interface IBannerRepository {
-  findAll(): Promise<Banner[]>
-  findActive(): Promise<Banner[]>
   findById(id: number): Promise<Banner | null>
-  toggleActive(id: number): Promise<boolean>
-  reorder(bannerIds: number[]): Promise<boolean>
+  findActive(): Promise<Banner[]>
+  findAll(): Promise<Banner[]>
+  create(data: InsertTables<'banners'>): Promise<Banner>
+  update(id: number, data: UpdateTables<'banners'>): Promise<Banner>
+  delete(id: number): Promise<void>
+}
+
+export interface ILiveStatusRepository {
+  findById(id: number): Promise<LiveStatus | null>
+  findByMember(memberId: number): Promise<LiveStatus[]>
+  findLive(): Promise<LiveStatus[]>
+  findAll(): Promise<LiveStatus[]>
+  create(data: InsertTables<'live_status'>): Promise<LiveStatus>
+  update(id: number, data: UpdateTables<'live_status'>): Promise<LiveStatus>
+  delete(id: number): Promise<void>
+  upsertByMemberAndPlatform(data: InsertTables<'live_status'>): Promise<LiveStatus>
 }
 
 export interface IGuestbookRepository {
-  findByTributeUserId(tributeUserId: string): Promise<TributeGuestbook[]>
   findById(id: number): Promise<TributeGuestbook | null>
-  create(data: {
-    tribute_user_id: string
-    author_id: string
-    author_name: string
-    message: string
-    is_member?: boolean
-  }): Promise<TributeGuestbook | null>
-  delete(id: number): Promise<boolean>
+  findByTributeUser(tributeUserId: string): Promise<TributeGuestbook[]>
+  findApproved(tributeUserId: string): Promise<TributeGuestbook[]>
+  findAll(): Promise<TributeGuestbook[]>
+  create(data: InsertTables<'tribute_guestbook'>): Promise<TributeGuestbook>
+  update(id: number, data: UpdateTables<'tribute_guestbook'>): Promise<TributeGuestbook>
+  delete(id: number): Promise<void>
 }
 
 // ============================================
 // Data Provider Interface (Strategy Pattern)
 // ============================================
 export interface IDataProvider {
-  // Core Repositories (기존)
   rankings: IRankingRepository
   seasons: ISeasonRepository
   profiles: IProfileRepository
@@ -217,19 +206,16 @@ export interface IDataProvider {
   organization: IOrganizationRepository
   notices: INoticeRepository
   posts: IPostRepository
+  comments: ICommentRepository
   timeline: ITimelineRepository
   schedules: IScheduleRepository
-  // Episode-based VIP System
-  episodes?: IEpisodeRepository
-  // New Repositories (선택적 - 점진적 구현)
-  comments?: ICommentRepository
-  signatures?: ISignatureRepository
-  vipRewards?: IVipRewardRepository
-  vipImages?: IVipImageRepository
-  mediaContent?: IMediaContentRepository
-  liveStatus?: ILiveStatusRepository
-  banners?: IBannerRepository
-  guestbook?: IGuestbookRepository
+  signatures: ISignatureRepository
+  vipRewards: IVipRewardRepository
+  vipImages: IVipImageRepository
+  media: IMediaRepository
+  banners: IBannerRepository
+  liveStatus: ILiveStatusRepository
+  guestbook: IGuestbookRepository
 }
 
 // ============================================

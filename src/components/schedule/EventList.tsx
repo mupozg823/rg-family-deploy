@@ -36,11 +36,11 @@ const EVENT_LABELS = {
 }
 
 const EVENT_COLORS: Record<string, string> = {
-  broadcast: '#ff0050',
-  collab: '#00d4ff',
-  event: '#d4af37',
-  notice: '#a855f7',
-  '休': '#6b7280',
+  broadcast: '#4ade80',
+  collab: '#60a5fa',
+  event: '#f472b6',
+  notice: '#fbbf24',
+  '休': '#94a3b8',
 }
 
 export default function EventList({ date, events, onClose }: EventListProps) {
@@ -65,7 +65,7 @@ export default function EventList({ date, events, onClose }: EventListProps) {
       className="bg-[var(--card-bg)] border border-[var(--glass-border)] backdrop-blur-lg"
     >
       <Group justify="space-between" align="center" mb="lg" pb="md" className="border-b border-[var(--glass-border)]">
-        <Text size="lg" fw={700} className="text-[var(--text-primary)]">
+        <Text size="lg" fw={700} c="white">
           {formattedDate}
         </Text>
         <ActionIcon
@@ -96,7 +96,7 @@ export default function EventList({ date, events, onClose }: EventListProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="flex gap-4 p-5 bg-[var(--overlay-subtle)] rounded-xl transition-all hover:bg-[var(--overlay-medium)] hover:translate-x-1"
+                className="flex gap-4 p-5 bg-[var(--card-bg)] border border-[var(--glass-border)] rounded-xl transition-all hover:bg-[var(--surface)] hover:translate-x-1"
                 style={{ borderLeft: `4px solid ${color}` }}
               >
                 <ThemeIcon

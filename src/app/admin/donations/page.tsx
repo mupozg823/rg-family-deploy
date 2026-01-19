@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Heart, Plus, Upload, List, Download } from 'lucide-react'
+import { Heart, Plus, Upload, List } from 'lucide-react'
 import { DataTable, Column, CsvUploader, DonationModal } from '@/components/admin'
-import { useDonationsData, type DonationItem } from '@/lib/hooks'
+import { useDonationsData, useAlert, type DonationItem } from '@/lib/hooks'
 import { formatAmount } from '@/lib/utils/format'
-import { exportDonations } from '@/lib/utils/excel'
 import styles from '../shared.module.css'
 
 type ViewMode = 'list' | 'upload'
@@ -21,6 +20,7 @@ export default function DonationsPage() {
     deleteDonation,
     uploadCsv,
   } = useDonationsData()
+  const { showConfirm, showError } = useAlert()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDonation, setEditingDonation] = useState<Partial<DonationItem> | null>(null)
@@ -38,14 +38,6 @@ export default function DonationsPage() {
     setIsModalOpen(true)
   }
 
-  const handleExport = () => {
-    if (donations.length === 0) {
-      alert('내보낼 데이터가 없습니다.')
-      return
-    }
-    exportDonations(donations)
-  }
-
   const handleEdit = (donation: DonationItem) => {
     setEditingDonation(donation)
     setIsNew(false)
@@ -53,16 +45,22 @@ export default function DonationsPage() {
   }
 
   const handleDelete = async (donation: DonationItem) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return
+    const confirmed = await showConfirm('정말 삭제하시겠습니까?', {
+      title: '후원 기록 삭제',
+      variant: 'danger',
+      confirmText: '삭제',
+      cancelText: '취소',
+    })
+    if (!confirmed) return
     const success = await deleteDonation(donation.id)
     if (!success) {
-      alert('삭제에 실패했습니다.')
+      showError('삭제에 실패했습니다.')
     }
   }
 
   const handleSave = async () => {
     if (!editingDonation || !editingDonation.donorId || !editingDonation.amount) {
-      alert('후원자와 금액을 입력해주세요.')
+      showError('후원자와 금액을 입력해주세요.', '입력 오류')
       return
     }
 
@@ -73,7 +71,7 @@ export default function DonationsPage() {
     if (success) {
       setIsModalOpen(false)
     } else {
-      alert(isNew ? '등록에 실패했습니다.' : '수정에 실패했습니다.')
+      showError(isNew ? '등록에 실패했습니다.' : '수정에 실패했습니다.')
     }
   }
 
@@ -89,11 +87,10 @@ export default function DonationsPage() {
   }
 
   const csvColumns = [
-    { key: '닉네임', label: '닉네임', required: true },
+    { key: 'ID', label: '후원자ID', required: true },
     { key: '하트', label: '하트', required: true },
     { key: '일시', label: '일시', required: false },
-    { key: '팬등급', label: '팬등급', required: false },
-    { key: '내용', label: '메시지', required: false },
+    { key: '내용', label: '내용', required: false },
   ]
 
   const columns: Column<DonationItem>[] = [
@@ -116,7 +113,7 @@ export default function DonationsPage() {
     {
       key: 'seasonName',
       header: '시즌',
-      width: '120px',
+      width: '160px',
       render: (item) => (
         <span className={styles.badge}>{item.seasonName || '-'}</span>
       ),
@@ -124,7 +121,7 @@ export default function DonationsPage() {
     {
       key: 'createdAt',
       header: '일시',
-      width: '120px',
+      width: '140px',
       render: (item) => formatShortDate(item.createdAt),
     },
   ]
@@ -153,20 +150,14 @@ export default function DonationsPage() {
               className={`${styles.tabButton} ${viewMode === 'upload' ? styles.active : ''}`}
             >
               <Upload size={16} />
-              파일 업로드
+              CSV 업로드
             </button>
           </div>
           {viewMode === 'list' && (
-            <>
-              <button onClick={handleExport} className={styles.exportButton} title="Excel 파일로 내보내기">
-                <Download size={18} />
-                내보내기
-              </button>
-              <button onClick={handleAdd} className={styles.addButton}>
-                <Plus size={18} />
-                후원 등록
-              </button>
-            </>
+            <button onClick={handleAdd} className={styles.addButton}>
+              <Plus size={18} />
+              후원 등록
+            </button>
           )}
         </div>
       </header>
@@ -183,8 +174,8 @@ export default function DonationsPage() {
       ) : (
         <div className={styles.uploadSection}>
           <div className={styles.uploadInfo}>
-            <h3>CSV/Excel 파일로 대량 등록</h3>
-            <p>아래 형식의 CSV 또는 Excel(.xlsx) 파일을 업로드하여 여러 후원 내역을 한 번에 등록할 수 있습니다.</p>
+            <h3>CSV 파일로 대량 등록</h3>
+            <p>아래 형식의 CSV 파일을 업로드하여 여러 후원 내역을 한 번에 등록할 수 있습니다.</p>
             <p className={styles.hint}>
               * 후원자명이 등록된 회원 닉네임과 일치하면 자동으로 연결됩니다.
             </p>

@@ -1,41 +1,93 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Crown, Sparkles, ChevronDown, Calendar } from "lucide-react";
 import Footer from "@/components/Footer";
-import { useRanking } from "@/lib/hooks/useRanking";
+import { useSupabaseContext } from "@/lib/context";
+import type { RankingItem, UnitFilter } from "@/types/common";
 import {
   RankingPodium,
   RankingFullList,
 } from "@/components/ranking";
 import styles from "./page.module.css";
 
+interface Season {
+  id: number;
+  name: string;
+  is_active: boolean;
+}
+
 export default function TotalRankingPage() {
+  const supabase = useSupabaseContext();
   const listRef = useRef<HTMLDivElement>(null);
+  const [unitFilter, setUnitFilter] = useState<UnitFilter>('all');
+  const [rankings, setRankings] = useState<RankingItem[]>([]);
+  const [currentSeason, setCurrentSeason] = useState<Season | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const scrollToList = () => {
     listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const {
-    rankings,
-    currentSeason,
-    unitFilter,
-    maxAmount,
-    isLoading,
-    setUnitFilter,
-  } = useRanking();
+  const fetchRankings = useCallback(async () => {
+    setIsLoading(true);
 
-  // 50위까지만 표시
-  const top50 = rankings.slice(0, 50);
-  const top3 = top50.slice(0, 3);
+    // 현재 활성 시즌 조회
+    const { data: seasonData } = await supabase
+      .from("seasons")
+      .select("id, name, is_active")
+      .eq("is_active", true)
+      .single();
+
+    if (seasonData) {
+      setCurrentSeason(seasonData);
+    }
+
+    // 전체 랭킹: profiles 테이블에서 total_donation 기준
+    let query = supabase
+      .from("profiles")
+      .select("id, nickname, avatar_url, total_donation, unit")
+      .gt("total_donation", 0)
+      .order("total_donation", { ascending: false })
+      .limit(50);
+
+    if (unitFilter !== 'all' && unitFilter !== 'vip') {
+      query = query.eq("unit", unitFilter);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("랭킹 로드 실패:", error);
+      setRankings([]);
+    } else {
+      setRankings(
+        (data || []).map((p, idx) => ({
+          donorId: p.id,
+          donorName: p.nickname || "익명",
+          avatarUrl: p.avatar_url,
+          totalAmount: p.total_donation || 0,
+          rank: idx + 1,
+        }))
+      );
+    }
+
+    setIsLoading(false);
+  }, [supabase, unitFilter]);
+
+  useEffect(() => {
+    fetchRankings();
+  }, [fetchRankings]);
+
+  const maxAmount = rankings.length > 0 ? rankings[0].totalAmount : 0;
+  const top3 = rankings.slice(0, 3);
 
   return (
-      <div className={styles.main}>
-        {/* Minimal Navigation Bar */}
-        <nav className={styles.pageNav}>
+    <div className={styles.main}>
+      {/* Minimal Navigation Bar */}
+      <nav className={styles.pageNav}>
         <Link href="/" className={styles.backBtn}>
           <ArrowLeft size={18} />
         </Link>
@@ -101,10 +153,12 @@ export default function TotalRankingPage() {
 
           {/* Season Info & Link */}
           <div className={styles.seasonNav}>
-            <span className={styles.currentSeason}>
-              <span className={styles.seasonLive} />
-              {currentSeason?.name || '현재 시즌'}
-            </span>
+            {currentSeason && (
+              <span className={styles.currentSeason}>
+                <span className={styles.seasonLive} />
+                {currentSeason.name}
+              </span>
+            )}
             <Link href="/ranking/season" className={styles.seasonBtn}>
               <Calendar size={12} />
               <span>시즌별 랭킹</span>
@@ -114,7 +168,7 @@ export default function TotalRankingPage() {
 
         {isLoading ? (
           <div className={styles.loading}>
-            <div className={styles.spinner} />
+            <p>로딩 중...</p>
           </div>
         ) : rankings.length === 0 ? (
           <div className={styles.empty}>
@@ -134,15 +188,15 @@ export default function TotalRankingPage() {
                 <span className={styles.sectionBadge}>TOP 50</span>
               </div>
               <RankingFullList
-                rankings={top50}
+                rankings={rankings}
                 maxAmount={maxAmount}
                 limit={50}
               />
             </section>
           </>
         )}
-        </div>
-        <Footer />
       </div>
+      <Footer />
+    </div>
   );
 }

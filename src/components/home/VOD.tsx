@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Play, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useMediaContent } from "@/lib/context";
+import { useSupabaseContext } from "@/lib/context";
 import { formatShortDate } from "@/lib/utils/format";
 import { getYouTubeEmbedUrl, getYouTubeThumbnail, extractYouTubeId } from "@/lib/utils/youtube";
 import styles from "./VOD.module.css";
@@ -21,7 +21,7 @@ interface VodItem {
 type UnitFilter = "all" | "excel" | "crew";
 
 export default function VOD() {
-  const mediaContentRepo = useMediaContent();
+  const supabase = useSupabaseContext();
   const [vods, setVods] = useState<VodItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeUnit, setActiveUnit] = useState<UnitFilter>("all");
@@ -39,37 +39,39 @@ export default function VOD() {
   };
 
   const fetchVods = useCallback(async () => {
-    // setIsLoading(true); // Removed to prevent synchronous state update in useEffect
+    const { data, error } = await supabase
+      .from("media_content")
+      .select(
+        "id, title, description, video_url, thumbnail_url, unit, created_at"
+      )
+      .eq("content_type", "vod")
+      .order("created_at", { ascending: false })
+      .limit(8);
 
-    const data = await mediaContentRepo.findByType("vod");
-    const vodsData = data.slice(0, 8);
-    setVods(
-      vodsData.map((v) => ({
-        id: v.id,
-        title: v.title,
-        description: v.description || "",
-        videoUrl: v.video_url,
-        thumbnailUrl: v.thumbnail_url || getYouTubeThumbnail(v.video_url, "hq") || "",
-        unit: v.unit,
-        createdAt: v.created_at,
-      }))
-    );
+    if (error) {
+      console.error("VOD 로드 실패:", error);
+    } else {
+      setVods(
+        (data || []).map((v) => ({
+          id: v.id,
+          title: v.title,
+          description: v.description || "",
+          videoUrl: v.video_url,
+          thumbnailUrl: v.thumbnail_url || getYouTubeThumbnail(v.video_url, "hq") || "",
+          unit: v.unit,
+          createdAt: v.created_at,
+        }))
+      );
+    }
 
     setIsLoading(false);
-  }, [mediaContentRepo]);
+  }, [supabase]);
 
   useEffect(() => {
-    let mounted = true;
-
     const init = async () => {
       await fetchVods();
-      // mounted check는 fetchVods 내부에서 처리됨
     };
     init();
-
-    return () => {
-      mounted = false;
-    };
   }, [fetchVods]);
 
   const handleClick = (vod: VodItem) => {
@@ -158,7 +160,6 @@ export default function VOD() {
                   alt={item.title}
                   fill
                   className={styles.thumbnailImage}
-                  unoptimized={item.thumbnailUrl.includes('youtube.com') || item.thumbnailUrl.includes('ytimg.com')}
                 />
               ) : (
                 <div className={styles.thumbnailPlaceholder} />

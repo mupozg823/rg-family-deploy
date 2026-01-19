@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Crown,
@@ -18,41 +18,46 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
-import { EpisodeSelector, SeasonSelector } from "@/components/ranking";
-import { useAuthContext, useSignatures, useSeasons } from "@/lib/context";
-import { useVipStatus, useRanking, useContentProtection, useEpisodeRankings } from "@/lib/hooks";
-import { mockVipContent, type VipContent } from "@/lib/mock";
-import { USE_MOCK_DATA } from "@/lib/config";
+import { useAuthContext, useSupabaseContext } from "@/lib/context";
+import { useVipStatus, useRanking, useContentProtection } from "@/lib/hooks";
+import { withRetry } from "@/lib/utils/fetch-with-retry";
 import { getTributePageUrl } from "@/lib/utils";
 import styles from "./page.module.css";
 
+// VIP 콘텐츠 타입 정의
+interface VipContent {
+  memberVideos: {
+    id: number;
+    memberName: string;
+    memberUnit: 'excel' | 'crew';
+    thumbnailUrl: string;
+    videoUrl: string;
+    message: string;
+  }[];
+  thankYouMessage: string;
+  signatures: {
+    id: number;
+    memberName: string;
+    signatureUrl: string;
+    unit: 'excel' | 'crew';
+  }[];
+}
+
+// 기본 VIP 콘텐츠 (데이터가 없을 때)
+const defaultVipContent: VipContent = {
+  memberVideos: [],
+  thankYouMessage: 'RG 패밀리의 VIP가 되어주셔서 진심으로 감사드립니다. 여러분의 사랑과 응원이 저희에게 큰 힘이 됩니다.',
+  signatures: [],
+};
+
 export default function VipLoungePage() {
+  const supabase = useSupabaseContext();
   const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
-  const signaturesRepo = useSignatures();
-  const seasonsRepo = useSeasons();
   const { isVip, rank: userRank, isLoading: vipStatusLoading } = useVipStatus();
-  const { rankings: seasonRankings, isLoading: rankingLoading, selectedSeasonId, setSelectedSeasonId, seasons } = useRanking();
-  const {
-    episodes,
-    rankings: episodeRankings,
-    selectedEpisodeId,
-    setSelectedEpisodeId,
-    isLoading: episodeRankingsLoading,
-  } = useEpisodeRankings({
-    seasonId: selectedSeasonId,
-    limit: 50,
-  });
+  const { rankings, isLoading: rankingLoading } = useRanking();
   const [vipContent, setVipContent] = useState<VipContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showGate, setShowGate] = useState(true);
-
-  // 표시할 랭킹 데이터 결정 (회차 선택 시 해당 회차 랭킹, 아니면 시즌 랭킹)
-  const displayRankings = selectedEpisodeId ? episodeRankings : seasonRankings.slice(0, 50).map((item, index) => ({
-    rank: index + 1,
-    donorId: item.donorId,
-    donorName: item.donorName,
-    totalAmount: item.totalAmount,
-  }));
 
   // VIP 콘텐츠 보호 (우클릭, 드래그, 선택, 키보드 단축키 방지)
   useContentProtection({
@@ -72,56 +77,95 @@ export default function VipLoungePage() {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    // VIP가 아니면 콘텐츠 fetch 스킵
-    if (!isVip) {
-      return;
-    }
+  const fetchVipContent = useCallback(async () => {
+    setIsLoading(true);
 
-    let mounted = true;
+    try {
+      // VIP 콘텐츠 조회 - vip_rewards 테이블에서 감사 메시지, 영상 등 조회
+      // signatures 테이블에서 VIP 전용 시그니처 조회
+      const [rewardsResult, signaturesResult] = await Promise.all([
+        withRetry(async () =>
+          await supabase
+            .from('vip_rewards')
+            .select(`
+              id,
+              personal_message,
+              dedication_video_url,
+              vip_images (id, image_url, title, order_index)
+            `)
+            .order('created_at', { ascending: false })
+            .limit(10)
+        ),
+        withRetry(async () =>
+          await supabase
+            .from('signatures')
+            .select('id, title, member_name, thumbnail_url, media_url, unit')
+            .eq('is_vip_only', true)
+            .order('created_at', { ascending: false })
+            .limit(6)
+        ),
+      ]);
 
-    const fetchVipContent = async () => {
-      try {
-        const signaturesData = await signaturesRepo.findAll();
-        if (!mounted) return;
+      // 감사 메시지 추출 (첫 번째 보상에서)
+      const thankYouMessage = rewardsResult.data?.[0]?.personal_message
+        || 'RG 패밀리의 VIP가 되어주셔서 진심으로 감사드립니다. 여러분의 사랑과 응원이 저희에게 큰 힘이 됩니다.';
 
-        const signatures = signaturesData.map((sig) => ({
-          id: sig.id,
-          memberName: sig.member_name,
-          signatureUrl: sig.thumbnail_url || sig.media_url || "",
-          unit: sig.unit,
+      // 멤버 영상 변환 (vip_rewards에서 dedication_video_url이 있는 것들)
+      const memberVideos = (rewardsResult.data || [])
+        .filter((r) => r.dedication_video_url)
+        .map((r, idx) => ({
+          id: r.id || idx,
+          memberName: `멤버 ${idx + 1}`,
+          memberUnit: 'excel' as const,
+          thumbnailUrl: '',
+          videoUrl: r.dedication_video_url || '',
+          message: r.personal_message || '',
         }));
 
-        // 실제 데이터 + mock 기본값 조합
-        setVipContent({
-          memberVideos: mockVipContent.memberVideos, // 영상은 아직 DB에 없음
-          thankYouMessage: mockVipContent.thankYouMessage,
-          signatures: signatures.length > 0 ? signatures : mockVipContent.signatures,
-        });
-      } catch (err) {
-        console.error('VIP content fetch error:', err);
-        if (mounted) {
-          setVipContent(mockVipContent);
-        }
-      }
+      // 시그니처 변환
+      const signatures = (signaturesResult.data || []).map((s) => ({
+        id: s.id,
+        memberName: s.member_name || s.title,
+        signatureUrl: s.thumbnail_url || s.media_url,
+        unit: (s.unit || 'excel') as 'excel' | 'crew',
+      }));
 
-      if (mounted) {
-        setIsLoading(false);
-      }
-    };
+      setVipContent({
+        memberVideos: memberVideos.length > 0 ? memberVideos : defaultVipContent.memberVideos,
+        thankYouMessage,
+        signatures: signatures.length > 0 ? signatures : defaultVipContent.signatures,
+      });
+    } catch (err) {
+      console.error('VIP 콘텐츠 로드 실패:', err);
+      // 실패 시 Mock 데이터로 폴백
+      setVipContent(defaultVipContent);
+    }
 
-    void fetchVipContent();
+    setIsLoading(false);
+  }, [supabase]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    if (isVip) {
+      // Async fetch
+      fetchVipContent();
+    } else {
+      // Avoid immediate state update loops -> use small timeout or better:
+      // Since default isLoading is true, if not VIP, we turn it off.
+      // But doing it synchronously here triggers the warning.
+      // We can rely on the condition to render 'Access Denied' directly?
+      // No, isLoading is used to show spinner.
+      if (mounted) setIsLoading(false);
+    }
 
     return () => {
       mounted = false;
     };
-  }, [isVip, signaturesRepo]);
-
-  // VIP가 아닌 경우 로딩 상태 파생 (effect 외부에서 처리)
-  const effectiveLoading = authLoading || vipStatusLoading || rankingLoading || (isVip && isLoading);
+  }, [isVip, fetchVipContent]);
 
   // 로딩 중
-  if (effectiveLoading) {
+  if (authLoading || vipStatusLoading || isLoading || rankingLoading) {
     return (
       <div className={styles.main}>
         <div className={styles.loading}>
@@ -429,56 +473,27 @@ export default function VipLoungePage() {
             <Users size={20} />
             <h2>VIP 멤버 (Top 50)</h2>
           </div>
-
-          {/* Season & Episode Selectors */}
-          <div className={styles.filterSection}>
-            <SeasonSelector
-              seasons={seasons}
-              selectedSeasonId={selectedSeasonId}
-              onSelect={setSelectedSeasonId}
-            />
-            {selectedSeasonId && episodes.length > 0 && (
-              <EpisodeSelector
-                episodes={episodes}
-                selectedEpisodeId={selectedEpisodeId}
-                onSelect={setSelectedEpisodeId}
-                isLoading={episodeRankingsLoading}
-              />
-            )}
-          </div>
-
           <div className={styles.membersList}>
-            {(episodeRankingsLoading || rankingLoading) ? (
-              <div className={styles.listLoading}>
-                <div className={styles.spinner} />
-                <span>랭킹 로딩 중...</span>
+            {rankings.slice(0, 50).map((item, index) => (
+              <div
+                key={item.donorId || index}
+                className={`${styles.memberItem} ${
+                  item.donorId === user?.id ? styles.currentUser : ""
+                }`}
+              >
+                <span className={styles.memberRank} data-rank={index + 1}>
+                  {index < 3 ? <Crown size={14} /> : index + 1}
+                </span>
+                <span className={styles.memberName}>{item.donorName}</span>
+                <span className={styles.memberAmount}>
+                  {item.totalAmount >= 10000
+                    ? `${Math.floor(
+                        item.totalAmount / 10000
+                      ).toLocaleString()}만 하트`
+                    : `${item.totalAmount.toLocaleString()} 하트`}
+                </span>
               </div>
-            ) : displayRankings.length === 0 ? (
-              <div className={styles.emptyState}>
-                <span>해당 조건의 랭킹 데이터가 없습니다.</span>
-              </div>
-            ) : (
-              displayRankings.map((item, index) => (
-                <div
-                  key={item.donorId || index}
-                  className={`${styles.memberItem} ${
-                    item.donorId === user?.id ? styles.currentUser : ""
-                  }`}
-                >
-                  <span className={styles.memberRank} data-rank={item.rank}>
-                    {item.rank <= 3 ? <Crown size={14} /> : item.rank}
-                  </span>
-                  <span className={styles.memberName}>{item.donorName}</span>
-                  <span className={styles.memberAmount}>
-                    {item.totalAmount >= 10000
-                      ? `${Math.floor(
-                          item.totalAmount / 10000
-                        ).toLocaleString()}만 하트`
-                      : `${item.totalAmount.toLocaleString()} 하트`}
-                  </span>
-                </div>
-              ))
-            )}
+            ))}
           </div>
         </motion.section>
         </div>

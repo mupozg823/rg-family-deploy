@@ -27,8 +27,8 @@ export default function RankingFullList({
 
   const getRankStyle = (rank: number) => {
     if (rank === 1) return styles.gold;
-    if (rank === 2) return styles.silver;
-    if (rank === 3) return styles.bronze;
+    // 2,3위는 동일한 elite 스타일
+    if (rank === 2 || rank === 3) return styles.elite;
     if (rank <= 10) return styles.top10;
     return "";
   };
