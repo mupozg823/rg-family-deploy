@@ -116,10 +116,8 @@ export function useLiveRoster(options: UseLiveRosterOptions = {}): UseLiveRoster
     const mappedMembers: OrgMember[] = (orgData || []).map((member) => {
       const profile = member.profiles as JoinedProfile | null
       const liveEntriesForMember = liveMap[member.id] || []
-      const hasLiveStatus = liveEntriesForMember.length > 0
-      const isLive = hasLiveStatus
-        ? liveEntriesForMember.some((entry) => entry.isLive)
-        : member.is_live
+      // live_status 테이블에서만 라이브 상태를 가져옴 (organization.is_live 폴백 제거)
+      const isLive = liveEntriesForMember.some((entry) => entry.isLive)
 
       return {
         id: member.id,
