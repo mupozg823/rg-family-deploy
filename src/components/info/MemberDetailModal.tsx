@@ -1,8 +1,9 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { Radio, Youtube, Instagram, ExternalLink, X } from 'lucide-react'
+import { Radio, Youtube, Instagram, ExternalLink, X, ChevronDown, User, Camera } from 'lucide-react'
 import type { OrgMember } from './MemberCard'
 import styles from './MemberDetailModal.module.css'
 
@@ -14,7 +15,21 @@ interface MemberDetailModalProps {
   onClose: () => void
 }
 
+// 신호탄 단가 포맷팅
+const formatSignalPrice = (price: number) => {
+  return `${price.toLocaleString()} 하트`
+}
+
+// 프로필 정보가 있는지 체크
+const hasProfileInfo = (member: OrgMember) => {
+  const info = member.profile_info
+  if (!info) return false
+  return !!(info.mbti || info.blood_type || info.height || info.weight || info.birthday || info.signal_price)
+}
+
 export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
+  const [isPledgeExpanded, setIsPledgeExpanded] = useState(false)
+
   return (
     <motion.div
       className={styles.modalOverlay}
@@ -75,6 +90,98 @@ export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
             </span>
           </div>
         </div>
+
+        {/* 프로필 정보 섹션 */}
+        {hasProfileInfo(member) && (
+          <div className={styles.modalProfile}>
+            <h3 className={styles.modalSectionTitle}>
+              <User size={16} />
+              프로필 정보
+            </h3>
+            <div className={styles.profileGrid}>
+              {member.profile_info?.mbti && (
+                <div className={styles.profileItem}>
+                  <span className={styles.profileLabel}>MBTI</span>
+                  <span className={styles.profileValue}>{member.profile_info.mbti}</span>
+                </div>
+              )}
+              {member.profile_info?.blood_type && (
+                <div className={styles.profileItem}>
+                  <span className={styles.profileLabel}>혈액형</span>
+                  <span className={styles.profileValue}>{member.profile_info.blood_type}</span>
+                </div>
+              )}
+              {member.profile_info?.height && (
+                <div className={styles.profileItem}>
+                  <span className={styles.profileLabel}>키</span>
+                  <span className={styles.profileValue}>{member.profile_info.height}</span>
+                </div>
+              )}
+              {member.profile_info?.weight && (
+                <div className={styles.profileItem}>
+                  <span className={styles.profileLabel}>몸무게</span>
+                  <span className={styles.profileValue}>{member.profile_info.weight}</span>
+                </div>
+              )}
+              {member.profile_info?.birthday && (
+                <div className={styles.profileItem}>
+                  <span className={styles.profileLabel}>생일</span>
+                  <span className={styles.profileValue}>{member.profile_info.birthday}</span>
+                </div>
+              )}
+              {member.profile_info?.signal_price && (
+                <div className={styles.profileItem}>
+                  <span className={styles.profileLabel}>신호탄 단가</span>
+                  <span className={styles.profileValue}>{formatSignalPrice(member.profile_info.signal_price)}</span>
+                </div>
+              )}
+              {member.profile_info?.photo_delivery !== undefined && (
+                <div className={styles.profileItem}>
+                  <span className={styles.profileLabel}>
+                    <Camera size={12} />
+                    사진 전달
+                  </span>
+                  <span className={`${styles.profileValue} ${member.profile_info.photo_delivery ? styles.photoYes : styles.photoNo}`}>
+                    {member.profile_info.photo_delivery ? 'O' : 'X'}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 직급 공약 섹션 */}
+        {member.profile_info?.position_pledge && (
+          <div className={styles.pledgeSection}>
+            <button
+              className={styles.pledgeHeader}
+              onClick={() => setIsPledgeExpanded(!isPledgeExpanded)}
+            >
+              <h3 className={styles.modalSectionTitle}>
+                🎯 직급 공약
+              </h3>
+              <ChevronDown
+                size={20}
+                className={`${styles.pledgeChevron} ${isPledgeExpanded ? styles.expanded : ''}`}
+              />
+            </button>
+            <AnimatePresence>
+              {isPledgeExpanded && (
+                <motion.div
+                  className={styles.pledgeContent}
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <p className={styles.pledgeText}>
+                    {member.profile_info.position_pledge}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
         {member.social_links && Object.keys(member.social_links).length > 0 && (
           <div className={styles.modalSocial}>

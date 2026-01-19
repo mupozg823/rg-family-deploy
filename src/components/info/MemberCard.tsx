@@ -5,6 +5,17 @@ import Image from 'next/image'
 import { Radio } from 'lucide-react'
 import styles from './MemberCard.module.css'
 
+export interface ProfileInfo {
+  mbti?: string
+  blood_type?: string
+  height?: string
+  weight?: string
+  birthday?: string
+  signal_price?: number
+  photo_delivery?: boolean
+  position_pledge?: string
+}
+
 export interface OrgMember {
   id: number
   name: string
@@ -19,6 +30,7 @@ export interface OrgMember {
     instagram?: string
     pandatv?: string
   }
+  profile_info?: ProfileInfo
   is_live?: boolean
 }
 

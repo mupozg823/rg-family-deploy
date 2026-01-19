@@ -83,6 +83,7 @@ export type Database = {
           parent_id: number | null
           image_url: string | null
           social_links: Json | null
+          profile_info: Json | null
           is_live: boolean
           is_active: boolean
           created_at: string
@@ -97,6 +98,7 @@ export type Database = {
           parent_id?: number | null
           image_url?: string | null
           social_links?: Json | null
+          profile_info?: Json | null
           is_live?: boolean
           is_active?: boolean
           created_at?: string
@@ -111,6 +113,7 @@ export type Database = {
           parent_id?: number | null
           image_url?: string | null
           social_links?: Json | null
+          profile_info?: Json | null
           is_live?: boolean
           is_active?: boolean
           created_at?: string

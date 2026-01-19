@@ -376,6 +376,7 @@ class MockOrganizationRepository implements IOrganizationRepository {
       position_order: data.position_order || 0,
       image_url: data.image_url || null,
       social_links: data.social_links || null,
+      profile_info: data.profile_info || null,
       is_active: data.is_active ?? true,
       is_live: data.is_live ?? false,
       created_at: getCurrentTimestamp(),
