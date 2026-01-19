@@ -27,6 +27,42 @@ const hasProfileInfo = (member: OrgMember) => {
   return !!(info.mbti || info.blood_type || info.height || info.weight || info.birthday || info.signal_price)
 }
 
+// 공약 텍스트를 테이블 데이터로 파싱
+interface PledgeRow {
+  rank: string
+  title: string
+  content: string
+}
+
+const parsePledge = (pledgeText: string): PledgeRow[] => {
+  const lines = pledgeText.split('\n').filter(line => line.trim())
+  const rows: PledgeRow[] = []
+
+  for (const line of lines) {
+    // [1등] 여왕 ▶ 내용 또는 1등 여왕 ㅡ 내용 형태 파싱
+    const match = line.match(/^\[?(\d+(?:,\d+)*등?)\]?\s*(.+?)\s*[▶ㅡ\-→]\s*(.+)$/)
+    if (match) {
+      rows.push({
+        rank: match[1].replace(/등$/, ''),
+        title: match[2].trim(),
+        content: match[3].trim()
+      })
+    } else {
+      // 매칭 안되면 그냥 내용으로 추가
+      const simpleMatch = line.match(/^(\d+(?:,\d+)*등?)\s+(.+?)\s+[▶ㅡ\-→]\s*(.+)$/)
+      if (simpleMatch) {
+        rows.push({
+          rank: simpleMatch[1].replace(/등$/, ''),
+          title: simpleMatch[2].trim(),
+          content: simpleMatch[3].trim()
+        })
+      }
+    }
+  }
+
+  return rows
+}
+
 export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
   const [isPledgeExpanded, setIsPledgeExpanded] = useState(false)
 
@@ -174,9 +210,32 @@ export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <p className={styles.pledgeText}>
-                    {member.profile_info.position_pledge}
-                  </p>
+                  {(() => {
+                    const pledgeRows = parsePledge(member.profile_info.position_pledge)
+                    if (pledgeRows.length > 0) {
+                      return (
+                        <div className={styles.pledgeTable}>
+                          <div className={styles.pledgeTableHeader}>
+                            <span className={styles.pledgeRankHeader}>순위</span>
+                            <span className={styles.pledgeTitleHeader}>직급</span>
+                            <span className={styles.pledgeContentHeader}>공약</span>
+                          </div>
+                          {pledgeRows.map((row, idx) => (
+                            <div key={idx} className={styles.pledgeTableRow}>
+                              <span className={styles.pledgeRank}>{row.rank}등</span>
+                              <span className={styles.pledgeTitle}>{row.title}</span>
+                              <span className={styles.pledgeRowContent}>{row.content}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    }
+                    return (
+                      <p className={styles.pledgeText}>
+                        {member.profile_info.position_pledge}
+                      </p>
+                    )
+                  })()}
                 </motion.div>
               )}
             </AnimatePresence>
