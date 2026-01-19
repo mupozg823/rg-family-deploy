@@ -8,17 +8,6 @@ import type { RankingItem } from "@/types/common";
 import { getTributePageUrl } from "@/lib/utils";
 import styles from "./RankingList.module.css";
 
-// Local helper function
-const formatCompactNumber = (amount: number): string => {
-  if (amount >= 100000000) {
-    return `${(amount / 100000000).toFixed(1)}억`;
-  }
-  if (amount >= 10000) {
-    return `${Math.floor(amount / 10000).toLocaleString()}만`;
-  }
-  return amount.toLocaleString();
-};
-
 interface RankingListProps {
   rankings: RankingItem[];
   maxAmount?: number; // Kept for compatibility but unused
@@ -61,7 +50,6 @@ export default function RankingList({
       <div className={styles.header}>
         <span className={styles.headerTitle}>RANK</span>
         <span className={`${styles.headerTitle} ${styles.left}`}>USER</span>
-        <span className={`${styles.headerTitle} ${styles.right}`}>SCORE</span>
         <span className={styles.headerTitle}>BADGE</span>
       </div>
 
@@ -98,11 +86,6 @@ export default function RankingList({
                   )}
                 </div>
                 <span className={styles.name}>{item.donorName}</span>
-              </div>
-
-              {/* Score Column */}
-              <div className={styles.score}>
-                {formatCompactNumber(item.totalAmount)}
               </div>
 
               {/* Badge Column */}

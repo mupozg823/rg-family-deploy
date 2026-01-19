@@ -5,7 +5,7 @@ import { Heart, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RankingItem } from "@/types/common";
-import { formatAmountShort, getInitials, getTributePageUrl } from "@/lib/utils";
+import { getInitials, getTributePageUrl } from "@/lib/utils";
 import styles from "./RankingFullList.module.css";
 
 interface RankingFullListProps {
@@ -106,11 +106,7 @@ export default function RankingFullList({
               </div>
             </div>
 
-            {/* Amount */}
-            <div className={styles.amountSection}>
-              <span className={styles.amount}>{formatAmountShort(item.totalAmount)}</span>
-              <span className={styles.unit}>하트</span>
-            </div>
+            {/* 하트 개수 숨김 - 게이지바만 표시 */}
           </motion.div>
         );
 

@@ -5,7 +5,7 @@ import { Crown, Medal, Award } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RankingItem } from "@/types/common";
-import { formatAmountShort, getInitials, getTributePageUrl } from "@/lib/utils";
+import { getInitials, getTributePageUrl } from "@/lib/utils";
 import styles from "./RankingPodium.module.css";
 
 interface RankingPodiumProps {
@@ -99,9 +99,6 @@ export default function RankingPodium({ items }: RankingPodiumProps) {
                 <div className={styles.info}>
                   <p className={styles.name} title={item.donorName}>
                     {item.donorName}
-                  </p>
-                  <p className={styles.amount}>
-                    {formatAmountShort(item.totalAmount)}
                   </p>
                 </div>
               </div>

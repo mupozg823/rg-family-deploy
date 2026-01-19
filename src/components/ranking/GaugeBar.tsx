@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { formatAmount } from "@/lib/utils";
 import styles from "./GaugeBar.module.css";
 
 interface GaugeBarProps {
@@ -60,12 +59,7 @@ export default function GaugeBar({
         )}
       </div>
 
-      <div className={styles.info}>
-        <span className={styles.amount}>{formatAmount(value)}</span>
-        {showPercentage && (
-          <span className={styles.percentage}>{percentage.toFixed(0)}%</span>
-        )}
-      </div>
+      {/* 하트 개수 숨김 - 게이지바만 표시 */}
     </div>
   );
 }

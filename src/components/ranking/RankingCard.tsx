@@ -5,7 +5,6 @@ import { Crown, Medal, Award, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { RankingItem } from '@/types/common'
-import { formatAmount } from '@/lib/utils'
 import GaugeBar from './GaugeBar'
 import styles from './RankingCard.module.css'
 
@@ -69,7 +68,6 @@ export default function RankingCard({ item, maxAmount, index }: RankingCardProps
       {/* Info */}
       <div className={styles.info}>
         <h3 className={styles.name}>{item.donorName}</h3>
-        <span className={styles.amount}>{formatAmount(item.totalAmount)}</span>
       </div>
 
       {/* Gauge Bar */}
