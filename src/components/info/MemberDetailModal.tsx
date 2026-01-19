@@ -119,12 +119,6 @@ export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
               {member.is_live ? '🔴 방송 중' : '⚫ 오프라인'}
             </span>
           </div>
-          <div className={styles.statusItem}>
-            <span className={styles.statusLabel}>소속</span>
-            <span className={styles.statusValue}>
-              {member.unit === 'excel' ? '한국 엑셀방송' : '크루 유닛'}
-            </span>
-          </div>
         </div>
 
         {/* 프로필 정보 섹션 */}
