@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { Radio, Youtube, Instagram, ExternalLink, X, ChevronDown, User, Camera } from 'lucide-react'
+import { Radio, Youtube, Instagram, ExternalLink, X, ChevronDown, User } from 'lucide-react'
 import type { OrgMember } from './MemberCard'
 import styles from './MemberDetailModal.module.css'
 
@@ -15,16 +15,11 @@ interface MemberDetailModalProps {
   onClose: () => void
 }
 
-// 신호탄 단가 포맷팅
-const formatSignalPrice = (price: number) => {
-  return `${price.toLocaleString()} 하트`
-}
-
 // 프로필 정보가 있는지 체크
 const hasProfileInfo = (member: OrgMember) => {
   const info = member.profile_info
   if (!info) return false
-  return !!(info.mbti || info.blood_type || info.height || info.weight || info.birthday || info.signal_price)
+  return !!(info.mbti || info.blood_type || info.height || info.weight || info.birthday)
 }
 
 // 공약 텍스트를 테이블 데이터로 파싱
@@ -157,23 +152,6 @@ export function MemberDetailModal({ member, onClose }: MemberDetailModalProps) {
                 <div className={styles.profileItem}>
                   <span className={styles.profileLabel}>생일</span>
                   <span className={styles.profileValue}>{member.profile_info.birthday}</span>
-                </div>
-              )}
-              {member.profile_info?.signal_price && (
-                <div className={styles.profileItem}>
-                  <span className={styles.profileLabel}>신호탄 단가</span>
-                  <span className={styles.profileValue}>{formatSignalPrice(member.profile_info.signal_price)}</span>
-                </div>
-              )}
-              {member.profile_info?.photo_delivery !== undefined && (
-                <div className={styles.profileItem}>
-                  <span className={styles.profileLabel}>
-                    <Camera size={12} />
-                    사진 전달
-                  </span>
-                  <span className={`${styles.profileValue} ${member.profile_info.photo_delivery ? styles.photoYes : styles.photoNo}`}>
-                    {member.profile_info.photo_delivery ? 'O' : 'X'}
-                  </span>
                 </div>
               )}
             </div>
